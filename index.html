@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -6267,7 +6267,14 @@ console.log('--- JS Block: Foundation started ---');
                                 document.getElementById('login-overlay').style.display = 'none';
                                 updateLogoutButton(session.username);
                                 applyPermissions(session.role, session.permissions);
-                                document.querySelector('.nav-tab[data-tab="tab-home"]')?.click();
+                                
+                                // Mở tab theo hash trên URL, nếu chưa có thì mặc định tab-home
+                                if (window.location.hash && window.location.hash !== '#') {
+                                    window.dispatchEvent(new Event('hashchange'));
+                                } else {
+                                    window.location.hash = '#tab-home';
+                                }
+                                
                                 if (session.role === 'Admin') loadAccounts();
                                 startAutoSync();
                                 } else {
