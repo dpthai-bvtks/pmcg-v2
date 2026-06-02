@@ -1708,7 +1708,17 @@
 
             font-size: 13px;
 
-            overflow: hidden;
+        }
+
+        table thead tr:first-child th:first-child {
+
+            border-top-left-radius: 8px;
+
+        }
+
+        table thead tr:first-child th:last-child {
+
+            border-top-right-radius: 8px;
 
         }
 
@@ -2102,6 +2112,12 @@
 
         }
 
+        #todaySchedulePreview table thead th {
+
+            top: 60px !important;
+
+        }
+
 
 
         #rooms-table td:not(:nth-child(5)) {
@@ -2128,8 +2144,6 @@
 
             padding: 0;
 
-            overflow: hidden;
-
             border-radius: 8px;
 
             margin-bottom: 40px;
@@ -2144,7 +2158,7 @@
 
             top: 0;
 
-            z-index: 30;
+            z-index: 920 !important;
 
             background: #fdfaf1;
 
