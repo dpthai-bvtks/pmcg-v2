@@ -818,6 +818,16 @@
 
             object-fit: contain;
 
+            cursor: pointer;
+
+            transition: transform 0.2s;
+
+        }
+
+        .banner-logo:hover {
+
+            transform: scale(1.05);
+
         }
 
 
@@ -3682,7 +3692,7 @@
 
         </div>
 
-        <aside class="sidebar" onmouseleave="document.querySelector('.container').classList.add('collapsed-sidebar')">
+        <aside class="sidebar">
 
             <div class="sidebar-header">🏥 KHOA YHCT-PHCN</div>
 
@@ -3756,7 +3766,7 @@
 
                     <div class="banner-left">
 
-                        <img src="logo-chuan-chinh.png" alt="Logo" class="banner-logo">
+                        <img src="logo-chuan-chinh.png" alt="Logo" class="banner-logo" onclick="document.querySelector('.nav-tab[data-tab=\'tab-home\']')?.click()" title="Về trang chủ">
 
                         <div class="banner-text">
 
@@ -3790,9 +3800,7 @@
 
 
 
-                    <button class="hamburger-in-marquee"
-
-                        onclick="document.querySelector('.container').classList.toggle('collapsed-sidebar')"
+                    <button class="hamburger-in-marquee" id="mobile-hamburger-btn"
 
                         title="Ẩn / Hiện thanh Menu">
 
@@ -12270,7 +12278,85 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                                 </script>
 
-                                                </body>
+<script>
+
+    (function() {
+
+        const sidebar = document.querySelector('.sidebar');
+
+        const container = document.querySelector('.container');
+
+        const hamburger = document.getElementById('mobile-hamburger-btn');
+
+        
+
+        if (sidebar && container) {
+
+            sidebar.addEventListener('mouseleave', () => {
+
+                if (window.matchMedia("(pointer: fine)").matches) {
+
+                    container.classList.add('collapsed-sidebar');
+
+                }
+
+            });
+
+        }
+
+        
+
+        if (hamburger && container) {
+
+            hamburger.addEventListener('click', (e) => {
+
+                e.stopPropagation();
+
+                container.classList.toggle('collapsed-sidebar');
+
+            });
+
+        }
+
+        
+
+        document.addEventListener('click', (e) => {
+
+            if (window.innerWidth <= 1000) {
+
+                if (sidebar && hamburger && container && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+
+                    container.classList.add('collapsed-sidebar');
+
+                }
+
+            }
+
+        });
+
+        
+
+        const navLinks = document.querySelectorAll('.nav-tab, .nav-item');
+
+        navLinks.forEach(link => {
+
+            link.addEventListener('click', () => {
+
+                if (window.innerWidth <= 1000 && container) {
+
+                    container.classList.add('collapsed-sidebar');
+
+                }
+
+            });
+
+        });
+
+    })();
+
+</script>
+
+</body>
 
 
 
