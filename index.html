@@ -5444,9 +5444,11 @@
 
                 </div>
 
-                <div class="tab-content" id="tab-kiemtra" style="padding: 0;">
+                <div class="tab-content" id="tab-kiemtra" style="padding: 0; overflow: hidden; position: relative; background: #1a1a1a;">
 
-                    <iframe src="https://quanlykhoa-yhct.vercel.app/#tab-kiemtra" style="width: 100%; height: 100%; border: none; flex: 1;"></iframe>
+                    <!-- Cắt bỏ 260px sidebar và 135px top header của trang Vercel -->
+
+                    <iframe src="https://quanlykhoa-yhct.vercel.app/#tab-kiemtra" style="position: absolute; top: -135px; left: -260px; width: calc(100% + 260px); height: calc(100% + 135px); border: none;"></iframe>
 
                 </div>
 
