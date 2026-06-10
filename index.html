@@ -8224,161 +8224,57 @@ console.log('--- JS Block: Foundation started ---');
 
         // ============================================================
 
-        // ♻️ HỆ THỐNG HOÀN TÁC (UNDO) - CHỐNG XÓA NHẦM BỆNH NHÂN
+        // ♻️ HỆ THỐNG XÓA BỆNH NHÂN (TRỰC TIẾP, AN TOÀN)
 
         // ============================================================
-
-        let undoTimeout = null;
-
-        let pendingDeletePat = null;
-
-
-
-        // Hàm tạo giao diện thông báo Hoàn Tác (CÓ ĐẾM NGƯỢC THỜI GIAN THỰC)
-
-        function showUndoToast(message, undoCallback) {
-
-            let toast = document.getElementById('smart-undo-toast');
-
-            if (!toast) {
-
-                toast = document.createElement('div');
-
-                toast.id = 'smart-undo-toast';
-
-                toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#2c3e50; color:white; padding:12px 25px; border-radius:50px; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:20px; font-size:14px; animation: popIn 0.3s;';
-
-                document.body.appendChild(toast);
-
-            }
-
-
-
-            let timeLeft = 10; // Cài đặt 10 giây
-
-            toast.innerHTML = `
-
-        <span>${message}</span>
-
-        <button id="btn-undo-action" style="background:#f1c40f; color:#2c3e50; border:none; padding:6px 15px; border-radius:20px; font-weight:bold; cursor:pointer; transition:0.2s; width: 140px;">⏳ HOÀN TÁC (${timeLeft}s)</button>
-
-    `;
-
-            toast.style.display = 'flex';
-
-
-
-            const btn = document.getElementById('btn-undo-action');
-
-
-
-            // 🕒 BỘ ĐẾM NGƯỢC: Chạy mỗi 1 giây (1000ms)
-
-            if (window.undoInterval) clearInterval(window.undoInterval); // Xóa đồng hồ cũ nếu có
-
-            window.undoInterval = setInterval(() => {
-
-                timeLeft--;
-
-                if (btn) btn.innerText = `⏳ HOÀN TÁC (${timeLeft}s)`;
-
-
-
-                // Nếu đếm về 0 thì dừng đồng hồ và giấu thông báo đi
-
-                if (timeLeft <= 0) {
-
-                    clearInterval(window.undoInterval);
-
-                    toast.style.display = 'none';
-
-                }
-
-            }, 1000);
-
-
-
-            // Nếu bấm Hoàn tác thì dừng đồng hồ và gọi hàm khôi phục
-
-            btn.onclick = function () {
-
-                clearInterval(window.undoInterval);
-
-                undoCallback();
-
-                toast.style.display = 'none';
-
-            };
-
-        }
-
-
-
-        // Hàm Xóa có tích hợp Án treo
 
         function deletePatient(i) {
 
             const p = dataCache.pat[i];
 
-            showCustomConfirm("Xác nhận xóa", `Bác sĩ có chắc chắn muốn xóa bệnh nhân [ ${p.ten} ]?\n(Sẽ có 10 giây để hoàn tác)`, function () {
+            showCustomConfirm("Xác nhận xóa", `Bác sĩ có chắc chắn muốn xóa bệnh nhân [ ${p.ten} ]?`, function () {
 
+                
 
-
-                // 1. Lưu hồ sơ vào "Phòng hồi sức"
-
-                pendingDeletePat = { index: i, data: p };
-
-
-
-                // 2. Xóa tạm thời khỏi giao diện cho cảm giác phản hồi tức thì
+                // Xóa tạm trên giao diện
 
                 dataCache.pat.splice(i, 1);
 
                 renderPatientsTable();
 
+                
 
+                // Khóa nút lưu để chống thao tác đè trong lúc chờ mạng
 
-                // 3. Hiện nút Hoàn Tác
+                const btnSave = document.getElementById('btn-save-pat');
 
-                showUndoToast(`🗑 Đã xóa bệnh nhân <b>${p.ten}</b>.`, function () {
-
-                    // NẾU BẤM HOÀN TÁC:
-
-                    clearTimeout(undoTimeout); // Hủy lệnh chém cẩu đầu trảm
-
-                    dataCache.pat.splice(pendingDeletePat.index, 0, pendingDeletePat.data); // Nhét lại vào vị trí cũ
-
-                    pendingDeletePat = null;
-
-                    renderPatientsTable(); // Vẽ lại bảng
-
-                    showCustomAlert("Thành công", "Đã khôi phục hồ sơ bệnh nhân!");
-
-                });
+                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang đồng bộ..."; }
 
 
 
-                // 4. HẸN GIỜ: Đúng 10 giây sau mới báo Google Sheets xóa thật
+                // Gọi máy chủ xóa ngay lập tức
 
-                clearTimeout(undoTimeout);
+                google.script.run
 
-                undoTimeout = setTimeout(() => {
+                    .withSuccessHandler(() => { 
 
-                    if (pendingDeletePat) {
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
-                        google.script.run
+                        // Tải lại toàn bộ dữ liệu mới nhất để đảm bảo đồng bộ số thứ tự dòng
 
-                            .withSuccessHandler(() => { if (typeof loadDashboard === 'function') loadDashboard(); })
+                        if (typeof loadDashboard === 'function') loadDashboard(); 
 
-                            .withFailureHandler(e => alert('Lỗi khi xóa vĩnh viễn: ' + e))
+                    })
 
-                            .deleteBenhNhan(pendingDeletePat.index);
+                    .withFailureHandler(e => {
 
-                        pendingDeletePat = null; // Xóa sổ khỏi phòng hồi sức
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
-                    }
+                        alert('Lỗi khi xóa vĩnh viễn: ' + e);
 
-                }, 10000); // 10,000 milliseconds = 10 giây
+                    })
+
+                    .deleteBenhNhan(i);
 
             });
 
