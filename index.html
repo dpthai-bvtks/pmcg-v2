@@ -12288,7 +12288,35 @@ console.log('--- JS Block: Foundation started ---');
 
                                                 });
 
-                                                
+
+
+                                                // TỐI ƯU UX 3: Click đúp vào ô Thời gian (Giờ vào, Giờ ra, Giờ bận) để tự động điền GIỜ HIỆN TẠI
+
+                                                document.addEventListener('dblclick', function(e) {
+
+                                                    if (e.target && e.target.tagName === 'INPUT') {
+
+                                                        if (e.target.id.includes('-time') || e.target.id.includes('-gio') || e.target.id.includes('gio-') || e.target.id.includes('-leave') || e.target.classList.contains('time-input')) {
+
+                                                            const now = new Date();
+
+                                                            const hh = String(now.getHours()).padStart(2, '0');
+
+                                                            const mm = String(now.getMinutes()).padStart(2, '0');
+
+                                                            e.target.value = `${hh}:${mm}`;
+
+                                                            // Bôi đen để người dùng dễ nhìn thấy dữ liệu vừa được điền
+
+                                                            e.target.select();
+
+                                                        }
+
+                                                    }
+
+                                                });
+
+
 
 // --- Script Blocks Merged ---
 
