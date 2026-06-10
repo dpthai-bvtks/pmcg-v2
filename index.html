@@ -698,6 +698,20 @@
 
 
 
+        /* Ẩn footer khi tab Kiểm Tra Lỗi đang active */
+
+        .main-wrapper:has(#tab-kiemtra.active) ~ .main-footer,
+
+        .main-wrapper:has(#tab-kiemtra.active) + .main-footer,
+
+        body:has(#tab-kiemtra.active) .main-footer {
+
+            display: none !important;
+
+        }
+
+
+
         /* Ép tab xếp lịch và thứ 7 chiếm đúng phần nội dung còn lại, không để tab-scroll-content cuộn ngoài */
 
         .tab-scroll-content:has(#tab-schedule.active),
