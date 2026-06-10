@@ -12200,7 +12200,91 @@ console.log('--- JS Block: Foundation started ---');
 
                                                 event.preventDefault(); successModal.style.display = 'none'; }
 
+                                                return; // Nếu popup thành công đang mở thì chỉ đóng popup, không lưu form
+
                                                 }
+
+
+
+                                                // TỐI ƯU UX 1: Ấn Enter ở bất kỳ ô nhập liệu nào cũng sẽ tự động nhấn nút Lưu/Thêm
+
+                                                if (event.key === 'Enter') {
+
+                                                    const activeEl = document.activeElement;
+
+                                                    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT')) {
+
+                                                        const formSection = activeEl.closest('.form-section, .import-controls, .login-box');
+
+                                                        if (formSection) {
+
+                                                            // Tìm nút màu xanh (Lưu/Thêm) trong cùng khu vực
+
+                                                            const saveBtn = formSection.querySelector('.btn-success') || formSection.querySelector('button[onclick="verifyPassword()"]');
+
+                                                            if (saveBtn && !saveBtn.disabled && saveBtn.offsetParent !== null) {
+
+                                                                event.preventDefault();
+
+                                                                saveBtn.click();
+
+                                                            }
+
+                                                        }
+
+                                                    }
+
+                                                }
+
+                                                });
+
+
+
+                                                // TỐI ƯU UX 2: Tự động định dạng Giờ và Ngày khi gõ tắt (0830 -> 08:30)
+
+                                                document.addEventListener('focusout', function(e) {
+
+                                                    if (e.target && e.target.tagName === 'INPUT') {
+
+                                                        const val = e.target.value.trim();
+
+                                                        if (!val) return;
+
+                                                        
+
+                                                        // Tự động định dạng giờ (gõ 830 hoặc 0830 -> 08:30)
+
+                                                        if (e.target.id.includes('-time') || e.target.id.includes('-gio') || e.target.id.includes('gio-') || e.target.id.includes('-leave') || e.target.classList.contains('time-input')) {
+
+                                                            if (/^\d{3,4}$/.test(val)) {
+
+                                                                let formatted = val.length === 3 ? '0' + val : val;
+
+                                                                e.target.value = formatted.substring(0, 2) + ':' + formatted.substring(2);
+
+                                                            }
+
+                                                        }
+
+                                                        
+
+                                                        // Tự động định dạng ngày (gõ 120526 hoặc 12052026 -> 12/05/2026)
+
+                                                        if (e.target.id.includes('-date') || e.target.id.includes('-ngay') || e.target.id.includes('ngay-') || e.target.classList.contains('date-input')) {
+
+                                                            if (/^\d{6}$/.test(val)) { 
+
+                                                                e.target.value = val.substring(0, 2) + '/' + val.substring(2, 4) + '/20' + val.substring(4);
+
+                                                            } else if (/^\d{8}$/.test(val)) { 
+
+                                                                e.target.value = val.substring(0, 2) + '/' + val.substring(2, 4) + '/' + val.substring(4);
+
+                                                            }
+
+                                                        }
+
+                                                    }
 
                                                 });
 
