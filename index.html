@@ -436,7 +436,7 @@
 
         .container.collapsed-sidebar {
 
-            grid-template-columns: 45px 1fr;
+            grid-template-columns: 50px 1fr;
 
         }
 
@@ -444,7 +444,7 @@
 
         .container.collapsed-sidebar .sidebar {
 
-            width: 45px;
+            width: 50px;
 
             position: absolute;
 
@@ -468,9 +468,21 @@
 
 
 
-        .container.collapsed-sidebar .sidebar .sidebar-header { opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+        .container.collapsed-sidebar .sidebar:not(:hover) .text {
 
-        .container.collapsed-sidebar .sidebar:hover .sidebar-header { opacity: 1; }
+            opacity: 0;
+
+            width: 0;
+
+            margin: 0 !important;
+
+            padding: 0;
+
+            overflow: hidden;
+
+            display: inline-block;
+
+        }
 
 
 
@@ -518,7 +530,9 @@
 
             align-items: center;
 
-            justify-content: center;
+            justify-content: flex-start;
+
+            padding-left: 14px;
 
             flex-shrink: 0;
 
@@ -533,6 +547,32 @@
             letter-spacing: 1px;
 
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+
+        }
+
+        
+
+        .sidebar-header .icon {
+
+            display: inline-flex;
+
+            justify-content: center;
+
+            min-width: 22px;
+
+            margin-right: 12px !important;
+
+            font-size: 18px;
+
+        }
+
+        
+
+        .sidebar-header .text {
+
+            white-space: nowrap;
+
+            transition: opacity 0.2s;
 
         }
 
@@ -604,6 +644,36 @@
 
             opacity: 0.75;
 
+            display: flex;
+
+            align-items: center;
+
+        }
+
+        
+
+        .sidebar button.nav-tab .icon {
+
+            display: inline-flex;
+
+            justify-content: center;
+
+            min-width: 22px;
+
+            margin-right: 12px;
+
+            font-size: 15px;
+
+        }
+
+        
+
+        .sidebar button.nav-tab .text {
+
+            white-space: nowrap;
+
+            transition: opacity 0.2s;
+
         }
 
 
@@ -612,7 +682,7 @@
 
             background: rgba(255, 255, 255, 0.1);
 
-            padding-left: 20px;
+            padding-left: 18px;
 
             opacity: 1;
 
@@ -3884,61 +3954,59 @@
 
         <aside class="sidebar">
 
-            <div class="sidebar-header">🏥 KHOA YHCT-PHCN</div>
+            <div class="sidebar-header"><span class="icon" style="margin-right: 8px;">🏥</span><span class="text">KHOA YHCT-PHCN</span></div>
 
 
 
             <div class="sidebar-menu" id="nav-tabs" style="display: flex; flex-direction: column; height: 100%;">
 
-                <button class="nav-tab active" data-tab="tab-home">🏠 Trang Chủ</button>
+                <button class="nav-tab active" data-tab="tab-home"><span class="icon">🏠</span><span class="text">Trang Chủ</span></button>
 
 
 
                 <div class="group-title">🗂️ Danh Mục</div>
 
-                <button class="nav-tab" data-tab="tab-machines">🖥️ Máy Móc</button>
+                <button class="nav-tab" data-tab="tab-machines"><span class="icon">🖥️</span><span class="text">Máy Móc</span></button>
 
-                <button class="nav-tab" data-tab="tab-procedures">🩹 Thủ Thuật</button>
+                <button class="nav-tab" data-tab="tab-procedures"><span class="icon">🩹</span><span class="text">Thủ Thuật</span></button>
 
-                <button class="nav-tab" data-tab="tab-staff">🩺 Nhân Sự</button>
+                <button class="nav-tab" data-tab="tab-staff"><span class="icon">🩺</span><span class="text">Nhân Sự</span></button>
 
-                <button class="nav-tab" data-tab="tab-rooms">🚪 Phòng</button>
+                <button class="nav-tab" data-tab="tab-rooms"><span class="icon">🚪</span><span class="text">Phòng</span></button>
 
 
 
                 <div class="group-title">📥 Tiếp Nhận</div>
 
-                <button class="nav-tab" data-tab="tab-patients">🧑 Bệnh Nhân</button>
+                <button class="nav-tab" data-tab="tab-patients"><span class="icon">🧑</span><span class="text">Bệnh Nhân</span></button>
 
-                <button class="nav-tab" data-tab="tab-busy">⏳ Giờ Bận / Ra Viện</button>
+                <button class="nav-tab" data-tab="tab-busy"><span class="icon">⏳</span><span class="text">Giờ Bận / Ra Viện</span></button>
 
 
 
                 <div class="group-title">🗓️ Xếp Lịch</div>
 
-                <button class="nav-tab" data-tab="tab-schedule">📋 Ngày Thường</button>
+                <button class="nav-tab" data-tab="tab-schedule"><span class="icon">📋</span><span class="text">Ngày Thường</span></button>
 
-                <button class="nav-tab" data-tab="tab-sat">📆 Thứ 7</button>
+                <button class="nav-tab" data-tab="tab-sat"><span class="icon">📆</span><span class="text">Thứ 7</span></button>
 
 
 
                 <div class="group-title">🧰 Tiện Ích</div>
 
-                <button class="nav-tab" data-tab="tab-stats">📈 Thống Kê</button>
+                <button class="nav-tab" data-tab="tab-stats"><span class="icon">📈</span><span class="text">Thống Kê</span></button>
 
-                <button class="nav-tab" data-tab="tab-utils">🔎 Tìm Giờ Rảnh</button>
+                <button class="nav-tab" data-tab="tab-utils"><span class="icon">🔎</span><span class="text">Tìm Giờ Rảnh</span></button>
 
 
 
-                <div
+                <div class="sidebar-footer"
 
-                    style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); position: sticky; bottom: 0; z-index: 100; background-color: #1e3d2b;">
+                    style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); position: sticky; bottom: 0; z-index: 100; background: inherit;">
 
                     <button class="nav-tab" data-tab="tab-admin" id="nav-btn-admin"
 
-                        style="display:none; width:100%; padding:12px; background:#c0392b; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:13px; text-align:center;">🔒
-
-                        Quản Trị Hệ Thống</button>
+                        style="display:none; width:100%; padding:10px; background:#c0392b; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:13px; text-align:center;"><span class="icon">🔒</span><span class="text" style="margin-left: 5px;">Quản Trị</span></button>
 
                 </div>
 
