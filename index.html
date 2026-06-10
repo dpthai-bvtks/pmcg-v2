@@ -7550,7 +7550,29 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa máy", "Bác sĩ có chắc chắn muốn xóa máy này?", function () {
 
-                dataCache.machine.splice(i, 1); renderMachinesTable(); google.script.run.deleteMayMoc(i);
+                const btnSave = document.getElementById('btn-save-machine');
+
+                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
+
+                dataCache.machine.splice(i, 1); renderMachinesTable(); 
+
+                google.script.run
+
+                    .withSuccessHandler(() => { 
+
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                        if (typeof loadMachines === 'function') loadMachines(); 
+
+                    })
+
+                    .withFailureHandler(e => {
+
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                        alert('Lỗi: ' + e);
+
+                    }).deleteMayMoc(i);
 
             });
 
@@ -7688,7 +7710,29 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa thủ thuật", "Bác sĩ có chắc chắn muốn xóa thủ thuật này không?", function () {
 
-                dataCache.proc.splice(i, 1); renderProceduresTable(); renderProcedureCheckboxes(); google.script.run.deleteThuThuat(i);
+                const btnSave = document.getElementById('btn-save-proc');
+
+                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
+
+                dataCache.proc.splice(i, 1); renderProceduresTable(); renderProcedureCheckboxes(); 
+
+                google.script.run
+
+                    .withSuccessHandler(() => { 
+
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                        if (typeof loadProcedures === 'function') loadProcedures(); 
+
+                    })
+
+                    .withFailureHandler(e => {
+
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                        alert('Lỗi: ' + e);
+
+                    }).deleteThuThuat(i);
 
             });
 
@@ -7842,11 +7886,27 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa nhân sự", "Bác sĩ có chắc chắn muốn xóa nhân sự này không?", function () {
 
+                const btnSave = document.getElementById('btn-save-staff');
+
+                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
+
                 dataCache.staff.splice(i, 1); renderStaffTable();
 
-                google.script.run.withSuccessHandler(() => { if (typeof loadDashboard === 'function') loadDashboard(); })
+                google.script.run.withSuccessHandler(() => { 
 
-                    .withFailureHandler(e => alert('Lỗi khi xóa: ' + e)).deleteNhanSu(i);
+                    if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                    if (typeof loadDashboard === 'function') loadDashboard(); 
+
+                })
+
+                    .withFailureHandler(e => {
+
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                        alert('Lỗi khi xóa: ' + e);
+
+                    }).deleteNhanSu(i);
 
             });
 
@@ -8018,7 +8078,29 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa phòng", "Bác sĩ có chắc chắn muốn xóa phòng này không?", function () {
 
-                dataCache.room.splice(i, 1); renderRoomsTable(); google.script.run.deletePhong(i);
+                const btnSave = document.getElementById('btn-save-room');
+
+                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
+
+                dataCache.room.splice(i, 1); renderRoomsTable(); 
+
+                google.script.run
+
+                    .withSuccessHandler(() => { 
+
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                        if (typeof loadRooms === 'function') loadRooms(); 
+
+                    })
+
+                    .withFailureHandler(e => {
+
+                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+
+                        alert('Lỗi: ' + e);
+
+                    }).deletePhong(i);
 
             });
 
