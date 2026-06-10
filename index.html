@@ -444,47 +444,13 @@
 
             z-index: 1000;
 
-            align-items: center;
+            align-items: stretch;
 
         }
 
 
 
-        .sidebar-header {
 
-            height: 55px;
-
-            width: 100%;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            flex-shrink: 0;
-
-            background: transparent;
-
-            border-bottom: 1px solid #e5e7eb;
-
-        }
-
-        
-
-        .sidebar-header .icon {
-
-            font-size: 24px;
-
-        }
-
-        
-
-        .sidebar-header .text {
-
-            display: none;
-
-        }
 
 
 
@@ -496,13 +462,13 @@
 
             overflow: visible !important;
 
-            padding: 15px 0;
+            padding: 15px 8px;
 
             display: flex;
 
             flex-direction: column;
 
-            align-items: center;
+            align-items: flex-start;
 
             gap: 8px;
 
@@ -3884,7 +3850,7 @@
 
         <aside class="sidebar">
 
-            <div class="sidebar-header"><span class="icon" style="margin-right: 8px;">🏥</span><span class="text">KHOA YHCT-PHCN</span></div>
+
 
 
 
@@ -3970,11 +3936,23 @@
 
                     <div class="banner-right">
 
-                        <div class="banner-clock">
+                        <div class="banner-clock" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
 
-                            <div id="clock-time">00:00:00</div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
 
-                            <div id="clock-date">Thứ Hai, 01/01/2026</div>
+                                <div id="clock-time">00:00:00</div>
+
+                                <div id="clock-date">Thứ Hai, 01/01/2026</div>
+
+                            </div>
+
+                            <button class="admin-btn-in-marquee" id="nav-btn-logout"
+
+                                onclick="showCustomConfirm('Đăng xuất tài khoản', 'Bạn có chắc chắn muốn đăng xuất không?', doLogout);">
+
+                                👨‍💼 admin <span class="logout-label">(Đăng xuất)</span>
+
+                            </button>
 
                         </div>
 
@@ -3995,18 +3973,6 @@
                         tin xin liên hệ admin qua sđt: 0392.283.473
 
                     </marquee>
-
-
-
-                    <button class="admin-btn-in-marquee" id="nav-btn-logout"
-
-                        onclick="showCustomConfirm('Đăng xuất tài khoản', 'Bạn có chắc chắn muốn đăng xuất không?', doLogout);">
-
-                        👨‍💼 admin <span class="logout-label">(Đăng xuất)</span>
-
-                    </button>
-
-
 
                 </div>
 
