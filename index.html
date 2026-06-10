@@ -7278,7 +7278,7 @@ console.log('--- JS Block: Foundation started ---');
 
 
 
-        function loadEntity(apiMethod, cacheKey, callback, extraCallbacks = []) {
+        function loadEntity(apiMethod, cacheKey, callback, extraCallbacks = [], forceRefresh = false) {
 
             const CACHE_TTL = 5 * 60 * 1000; // Lưu Cache 5 phút
 
@@ -7300,7 +7300,7 @@ console.log('--- JS Block: Foundation started ---');
 
             // 2. KIỂM TRA BỘ NHỚ ĐỆM (CACHE)
 
-            if (typeof dataCache !== 'undefined' && dataCache[cacheKey] && window.dataCacheTime[cacheKey] && dataCache[cacheKey].length > 0) {
+            if (!forceRefresh && typeof dataCache !== 'undefined' && dataCache[cacheKey] && window.dataCacheTime[cacheKey] && dataCache[cacheKey].length > 0) {
 
                 if (now - window.dataCacheTime[cacheKey] < CACHE_TTL) {
 
@@ -11168,17 +11168,67 @@ console.log('--- JS Block: Foundation started ---');
 
                                 // ============================================================
 
+                                function syncPatients() { loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true); }
+
+                                function syncStaff() { loadEntity('getNhanSu', 'staff', renderStaffTable, [
+
+                                    () => { if (typeof renderBusyStaff === 'function') renderBusyStaff(); },
+
+                                    () => { if (typeof locSotSat === 'function') locSotSat(); }
+
+                                ], true); }
+
+
+
                                 function startAutoSync() {
 
-                                setInterval(() => {
+                                    setInterval(() => {
 
-                                if (window.viewingImportedScheduleFile) return;
+                                        if (window.viewingImportedScheduleFile) return;
 
-                                const activeTab = document.querySelector('.nav-tab.active')?.getAttribute('data-tab');
+                                        const activeTab = document.querySelector('.nav-tab.active')?.getAttribute('data-tab');
 
-                                if (activeTab === 'tab-schedule' || activeTab === 'tab-home') loadScheduleList();
+                                        
 
-                                }, 30000);
+                                        // Đồng bộ Xếp lịch
+
+                                        if (activeTab === 'tab-schedule' || activeTab === 'tab-home') {
+
+                                            loadScheduleList();
+
+                                        }
+
+                                        
+
+                                        // Đồng bộ Bệnh Nhân (Chỉ khi không đang bấm Sửa)
+
+                                        if (activeTab === 'tab-patients') {
+
+                                            if (typeof editIndex !== 'undefined' && editIndex.pat === -1) {
+
+                                                syncPatients();
+
+                                            }
+
+                                        }
+
+                                        
+
+                                        // Đồng bộ Giờ Bận/Ra Viện (Chỉ khi không đang bấm Sửa)
+
+                                        if (activeTab === 'tab-busy') {
+
+                                            if (typeof editIndex !== 'undefined' && editIndex.pat === -1 && editIndex.staff === -1) {
+
+                                                syncPatients();
+
+                                                syncStaff();
+
+                                            }
+
+                                        }
+
+                                    }, 15000); // Rút ngắn xuống 15s để trải nghiệm realtime tốt hơn
 
                                 }
 
