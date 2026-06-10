@@ -424,7 +424,7 @@
 
 
 
-        /* === ICON-ONLY SIDEBAR === */
+        /* === ICON-ONLY SIDEBAR WITH JS TOOLTIP === */
 
         .sidebar {
 
@@ -446,11 +446,9 @@
 
             align-items: stretch;
 
+            width: 65px;
+
         }
-
-
-
-
 
 
 
@@ -462,15 +460,15 @@
 
             overflow: visible !important;
 
-            padding: 15px 8px;
+            padding: 10px 0;
 
             display: flex;
 
             flex-direction: column;
 
-            align-items: flex-start;
+            align-items: center;
 
-            gap: 8px;
+            gap: 4px;
 
         }
 
@@ -486,9 +484,7 @@
 
         .sidebar button.nav-tab {
 
-            max-width: 48px;
-
-            width: max-content;
+            width: 48px;
 
             height: 48px;
 
@@ -504,29 +500,25 @@
 
             cursor: pointer;
 
-            font-size: 14px;
-
-            transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, box-shadow 0.2s;
-
             display: flex;
 
             align-items: center;
 
-            justify-content: flex-start;
+            justify-content: center;
 
             box-sizing: border-box;
 
-            overflow: hidden;
+            transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+
+            flex-shrink: 0;
 
         }
 
-        
+
 
         .sidebar button.nav-tab .icon {
 
-            width: 48px;
-
-            height: 48px;
+            font-size: 22px;
 
             display: flex;
 
@@ -534,29 +526,15 @@
 
             justify-content: center;
 
-            font-size: 20px;
-
-            flex-shrink: 0;
+            pointer-events: none;
 
         }
 
-        
+
 
         .sidebar button.nav-tab .text {
 
-            white-space: nowrap;
-
-            padding-right: 15px;
-
-            opacity: 0;
-
-            transition: opacity 0.2s;
-
-            font-weight: 600;
-
-            visibility: visible;
-
-            color: inherit;
+            display: none;
 
         }
 
@@ -564,21 +542,9 @@
 
         .sidebar button.nav-tab:hover {
 
-            max-width: 250px;
+            background: rgba(59, 130, 246, 0.08);
 
-            background: white;
-
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-
-            z-index: 10;
-
-        }
-
-        
-
-        .sidebar button.nav-tab:hover .text {
-
-            opacity: 1;
+            border-color: rgba(59, 130, 246, 0.2);
 
         }
 
@@ -588,19 +554,61 @@
 
             background: white;
 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-
-            border: 1px solid #e5e7eb;
-
             color: #3b82f6;
 
         }
 
-        
 
-        .sidebar button.nav-tab.active .text {
 
-            color: #3b82f6;
+        /* Floating tooltip rendered by JS at body level */
+
+        #sidebar-tooltip {
+
+            position: fixed;
+
+            left: 72px;
+
+            padding: 6px 13px;
+
+            background: #1f2937;
+
+            color: white;
+
+            border-radius: 8px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            white-space: nowrap;
+
+            pointer-events: none;
+
+            opacity: 0;
+
+            transition: opacity 0.15s;
+
+            z-index: 99999;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+
+        }
+
+        #sidebar-tooltip::before {
+
+            content: '';
+
+            position: absolute;
+
+            right: 100%;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            border: 6px solid transparent;
+
+            border-right-color: #1f2937;
 
         }
 
@@ -12672,6 +12680,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
     })();
 
+</script>
+
+<!-- SIDEBAR TOOLTIP (body-level, no overflow constraints) -->
+<div id="sidebar-tooltip"></div>
+
+<script>
+(function() {
+    const tooltip = document.getElementById('sidebar-tooltip');
+    let hideTimer = null;
+
+    function showTooltip(btn) {
+        const textEl = btn.querySelector('.text');
+        if (!textEl) return;
+        const label = textEl.textContent.trim();
+        if (!label) return;
+
+        clearTimeout(hideTimer);
+        const rect = btn.getBoundingClientRect();
+        const top = rect.top + rect.height / 2;
+
+        tooltip.textContent = label;
+        tooltip.style.top = top + 'px';
+        tooltip.style.transform = 'translateY(-50%)';
+        tooltip.style.opacity = '1';
+    }
+
+    function hideTooltip() {
+        hideTimer = setTimeout(() => {
+            tooltip.style.opacity = '0';
+        }, 80);
+    }
+
+    // Attach to all sidebar nav-tab buttons (current + future)
+    function attachTooltips() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+        sidebar.querySelectorAll('button.nav-tab').forEach(btn => {
+            if (btn.dataset.tooltipAttached) return;
+            btn.dataset.tooltipAttached = '1';
+            btn.addEventListener('mouseenter', () => showTooltip(btn));
+            btn.addEventListener('mouseleave', hideTooltip);
+        });
+    }
+
+    // Run after DOM ready and also on any dynamic changes
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachTooltips);
+    } else {
+        attachTooltips();
+    }
+    // Re-attach for any dynamically added buttons (e.g. after login)
+    const observer = new MutationObserver(attachTooltips);
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
 </script>
 
 </body>
