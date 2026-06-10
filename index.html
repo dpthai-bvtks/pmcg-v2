@@ -520,7 +520,9 @@
 
         .sidebar button.nav-tab {
 
-            width: 48px;
+            max-width: 48px;
+
+            width: max-content;
 
             height: 48px;
 
@@ -538,23 +540,27 @@
 
             font-size: 14px;
 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, box-shadow 0.2s;
 
             display: flex;
 
             align-items: center;
 
-            justify-content: center;
-
-            position: relative;
+            justify-content: flex-start;
 
             box-sizing: border-box;
+
+            overflow: hidden;
 
         }
 
         
 
         .sidebar button.nav-tab .icon {
+
+            width: 48px;
+
+            height: 48px;
 
             display: flex;
 
@@ -564,45 +570,27 @@
 
             font-size: 20px;
 
+            flex-shrink: 0;
+
         }
 
         
 
         .sidebar button.nav-tab .text {
 
-            position: absolute;
-
-            left: 60px;
-
-            top: 50%;
-
-            transform: translateY(-50%) translateX(-10px);
-
-            background: white;
-
-            color: #1f2937;
-
-            padding: 8px 16px;
-
-            border-radius: 8px;
-
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-
             white-space: nowrap;
+
+            padding-right: 15px;
 
             opacity: 0;
 
-            visibility: hidden;
-
-            pointer-events: none;
-
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.2s;
 
             font-weight: 600;
 
-            border: 1px solid #f3f4f6;
+            visibility: visible;
 
-            z-index: 9999;
+            color: inherit;
 
         }
 
@@ -610,7 +598,13 @@
 
         .sidebar button.nav-tab:hover {
 
-            background: rgba(0,0,0,0.05);
+            max-width: 250px;
+
+            background: white;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+            z-index: 10;
 
         }
 
@@ -619,10 +613,6 @@
         .sidebar button.nav-tab:hover .text {
 
             opacity: 1;
-
-            visibility: visible;
-
-            transform: translateY(-50%) translateX(0);
 
         }
 
@@ -3678,7 +3668,7 @@
 
             display: grid !important;
 
-            grid-template-columns: 46px minmax(0, 1fr) auto !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
 
             align-items: center !important;
 
@@ -3942,7 +3932,7 @@
 
                 <div class="sidebar-footer"
 
-                    style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); position: sticky; bottom: 0; z-index: 100; background: inherit;">
+                    style="margin-top: auto; padding: 15px 0;">
 
                     <button class="nav-tab" data-tab="tab-admin" id="nav-btn-admin"
 
