@@ -6194,6 +6194,38 @@
 
     <script>
 
+window.showGlobalLoading = function(text) {
+
+    let overlay = document.getElementById('global-loading-overlay');
+
+    if (!overlay) {
+
+        overlay = document.createElement('div');
+
+        overlay.id = 'global-loading-overlay';
+
+        overlay.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999999; flex-direction:column; justify-content:center; align-items:center; color:white; font-size:18px; font-weight:bold; backdrop-filter: blur(2px);';
+
+        overlay.innerHTML = '<div style="border:4px solid rgba(255,255,255,0.3); border-top:4px solid #fff; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; margin-bottom:15px;"></div><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style><span id="global-loading-text"></span>';
+
+        document.body.appendChild(overlay);
+
+    }
+
+    document.getElementById('global-loading-text').innerText = text || 'Đang xử lý...';
+
+    overlay.style.display = 'flex';
+
+};
+
+window.hideGlobalLoading = function() {
+
+    const overlay = document.getElementById('global-loading-overlay');
+
+    if (overlay) overlay.style.display = 'none';
+
+};
+
 window.onerror = function(msg, url, lineNo, columnNo, error) { console.error('JS ERROR:', msg, 'at line', lineNo); alert('LỖI CÚ PHÁP TẠI DÒNG ' + lineNo + ': ' + msg); };
 
 console.log('MAIN SCRIPT STARTING...');
@@ -7550,6 +7582,8 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa máy", "Bác sĩ có chắc chắn muốn xóa máy này?", function () {
 
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa máy móc...");
+
                 const btnSave = document.getElementById('btn-save-machine');
 
                 if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
@@ -7560,6 +7594,8 @@ console.log('--- JS Block: Foundation started ---');
 
                     .withSuccessHandler(() => { 
 
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
                         if (typeof loadMachines === 'function') loadMachines(); 
@@ -7567,6 +7603,8 @@ console.log('--- JS Block: Foundation started ---');
                     })
 
                     .withFailureHandler(e => {
+
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
 
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
@@ -7710,6 +7748,8 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa thủ thuật", "Bác sĩ có chắc chắn muốn xóa thủ thuật này không?", function () {
 
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa thủ thuật...");
+
                 const btnSave = document.getElementById('btn-save-proc');
 
                 if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
@@ -7720,6 +7760,8 @@ console.log('--- JS Block: Foundation started ---');
 
                     .withSuccessHandler(() => { 
 
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
                         if (typeof loadProcedures === 'function') loadProcedures(); 
@@ -7727,6 +7769,8 @@ console.log('--- JS Block: Foundation started ---');
                     })
 
                     .withFailureHandler(e => {
+
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
 
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
@@ -7886,6 +7930,8 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa nhân sự", "Bác sĩ có chắc chắn muốn xóa nhân sự này không?", function () {
 
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa nhân sự...");
+
                 const btnSave = document.getElementById('btn-save-staff');
 
                 if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
@@ -7894,6 +7940,8 @@ console.log('--- JS Block: Foundation started ---');
 
                 google.script.run.withSuccessHandler(() => { 
 
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+
                     if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
                     if (typeof loadDashboard === 'function') loadDashboard(); 
@@ -7901,6 +7949,8 @@ console.log('--- JS Block: Foundation started ---');
                 })
 
                     .withFailureHandler(e => {
+
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
 
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
@@ -8078,6 +8128,8 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa phòng", "Bác sĩ có chắc chắn muốn xóa phòng này không?", function () {
 
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa phòng...");
+
                 const btnSave = document.getElementById('btn-save-room');
 
                 if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
@@ -8088,6 +8140,8 @@ console.log('--- JS Block: Foundation started ---');
 
                     .withSuccessHandler(() => { 
 
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
                         if (typeof loadRooms === 'function') loadRooms(); 
@@ -8095,6 +8149,8 @@ console.log('--- JS Block: Foundation started ---');
                     })
 
                     .withFailureHandler(e => {
+
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
 
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
@@ -8316,6 +8372,8 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa", `Bác sĩ có chắc chắn muốn xóa bệnh nhân [ ${p.ten} ]?`, function () {
 
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa bệnh nhân...");
+
                 
 
                 // Xóa tạm trên giao diện
@@ -8340,6 +8398,8 @@ console.log('--- JS Block: Foundation started ---');
 
                     .withSuccessHandler(() => { 
 
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
                         // Tải lại toàn bộ dữ liệu mới nhất để đảm bảo đồng bộ số thứ tự dòng
@@ -8349,6 +8409,8 @@ console.log('--- JS Block: Foundation started ---');
                     })
 
                     .withFailureHandler(e => {
+
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
 
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
 
