@@ -432,13 +432,65 @@
 
 
 
+        /* === ICON-ONLY SIDEBAR === */
+
+        .container.collapsed-sidebar {
+
+            grid-template-columns: 45px 1fr;
+
+        }
+
+        
+
+        .container.collapsed-sidebar .sidebar {
+
+            width: 45px;
+
+            position: absolute;
+
+            height: 100%;
+
+            z-index: 1000;
+
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        }
+
+
+
+        .container.collapsed-sidebar .sidebar:hover {
+
+            width: 220px;
+
+            box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+
+        }
+
+
+
+        .container.collapsed-sidebar .sidebar .sidebar-header { opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+
+        .container.collapsed-sidebar .sidebar:hover .sidebar-header { opacity: 1; }
+
+
+
+        .container.collapsed-sidebar .sidebar .group-title { opacity: 0; padding: 0; height: 0; margin: 0; border: none; overflow: hidden; transition: opacity 0.2s; white-space: nowrap; }
+
+        .container.collapsed-sidebar .sidebar:hover .group-title { opacity: 1; height: auto; padding: 18px 15px 8px; margin-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+
+
+
         .sidebar {
 
             grid-column: 1/2;
 
             grid-row: 1/-1;
 
-            background: #2d5a27;
+            background: linear-gradient(180deg, rgba(30, 61, 43, 0.98) 0%, rgba(45, 90, 39, 0.98) 100%);
+
+            backdrop-filter: blur(10px);
+
+            -webkit-backdrop-filter: blur(10px);
 
             display: flex;
 
@@ -446,11 +498,13 @@
 
             overflow: hidden;
 
-            border-right: 3px solid #f1c40f;
+            border-right: 2px solid rgba(241, 196, 15, 0.5);
 
             z-index: 100;
 
             white-space: nowrap;
+
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 
         }
 
@@ -468,7 +522,7 @@
 
             flex-shrink: 0;
 
-            background: rgba(0, 0, 0, 0.15);
+            background: rgba(0, 0, 0, 0.2);
 
             color: #f1c40f;
 
@@ -477,6 +531,8 @@
             font-size: 16px;
 
             letter-spacing: 1px;
+
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 
         }
 
@@ -488,9 +544,17 @@
 
             overflow-y: auto;
 
+            overflow-x: hidden;
+
             padding: 10px 0;
 
         }
+
+
+
+        .sidebar-menu::-webkit-scrollbar { width: 4px; }
+
+        .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
 
 
@@ -500,7 +564,7 @@
 
             font-size: 11px;
 
-            color: #81c784;
+            color: rgba(255,255,255,0.6);
 
             text-transform: uppercase;
 
@@ -508,7 +572,7 @@
 
             letter-spacing: 1px;
 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
             margin-bottom: 5px;
 
@@ -522,7 +586,7 @@
 
             width: 100%;
 
-            padding: 10px 15px 10px 35px;
+            padding: 12px 14px;
 
             border: none;
 
@@ -532,13 +596,13 @@
 
             cursor: pointer;
 
-            font-size: 13px;
+            font-size: 14px;
 
-            transition: 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
             text-align: left;
 
-            opacity: 0.8;
+            opacity: 0.75;
 
         }
 
@@ -548,7 +612,7 @@
 
             background: rgba(255, 255, 255, 0.1);
 
-            padding-left: 40px;
+            padding-left: 20px;
 
             opacity: 1;
 
@@ -558,17 +622,19 @@
 
         .sidebar button.nav-tab.active {
 
-            background: #f1c40f;
+            background: rgba(241, 196, 15, 0.95);
 
             color: #1e3d2b;
 
             border-left: 4px solid #d35400;
 
-            padding-left: 31px;
+            padding-left: 14px;
 
             opacity: 1;
 
             font-weight: bold;
+
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 
         }
 
@@ -3651,6 +3717,130 @@
                 text-align: left !important;
 
             }
+
+        }
+
+        /* ================= PREMIUM UI UPGRADES ================= */
+
+        /* Table Row Hover & Aesthetics */
+
+        table tbody tr { transition: background-color 0.2s ease; }
+
+        table tbody tr:hover td { background-color: rgba(46, 204, 113, 0.08) !important; cursor: default; }
+
+        
+
+        /* Glassmorphism Header & Sticky Table Headers */
+
+        .header-fixed-section {
+
+            background: rgba(255, 255, 255, 0.85) !important;
+
+            backdrop-filter: blur(12px);
+
+            -webkit-backdrop-filter: blur(12px);
+
+            border-bottom: 1px solid rgba(230, 126, 34, 0.3) !important;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+
+        }
+
+        
+
+        table th {
+
+            background: rgba(242, 242, 242, 0.9) !important;
+
+            backdrop-filter: blur(8px);
+
+            -webkit-backdrop-filter: blur(8px);
+
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+
+            z-index: 10;
+
+        }
+
+
+
+        /* Smooth Tab Transitions */
+
+        .tab-content { animation: smoothSlideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important; }
+
+        @keyframes smoothSlideUp {
+
+            from { opacity: 0; transform: translateY(12px); }
+
+            to { opacity: 1; transform: translateY(0); }
+
+        }
+
+
+
+        /* Forms & Inputs Depth */
+
+        .form-section, .sidebar-form {
+
+            background: rgba(255, 255, 255, 0.95);
+
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+
+            border-radius: 10px;
+
+            border: 1px solid rgba(0,0,0,0.04);
+
+            transition: box-shadow 0.3s;
+
+        }
+
+        .form-section:hover, .sidebar-form:hover { box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+
+        
+
+        .form-group input, .form-group select, .form-group textarea {
+
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+            border: 1px solid #ddd;
+
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+
+            border-color: #27ae60;
+
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+
+            outline: none;
+
+        }
+
+
+
+        /* Ripple Buttons */
+
+        button { position: relative; overflow: hidden; }
+
+        button::after {
+
+            content: ''; position: absolute; top: 50%; left: 50%;
+
+            width: 5px; height: 5px; background: rgba(255,255,255,0.4);
+
+            opacity: 0; border-radius: 100%;
+
+            transform: scale(1, 1) translate(-50%, -50%); transform-origin: 50% 50%;
+
+        }
+
+        button:focus:not(:active)::after { animation: ripple 0.6s ease-out; }
+
+        @keyframes ripple {
+
+            0% { transform: scale(0, 0); opacity: 0.5; }
+
+            100% { transform: scale(30, 30); opacity: 0; }
 
         }
 
