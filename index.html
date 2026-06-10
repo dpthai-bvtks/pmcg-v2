@@ -3898,8 +3898,6 @@
 
                 <div class="group-title">🧰 Tiện Ích</div>
 
-                <button class="nav-tab" data-tab="tab-stats"><span class="icon">📈</span><span class="text">Thống Kê</span></button>
-
                 <button class="nav-tab" data-tab="tab-utils"><span class="icon">🔎</span><span class="text">Tìm Giờ Rảnh</span></button>
 
 
@@ -5916,7 +5914,7 @@
 
                 </div>
 
-                <div class="tab-content" id="tab-stats">
+                <div class="tab-content" id="tab-stats" style="display:none!important">
 
                     <div class="tab-header-title">📊 THỐNG KÊ & BÁO CÁO LÂM SÀNG</div>
 
@@ -10084,13 +10082,41 @@ console.log('--- JS Block: Foundation started ---');
 
                 btn.innerText = '⏳ Đang xử lý...'; btn.disabled = true;
 
+                // Chặn autoSync ngay lập tức để không bị kéo dữ liệu cũ về
+
+                window._chotSoDone = false;
+
+                window.viewingImportedScheduleFile = true;
+
                 google.script.run.withSuccessHandler(res => {
 
-                    alert("Chốt sổ thành công!");
+                    // Xóa sạch mọi dữ liệu ca rớt và lịch cũ trong bộ nhớ
 
-                    location.reload();
+                    window.currentScheduleData = [];
 
-                }).withFailureHandler(err => { alert("Lỗi: " + err.message); btn.disabled = false; }).chuyenNgayMoi();
+                    window.lastUnscheduledData = [];
+
+                    window.currentRotData = [];
+
+                    localStorage.removeItem('meds_success');
+
+                    localStorage.removeItem('meds_schedule_date');
+
+                    localStorage.removeItem('meds_unscheduled');
+
+                    // Reload sau 300ms để server kịp ghi xong
+
+                    setTimeout(() => { location.reload(); }, 300);
+
+                }).withFailureHandler(err => {
+
+                    alert("Lỗi: " + err.message);
+
+                    btn.disabled = false;
+
+                    window.viewingImportedScheduleFile = false;
+
+                }).chuyenNgayMoi();
 
             });
 
