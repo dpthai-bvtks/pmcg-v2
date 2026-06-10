@@ -3390,7 +3390,7 @@
 
 
 
-        /* 2. Ghim thanh phân trang xuống mép dưới màn hình */
+        /* 2. Phân trang - không sticky để tránh che nút action */
 
         #home-pagination-container,
 
@@ -3398,29 +3398,9 @@
 
         #sched-pagination {
 
-            position: -webkit-sticky !important;
-
-            position: sticky !important;
-
-            bottom: 0 !important;
-
-            /* Phải là 0 để dính sát mép dưới */
-
-            z-index: 950 !important;
-
-            /* Nổi đè lên trên mọi dữ liệu */
-
             background: #fdfaf1 !important;
 
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1) !important;
-
-            /* Đổ bóng ngược lên trên */
-
-            border-top: 2px solid #27ae60 !important;
-
-            /* Kẻ vạch xanh cho nổi bật */
-
-            border-radius: 0 0 8px 8px !important;
+            border-top: 1px solid #c8d6b2 !important;
 
             margin: 0 !important;
 
