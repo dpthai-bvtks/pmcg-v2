@@ -698,13 +698,9 @@
 
 
 
-        /* Ẩn footer khi tab Kiểm Tra Lỗi đang active */
+        /* Ẩn footer ở tất cả các tab trừ tab Trang Chủ */
 
-        .main-wrapper:has(#tab-kiemtra.active) ~ .main-footer,
-
-        .main-wrapper:has(#tab-kiemtra.active) + .main-footer,
-
-        body:has(#tab-kiemtra.active) .main-footer {
+        body:not(:has(#tab-home.active)) .main-footer {
 
             display: none !important;
 
