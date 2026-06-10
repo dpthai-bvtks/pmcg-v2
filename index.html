@@ -304,19 +304,11 @@
 
             display: grid;
 
-            grid-template-columns: 220px 1fr;
+            grid-template-columns: 65px 1fr;
 
             grid-template-rows: 1fr;
 
             transition: all 0.3s ease;
-
-        }
-
-
-
-        .container.collapsed-sidebar {
-
-            grid-template-columns: 0px 1fr;
 
         }
 
@@ -434,89 +426,25 @@
 
         /* === ICON-ONLY SIDEBAR === */
 
-        .container.collapsed-sidebar {
-
-            grid-template-columns: 50px 1fr;
-
-        }
-
-        
-
-        .container.collapsed-sidebar .sidebar {
-
-            width: 50px;
-
-            position: absolute;
-
-            height: 100%;
-
-            z-index: 1000;
-
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-        }
-
-
-
-        .container.collapsed-sidebar .sidebar:hover {
-
-            width: 220px;
-
-            box-shadow: 5px 0 25px rgba(0,0,0,0.5);
-
-        }
-
-
-
-        .container.collapsed-sidebar .sidebar:not(:hover) .text {
-
-            opacity: 0;
-
-            width: 0;
-
-            margin: 0 !important;
-
-            padding: 0;
-
-            overflow: hidden;
-
-            display: inline-block;
-
-        }
-
-
-
-        .container.collapsed-sidebar .sidebar .group-title { opacity: 0; padding: 0; height: 0; margin: 0; border: none; overflow: hidden; transition: opacity 0.2s; white-space: nowrap; }
-
-        .container.collapsed-sidebar .sidebar:hover .group-title { opacity: 1; height: auto; padding: 18px 15px 8px; margin-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-
-
-
         .sidebar {
 
             grid-column: 1/2;
 
             grid-row: 1/-1;
 
-            background: linear-gradient(180deg, rgba(30, 61, 43, 0.98) 0%, rgba(45, 90, 39, 0.98) 100%);
-
-            backdrop-filter: blur(10px);
-
-            -webkit-backdrop-filter: blur(10px);
+            background: #f4f6f8;
 
             display: flex;
 
             flex-direction: column;
 
-            overflow: hidden;
+            overflow: visible !important;
 
-            border-right: 2px solid rgba(241, 196, 15, 0.5);
+            border-right: 1px solid #e5e7eb;
 
-            z-index: 100;
+            z-index: 1000;
 
-            white-space: nowrap;
-
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            align-items: center;
 
         }
 
@@ -526,27 +454,19 @@
 
             height: 55px;
 
+            width: 100%;
+
             display: flex;
 
             align-items: center;
 
-            justify-content: flex-start;
-
-            padding-left: 14px;
+            justify-content: center;
 
             flex-shrink: 0;
 
-            background: rgba(0, 0, 0, 0.2);
+            background: transparent;
 
-            color: #f1c40f;
-
-            font-weight: bold;
-
-            font-size: 16px;
-
-            letter-spacing: 1px;
-
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border-bottom: 1px solid #e5e7eb;
 
         }
 
@@ -554,15 +474,7 @@
 
         .sidebar-header .icon {
 
-            display: inline-flex;
-
-            justify-content: center;
-
-            min-width: 22px;
-
-            margin-right: 12px !important;
-
-            font-size: 18px;
+            font-size: 24px;
 
         }
 
@@ -570,9 +482,7 @@
 
         .sidebar-header .text {
 
-            white-space: nowrap;
-
-            transition: opacity 0.2s;
+            display: none;
 
         }
 
@@ -582,41 +492,27 @@
 
             flex: 1;
 
-            overflow-y: auto;
+            width: 100%;
 
-            overflow-x: hidden;
+            overflow: visible !important;
 
-            padding: 10px 0;
+            padding: 15px 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 8px;
 
         }
 
 
 
-        .sidebar-menu::-webkit-scrollbar { width: 4px; }
-
-        .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-
-
-
         .group-title {
 
-            padding: 18px 15px 8px;
-
-            font-size: 11px;
-
-            color: rgba(255,255,255,0.6);
-
-            text-transform: uppercase;
-
-            font-weight: bold;
-
-            letter-spacing: 1px;
-
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-            margin-bottom: 5px;
-
-            pointer-events: none;
+            display: none;
 
         }
 
@@ -624,29 +520,35 @@
 
         .sidebar button.nav-tab {
 
-            width: 100%;
+            width: 48px;
 
-            padding: 12px 14px;
+            height: 48px;
 
-            border: none;
+            border: 1px solid transparent;
 
             background: transparent;
 
-            color: #fff;
+            border-radius: 12px;
+
+            padding: 0;
+
+            color: #4b5563;
 
             cursor: pointer;
 
             font-size: 14px;
 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-            text-align: left;
-
-            opacity: 0.75;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
             display: flex;
 
             align-items: center;
+
+            justify-content: center;
+
+            position: relative;
+
+            box-sizing: border-box;
 
         }
 
@@ -654,15 +556,13 @@
 
         .sidebar button.nav-tab .icon {
 
-            display: inline-flex;
+            display: flex;
+
+            align-items: center;
 
             justify-content: center;
 
-            min-width: 22px;
-
-            margin-right: 12px;
-
-            font-size: 15px;
+            font-size: 20px;
 
         }
 
@@ -670,9 +570,39 @@
 
         .sidebar button.nav-tab .text {
 
+            position: absolute;
+
+            left: 60px;
+
+            top: 50%;
+
+            transform: translateY(-50%) translateX(-10px);
+
+            background: white;
+
+            color: #1f2937;
+
+            padding: 8px 16px;
+
+            border-radius: 8px;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
             white-space: nowrap;
 
-            transition: opacity 0.2s;
+            opacity: 0;
+
+            visibility: hidden;
+
+            pointer-events: none;
+
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+            font-weight: 600;
+
+            border: 1px solid #f3f4f6;
+
+            z-index: 9999;
 
         }
 
@@ -680,11 +610,19 @@
 
         .sidebar button.nav-tab:hover {
 
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0,0,0,0.05);
 
-            padding-left: 18px;
+        }
+
+        
+
+        .sidebar button.nav-tab:hover .text {
 
             opacity: 1;
+
+            visibility: visible;
+
+            transform: translateY(-50%) translateX(0);
 
         }
 
@@ -692,19 +630,21 @@
 
         .sidebar button.nav-tab.active {
 
-            background: rgba(241, 196, 15, 0.95);
+            background: white;
 
-            color: #1e3d2b;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 
-            border-left: 4px solid #d35400;
+            border: 1px solid #e5e7eb;
 
-            padding-left: 14px;
+            color: #3b82f6;
 
-            opacity: 1;
+        }
 
-            font-weight: bold;
+        
 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        .sidebar button.nav-tab.active .text {
+
+            color: #3b82f6;
 
         }
 
@@ -4055,16 +3995,6 @@
 
 
                 <div class="global-marquee-container">
-
-
-
-                    <button class="hamburger-in-marquee" id="mobile-hamburger-btn"
-
-                        title="Ẩn / Hiện thanh Menu">
-
-                        ☰
-
-                    </button>
 
 
 
