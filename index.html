@@ -682,7 +682,9 @@
 
         #tab-sat.active,
 
-        #tab-utils.active {
+        #tab-utils.active,
+
+        #tab-kiemtra.active {
 
             display: flex;
 
@@ -702,7 +704,9 @@
 
         .tab-scroll-content:has(#tab-sat.active),
 
-        .tab-scroll-content:has(#tab-utils.active) {
+        .tab-scroll-content:has(#tab-utils.active),
+
+        .tab-scroll-content:has(#tab-kiemtra.active) {
 
             overflow: hidden !important;
 
@@ -722,7 +726,9 @@
 
         #tab-sat.active,
 
-        #tab-utils.active {
+        #tab-utils.active,
+
+        #tab-kiemtra.active {
 
             flex: 1;
 
@@ -3880,6 +3886,8 @@
 
                 <button class="nav-tab" data-tab="tab-utils"><span class="icon">🔎</span><span class="text">Tìm Giờ Rảnh</span></button>
 
+                <button class="nav-tab" data-tab="tab-kiemtra"><span class="icon">✅</span><span class="text">Kiểm Tra Lỗi</span></button>
+
 
 
                 <div class="sidebar-footer"
@@ -5436,6 +5444,14 @@
 
                 </div>
 
+                <div class="tab-content" id="tab-kiemtra" style="padding: 0;">
+
+                    <iframe src="https://quanlykhoa-yhct.vercel.app/#tab-kiemtra" style="width: 100%; height: 100%; border: none; flex: 1;"></iframe>
+
+                </div>
+
+
+
                 <div class="tab-content" id="tab-utils">
 
                     <div class="utils-compact-header"
@@ -5717,6 +5733,10 @@
                                         <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
 
                                                 class="perm-cb" value="tab-utils"> 🛠 T.Ích</label>
+
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
+
+                                                class="perm-cb" value="tab-kiemtra"> ✅ K.Tra</label>
 
                                         <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input
 
@@ -11298,7 +11318,7 @@ console.log('--- JS Block: Foundation started ---');
 
                                 const tbody = document.getElementById('acc-list');
 
-                                const PERM_MAP = {'tab-patients':'🛌 Bệnh Nhân','tab-schedule':'⚡ Xếp Lịch','tab-sat':'📅 Thứ 7','tab-busy':'⏱ Giờ Bận','tab-stats':'📊 Thống Kê','tab-utils':'🛠 Tiện Ích','tab-machines':'⚙️ Máy Móc','tab-procedures':'💉 Thủ Thuật','tab-rooms':'🏥 Phòng','tab-staff':'👨‍⚕️ Nhân Sự'};                                 tbody.innerHTML = data.map((acc, i) => {
+                                const PERM_MAP = {'tab-patients':'🛌 Bệnh Nhân','tab-schedule':'⚡ Xếp Lịch','tab-sat':'📅 Thứ 7','tab-busy':'⏱ Giờ Bận','tab-stats':'📊 Thống Kê','tab-utils':'🛠 Tiện Ích','tab-kiemtra':'✅ Kiểm Tra Lỗi','tab-machines':'⚙️ Máy Móc','tab-procedures':'💉 Thủ Thuật','tab-rooms':'🏥 Phòng','tab-staff':'👨‍⚕️ Nhân Sự'};                                 tbody.innerHTML = data.map((acc, i) => {
 
                                 let tenQuyen = "👑 Toàn quyền (Admin)";
 
