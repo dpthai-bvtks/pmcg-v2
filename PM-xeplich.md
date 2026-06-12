@@ -980,3 +980,23 @@ Mình đã khởi tạo thư mục này thành repository Git chính và đẩy 
 *(Lưu ý nhỏ: Trong quá trình đẩy code lên GitHub, hệ thống bảo mật của GitHub đã chặn lại do phát hiện một số API Key (OpenAI, Gemini, Copilot, Groq...) bị lộ trong file code.gs-v2.txt. Để đẩy code lên an toàn, mình đã tạm thời thay các mã khóa đó bằng chuỗi YOUR_OPENAI_API_KEY, v.v. Bạn hãy cẩn thận đừng để lộ các mã khóa bí mật lên public repo nhé!)*
 
 Mình cũng đã lưu lại đoạn chat này vào PM-xeplich.md và đồng bộ lên GitHub luôn rồi. Từ giờ mọi thay đổi trong thư mục này sẽ được commit và push thẳng lên repo đó.
+
+### User Input
+
+xem lại xem sao lại quay lại sidebar kiểu này rồi, đọc lại file PM-xeplich.md đi
+
+### Planner Response
+
+Ôi, xin lỗi bạn! Mình đã tìm ra nguyên nhân rồi.
+
+Sự cố xảy ra là do ban nãy khi mình khởi tạo Git và đẩy thư mục D:\PM-DPT\PM-xeplich\khung_pm\ban_web\v2-github lên GitHub, mình không để ý rằng thư mục này đang chứa mã nguồn **cũ hơn** so với trên repo. (Các thay đổi về tab **Kiểm Tra Lỗi** trước đây được thực hiện trong thư mục tạm pmcg-v2-temp và đẩy lên mạng, nhưng chưa được copy ngược về thư mục 2-github này).
+Hậu quả là lệnh push của mình đã vô tình ghi đè (chạy lùi) mã nguồn trên GitHub về phiên bản cũ chưa có tab Kiểm Tra Lỗi!
+
+**Cách mình vừa khắc phục:**
+1. Mình đã lục lại lịch sử Git trên GitHub và tìm đúng commit có chứa các thay đổi của tab **Kiểm Tra Lỗi** (3db0c3b).
+2. Mình khôi phục lại toàn bộ file index.html từ commit đó về thư mục hiện tại.
+3. Áp dụng lại bản sửa lỗi khoảng trắng (	op: 0px) cho tiêu đề bảng.
+4. Giữ lại file CNAME mà bạn vừa tạo trên web.
+5. Push toàn bộ bản sửa lỗi lên lại GitHub.
+
+Bây giờ mọi thứ đã được khôi phục nguyên vẹn và cập nhật đầy đủ lên GitHub. Bạn hãy F5 tải lại trang nhé, tab **Kiểm Tra Lỗi** đã quay trở lại rồi đó!
