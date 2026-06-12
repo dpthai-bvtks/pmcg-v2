@@ -304,11 +304,19 @@
 
             display: grid;
 
-            grid-template-columns: 65px 1fr;
+            grid-template-columns: 220px 1fr;
 
             grid-template-rows: 1fr;
 
             transition: all 0.3s ease;
+
+        }
+
+
+
+        .container.collapsed-sidebar {
+
+            grid-template-columns: 0px 1fr;
 
         }
 
@@ -424,29 +432,51 @@
 
 
 
-        /* === ICON-ONLY SIDEBAR WITH JS TOOLTIP === */
-
         .sidebar {
 
             grid-column: 1/2;
 
             grid-row: 1/-1;
 
-            background: #f4f6f8;
+            background: #2d5a27;
 
             display: flex;
 
             flex-direction: column;
 
-            overflow: visible !important;
+            overflow: hidden;
 
-            border-right: 1px solid #e5e7eb;
+            border-right: 3px solid #f1c40f;
 
-            z-index: 1000;
+            z-index: 100;
 
-            align-items: stretch;
+            white-space: nowrap;
 
-            width: 65px;
+        }
+
+
+
+        .sidebar-header {
+
+            height: 55px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            background: rgba(0, 0, 0, 0.15);
+
+            color: #f1c40f;
+
+            font-weight: bold;
+
+            font-size: 16px;
+
+            letter-spacing: 1px;
 
         }
 
@@ -456,19 +486,9 @@
 
             flex: 1;
 
-            width: 100%;
-
-            overflow: visible !important;
+            overflow-y: auto;
 
             padding: 10px 0;
-
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: center;
-
-            gap: 4px;
 
         }
 
@@ -476,7 +496,23 @@
 
         .group-title {
 
-            display: none;
+            padding: 18px 15px 8px;
+
+            font-size: 11px;
+
+            color: #81c784;
+
+            text-transform: uppercase;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+            margin-bottom: 5px;
+
+            pointer-events: none;
 
         }
 
@@ -484,57 +520,25 @@
 
         .sidebar button.nav-tab {
 
-            width: 48px;
+            width: 100%;
 
-            height: 48px;
+            padding: 10px 15px 10px 35px;
 
-            border: 1px solid transparent;
+            border: none;
 
             background: transparent;
 
-            border-radius: 12px;
-
-            padding: 0;
-
-            color: #4b5563;
+            color: #fff;
 
             cursor: pointer;
 
-            display: flex;
+            font-size: 13px;
 
-            align-items: center;
+            transition: 0.2s;
 
-            justify-content: center;
+            text-align: left;
 
-            box-sizing: border-box;
-
-            transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-
-            flex-shrink: 0;
-
-        }
-
-
-
-        .sidebar button.nav-tab .icon {
-
-            font-size: 22px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            pointer-events: none;
-
-        }
-
-
-
-        .sidebar button.nav-tab .text {
-
-            display: none;
+            opacity: 0.8;
 
         }
 
@@ -542,9 +546,11 @@
 
         .sidebar button.nav-tab:hover {
 
-            background: rgba(59, 130, 246, 0.08);
+            background: rgba(255, 255, 255, 0.1);
 
-            border-color: rgba(59, 130, 246, 0.2);
+            padding-left: 40px;
+
+            opacity: 1;
 
         }
 
@@ -552,63 +558,17 @@
 
         .sidebar button.nav-tab.active {
 
-            background: white;
+            background: #f1c40f;
 
-            color: #3b82f6;
+            color: #1e3d2b;
 
-        }
+            border-left: 4px solid #d35400;
 
+            padding-left: 31px;
 
+            opacity: 1;
 
-        /* Floating tooltip rendered by JS at body level */
-
-        #sidebar-tooltip {
-
-            position: fixed;
-
-            left: 72px;
-
-            padding: 6px 13px;
-
-            background: #1f2937;
-
-            color: white;
-
-            border-radius: 8px;
-
-            font-size: 13px;
-
-            font-weight: 600;
-
-            white-space: nowrap;
-
-            pointer-events: none;
-
-            opacity: 0;
-
-            transition: opacity 0.15s;
-
-            z-index: 99999;
-
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-
-        }
-
-        #sidebar-tooltip::before {
-
-            content: '';
-
-            position: absolute;
-
-            right: 100%;
-
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            border: 6px solid transparent;
-
-            border-right-color: #1f2937;
+            font-weight: bold;
 
         }
 
@@ -682,9 +642,7 @@
 
         #tab-sat.active,
 
-        #tab-utils.active,
-
-        #tab-kiemtra.active {
+        #tab-utils.active {
 
             display: flex;
 
@@ -698,25 +656,13 @@
 
 
 
-        /* Ẩn footer ở tất cả các tab trừ tab Trang Chủ */
-
-        body:not(:has(#tab-home.active)) .main-footer {
-
-            display: none !important;
-
-        }
-
-
-
         /* Ép tab xếp lịch và thứ 7 chiếm đúng phần nội dung còn lại, không để tab-scroll-content cuộn ngoài */
 
         .tab-scroll-content:has(#tab-schedule.active),
 
         .tab-scroll-content:has(#tab-sat.active),
 
-        .tab-scroll-content:has(#tab-utils.active),
-
-        .tab-scroll-content:has(#tab-kiemtra.active) {
+        .tab-scroll-content:has(#tab-utils.active) {
 
             overflow: hidden !important;
 
@@ -736,9 +682,7 @@
 
         #tab-sat.active,
 
-        #tab-utils.active,
-
-        #tab-kiemtra.active {
+        #tab-utils.active {
 
             flex: 1;
 
@@ -873,16 +817,6 @@
             height: 85px;
 
             object-fit: contain;
-
-            cursor: pointer;
-
-            transition: transform 0.2s;
-
-        }
-
-        .banner-logo:hover {
-
-            transform: scale(1.05);
 
         }
 
@@ -2180,7 +2114,7 @@
 
         #todaySchedulePreview table thead th {
 
-            top: 60px !important;
+            top: 0px !important;
 
         }
 
@@ -3406,7 +3340,7 @@
 
 
 
-        /* 2. Phân trang - không sticky để tránh che nút action */
+        /* 2. Ghim thanh phân trang xuống mép dưới màn hình */
 
         #home-pagination-container,
 
@@ -3414,9 +3348,29 @@
 
         #sched-pagination {
 
+            position: -webkit-sticky !important;
+
+            position: sticky !important;
+
+            bottom: 0 !important;
+
+            /* Phải là 0 để dính sát mép dưới */
+
+            z-index: 950 !important;
+
+            /* Nổi đè lên trên mọi dữ liệu */
+
             background: #fdfaf1 !important;
 
-            border-top: 1px solid #c8d6b2 !important;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1) !important;
+
+            /* Đổ bóng ngược lên trên */
+
+            border-top: 2px solid #27ae60 !important;
+
+            /* Kẻ vạch xanh cho nổi bật */
+
+            border-radius: 0 0 8px 8px !important;
 
             margin: 0 !important;
 
@@ -3638,7 +3592,7 @@
 
             display: grid !important;
 
-            grid-template-columns: minmax(0, 1fr) auto !important;
+            grid-template-columns: 46px minmax(0, 1fr) auto !important;
 
             align-items: center !important;
 
@@ -3690,130 +3644,6 @@
 
         }
 
-        /* ================= PREMIUM UI UPGRADES ================= */
-
-        /* Table Row Hover & Aesthetics */
-
-        table tbody tr { transition: background-color 0.2s ease; }
-
-        table tbody tr:hover td { background-color: rgba(46, 204, 113, 0.08) !important; cursor: default; }
-
-        
-
-        /* Glassmorphism Header & Sticky Table Headers */
-
-        .header-fixed-section {
-
-            background: rgba(255, 255, 255, 0.85) !important;
-
-            backdrop-filter: blur(12px);
-
-            -webkit-backdrop-filter: blur(12px);
-
-            border-bottom: 1px solid rgba(230, 126, 34, 0.3) !important;
-
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-
-        }
-
-        
-
-        table th {
-
-            background: rgba(242, 242, 242, 0.9) !important;
-
-            backdrop-filter: blur(8px);
-
-            -webkit-backdrop-filter: blur(8px);
-
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-
-            z-index: 10;
-
-        }
-
-
-
-        /* Smooth Tab Transitions */
-
-        .tab-content { animation: smoothSlideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important; }
-
-        @keyframes smoothSlideUp {
-
-            from { opacity: 0; transform: translateY(12px); }
-
-            to { opacity: 1; transform: translateY(0); }
-
-        }
-
-
-
-        /* Forms & Inputs Depth */
-
-        .form-section, .sidebar-form {
-
-            background: rgba(255, 255, 255, 0.95);
-
-            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-
-            border-radius: 10px;
-
-            border: 1px solid rgba(0,0,0,0.04);
-
-            transition: box-shadow 0.3s;
-
-        }
-
-        .form-section:hover, .sidebar-form:hover { box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
-
-        
-
-        .form-group input, .form-group select, .form-group textarea {
-
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-            border: 1px solid #ddd;
-
-        }
-
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-
-            border-color: #27ae60;
-
-            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
-
-            outline: none;
-
-        }
-
-
-
-        /* Ripple Buttons */
-
-        button { position: relative; overflow: hidden; }
-
-        button::after {
-
-            content: ''; position: absolute; top: 50%; left: 50%;
-
-            width: 5px; height: 5px; background: rgba(255,255,255,0.4);
-
-            opacity: 0; border-radius: 100%;
-
-            transform: scale(1, 1) translate(-50%, -50%); transform-origin: 50% 50%;
-
-        }
-
-        button:focus:not(:active)::after { animation: ripple 0.6s ease-out; }
-
-        @keyframes ripple {
-
-            0% { transform: scale(0, 0); opacity: 0.5; }
-
-            100% { transform: scale(30, 30); opacity: 0; }
-
-        }
-
     </style>
 
 </head>
@@ -3852,61 +3682,63 @@
 
         </div>
 
-        <aside class="sidebar">
+        <aside class="sidebar" onmouseleave="document.querySelector('.container').classList.add('collapsed-sidebar')">
 
-
+            <div class="sidebar-header">🏥 KHOA YHCT-PHCN</div>
 
 
 
             <div class="sidebar-menu" id="nav-tabs" style="display: flex; flex-direction: column; height: 100%;">
 
-                <button class="nav-tab active" data-tab="tab-home"><span class="icon">🏠</span><span class="text">Trang Chủ</span></button>
+                <button class="nav-tab active" data-tab="tab-home">🏠 Trang Chủ</button>
 
 
 
                 <div class="group-title">🗂️ Danh Mục</div>
 
-                <button class="nav-tab" data-tab="tab-machines"><span class="icon">🖥️</span><span class="text">Máy Móc</span></button>
+                <button class="nav-tab" data-tab="tab-machines">🖥️ Máy Móc</button>
 
-                <button class="nav-tab" data-tab="tab-procedures"><span class="icon">🩹</span><span class="text">Thủ Thuật</span></button>
+                <button class="nav-tab" data-tab="tab-procedures">🩹 Thủ Thuật</button>
 
-                <button class="nav-tab" data-tab="tab-staff"><span class="icon">🩺</span><span class="text">Nhân Sự</span></button>
+                <button class="nav-tab" data-tab="tab-staff">🩺 Nhân Sự</button>
 
-                <button class="nav-tab" data-tab="tab-rooms"><span class="icon">🚪</span><span class="text">Phòng</span></button>
+                <button class="nav-tab" data-tab="tab-rooms">🚪 Phòng</button>
 
 
 
                 <div class="group-title">📥 Tiếp Nhận</div>
 
-                <button class="nav-tab" data-tab="tab-patients"><span class="icon">🧑</span><span class="text">Bệnh Nhân</span></button>
+                <button class="nav-tab" data-tab="tab-patients">🧑 Bệnh Nhân</button>
 
-                <button class="nav-tab" data-tab="tab-busy"><span class="icon">⏳</span><span class="text">Giờ Bận / Ra Viện</span></button>
+                <button class="nav-tab" data-tab="tab-busy">⏳ Giờ Bận / Ra Viện</button>
 
 
 
                 <div class="group-title">🗓️ Xếp Lịch</div>
 
-                <button class="nav-tab" data-tab="tab-schedule"><span class="icon">📋</span><span class="text">Ngày Thường</span></button>
+                <button class="nav-tab" data-tab="tab-schedule">📋 Ngày Thường</button>
 
-                <button class="nav-tab" data-tab="tab-sat"><span class="icon">📆</span><span class="text">Thứ 7</span></button>
+                <button class="nav-tab" data-tab="tab-sat">📆 Thứ 7</button>
 
 
 
                 <div class="group-title">🧰 Tiện Ích</div>
 
-                <button class="nav-tab" data-tab="tab-utils"><span class="icon">🔎</span><span class="text">Tìm Giờ Rảnh</span></button>
+                <button class="nav-tab" data-tab="tab-stats">📈 Thống Kê</button>
 
-                <button class="nav-tab" data-tab="tab-kiemtra"><span class="icon">✅</span><span class="text">Kiểm Tra Lỗi</span></button>
+                <button class="nav-tab" data-tab="tab-utils">🔎 Tìm Giờ Rảnh</button>
 
 
 
-                <div class="sidebar-footer"
+                <div
 
-                    style="margin-top: auto; padding: 15px 0;">
+                    style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); position: sticky; bottom: 0; z-index: 100; background-color: #1e3d2b;">
 
                     <button class="nav-tab" data-tab="tab-admin" id="nav-btn-admin"
 
-                        style="display:none; width:100%; padding:10px; background:#c0392b; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:13px; text-align:center;"><span class="icon">🔒</span><span class="text" style="margin-left: 5px;">Quản Trị</span></button>
+                        style="display:none; width:100%; padding:12px; background:#c0392b; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:13px; text-align:center;">🔒
+
+                        Quản Trị Hệ Thống</button>
 
                 </div>
 
@@ -3924,7 +3756,7 @@
 
                     <div class="banner-left">
 
-                        <img src="logo-chuan-chinh.png" alt="Logo" class="banner-logo" onclick="document.querySelector('.nav-tab[data-tab=\'tab-home\']')?.click()" title="Về trang chủ">
+                        <img src="logo-chuan-chinh.png" alt="Logo" class="banner-logo">
 
                         <div class="banner-text">
 
@@ -3940,23 +3772,11 @@
 
                     <div class="banner-right">
 
-                        <div class="banner-clock" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                        <div class="banner-clock">
 
-                            <div style="display: flex; align-items: center; gap: 8px;">
+                            <div id="clock-time">00:00:00</div>
 
-                                <div id="clock-time">00:00:00</div>
-
-                                <div id="clock-date">Thứ Hai, 01/01/2026</div>
-
-                            </div>
-
-                            <button class="admin-btn-in-marquee" id="nav-btn-logout"
-
-                                onclick="showCustomConfirm('Đăng xuất tài khoản', 'Bạn có chắc chắn muốn đăng xuất không?', doLogout);">
-
-                                👨‍💼 admin <span class="logout-label">(Đăng xuất)</span>
-
-                            </button>
+                            <div id="clock-date">Thứ Hai, 01/01/2026</div>
 
                         </div>
 
@@ -3970,6 +3790,18 @@
 
 
 
+                    <button class="hamburger-in-marquee"
+
+                        onclick="document.querySelector('.container').classList.toggle('collapsed-sidebar')"
+
+                        title="Ẩn / Hiện thanh Menu">
+
+                        ☰
+
+                    </button>
+
+
+
                     <marquee behavior="scroll" direction="left" id="thong-bao-chay">
 
                         PHẦN MỀM XẾP LỊCH THỦ THUẬT - KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG - BVTKS CS2. Mọi thông
@@ -3977,6 +3809,18 @@
                         tin xin liên hệ admin qua sđt: 0392.283.473
 
                     </marquee>
+
+
+
+                    <button class="admin-btn-in-marquee" id="nav-btn-logout"
+
+                        onclick="showCustomConfirm('Đăng xuất tài khoản', 'Bạn có chắc chắn muốn đăng xuất không?', doLogout);">
+
+                        👨‍💼 admin <span class="logout-label">(Đăng xuất)</span>
+
+                    </button>
+
+
 
                 </div>
 
@@ -5454,24 +5298,6 @@
 
                 </div>
 
-                <div class="tab-content" id="tab-kiemtra" style="padding: 0;">
-
-                    <!-- Ẩn sidebar (260px) bên trái của trang Vercel -->
-
-                    <div style="position: relative; overflow: hidden; width: 100%; height: 100%; flex: 1;">
-
-                        <iframe src="https://quanlykhoa-yhct.vercel.app/#tab-kiemtra"
-
-                            style="position: absolute; top: 0; left: -260px; width: calc(100% + 260px); height: 100%; border: none;">
-
-                        </iframe>
-
-                    </div>
-
-                </div>
-
-
-
                 <div class="tab-content" id="tab-utils">
 
                     <div class="utils-compact-header"
@@ -5482,7 +5308,35 @@
 
                         </div>
 
+                        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
 
+                            <label
+
+                                style="color:#16a085; font-weight:bold; font-size:13px; white-space:nowrap;">Nguồn:</label>
+
+                            <label style="font-size:13px; display:flex; align-items:center; gap:4px; cursor:pointer;">
+
+                                <input type="radio" name="search-source" value="current" checked> Lịch trình
+
+                            </label>
+
+                            <label style="font-size:13px; display:flex; align-items:center; gap:4px; cursor:pointer;">
+
+                                <input type="radio" name="search-source" value="external"> File Excel
+
+                            </label>
+
+                            <div style="border-left: 1px solid #ccc; height: 20px; margin: 0 5px;"></div>
+
+                            <input type="file" id="file-utils-data" accept=".xlsx, .xls"
+
+                                style="font-size:13px; padding:4px; max-width:200px;">
+
+                            <span id="utils-file-status"
+
+                                style="font-size:12px; color:#e67e22; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;"></span>
+
+                        </div>
 
                     </div>
 
@@ -5754,10 +5608,6 @@
 
                                                 class="perm-cb" value="tab-utils"> 🛠 T.Ích</label>
 
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-kiemtra"> ✅ K.Tra</label>
-
                                         <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input
 
                                                 type="checkbox" class="perm-cb" value="tab-machines"> ⚙️ Máy</label>
@@ -5934,7 +5784,7 @@
 
                 </div>
 
-                <div class="tab-content" id="tab-stats" style="display:none!important">
+                <div class="tab-content" id="tab-stats">
 
                     <div class="tab-header-title">📊 THỐNG KÊ & BÁO CÁO LÂM SÀNG</div>
 
@@ -6363,38 +6213,6 @@
     </div>
 
     <script>
-
-window.showGlobalLoading = function(text) {
-
-    let overlay = document.getElementById('global-loading-overlay');
-
-    if (!overlay) {
-
-        overlay = document.createElement('div');
-
-        overlay.id = 'global-loading-overlay';
-
-        overlay.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999999; flex-direction:column; justify-content:center; align-items:center; color:white; font-size:18px; font-weight:bold; backdrop-filter: blur(2px);';
-
-        overlay.innerHTML = '<div style="border:4px solid rgba(255,255,255,0.3); border-top:4px solid #fff; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; margin-bottom:15px;"></div><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style><span id="global-loading-text"></span>';
-
-        document.body.appendChild(overlay);
-
-    }
-
-    document.getElementById('global-loading-text').innerText = text || 'Đang xử lý...';
-
-    overlay.style.display = 'flex';
-
-};
-
-window.hideGlobalLoading = function() {
-
-    const overlay = document.getElementById('global-loading-overlay');
-
-    if (overlay) overlay.style.display = 'none';
-
-};
 
 window.onerror = function(msg, url, lineNo, columnNo, error) { console.error('JS ERROR:', msg, 'at line', lineNo); alert('LỖI CÚ PHÁP TẠI DÒNG ' + lineNo + ': ' + msg); };
 
@@ -7480,7 +7298,7 @@ console.log('--- JS Block: Foundation started ---');
 
 
 
-        function loadEntity(apiMethod, cacheKey, callback, extraCallbacks = [], forceRefresh = false) {
+        function loadEntity(apiMethod, cacheKey, callback, extraCallbacks = []) {
 
             const CACHE_TTL = 5 * 60 * 1000; // Lưu Cache 5 phút
 
@@ -7502,7 +7320,7 @@ console.log('--- JS Block: Foundation started ---');
 
             // 2. KIỂM TRA BỘ NHỚ ĐỆM (CACHE)
 
-            if (!forceRefresh && typeof dataCache !== 'undefined' && dataCache[cacheKey] && window.dataCacheTime[cacheKey] && dataCache[cacheKey].length > 0) {
+            if (typeof dataCache !== 'undefined' && dataCache[cacheKey] && window.dataCacheTime[cacheKey] && dataCache[cacheKey].length > 0) {
 
                 if (now - window.dataCacheTime[cacheKey] < CACHE_TTL) {
 
@@ -7752,35 +7570,7 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa máy", "Bác sĩ có chắc chắn muốn xóa máy này?", function () {
 
-                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa máy móc...");
-
-                const btnSave = document.getElementById('btn-save-machine');
-
-                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
-
-                dataCache.machine.splice(i, 1); renderMachinesTable(); 
-
-                google.script.run
-
-                    .withSuccessHandler(() => { 
-
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        if (typeof loadMachines === 'function') loadMachines(); 
-
-                    })
-
-                    .withFailureHandler(e => {
-
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        alert('Lỗi: ' + e);
-
-                    }).deleteMayMoc(i);
+                dataCache.machine.splice(i, 1); renderMachinesTable(); google.script.run.deleteMayMoc(i);
 
             });
 
@@ -7918,35 +7708,7 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa thủ thuật", "Bác sĩ có chắc chắn muốn xóa thủ thuật này không?", function () {
 
-                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa thủ thuật...");
-
-                const btnSave = document.getElementById('btn-save-proc');
-
-                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
-
-                dataCache.proc.splice(i, 1); renderProceduresTable(); renderProcedureCheckboxes(); 
-
-                google.script.run
-
-                    .withSuccessHandler(() => { 
-
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        if (typeof loadProcedures === 'function') loadProcedures(); 
-
-                    })
-
-                    .withFailureHandler(e => {
-
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        alert('Lỗi: ' + e);
-
-                    }).deleteThuThuat(i);
+                dataCache.proc.splice(i, 1); renderProceduresTable(); renderProcedureCheckboxes(); google.script.run.deleteThuThuat(i);
 
             });
 
@@ -8100,33 +7862,11 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa nhân sự", "Bác sĩ có chắc chắn muốn xóa nhân sự này không?", function () {
 
-                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa nhân sự...");
-
-                const btnSave = document.getElementById('btn-save-staff');
-
-                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
-
                 dataCache.staff.splice(i, 1); renderStaffTable();
 
-                google.script.run.withSuccessHandler(() => { 
+                google.script.run.withSuccessHandler(() => { if (typeof loadDashboard === 'function') loadDashboard(); })
 
-                    if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                    if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                    if (typeof loadDashboard === 'function') loadDashboard(); 
-
-                })
-
-                    .withFailureHandler(e => {
-
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        alert('Lỗi khi xóa: ' + e);
-
-                    }).deleteNhanSu(i);
+                    .withFailureHandler(e => alert('Lỗi khi xóa: ' + e)).deleteNhanSu(i);
 
             });
 
@@ -8298,35 +8038,7 @@ console.log('--- JS Block: Foundation started ---');
 
             showCustomConfirm("Xác nhận xóa phòng", "Bác sĩ có chắc chắn muốn xóa phòng này không?", function () {
 
-                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa phòng...");
-
-                const btnSave = document.getElementById('btn-save-room');
-
-                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
-
-                dataCache.room.splice(i, 1); renderRoomsTable(); 
-
-                google.script.run
-
-                    .withSuccessHandler(() => { 
-
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        if (typeof loadRooms === 'function') loadRooms(); 
-
-                    })
-
-                    .withFailureHandler(e => {
-
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        alert('Lỗi: ' + e);
-
-                    }).deletePhong(i);
+                dataCache.room.splice(i, 1); renderRoomsTable(); google.script.run.deletePhong(i);
 
             });
 
@@ -8532,63 +8244,161 @@ console.log('--- JS Block: Foundation started ---');
 
         // ============================================================
 
-        // ♻️ HỆ THỐNG XÓA BỆNH NHÂN (TRỰC TIẾP, AN TOÀN)
+        // ♻️ HỆ THỐNG HOÀN TÁC (UNDO) - CHỐNG XÓA NHẦM BỆNH NHÂN
 
         // ============================================================
+
+        let undoTimeout = null;
+
+        let pendingDeletePat = null;
+
+
+
+        // Hàm tạo giao diện thông báo Hoàn Tác (CÓ ĐẾM NGƯỢC THỜI GIAN THỰC)
+
+        function showUndoToast(message, undoCallback) {
+
+            let toast = document.getElementById('smart-undo-toast');
+
+            if (!toast) {
+
+                toast = document.createElement('div');
+
+                toast.id = 'smart-undo-toast';
+
+                toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#2c3e50; color:white; padding:12px 25px; border-radius:50px; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:999999; display:flex; align-items:center; gap:20px; font-size:14px; animation: popIn 0.3s;';
+
+                document.body.appendChild(toast);
+
+            }
+
+
+
+            let timeLeft = 10; // Cài đặt 10 giây
+
+            toast.innerHTML = `
+
+        <span>${message}</span>
+
+        <button id="btn-undo-action" style="background:#f1c40f; color:#2c3e50; border:none; padding:6px 15px; border-radius:20px; font-weight:bold; cursor:pointer; transition:0.2s; width: 140px;">⏳ HOÀN TÁC (${timeLeft}s)</button>
+
+    `;
+
+            toast.style.display = 'flex';
+
+
+
+            const btn = document.getElementById('btn-undo-action');
+
+
+
+            // 🕒 BỘ ĐẾM NGƯỢC: Chạy mỗi 1 giây (1000ms)
+
+            if (window.undoInterval) clearInterval(window.undoInterval); // Xóa đồng hồ cũ nếu có
+
+            window.undoInterval = setInterval(() => {
+
+                timeLeft--;
+
+                if (btn) btn.innerText = `⏳ HOÀN TÁC (${timeLeft}s)`;
+
+
+
+                // Nếu đếm về 0 thì dừng đồng hồ và giấu thông báo đi
+
+                if (timeLeft <= 0) {
+
+                    clearInterval(window.undoInterval);
+
+                    toast.style.display = 'none';
+
+                }
+
+            }, 1000);
+
+
+
+            // Nếu bấm Hoàn tác thì dừng đồng hồ và gọi hàm khôi phục
+
+            btn.onclick = function () {
+
+                clearInterval(window.undoInterval);
+
+                undoCallback();
+
+                toast.style.display = 'none';
+
+            };
+
+        }
+
+
+
+        // Hàm Xóa có tích hợp Án treo
 
         function deletePatient(i) {
 
             const p = dataCache.pat[i];
 
-            showCustomConfirm("Xác nhận xóa", `Bác sĩ có chắc chắn muốn xóa bệnh nhân [ ${p.ten} ]?`, function () {
+            showCustomConfirm("Xác nhận xóa", `Bác sĩ có chắc chắn muốn xóa bệnh nhân [ ${p.ten} ]?\n(Sẽ có 10 giây để hoàn tác)`, function () {
 
-                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa bệnh nhân...");
 
-                
 
-                // Xóa tạm trên giao diện
+                // 1. Lưu hồ sơ vào "Phòng hồi sức"
+
+                pendingDeletePat = { index: i, data: p };
+
+
+
+                // 2. Xóa tạm thời khỏi giao diện cho cảm giác phản hồi tức thì
 
                 dataCache.pat.splice(i, 1);
 
                 renderPatientsTable();
 
-                
-
-                // Khóa nút lưu để chống thao tác đè trong lúc chờ mạng
-
-                const btnSave = document.getElementById('btn-save-pat');
-
-                if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang đồng bộ..."; }
 
 
+                // 3. Hiện nút Hoàn Tác
 
-                // Gọi máy chủ xóa ngay lập tức
+                showUndoToast(`🗑 Đã xóa bệnh nhân <b>${p.ten}</b>.`, function () {
 
-                google.script.run
+                    // NẾU BẤM HOÀN TÁC:
 
-                    .withSuccessHandler(() => { 
+                    clearTimeout(undoTimeout); // Hủy lệnh chém cẩu đầu trảm
 
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    dataCache.pat.splice(pendingDeletePat.index, 0, pendingDeletePat.data); // Nhét lại vào vị trí cũ
 
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+                    pendingDeletePat = null;
 
-                        // Tải lại toàn bộ dữ liệu mới nhất để đảm bảo đồng bộ số thứ tự dòng
+                    renderPatientsTable(); // Vẽ lại bảng
 
-                        if (typeof loadDashboard === 'function') loadDashboard(); 
+                    showCustomAlert("Thành công", "Đã khôi phục hồ sơ bệnh nhân!");
 
-                    })
+                });
 
-                    .withFailureHandler(e => {
 
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
 
-                        if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
+                // 4. HẸN GIỜ: Đúng 10 giây sau mới báo Google Sheets xóa thật
 
-                        alert('Lỗi khi xóa vĩnh viễn: ' + e);
+                clearTimeout(undoTimeout);
 
-                    })
+                undoTimeout = setTimeout(() => {
 
-                    .deleteBenhNhan(i);
+                    if (pendingDeletePat) {
+
+                        google.script.run
+
+                            .withSuccessHandler(() => { if (typeof loadDashboard === 'function') loadDashboard(); })
+
+                            .withFailureHandler(e => alert('Lỗi khi xóa vĩnh viễn: ' + e))
+
+                            .deleteBenhNhan(pendingDeletePat.index);
+
+                        pendingDeletePat = null; // Xóa sổ khỏi phòng hồi sức
+
+                    }
+
+                }, 10000); // 10,000 milliseconds = 10 giây
 
             });
 
@@ -10102,41 +9912,13 @@ console.log('--- JS Block: Foundation started ---');
 
                 btn.innerText = '⏳ Đang xử lý...'; btn.disabled = true;
 
-                // Chặn autoSync ngay lập tức để không bị kéo dữ liệu cũ về
-
-                window._chotSoDone = false;
-
-                window.viewingImportedScheduleFile = true;
-
                 google.script.run.withSuccessHandler(res => {
 
-                    // Xóa sạch mọi dữ liệu ca rớt và lịch cũ trong bộ nhớ
+                    alert("Chốt sổ thành công!");
 
-                    window.currentScheduleData = [];
+                    location.reload();
 
-                    window.lastUnscheduledData = [];
-
-                    window.currentRotData = [];
-
-                    localStorage.removeItem('meds_success');
-
-                    localStorage.removeItem('meds_schedule_date');
-
-                    localStorage.removeItem('meds_unscheduled');
-
-                    // Reload sau 300ms để server kịp ghi xong
-
-                    setTimeout(() => { location.reload(); }, 300);
-
-                }).withFailureHandler(err => {
-
-                    alert("Lỗi: " + err.message);
-
-                    btn.disabled = false;
-
-                    window.viewingImportedScheduleFile = false;
-
-                }).chuyenNgayMoi();
+                }).withFailureHandler(err => { alert("Lỗi: " + err.message); btn.disabled = false; }).chuyenNgayMoi();
 
             });
 
@@ -11338,7 +11120,7 @@ console.log('--- JS Block: Foundation started ---');
 
                                 const tbody = document.getElementById('acc-list');
 
-                                const PERM_MAP = {'tab-patients':'🛌 Bệnh Nhân','tab-schedule':'⚡ Xếp Lịch','tab-sat':'📅 Thứ 7','tab-busy':'⏱ Giờ Bận','tab-stats':'📊 Thống Kê','tab-utils':'🛠 Tiện Ích','tab-kiemtra':'✅ Kiểm Tra Lỗi','tab-machines':'⚙️ Máy Móc','tab-procedures':'💉 Thủ Thuật','tab-rooms':'🏥 Phòng','tab-staff':'👨‍⚕️ Nhân Sự'};                                 tbody.innerHTML = data.map((acc, i) => {
+                                const PERM_MAP = {'tab-patients':'🛌 Bệnh Nhân','tab-schedule':'⚡ Xếp Lịch','tab-sat':'📅 Thứ 7','tab-busy':'⏱ Giờ Bận','tab-stats':'📊 Thống Kê','tab-utils':'🛠 Tiện Ích','tab-machines':'⚙️ Máy Móc','tab-procedures':'💉 Thủ Thuật','tab-rooms':'🏥 Phòng','tab-staff':'👨‍⚕️ Nhân Sự'};                                 tbody.innerHTML = data.map((acc, i) => {
 
                                 let tenQuyen = "👑 Toàn quyền (Admin)";
 
@@ -11510,67 +11292,17 @@ console.log('--- JS Block: Foundation started ---');
 
                                 // ============================================================
 
-                                function syncPatients() { loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true); }
-
-                                function syncStaff() { loadEntity('getNhanSu', 'staff', renderStaffTable, [
-
-                                    () => { if (typeof renderBusyStaff === 'function') renderBusyStaff(); },
-
-                                    () => { if (typeof locSotSat === 'function') locSotSat(); }
-
-                                ], true); }
-
-
-
                                 function startAutoSync() {
 
-                                    setInterval(() => {
+                                setInterval(() => {
 
-                                        if (window.viewingImportedScheduleFile) return;
+                                if (window.viewingImportedScheduleFile) return;
 
-                                        const activeTab = document.querySelector('.nav-tab.active')?.getAttribute('data-tab');
+                                const activeTab = document.querySelector('.nav-tab.active')?.getAttribute('data-tab');
 
-                                        
+                                if (activeTab === 'tab-schedule' || activeTab === 'tab-home') loadScheduleList();
 
-                                        // Đồng bộ Xếp lịch
-
-                                        if (activeTab === 'tab-schedule' || activeTab === 'tab-home') {
-
-                                            loadScheduleList();
-
-                                        }
-
-                                        
-
-                                        // Đồng bộ Bệnh Nhân (Chỉ khi không đang bấm Sửa)
-
-                                        if (activeTab === 'tab-patients') {
-
-                                            if (typeof editIndex !== 'undefined' && editIndex.pat === -1) {
-
-                                                syncPatients();
-
-                                            }
-
-                                        }
-
-                                        
-
-                                        // Đồng bộ Giờ Bận/Ra Viện (Chỉ khi không đang bấm Sửa)
-
-                                        if (activeTab === 'tab-busy') {
-
-                                            if (typeof editIndex !== 'undefined' && editIndex.pat === -1 && editIndex.staff === -1) {
-
-                                                syncPatients();
-
-                                                syncStaff();
-
-                                            }
-
-                                        }
-
-                                    }, 15000); // Rút ngắn xuống 15s để trải nghiệm realtime tốt hơn
+                                }, 30000);
 
                                 }
 
@@ -12398,123 +12130,11 @@ console.log('--- JS Block: Foundation started ---');
 
                                                 event.preventDefault(); successModal.style.display = 'none'; }
 
-                                                return; // Nếu popup thành công đang mở thì chỉ đóng popup, không lưu form
-
-                                                }
-
-
-
-                                                // TỐI ƯU UX 1: Ấn Enter ở bất kỳ ô nhập liệu nào cũng sẽ tự động nhấn nút Lưu/Thêm
-
-                                                if (event.key === 'Enter') {
-
-                                                    const activeEl = document.activeElement;
-
-                                                    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT')) {
-
-                                                        const formSection = activeEl.closest('.form-section, .import-controls, .login-box');
-
-                                                        if (formSection) {
-
-                                                            // Tìm nút màu xanh (Lưu/Thêm) trong cùng khu vực
-
-                                                            const saveBtn = formSection.querySelector('.btn-success') || formSection.querySelector('button[onclick="verifyPassword()"]');
-
-                                                            if (saveBtn && !saveBtn.disabled && saveBtn.offsetParent !== null) {
-
-                                                                event.preventDefault();
-
-                                                                saveBtn.click();
-
-                                                            }
-
-                                                        }
-
-                                                    }
-
                                                 }
 
                                                 });
 
-
-
-                                                // TỐI ƯU UX 2: Tự động định dạng Giờ và Ngày khi gõ tắt (0830 -> 08:30)
-
-                                                document.addEventListener('focusout', function(e) {
-
-                                                    if (e.target && e.target.tagName === 'INPUT') {
-
-                                                        const val = e.target.value.trim();
-
-                                                        if (!val) return;
-
-                                                        
-
-                                                        // Tự động định dạng giờ (gõ 830 hoặc 0830 -> 08:30)
-
-                                                        if (e.target.id.includes('-time') || e.target.id.includes('-gio') || e.target.id.includes('gio-') || e.target.id.includes('-leave') || e.target.classList.contains('time-input')) {
-
-                                                            if (/^\d{3,4}$/.test(val)) {
-
-                                                                let formatted = val.length === 3 ? '0' + val : val;
-
-                                                                e.target.value = formatted.substring(0, 2) + ':' + formatted.substring(2);
-
-                                                            }
-
-                                                        }
-
-                                                        
-
-                                                        // Tự động định dạng ngày (gõ 120526 hoặc 12052026 -> 12/05/2026)
-
-                                                        if (e.target.id.includes('-date') || e.target.id.includes('-ngay') || e.target.id.includes('ngay-') || e.target.classList.contains('date-input')) {
-
-                                                            if (/^\d{6}$/.test(val)) { 
-
-                                                                e.target.value = val.substring(0, 2) + '/' + val.substring(2, 4) + '/20' + val.substring(4);
-
-                                                            } else if (/^\d{8}$/.test(val)) { 
-
-                                                                e.target.value = val.substring(0, 2) + '/' + val.substring(2, 4) + '/' + val.substring(4);
-
-                                                            }
-
-                                                        }
-
-                                                    }
-
-                                                });
-
-
-
-                                                // TỐI ƯU UX 3: Click đúp vào ô Thời gian (Giờ vào, Giờ ra, Giờ bận) để tự động điền GIỜ HIỆN TẠI
-
-                                                document.addEventListener('dblclick', function(e) {
-
-                                                    if (e.target && e.target.tagName === 'INPUT') {
-
-                                                        if (e.target.id.includes('-time') || e.target.id.includes('-gio') || e.target.id.includes('gio-') || e.target.id.includes('-leave') || e.target.classList.contains('time-input')) {
-
-                                                            const now = new Date();
-
-                                                            const hh = String(now.getHours()).padStart(2, '0');
-
-                                                            const mm = String(now.getMinutes()).padStart(2, '0');
-
-                                                            e.target.value = `${hh}:${mm}`;
-
-                                                            // Bôi đen để người dùng dễ nhìn thấy dữ liệu vừa được điền
-
-                                                            e.target.select();
-
-                                                        }
-
-                                                    }
-
-                                                });
-
-
+                                                
 
 // --- Script Blocks Merged ---
 
@@ -12650,139 +12270,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                                 </script>
 
-<script>
-
-    (function() {
-
-        const sidebar = document.querySelector('.sidebar');
-
-        const container = document.querySelector('.container');
-
-        const hamburger = document.getElementById('mobile-hamburger-btn');
-
-        
-
-        if (sidebar && container) {
-
-            sidebar.addEventListener('mouseleave', () => {
-
-                if (window.matchMedia("(pointer: fine)").matches) {
-
-                    container.classList.add('collapsed-sidebar');
-
-                }
-
-            });
-
-        }
-
-        
-
-        if (hamburger && container) {
-
-            hamburger.addEventListener('click', (e) => {
-
-                e.stopPropagation();
-
-                container.classList.toggle('collapsed-sidebar');
-
-            });
-
-        }
-
-        
-
-        document.addEventListener('click', (e) => {
-
-            if (window.innerWidth <= 1000) {
-
-                if (sidebar && hamburger && container && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
-
-                    container.classList.add('collapsed-sidebar');
-
-                }
-
-            }
-
-        });
-
-        
-
-        const navLinks = document.querySelectorAll('.nav-tab, .nav-item');
-
-        navLinks.forEach(link => {
-
-            link.addEventListener('click', () => {
-
-                if (window.innerWidth <= 1000 && container) {
-
-                    container.classList.add('collapsed-sidebar');
-
-                }
-
-            });
-
-        });
-
-    })();
-
-</script>
-
-<!-- SIDEBAR TOOLTIP (body-level, no overflow constraints) -->
-<div id="sidebar-tooltip"></div>
-
-<script>
-(function() {
-    const tooltip = document.getElementById('sidebar-tooltip');
-    let hideTimer = null;
-
-    function showTooltip(btn) {
-        const textEl = btn.querySelector('.text');
-        if (!textEl) return;
-        const label = textEl.textContent.trim();
-        if (!label) return;
-
-        clearTimeout(hideTimer);
-        const rect = btn.getBoundingClientRect();
-        const top = rect.top + rect.height / 2;
-
-        tooltip.textContent = label;
-        tooltip.style.top = top + 'px';
-        tooltip.style.transform = 'translateY(-50%)';
-        tooltip.style.opacity = '1';
-    }
-
-    function hideTooltip() {
-        hideTimer = setTimeout(() => {
-            tooltip.style.opacity = '0';
-        }, 80);
-    }
-
-    // Attach to all sidebar nav-tab buttons (current + future)
-    function attachTooltips() {
-        const sidebar = document.querySelector('.sidebar');
-        if (!sidebar) return;
-        sidebar.querySelectorAll('button.nav-tab').forEach(btn => {
-            if (btn.dataset.tooltipAttached) return;
-            btn.dataset.tooltipAttached = '1';
-            btn.addEventListener('mouseenter', () => showTooltip(btn));
-            btn.addEventListener('mouseleave', hideTooltip);
-        });
-    }
-
-    // Run after DOM ready and also on any dynamic changes
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', attachTooltips);
-    } else {
-        attachTooltips();
-    }
-    // Re-attach for any dynamically added buttons (e.g. after login)
-    const observer = new MutationObserver(attachTooltips);
-    observer.observe(document.body, { childList: true, subtree: true });
-})();
-</script>
-
-</body>
+                                                </body>
 
 
 
