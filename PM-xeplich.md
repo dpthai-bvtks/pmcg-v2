@@ -1087,3 +1087,20 @@ Tôi đã tối ưu hóa giao diện danh sách bệnh nhân của tab **Thứ 7
    - Gom toàn bộ thông tin bao gồm: Số thứ tự, Tên bệnh nhân, Phòng bệnh (được đóng khung nhãn badge màu cam nhạt tinh tế), Các ô chọn thủ thuật và Khung giờ sẵn sàng lên **cùng 1 dòng nằm ngang**.
    - Việc này giúp giảm chiều cao mỗi thẻ bệnh nhân chỉ còn một nửa, giúp tăng số lượng bệnh nhân hiển thị cùng lúc trên màn hình lên gấp đôi (~12-16 bệnh nhân thay vì chỉ 6 như trước).
 3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+khi chọn thủ thuật và hiện ra bảng thống kê thì chỗ bệnh nhân có thủ thuật thì xuống dòng, có thr thuật lại không
+
+### Planner Response
+
+Tôi đã điều chỉnh cấu trúc thẻ bệnh nhân ở tab **Thứ 7** để khắc phục triệt để tình trạng hiển thị lệch dòng (thẻ cao thẻ thấp mất cân đối) khi thu hẹp màn hình để hiển thị bảng thống kê:
+
+1. **Cố định bố cục 2 dòng đồng đều (Uniform 2-line layout)**:
+   - **Dòng 1**: Số TT & Họ tên bệnh nhân (trái) và Nhãn phòng bệnh badge màu cam (phải), ngăn cách bởi một đường kẻ đứt nét mờ tinh tế.
+   - **Dòng 2**: Danh sách ô chọn thủ thuật (trái) và Khung giờ sẵn sàng (phải).
+2. **Hiệu quả tối ưu**:
+   - Tất cả các thẻ bệnh nhân bây giờ sẽ có **chiều cao bằng nhau tuyệt đối** (cố định 2 dòng), tạo cảm giác giao diện lưới Grid 2 cột cực kỳ gọn gàng, ngay hàng thẳng lối và chuyên nghiệp.
+   - Khoảng cách giữa các phần tử (tên, thủ thuật, giờ sẵn sàng) vẫn rất gọn gàng và không bị kéo giãn quá xa nhờ cấu trúc Grid.
+3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.

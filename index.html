@@ -10665,15 +10665,15 @@ console.log('--- JS Block: Foundation started ---');
 
                             const fBn = document.createElement('div');
                             fBn.id = `sat-bn-${bn_id}`;
-                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:4px 10px; margin-bottom:4px; border-radius:5px; display:flex; align-items:center; justify-content:space-between; gap:10px;';
+                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:6px 10px; margin-bottom:4px; border-radius:5px; display:flex; flex-direction:column; gap:4px;';
 
-                            const leftGroup = document.createElement('div');
-                            leftGroup.style.cssText = 'display:flex; align-items:center; gap:15px; flex:1; min-width:0; flex-wrap:wrap;';
+                            const tDiv = document.createElement('div');
+                            tDiv.style.cssText = 'display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #ecf0f1; padding-bottom:3px;';
+                            tDiv.innerHTML = `<b style="font-size:12px; color:#2c3e50;">${pIdx+1}. ${r.ten.toUpperCase()} (${r.namSinh})</b> <span style="font-size:11px; color:#e67e22; background:#fef5e7; padding:1px 6px; border-radius:3px; border:1px solid #fadbd8; white-space:nowrap;">P. ${r.phong}</span>`;
+                            fBn.appendChild(tDiv);
 
-                            const infoDiv = document.createElement('div');
-                            infoDiv.style.cssText = 'display:flex; align-items:center; gap:8px; flex-shrink:0;';
-                            infoDiv.innerHTML = `<b style="font-size:12px; color:#2c3e50; white-space:nowrap;">${pIdx+1}. ${r.ten.toUpperCase()} (${r.namSinh})</b> <span style="font-size:11px; color:#e67e22; background:#fef5e7; padding:1px 6px; border-radius:3px; border:1px solid #fadbd8; white-space:nowrap;">P. ${r.phong}</span>`;
-                            leftGroup.appendChild(infoDiv);
+                            const flexContainer = document.createElement('div');
+                            flexContainer.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-top:2px;';
 
                             const ttDiv = document.createElement('div');
 
@@ -10735,8 +10735,8 @@ console.log('--- JS Block: Foundation started ---');
 
                             readyTimeDiv.append(readyLabel, readyInput);
 
-                            leftGroup.appendChild(ttDiv);
-                            fBn.append(leftGroup, readyTimeDiv);
+                            flexContainer.append(ttDiv, readyTimeDiv);
+                            fBn.appendChild(flexContainer);
                             frDs.appendChild(fBn);
 
                             });
