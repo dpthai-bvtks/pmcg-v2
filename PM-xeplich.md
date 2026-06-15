@@ -1000,3 +1000,40 @@ Hậu quả là lệnh push của mình đã vô tình ghi đè (chạy lùi) m�
 5. Push toàn bộ bản sửa lỗi lên lại GitHub.
 
 Bây giờ mọi thứ đã được khôi phục nguyên vẹn và cập nhật đầy đủ lên GitHub. Bạn hãy F5 tải lại trang nhé, tab **Kiểm Tra Lỗi** đã quay trở lại rồi đó!
+
+
+### User Input
+
+đọc file này và các file trong thư mục đang mở, gợi ý các thứ cần chính sửa cho phù hợp với chuẩn SEO
+
+### Planner Response
+
+Tôi đã đọc file [PM-xeplich.md](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/PM-xeplich.md), phân tích mã nguồn `index.html` trong thư mục làm việc và tạo một báo cáo chi tiết các gợi ý chỉnh sửa chuẩn SEO tại tệp tin:
+
+👉 **[seo_recommendations.md](file:///C:/Users/Dang%20Phong%20Thai/.gemini/antigravity-ide/brain/3005618c-df7f-4d03-a9fc-1e4abecc11b7/seo_recommendations.md)**
+
+#### Tóm tắt các nội dung đề xuất chính:
+* **Thẻ Meta & Open Graph**: Thêm thẻ `<meta name="description">`, thẻ Canonical và các thẻ chia sẻ mạng xã hội (Zalo, Facebook).
+* **Cấu trúc Headings**: Thay đổi tiêu đề banner từ `H2/H3` thành `H1/H2` để đảm bảo trang có đúng một thẻ `<h1>` duy nhất.
+* **Hình ảnh & Ngữ nghĩa**: Bổ sung thuộc tính `alt` cho logo đăng nhập và chuyển đổi các thẻ layout lớn sang Semantic HTML (`<header>`, `<main>`).
+* **Schema Markup**: Nhúng dữ liệu có cấu trúc JSON-LD giới thiệu phần mềm và tổ chức y tế.
+* **Tệp cấu hình**: Tạo mới hai tệp [robots.txt](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/robots.txt) và [sitemap.xml](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/sitemap.xml).
+
+---
+
+#### Xác nhận từ bạn:
+Bạn có muốn tôi **tự động áp dụng tất cả các chỉnh sửa này vào mã nguồn `index.html`** và tự động tạo mới các file cấu hình SEO trong thư mục không?
+
+### User Input
+
+tự động áp dụng tất cả các chỉnh sửa này vào mã nguồn index.html và tự động tạo mới các file cấu hình SEO trong thư mục, sau đó tải lên repo github https://github.com/dpthai-bvtks/pmcg-v2, lưu lại cuộc trò chuyện vào file PM-xeplich.md, từ nay về sau đều thế
+
+### Planner Response
+
+Tôi đã thực hiện thành công các yêu cầu của bạn:
+1. **Cập nhật mã nguồn `index.html`** với đầy đủ các chuẩn SEO (Thẻ Meta, Open Graph, Twitter Card, Canonical link, Schema JSON-LD, thẻ H1 cho banner, thuộc tính alt cho ảnh logo và các thẻ ngữ nghĩa HTML5 `<header>` & `<main>`). Các thay đổi đã được kiểm tra tính chính xác qua bộ phân tích.
+2. **Tạo mới các file cấu hình SEO**:
+   * File [robots.txt](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/robots.txt) để kiểm soát bot cào dữ liệu các phân trang quản trị/riêng tư.
+   * File [sitemap.xml](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/sitemap.xml) làm sơ đồ trang web chuẩn.
+3. **Đồng bộ hóa lên GitHub**: Thực hiện commit và push toàn bộ các tệp tin thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+4. **Lưu nhật ký cuộc trò chuyện**: Lưu trữ nội dung cuộc hội thoại này vào tệp [PM-xeplich.md](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/PM-xeplich.md).
