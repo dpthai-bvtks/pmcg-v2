@@ -5388,7 +5388,7 @@
 
                         <div id="sat-staff-container"
 
-                            style="display: none; flex: 0 0 25%; background: #fdfefe; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; flex-direction: column;">
+                            style="display: none; flex: 0 0 220px; background: #fdfefe; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; flex-direction: column;">
 
                             <h4 style="text-align: center; color: #2c3e50; margin-bottom: 10px;">👨‍⚕️ Nhân sự đi làm
 
@@ -5429,7 +5429,7 @@
                             
 
                             <div id="sat-patient-list"
-                                style="flex: 1; overflow-y: auto; background: #f1f2f6; padding: 10px; border-radius: 5px; display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 6px; align-content: start;">
+                                style="flex: 1; overflow-y: auto; background: #f1f2f6; padding: 10px; border-radius: 5px; column-width: 460px; column-gap: 8px;">
 
                             </div>
 
@@ -10665,7 +10665,7 @@ console.log('--- JS Block: Foundation started ---');
 
                             const fBn = document.createElement('div');
                             fBn.id = `sat-bn-${bn_id}`;
-                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:6px 10px; margin-bottom:4px; border-radius:5px; display:flex; flex-direction:column; gap:4px;';
+                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:6px 10px; margin-bottom:6px; border-radius:5px; display:flex; flex-direction:column; gap:4px; break-inside:avoid; -webkit-column-break-inside:avoid;';
 
                             const tDiv = document.createElement('div');
                             tDiv.style.cssText = 'display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #ecf0f1; padding-bottom:3px;';

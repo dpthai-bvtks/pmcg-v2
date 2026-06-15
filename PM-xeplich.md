@@ -1104,3 +1104,21 @@ Tôi đã điều chỉnh cấu trúc thẻ bệnh nhân ở tab **Thứ 7** đ�
    - Tất cả các thẻ bệnh nhân bây giờ sẽ có **chiều cao bằng nhau tuyệt đối** (cố định 2 dòng), tạo cảm giác giao diện lưới Grid 2 cột cực kỳ gọn gàng, ngay hàng thẳng lối và chuyên nghiệp.
    - Khoảng cách giữa các phần tử (tên, thủ thuật, giờ sẵn sàng) vẫn rất gọn gàng và không bị kéo giãn quá xa nhờ cấu trúc Grid.
 3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+chia 2 nữa thì oke rồi nhưng phải lần lượt, cột bên trái từ 1 đến 2 đến 3 chứ, ngoài ra giảm độ rộng của bảng chọn nhân sự đi làm
+
+### Planner Response
+
+Tôi đã điều chỉnh cách sắp xếp thứ tự danh sách bệnh nhân và thu nhỏ độ rộng của bảng chọn nhân sự theo đúng yêu cầu của bạn:
+
+1. **Sắp xếp thứ tự bệnh nhân lần lượt theo cột dọc (1, 2, 3...)**:
+   - Thay đổi bố cục của danh sách bệnh nhân từ dạng lưới Grid (sắp xếp theo hàng ngang: 1-trái 2-phải) sang dạng cột báo (**CSS Columns Layout**).
+   - Danh sách bệnh nhân bây giờ sẽ được sắp xếp lần lượt từ trên xuống dưới ở cột bên trái (ví dụ: từ 1 đến 6) rồi mới tiếp tục chạy sang cột bên phải (từ 7 đến 12). Cách sắp xếp này giúp việc theo dõi danh sách bệnh nhân theo chiều dọc tự nhiên và dễ đọc hơn rất nhiều.
+   - Bổ sung thuộc tính `break-inside: avoid;` vào thẻ bệnh nhân để đảm bảo thẻ không bao giờ bị đứt đoạn hoặc bị cắt làm đôi giữa hai cột.
+2. **Thu nhỏ bảng chọn nhân sự đi làm**:
+   - Giảm chiều rộng của bảng chọn **Nhân sự đi làm** từ chiếm **25%** tổng chiều rộng màn hình xuống còn **cố định 220px**.
+   - Việc này giúp bảng chọn nhân sự nhỏ gọn vừa vặn, nhường nhiều không gian hiển thị hơn cho danh sách bệnh nhân kể cả khi bạn mở bảng chọn nhân sự lên.
+3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
