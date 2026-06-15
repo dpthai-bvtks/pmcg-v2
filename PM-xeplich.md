@@ -1154,3 +1154,20 @@ Tôi đã tái thiết kế lại kiến trúc phân cột của danh sách bệ
    - JavaScript sẽ tự động chia đôi danh sách bệnh nhân: Nửa đầu tiên (từ bệnh nhân số 1 đến số 20 nếu có 40 bệnh nhân) được xếp vào cột bên trái. Nửa còn lại (từ bệnh nhân 21 đến 40) được xếp vào cột bên phải.
    - Container cha có thuộc tính `overflow-y: auto`. Khi danh sách dài ra, toàn bộ giao diện sẽ **cuộn dọc một cách đồng bộ và tự nhiên**, loại bỏ hoàn toàn thanh cuộn ngang gây bất tiện.
 3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+có thể mỗi cột 1 thanh cuộn riêng biệt được không?
+
+### Planner Response
+
+Tôi đã cấu hình thành công để mỗi cột danh sách bệnh nhân Thứ 7 sở hữu một thanh cuộn dọc hoàn toàn độc lập theo đúng yêu cầu của bạn:
+
+1. **Thiết lập thanh cuộn dọc riêng biệt cho từng cột**:
+   - Tắt chế độ cuộn của khung danh sách chung bằng cách chuyển từ `overflow-y: auto` sang `overflow: hidden`.
+   - Kích hoạt thuộc tính cuộn riêng biệt `overflow-y: auto` kết hợp thêm `padding-right: 4px` (để tránh thanh cuộn đè lên thẻ bệnh nhân) cho hai cột con `#sat-patient-list-left` và `#sat-patient-list-right`.
+2. **Hiệu quả sử dụng**:
+   - Khi số lượng bệnh nhân ở một trong hai cột vượt quá chiều cao vùng hiển thị, cột đó sẽ tự động xuất hiện thanh cuộn dọc riêng.
+   - Bạn có thể cuộn độc lập cột bên trái (bệnh nhân 1-20) hoặc cột bên phải (bệnh nhân 21-40) để tra cứu, kiểm tra danh sách cực kỳ linh hoạt mà không ảnh hưởng tới cột còn lại.
+3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
