@@ -1054,3 +1054,19 @@ Tôi đã tối ưu hóa bố cục giao diện của tab **Thứ 7** trong `ind
    - Bảng **Thống kê Thủ thuật** bên phải (chiếm 20% chiều rộng cũ) sẽ tự động ẩn đi nếu chưa chọn bất cứ ca thủ thuật nào.
    - Khi bạn bắt đầu chọn (tích checkbox) các ca thủ thuật cho bệnh nhân, bảng thống kê này sẽ tự động hiển thị và cập nhật số lượng ca. Nếu bạn bỏ chọn tất cả, bảng sẽ tự ẩn đi.
 3. **Tải lên GitHub**: Toàn bộ thay đổi đã được commit và push lên nhánh `main` của repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+gộp 2 dòng này lại với nhau được không? bỏ nút bấm và chức năng nút Chọn hết, nút Bỏ chọn, nút Lọc sót
+
+### Planner Response
+
+Tôi đã thực hiện gộp hai dòng của tab **Thứ 7** làm một và loại bỏ các nút hành động theo đúng yêu cầu của bạn:
+
+1. **Gộp 2 dòng thành 1**:
+   - Chuyển ô tìm kiếm `🔍 Gõ tên bệnh nhân...` và các nút hành động chính (`Lưu DS`, `Nhập DS`, `👥 Nhân sự đi làm`) lên cùng dòng với tiêu đề `📅 XẾP LỊCH NGÀY THỨ 7` và ô chọn ngày trong thanh tiêu đề màu xám (`.tab-header-title`).
+   - Xóa bỏ hoàn toàn thanh công cụ (dòng thứ 2 cũ) ở cột Bệnh nhân. Bảng danh sách bệnh nhân được đẩy sát lên trên cùng, tối ưu không gian hiển thị tối đa.
+2. **Lọc bỏ các nút**:
+   - Xóa bỏ các nút **Chọn hết**, **Bỏ chọn**, và **Lọc sót** khỏi giao diện người dùng để giao diện gọn gàng, tập trung vào các tính năng xếp lịch chính.
+3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.
