@@ -5429,8 +5429,7 @@
                             
 
                             <div id="sat-patient-list"
-
-                                style="flex: 1; overflow-y: auto; background: #f1f2f6; padding: 10px; border-radius: 5px;">
+                                style="flex: 1; overflow-y: auto; background: #f1f2f6; padding: 10px; border-radius: 5px; display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 6px; align-content: start;">
 
                             </div>
 
@@ -10665,28 +10664,16 @@ console.log('--- JS Block: Foundation started ---');
                             satCache[bn_id] = {info: r, items: [], frameId: `sat-bn-${bn_id}`};
 
                             const fBn = document.createElement('div');
-
                             fBn.id = `sat-bn-${bn_id}`;
+                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:4px 10px; margin-bottom:4px; border-radius:5px; display:flex; align-items:center; justify-content:space-between; gap:10px;';
 
-                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:5px 10px; margin-bottom:4px; border-radius:5px;';
+                            const leftGroup = document.createElement('div');
+                            leftGroup.style.cssText = 'display:flex; align-items:center; gap:15px; flex:1; min-width:0; flex-wrap:wrap;';
 
-                            const tDiv = document.createElement('div');
-
-                            tDiv.innerHTML = `<b style="font-size:13px; color:#2c3e50;">${pIdx+1}.
-
-                                ${r.ten.toUpperCase()} (${r.namSinh})</b> <span
-
-                                style="font-size:11px; color:#e67e22; margin-left:10px;">Phòng: ${r.phong}</span>`;
-
-                            tDiv.style.cssText = 'border-bottom:1px dashed #ecf0f1; padding-bottom:2px; margin-bottom:2px;';
-
-                            fBn.appendChild(tDiv);
-
-
-
-                            const flexContainer = document.createElement('div');
-
-                            flexContainer.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-top:2px;';
+                            const infoDiv = document.createElement('div');
+                            infoDiv.style.cssText = 'display:flex; align-items:center; gap:8px; flex-shrink:0;';
+                            infoDiv.innerHTML = `<b style="font-size:12px; color:#2c3e50; white-space:nowrap;">${pIdx+1}. ${r.ten.toUpperCase()} (${r.namSinh})</b> <span style="font-size:11px; color:#e67e22; background:#fef5e7; padding:1px 6px; border-radius:3px; border:1px solid #fadbd8; white-space:nowrap;">P. ${r.phong}</span>`;
+                            leftGroup.appendChild(infoDiv);
 
                             const ttDiv = document.createElement('div');
 
@@ -10748,10 +10735,8 @@ console.log('--- JS Block: Foundation started ---');
 
                             readyTimeDiv.append(readyLabel, readyInput);
 
-                            flexContainer.append(ttDiv, readyTimeDiv);
-
-                            fBn.appendChild(flexContainer);
-
+                            leftGroup.appendChild(ttDiv);
+                            fBn.append(leftGroup, readyTimeDiv);
                             frDs.appendChild(fBn);
 
                             });

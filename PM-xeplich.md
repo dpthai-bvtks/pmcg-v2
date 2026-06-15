@@ -1070,3 +1070,20 @@ Tôi đã thực hiện gộp hai dòng của tab **Thứ 7** làm một và lo�
 2. **Lọc bỏ các nút**:
    - Xóa bỏ các nút **Chọn hết**, **Bỏ chọn**, và **Lọc sót** khỏi giao diện người dùng để giao diện gọn gàng, tập trung vào các tính năng xếp lịch chính.
 3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+kể cả khi đã chọ thủ thuật thì khoảng trống giữa tên, thủ thuật và giờ sẵn sàng vẫn hơi xa. Có cách nào tối ưu giao diện hơn nữa không
+
+### Planner Response
+
+Tôi đã tối ưu hóa giao diện danh sách bệnh nhân của tab **Thứ 7** để khắc phục triệt để khoảng trống thừa và giúp màn hình hiển thị được nhiều thông tin một cách trực quan hơn:
+
+1. **Chuyển đổi sang giao diện Grid 2 cột**:
+   - Thay vì hiển thị danh sách dạng 1 cột dọc kéo dài, danh sách bệnh nhân giờ đây được bố trí tự động thành **2 cột song song** (CSS Grid) trên màn hình.
+   - Điều này giúp thu hẹp chiều ngang của mỗi thẻ bệnh nhân xuống còn khoảng 460px - 600px, tự động kéo sát khoảng cách giữa tên bệnh nhân, ô tích thủ thuật và phần chọn Giờ sẵn sàng lại gần nhau hơn, rất dễ quan sát.
+2. **Nén nội dung thẻ bệnh nhân thành duy nhất 1 dòng (Single-row layout)**:
+   - Gom toàn bộ thông tin bao gồm: Số thứ tự, Tên bệnh nhân, Phòng bệnh (được đóng khung nhãn badge màu cam nhạt tinh tế), Các ô chọn thủ thuật và Khung giờ sẵn sàng lên **cùng 1 dòng nằm ngang**.
+   - Việc này giúp giảm chiều cao mỗi thẻ bệnh nhân chỉ còn một nửa, giúp tăng số lượng bệnh nhân hiển thị cùng lúc trên màn hình lên gấp đôi (~12-16 bệnh nhân thay vì chỉ 6 như trước).
+3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.
