@@ -3071,7 +3071,7 @@
 
         /* Thu gọn thẻ BN trong tab Thứ 7 → hiển thị được nhiều BN hơn */
 
-        #sat-patient-list>div {
+        #sat-patient-list div[id^="sat-bn-"] {
 
             padding: 3px 8px !important;
 
@@ -5429,7 +5429,9 @@
                             
 
                             <div id="sat-patient-list"
-                                style="flex: 1; overflow-y: auto; background: #f1f2f6; padding: 10px; border-radius: 5px; column-width: 460px; column-gap: 8px;">
+                                style="flex: 1; overflow-y: auto; background: #f1f2f6; padding: 10px; border-radius: 5px; display: flex; gap: 8px;">
+                                <div id="sat-patient-list-left" style="flex: 1; display: flex; flex-direction: column; gap: 6px;"></div>
+                                <div id="sat-patient-list-right" style="flex: 1; display: flex; flex-direction: column; gap: 6px;"></div>
 
                             </div>
 
@@ -10649,9 +10651,12 @@ console.log('--- JS Block: Foundation started ---');
 
 
 
-                            const frDs = document.getElementById('sat-patient-list');
-
-                            frDs.innerHTML = ''; satCache = {};
+                            const frDsLeft = document.getElementById('sat-patient-list-left');
+                            const frDsRight = document.getElementById('sat-patient-list-right');
+                            frDsLeft.innerHTML = '';
+                            frDsRight.innerHTML = '';
+                            satCache = {};
+                            const midPoint = Math.ceil(data.patients.length / 2);
 
                             // Sắp xếp A-Z theo tên bệnh nhân
 
@@ -10665,7 +10670,7 @@ console.log('--- JS Block: Foundation started ---');
 
                             const fBn = document.createElement('div');
                             fBn.id = `sat-bn-${bn_id}`;
-                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:6px 10px; margin-bottom:6px; border-radius:5px; display:flex; flex-direction:column; gap:4px; break-inside:avoid; -webkit-column-break-inside:avoid;';
+                            fBn.style.cssText = 'background:white; border:1px solid #bdc3c7; padding:6px 10px; margin-bottom:6px; border-radius:5px; display:flex; flex-direction:column; gap:4px; ';
 
                             const tDiv = document.createElement('div');
                             tDiv.style.cssText = 'display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #ecf0f1; padding-bottom:3px;';
@@ -10737,7 +10742,11 @@ console.log('--- JS Block: Foundation started ---');
 
                             flexContainer.append(ttDiv, readyTimeDiv);
                             fBn.appendChild(flexContainer);
-                            frDs.appendChild(fBn);
+                            if (pIdx < midPoint) {
+                                frDsLeft.appendChild(fBn);
+                            } else {
+                                frDsRight.appendChild(fBn);
+                            }
 
                             });
 

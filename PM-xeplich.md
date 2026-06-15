@@ -1137,3 +1137,20 @@ Vâng, tôi hiểu hoàn toàn ý của bạn! Cấu trúc dạng cột báo (**
 - Đúng như trong ảnh chụp màn hình bạn gửi, với 10 bệnh nhân thì cột bên trái hiện thị lần lượt 1, 2, 3, 4, 5 và cột bên phải hiển thị tiếp tục 6, 7, 8, 9, 10. Bố cục này sẽ tự động chia đôi hoàn hảo dù danh sách có 10, 40 hay nhiều bệnh nhân hơn nữa.
 
 Tôi đã lưu lại nội dung hội thoại này vào file `PM-xeplich.md` và đẩy lên GitHub repository.
+
+
+### User Input
+
+danh sách vẫn phải kéo sang trái mới thấy hết bệnh nhân, trong khi đúng là phải cuộn dọc
+
+### Planner Response
+
+Tôi đã tái thiết kế lại kiến trúc phân cột của danh sách bệnh nhân tab **Thứ 7** để khắc phục hoàn toàn lỗi cuộn ngang và chuyển đổi sang cuộn dọc tự nhiên:
+
+1. **Khắc phục lỗi cuộn ngang (Tạo 2 cột Flex độc lập trong DOM)**:
+   - Sử dụng giải pháp cấu trúc 2 cột Flexbox riêng biệt (`#sat-patient-list-left` và `#sat-patient-list-right`) thay vì dùng thuộc tính `column-width` của trình duyệt (vốn tự động tạo thêm cột mới theo chiều ngang gây ra cuộn ngang khi vượt quá chiều cao cho phép).
+   - Hai cột này có thuộc tính `flex: 1`, giúp phân chia đều đặn và cố định **50% / 50%** chiều rộng của danh sách mà không bao giờ sinh thêm cột thứ 3.
+2. **Sắp xếp thứ tự và hỗ trợ cuộn dọc đồng bộ**:
+   - JavaScript sẽ tự động chia đôi danh sách bệnh nhân: Nửa đầu tiên (từ bệnh nhân số 1 đến số 20 nếu có 40 bệnh nhân) được xếp vào cột bên trái. Nửa còn lại (từ bệnh nhân 21 đến 40) được xếp vào cột bên phải.
+   - Container cha có thuộc tính `overflow-y: auto`. Khi danh sách dài ra, toàn bộ giao diện sẽ **cuộn dọc một cách đồng bộ và tự nhiên**, loại bỏ hoàn toàn thanh cuộn ngang gây bất tiện.
+3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
