@@ -5388,7 +5388,7 @@
 
                         <div id="sat-staff-container"
 
-                            style="display: none; flex: 0 0 220px; background: #fdfefe; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; flex-direction: column;">
+                            style="display: none; flex: 0 0 25%; background: #fdfefe; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; flex-direction: column;">
 
                             <h4 style="text-align: center; color: #2c3e50; margin-bottom: 10px;">👨‍⚕️ Nhân sự đi làm
 
@@ -10603,13 +10603,7 @@ console.log('--- JS Block: Foundation started ---');
 
                             spanName.innerText = ten;
 
-                            const spanRole = document.createElement('span');
-
-                            spanRole.style.cssText = 'font-size:12px; color:gray;';
-
-                            spanRole.innerText = `(${s.vaiTro})`;
-
-                            cbLabel.append(cbInput, spanName, spanRole);
+                            cbLabel.append(cbInput, spanName);
 
                             fItem.appendChild(cbLabel);
 

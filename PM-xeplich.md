@@ -1171,3 +1171,19 @@ Tôi đã cấu hình thành công để mỗi cột danh sách bệnh nhân Th�
    - Khi số lượng bệnh nhân ở một trong hai cột vượt quá chiều cao vùng hiển thị, cột đó sẽ tự động xuất hiện thanh cuộn dọc riêng.
    - Bạn có thể cuộn độc lập cột bên trái (bệnh nhân 1-20) hoặc cột bên phải (bệnh nhân 21-40) để tra cứu, kiểm tra danh sách cực kỳ linh hoạt mà không ảnh hưởng tới cột còn lại.
 3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+phần nhân sự đi làm, bỏ phần mở ngoặc cạnh tên nhân viên đi, ngoài ra độ rộng không hợp lý rồi, quay lại độ rộng như cũ đi
+
+### Planner Response
+
+Tôi đã điều chỉnh lại giao diện phần chọn nhân sự Thứ 7 theo đúng phản hồi của bạn:
+
+1. **Loại bỏ phần mở ngoặc chức danh cạnh tên nhân viên**:
+   - Chỉnh sửa JavaScript để không còn hiển thị phần vai trò phụ trong dấu ngoặc (như `(Bác sĩ)`, `(ĐD/KTV)`) bên cạnh tên nhân viên. Bây giờ danh sách chỉ hiển thị tên ngắn gọn của nhân sự (ví dụ: `BS Đạt`, `BS Thảo`, `Bs Thái`, `BS Hoa`...), giúp giao diện thoáng và sạch sẽ hơn.
+2. **Khôi phục lại độ rộng cũ của bảng chọn nhân sự**:
+   - Đưa độ rộng của bảng chọn **Nhân sự đi làm** trở lại mức **25%** chiều rộng của tab Thứ 7 như cũ (thay vì giới hạn cố định `220px`).
+   - Việc này giải quyết triệt để lỗi hiển thị bị bó hẹp, giúp các nút chọn Mùa hè/Mùa đông và các ô nhập khung giờ làm việc (`Sáng: ...`, `Chiều: ...`) hiển thị thẳng hàng trên một dòng một cách cân đối, thoải mái và dễ thao tác.
+3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
