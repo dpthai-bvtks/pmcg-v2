@@ -1037,3 +1037,20 @@ Tôi đã thực hiện thành công các yêu cầu của bạn:
    * File [sitemap.xml](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/sitemap.xml) làm sơ đồ trang web chuẩn.
 3. **Đồng bộ hóa lên GitHub**: Thực hiện commit và push toàn bộ các tệp tin thay đổi lên repository https://github.com/dpthai-bvtks/pmcg-v2.
 4. **Lưu nhật ký cuộc trò chuyện**: Lưu trữ nội dung cuộc hội thoại này vào tệp [PM-xeplich.md](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/PM-xeplich.md).
+
+
+### User Input
+
+xem cho mình tab Thứ 7, mình muốn khi nào cần chọn thì mới hiện ra bảng chọn nhân sự đi làm, và khi chọn danh sách thứ thuật thì bảng thống kê bên phải mới hiện ra, để dành phần lớn hiển thị tab là danh sách bệnh nhân và thủ thuật kèm theo
+
+### Planner Response
+
+Tôi đã tối ưu hóa bố cục giao diện của tab **Thứ 7** trong `index.html` nhằm đáp ứng đúng yêu cầu của bạn, giải phóng phần lớn không gian hiển thị danh sách bệnh nhân và các thủ thuật đi kèm:
+
+1. **Hiện/Ẩn bảng chọn nhân sự đi làm**:
+   - Mặc định, bảng **Nhân sự đi làm** (chiếm 25% chiều rộng cũ) được ẩn đi (`display: none`).
+   - Bổ sung nút bấm **👥 Nhân sự đi làm** màu tím vào thanh công cụ quản lý bệnh nhân. Khi click vào nút này, bảng chọn nhân sự sẽ hiển thị (`display: flex`) để bạn cấu hình, click lại lần nữa để ẩn đi gọn gàng.
+2. **Ẩn/Hiện tự động bảng thống kê bên phải**:
+   - Bảng **Thống kê Thủ thuật** bên phải (chiếm 20% chiều rộng cũ) sẽ tự động ẩn đi nếu chưa chọn bất cứ ca thủ thuật nào.
+   - Khi bạn bắt đầu chọn (tích checkbox) các ca thủ thuật cho bệnh nhân, bảng thống kê này sẽ tự động hiển thị và cập nhật số lượng ca. Nếu bạn bỏ chọn tất cả, bảng sẽ tự ẩn đi.
+3. **Tải lên GitHub**: Toàn bộ thay đổi đã được commit và push lên nhánh `main` của repository https://github.com/dpthai-bvtks/pmcg-v2.
