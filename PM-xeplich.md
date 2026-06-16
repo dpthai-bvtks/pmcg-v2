@@ -1349,3 +1349,15 @@ không thấy chỗ lấy mã cấu hình firebaseConfig
 Tôi đã hướng dẫn bác sĩ các bước chi tiết để lấy mã cấu hình `firebaseConfig` từ Firebase Console:
 1. **Tạo Web App nếu chưa có**: Bấm vào biểu tượng `</>` trên màn hình Dashboard để đăng ký ứng dụng Web, mã cấu hình sẽ tự động hiển thị.
 2. **Lấy mã từ Project Settings**: Nếu đã đăng ký Web App, truy cập vào Cài đặt dự án (Project Settings), cuộn xuống mục "Your apps" (Ứng dụng của bạn) để copy lại khối mã cấu hình.
+
+
+### User Input
+
+[Nhập thông tin script tag với cấu hình dự án mới pmcg-v2]
+
+### Planner Response
+
+Tôi đã cập nhật thành công khóa cấu hình Firebase mới (`pmcg-v2`) cho ứng dụng:
+1. **Cập nhật index.html**: Sửa đổi khối cấu hình `firebaseConfig` tại dòng 6372 của [index.html](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/index.html) bằng các thông số kết nối mới thuộc dự án `pmcg-v2`.
+2. **Kiểm tra cú pháp**: Chạy kiểm tra cú pháp tự động đảm bảo ứng dụng không phát sinh lỗi biên dịch hay lỗi cấu trúc JavaScript.
+3. **Đẩy cập nhật**: Đồng bộ các thay đổi lên nhánh `main` của repository để kích hoạt việc tự động cập nhật phiên bản live trên tên miền chính thức.
