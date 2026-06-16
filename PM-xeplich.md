@@ -1326,3 +1326,15 @@ Tôi đã hỗ trợ các công việc sau để đưa ứng dụng lên Product
 1. **Tự động triển khai lên tên miền chính thức**: Giải thích cho bác sĩ rằng dự án được cấu hình GitHub Pages tự động đồng bộ từ nhánh `main` lên tên miền `xeplichthuthuat.io.vn`. Do đó, mỗi khi tôi push code lên GitHub, ứng dụng đã được triển khai chính thức ngay lập tức.
 2. **Lưu trữ Security Rules**: Tạo tệp [firestore.rules](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/firestore.rules) trực tiếp ở thư mục gốc của repository để quản lý phiên bản.
 3. **Hướng dẫn cấu hình thủ công**: Do tính chất bảo mật tài khoản Google cá nhân, hướng dẫn bác sĩ các bước truy cập vào Firebase Console để dán đè quy tắc bảo mật nhằm bảo vệ cơ sở dữ liệu thời gian thực.
+
+
+### User Input
+
+có đổi tên times-system-v3 thành times-system-v2 được không
+
+### Planner Response
+
+Tôi đã tư vấn cho bác sĩ về tính chất bất biến của Project ID trên Firebase:
+1. **Project ID không thể thay đổi**: Một khi dự án đã tạo với ID `times-system-v3`, Google Cloud/Firebase không hỗ trợ đổi ID này vì nó ảnh hưởng đến các endpoint, URL xác thực và dịch vụ lưu trữ.
+2. **Đổi tên hiển thị (Project Name)**: Hướng dẫn bác sĩ đổi tên hiển thị từ "TIMES System v3" thành "TIMES System v2" trong Project Settings mà không ảnh hưởng đến mã cấu hình.
+3. **Khởi tạo dự án mới**: Giải thích rằng nếu bắt buộc phải dùng ID `times-system-v2` thì cần tạo một dự án mới hoàn toàn trên Firebase và lấy lại mã `firebaseConfig` mới.
