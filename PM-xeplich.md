@@ -1301,3 +1301,16 @@ Tôi đã tích hợp thành công Firebase Firestore Realtime Sync vào ứng d
 5. **Bảng điều khiển đồng bộ thủ công dành cho Admin**:
    - Bổ sung một bảng điều khiển nhỏ trong tab **Quản trị (Admin)** chứa nút **ĐỒNG BỘ NGAY** giúp Admin cưỡng chế nạp đè dữ liệu từ Google Sheets sang Firestore nếu cần thiết.
 6. **Đồng bộ lên GitHub**: Tiến hành commit và push toàn bộ thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+viết hộ mình Rules được không, và nếu đưa vào chính thức thì thế nào
+
+### Planner Response
+
+Tôi đã hướng dẫn bác sĩ chi tiết cách viết Security Rules và kế hoạch triển khai chính thức (Production).
+
+1. **Firestore Security Rules**: Thiết lập bộ luật kiểm soát lược đồ (Schema-validated rules) nhằm đảm bảo dữ liệu bệnh nhân và nhân sự luôn đúng cấu trúc ứng dụng và ngăn chặn các trường hợp ghi đè dữ liệu rác.
+2. **Firebase App Check**: Hướng dẫn tích hợp App Check (sử dụng reCAPTCHA v3 hoặc Cloudflare Turnstile) nhằm chặn đứng các cuộc tấn công trực tiếp từ API bên ngoài, đảm bảo chỉ có website chính thức trên tên miền của bác sĩ được quyền giao tiếp với Firebase.
+3. **Quy trình triển khai chính thức**: Liệt kê 4 bước cơ bản để chuyển đổi hệ thống từ môi trường thử nghiệm sang vận hành an toàn lâu dài.
