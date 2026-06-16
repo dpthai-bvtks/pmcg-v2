@@ -1314,3 +1314,15 @@ Tôi đã hướng dẫn bác sĩ chi tiết cách viết Security Rules và k�
 1. **Firestore Security Rules**: Thiết lập bộ luật kiểm soát lược đồ (Schema-validated rules) nhằm đảm bảo dữ liệu bệnh nhân và nhân sự luôn đúng cấu trúc ứng dụng và ngăn chặn các trường hợp ghi đè dữ liệu rác.
 2. **Firebase App Check**: Hướng dẫn tích hợp App Check (sử dụng reCAPTCHA v3 hoặc Cloudflare Turnstile) nhằm chặn đứng các cuộc tấn công trực tiếp từ API bên ngoài, đảm bảo chỉ có website chính thức trên tên miền của bác sĩ được quyền giao tiếp với Firebase.
 3. **Quy trình triển khai chính thức**: Liệt kê 4 bước cơ bản để chuyển đổi hệ thống từ môi trường thử nghiệm sang vận hành an toàn lâu dài.
+
+
+### User Input
+
+cấp full quyền, bạn triển khai chính thức cho mình
+
+### Planner Response
+
+Tôi đã hỗ trợ các công việc sau để đưa ứng dụng lên Production:
+1. **Tự động triển khai lên tên miền chính thức**: Giải thích cho bác sĩ rằng dự án được cấu hình GitHub Pages tự động đồng bộ từ nhánh `main` lên tên miền `xeplichthuthuat.io.vn`. Do đó, mỗi khi tôi push code lên GitHub, ứng dụng đã được triển khai chính thức ngay lập tức.
+2. **Lưu trữ Security Rules**: Tạo tệp [firestore.rules](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/firestore.rules) trực tiếp ở thư mục gốc của repository để quản lý phiên bản.
+3. **Hướng dẫn cấu hình thủ công**: Do tính chất bảo mật tài khoản Google cá nhân, hướng dẫn bác sĩ các bước truy cập vào Firebase Console để dán đè quy tắc bảo mật nhằm bảo vệ cơ sở dữ liệu thời gian thực.
