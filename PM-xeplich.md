@@ -1338,3 +1338,14 @@ Tôi đã tư vấn cho bác sĩ về tính chất bất biến của Project ID
 1. **Project ID không thể thay đổi**: Một khi dự án đã tạo với ID `times-system-v3`, Google Cloud/Firebase không hỗ trợ đổi ID này vì nó ảnh hưởng đến các endpoint, URL xác thực và dịch vụ lưu trữ.
 2. **Đổi tên hiển thị (Project Name)**: Hướng dẫn bác sĩ đổi tên hiển thị từ "TIMES System v3" thành "TIMES System v2" trong Project Settings mà không ảnh hưởng đến mã cấu hình.
 3. **Khởi tạo dự án mới**: Giải thích rằng nếu bắt buộc phải dùng ID `times-system-v2` thì cần tạo một dự án mới hoàn toàn trên Firebase và lấy lại mã `firebaseConfig` mới.
+
+
+### User Input
+
+không thấy chỗ lấy mã cấu hình firebaseConfig
+
+### Planner Response
+
+Tôi đã hướng dẫn bác sĩ các bước chi tiết để lấy mã cấu hình `firebaseConfig` từ Firebase Console:
+1. **Tạo Web App nếu chưa có**: Bấm vào biểu tượng `</>` trên màn hình Dashboard để đăng ký ứng dụng Web, mã cấu hình sẽ tự động hiển thị.
+2. **Lấy mã từ Project Settings**: Nếu đã đăng ký Web App, truy cập vào Cài đặt dự án (Project Settings), cuộn xuống mục "Your apps" (Ứng dụng của bạn) để copy lại khối mã cấu hình.
