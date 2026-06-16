@@ -1361,3 +1361,15 @@ Tôi đã cập nhật thành công khóa cấu hình Firebase mới (`pmcg-v2`)
 1. **Cập nhật index.html**: Sửa đổi khối cấu hình `firebaseConfig` tại dòng 6372 của [index.html](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/index.html) bằng các thông số kết nối mới thuộc dự án `pmcg-v2`.
 2. **Kiểm tra cú pháp**: Chạy kiểm tra cú pháp tự động đảm bảo ứng dụng không phát sinh lỗi biên dịch hay lỗi cấu trúc JavaScript.
 3. **Đẩy cập nhật**: Đồng bộ các thay đổi lên nhánh `main` của repository để kích hoạt việc tự động cập nhật phiên bản live trên tên miền chính thức.
+
+
+### User Input
+
+data trống trơn thế nhỉ
+
+### Planner Response
+
+Tôi đã giải thích cho bác sĩ lý do database mới trống trơn và hướng dẫn các bước đồng bộ dữ liệu đầu tiên:
+1. **Lý do trống**: Đây là dự án mới khởi tạo nên Firestore chưa có dữ liệu. Cơ chế của ứng dụng sẽ tự động nạp từ Google Sheets sang Firestore khi trang web được tải lần đầu hoặc khi bấm nút đồng bộ thủ công.
+2. **Lưu ý về Rules**: Nhắc nhở bác sĩ phải chuyển qua tab **Rules** kế bên tab **Data** để cài đặt luật bảo mật trước, nếu không Firestore sẽ báo lỗi quyền truy cập (Permission Denied) và không cho phép client ghi dữ liệu từ Sheets sang.
+3. **Kích hoạt đồng bộ**: Hướng dẫn truy cập trang web, vào mục Quản trị và bấm nút "ĐỒNG BỘ NGAY" để đổ dữ liệu từ Google Sheets sang Firebase.
