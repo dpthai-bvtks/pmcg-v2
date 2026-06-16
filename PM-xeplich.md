@@ -1187,3 +1187,32 @@ Tôi đã điều chỉnh lại giao diện phần chọn nhân sự Thứ 7 the
    - Đưa độ rộng của bảng chọn **Nhân sự đi làm** trở lại mức **25%** chiều rộng của tab Thứ 7 như cũ (thay vì giới hạn cố định `220px`).
    - Việc này giải quyết triệt để lỗi hiển thị bị bó hẹp, giúp các nút chọn Mùa hè/Mùa đông và các ô nhập khung giờ làm việc (`Sáng: ...`, `Chiều: ...`) hiển thị thẳng hàng trên một dòng một cách cân đối, thoải mái và dễ thao tác.
 3. **Đồng bộ lên GitHub**: Tiến hành commit và push các thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.
+
+
+### User Input
+
+xảy ra 1 vấn đề gây khó chịu: khi đang nhập thông tin ở tab Bệnh nhân hay tab Giờ bận thì hay bị load lại bảng danh sách gây nhầm lẫn thông tin và phải nhập lại, rất bất tiện
+
+### Planner Response
+
+Tôi đã phân tích nguyên nhân gây ra sự cố tải lại bảng danh sách làm gián đoạn quá trình nhập liệu của bác sĩ và đề xuất giải pháp xử lý triệt để trong bản kế hoạch triển khai.
+
+Bác sĩ vui lòng xem chi tiết kế hoạch thực hiện tại file [implementation_plan.md](file:///C:/Users/Dang%20Phong%20Thai/.gemini/antigravity-ide/brain/3005618c-df7f-4d03-a9fc-1e4abecc11b7/implementation_plan.md) và phản hồi phê duyệt để tôi tiến hành sửa đổi mã nguồn.
+
+### User Input
+
+Phê duyệt bản kế hoạch (Approved).
+
+### Planner Response
+
+Tôi đã sửa đổi thành công lỗi này bằng cách thiết lập các cơ chế kiểm tra tự động trước mỗi phiên đồng bộ tự động (auto sync):
+
+1. **Tự động nhận diện khi người dùng đang nhập liệu (Active Input Detection)**:
+   - Thêm hàm `isPatientFormActive()` và `isBusyFormActive()` để tự động kiểm tra xem bác sĩ có đang đặt tiêu điểm (focus) chuột vào bất kỳ ô nhập liệu/lựa chọn nào trên form hay không.
+   - Đồng thời kiểm tra xem các ô nhập liệu (Tên BN, Năm sinh, Giờ bận, Giờ ra viện...) hoặc các hộp kiểm thủ thuật có chứa dữ liệu dở dang (không rỗng) hay không.
+2. **Tạm dừng đồng bộ thông minh (Smart Pause Sync)**:
+   - Cập nhật logic trong vòng lặp đồng bộ định kỳ `startAutoSync()` (chu kỳ 15 giây). Nếu phát hiện bất kỳ form nào đang có hoạt động nhập liệu, ứng dụng sẽ chủ động bỏ qua phiên đồng bộ đó cho tab tương ứng.
+   - Nhờ đó, bảng danh sách không bị tải lại giữa chừng, đảm bảo không bao giờ bị mất focus hoặc mất dữ liệu nháp của bác sĩ.
+3. **Tự động tiếp tục đồng bộ (Resume Sync)**:
+   - Ngay sau khi bác sĩ bấm Lưu hoặc Hủy (form được reset về trạng thái trống và mất focus), cơ chế đồng bộ tự động sẽ tự phục hồi lại chu kỳ làm việc bình thường.
+4. **Đồng bộ lên GitHub**: Tiến hành commit và push toàn bộ thay đổi mới lên repository https://github.com/dpthai-bvtks/pmcg-v2.

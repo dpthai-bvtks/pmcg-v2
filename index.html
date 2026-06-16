@@ -11538,66 +11538,109 @@ console.log('--- JS Block: Foundation started ---');
                                 function syncPatients() { loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true); }
 
                                 function syncStaff() { loadEntity('getNhanSu', 'staff', renderStaffTable, [
-
                                     () => { if (typeof renderBusyStaff === 'function') renderBusyStaff(); },
-
                                     () => { if (typeof locSotSat === 'function') locSotSat(); }
-
                                 ], true); }
 
+                                function isPatientFormActive() {
+                                    const activeEl = document.activeElement;
+                                    const tabPat = document.getElementById('tab-patients');
+                                    if (!tabPat) return false;
 
+                                    // 1. Kiểm tra nếu tiêu điểm (focus) nằm trong form của tab-patients
+                                    if (activeEl && tabPat.contains(activeEl) && 
+                                        (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT' || activeEl.tagName === 'TEXTAREA')) {
+                                        return true;
+                                    }
+
+                                    // 2. Kiểm tra nếu các ô nhập liệu có chứa dữ liệu dở dang
+                                    const patName = document.getElementById('pat-name')?.value || '';
+                                    if (patName.trim() !== '') return true;
+
+                                    const patYear = document.getElementById('pat-year')?.value || '';
+                                    if (patYear.trim() !== '') return true;
+
+                                    const patTime = document.getElementById('pat-time')?.value || '';
+                                    if (patTime.trim() !== '') return true;
+
+                                    const busyStart = document.getElementById('busy-start')?.value || '';
+                                    if (busyStart.trim() !== '') return true;
+
+                                    const busyEnd = document.getElementById('busy-end')?.value || '';
+                                    if (busyEnd.trim() !== '') return true;
+
+                                    const patLeave = document.getElementById('pat-leave')?.value || '';
+                                    if (patLeave.trim() !== '') return true;
+
+                                    // Kiểm tra xem có thủ thuật nào đang được chọn không
+                                    const checkedProcs = document.querySelectorAll('.pat-proc-cb:checked');
+                                    if (checkedProcs.length > 0) return true;
+
+                                    return false;
+                                }
+
+                                function isBusyFormActive() {
+                                    const activeEl = document.activeElement;
+                                    const tabBusy = document.getElementById('tab-busy');
+                                    if (!tabBusy) return false;
+
+                                    // 1. Kiểm tra nếu tiêu điểm (focus) nằm trong form của tab-busy
+                                    if (activeEl && tabBusy.contains(activeEl) && 
+                                        (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT' || activeEl.tagName === 'TEXTAREA')) {
+                                        return true;
+                                    }
+
+                                    // 2. Kiểm tra nếu các ô nhập liệu của tab-busy có chứa dữ liệu dở dang
+                                    const staffFrom = document.getElementById('busy-staff-from')?.value || '';
+                                    if (staffFrom.trim() !== '') return true;
+
+                                    const staffTo = document.getElementById('busy-staff-to')?.value || '';
+                                    if (staffTo.trim() !== '') return true;
+
+                                    const patInput = document.getElementById('busy-pat-input')?.value || '';
+                                    if (patInput.trim() !== '') return true;
+
+                                    const patFrom = document.getElementById('busy-pat-from')?.value || '';
+                                    if (patFrom.trim() !== '') return true;
+
+                                    const patTo = document.getElementById('busy-pat-to')?.value || '';
+                                    if (patTo.trim() !== '') return true;
+
+                                    return false;
+                                }
 
                                 function startAutoSync() {
-
                                     setInterval(() => {
-
                                         if (window.viewingImportedScheduleFile) return;
-
                                         const activeTab = document.querySelector('.nav-tab.active')?.getAttribute('data-tab');
 
-                                        
-
                                         // Đồng bộ Xếp lịch
-
                                         if (activeTab === 'tab-schedule' || activeTab === 'tab-home') {
-
                                             loadScheduleList();
-
                                         }
 
-                                        
-
-                                        // Đồng bộ Bệnh Nhân (Chỉ khi không đang bấm Sửa)
-
+                                        // Đồng bộ Bệnh Nhân (Chỉ khi không đang bấm Sửa và không đang nhập liệu)
                                         if (activeTab === 'tab-patients') {
-
                                             if (typeof editIndex !== 'undefined' && editIndex.pat === -1) {
-
-                                                syncPatients();
-
+                                                if (!isPatientFormActive()) {
+                                                    syncPatients();
+                                                }
                                             }
-
                                         }
 
-                                        
-
-                                        // Đồng bộ Giờ Bận/Ra Viện (Chỉ khi không đang bấm Sửa)
-
+                                        // Đồng bộ Giờ Bận/Ra Viện (Chỉ khi không đang bấm Sửa và không đang nhập liệu)
                                         if (activeTab === 'tab-busy') {
-
                                             if (typeof editIndex !== 'undefined' && editIndex.pat === -1 && editIndex.staff === -1) {
-
-                                                syncPatients();
-
-                                                syncStaff();
-
+                                                if (!isBusyFormActive()) {
+                                                    syncPatients();
+                                                    syncStaff();
+                                                }
                                             }
-
                                         }
-
                                     }, 15000); // Rút ngắn xuống 15s để trải nghiệm realtime tốt hơn
-
                                 }
+
+                                
 
                                 window.onload = function() {
 
