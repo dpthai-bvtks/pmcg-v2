@@ -1373,3 +1373,15 @@ Tôi đã giải thích cho bác sĩ lý do database mới trống trơn và hư
 1. **Lý do trống**: Đây là dự án mới khởi tạo nên Firestore chưa có dữ liệu. Cơ chế của ứng dụng sẽ tự động nạp từ Google Sheets sang Firestore khi trang web được tải lần đầu hoặc khi bấm nút đồng bộ thủ công.
 2. **Lưu ý về Rules**: Nhắc nhở bác sĩ phải chuyển qua tab **Rules** kế bên tab **Data** để cài đặt luật bảo mật trước, nếu không Firestore sẽ báo lỗi quyền truy cập (Permission Denied) và không cho phép client ghi dữ liệu từ Sheets sang.
 3. **Kích hoạt đồng bộ**: Hướng dẫn truy cập trang web, vào mục Quản trị và bấm nút "ĐỒNG BỘ NGAY" để đổ dữ liệu từ Google Sheets sang Firebase.
+
+
+### User Input
+
+làm thêm 1 popup thông báo sau khi ấn nút Đồng bộ ngay
+
+### Planner Response
+
+Tôi đã xây dựng hệ thống thông báo Toast cao cấp và nâng cấp trải nghiệm người dùng khi đồng bộ dữ liệu:
+1. **Thiết kế Toast Notification (CSS)**: Tạo kiểu dáng hiện đại cho thông báo Toast dạng thẻ trượt từ lề phải màn hình, hỗ trợ hiệu ứng làm mờ nền (backdrop-filter) và dải màu gradient tương thích cho từng trạng thái thành công/thất bại.
+2. **Lưu trữ trạng thái qua Reload (sessionStorage)**: Vì quá trình đồng bộ yêu cầu tải lại trang (`location.reload()`) để nạp dữ liệu mới, tôi đã sử dụng `sessionStorage` để lưu trữ cờ hiệu thông báo. Khi trang web tải lại thành công, cờ hiệu này sẽ kích hoạt và hiển thị thông báo Toast trượt mượt mà mà không bị biến mất giữa chừng.
+3. **Tích hợp vào nút đồng bộ**: Cập nhật hàm `triggerSheetsToFirebaseSync()` sử dụng cơ chế Toast mới thay thế hoàn toàn cho hộp thoại `alert()` trình duyệt mặc định nhàm chán.

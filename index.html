@@ -3827,6 +3827,66 @@
 
         }
 
+        /* --- PREMIUM TOAST NOTIFICATION SYSTEM --- */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toast-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-left: 5px solid #1abc9c;
+            color: #2c3e50;
+            padding: 14px 18px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 280px;
+            max-width: 420px;
+            font-size: 13px;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+            pointer-events: auto;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast-card.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .toast-card.hide {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+        .toast-card.success {
+            border-left-color: #2ecc71;
+            background: linear-gradient(135deg, #ffffff, #f4fbf7);
+        }
+        .toast-card.error {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #ffffff, #fdf6f5);
+        }
+        .toast-card.info {
+            border-left-color: #3498db;
+            background: linear-gradient(135deg, #ffffff, #f6faff);
+        }
+        .toast-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .toast-message {
+            flex-grow: 1;
+            line-height: 1.4;
+        }
+
     </style>
 
 </head>
@@ -6412,6 +6472,38 @@ window.hideGlobalLoading = function() {
 
 };
 
+window.showToast = function(message, type = 'success', duration = 3500) {
+    let container = document.getElementById('global-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'global-toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast-card ${type}`;
+    let icon = '🔔';
+    if (type === 'success') icon = '✅';
+    else if (type === 'error') icon = '❌';
+    else if (type === 'info') icon = 'ℹ️';
+    toast.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-message">${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 50);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 450);
+    }, duration);
+};
+
+// Check for pending success toast on reload
+if (sessionStorage.getItem('sync_success_toast') === 'true') {
+    sessionStorage.removeItem('sync_success_toast');
+    setTimeout(() => {
+        window.showToast('✅ Đồng bộ dữ liệu từ Google Sheets sang Firebase thành công!', 'success', 4500);
+    }, 600);
+}
+
 window.onerror = function(msg, url, lineNo, columnNo, error) { console.error('JS ERROR:', msg, 'at line', lineNo); alert('LỖI CÚ PHÁP TẠI DÒNG ' + lineNo + ': ' + msg); };
 
 console.log('MAIN SCRIPT STARTING...');
@@ -7782,13 +7874,17 @@ console.log('--- JS Block: Foundation started ---');
                 if (window.hideGlobalLoading) window.hideGlobalLoading();
                 btn.disabled = false;
                 btn.innerText = origText;
-                alert("✅ Đồng bộ thành công!");
+                sessionStorage.setItem('sync_success_toast', 'true');
                 location.reload();
             }).catch(err => {
                 if (window.hideGlobalLoading) window.hideGlobalLoading();
                 btn.disabled = false;
                 btn.innerText = origText;
-                alert("❌ Lỗi đồng bộ: " + err);
+                if (window.showToast) {
+                    window.showToast("❌ Lỗi đồng bộ: " + err, "error", 5000);
+                } else {
+                    alert("❌ Lỗi đồng bộ: " + err);
+                }
             });
         }
 
