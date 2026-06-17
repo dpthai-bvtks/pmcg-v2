@@ -1535,3 +1535,12 @@ mất luôn cuộn của bảng chứa danh sách bệnh nhân rồi
 1. **Sửa lỗi mất thanh cuộn bên trong bảng Bệnh Nhân**: Giải pháp Flexbox đợt trước gặp một xung đột nhỏ với bộ CSS Grid gốc của hệ thống (`.main-wrapper`), khiến thanh cuộn của bảng bị vô hiệu hoá. 
    - **Giải pháp**: Đã hoàn trả lại cấu trúc cuộn tự nhiên của bảng (`.main-table`) và áp dụng công thức tính toán tĩnh giới hạn chiều cao chính xác (`max-height: calc(100vh - 240px)`).
    - **Kết quả**: Bảng bệnh nhân đã **lấy lại được thanh cuộn**. Đồng thời toàn bộ trang web bên ngoài sẽ **hoàn toàn không bao giờ bị cuộn** nữa (vấn đề thanh tìm kiếm bị trôi lên đã được giải quyết triệt để).
+
+### User Input
+
+nút Đồng bộ ngay trong tab admin có còn tác dụng gì không, nếu không cần thiết thì xóa đi
+
+### Planner Response
+
+1. **Gỡ bỏ nút "Đồng bộ ngay"**: Chức năng này ban đầu được thiết kế để đồng bộ dữ liệu với cơ sở dữ liệu Firebase. Do chúng ta đã thống nhất bỏ Firebase và làm việc trực tiếp với Google Sheets (với nút "Làm mới dữ liệu" ở trang Dashboard), nút này đã trở nên dư thừa.
+   - **Giải pháp**: Đã xóa thành phần giao diện (nút bấm và khung chứa) trong tab Admin, đồng thời dọn dẹp mã nguồn (hàm `triggerSheetsToFirebaseSync`) để tối ưu hiệu suất và tránh nhầm lẫn.
