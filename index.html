@@ -3887,6 +3887,23 @@
             line-height: 1.4;
         }
 
+        /* --- USER DROPDOWN MENU STYLE --- */
+        #nav-btn-user:hover {
+            background: #cbd5e1 !important;
+            border-color: #94a3b8 !important;
+        }
+        .user-dropdown-menu a {
+            display: flex;
+        }
+        .user-dropdown-menu a:hover {
+            background: #f8fafc !important;
+            color: #1abc9c !important;
+        }
+        .user-dropdown-menu a#user-menu-admin-btn:hover {
+            background: #e8f8f5 !important;
+            color: #16a085 !important;
+        }
+
     </style>
 
 </head>
@@ -4023,13 +4040,21 @@
 
                             </div>
 
-                            <button class="admin-btn-in-marquee" id="nav-btn-logout"
-
-                                onclick="showCustomConfirm('Đăng xuất tài khoản', 'Bạn có chắc chắn muốn đăng xuất không?', doLogout);">
-
-                                👨‍💼 admin <span class="logout-label">(Đăng xuất)</span>
-
-                            </button>
+                            <div class="user-menu-dropdown-container" id="user-menu-container" style="position: relative; display: none; margin-left: 10px;">
+                                <button id="nav-btn-user" style="display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                    <span id="user-display-name">👤 admin</span>
+                                    <span style="font-size: 8px; transition: transform 0.2s; display: inline-block;" id="user-dropdown-arrow">▼</span>
+                                </button>
+                                <div class="user-dropdown-menu" id="user-dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 6px; background: white; min-width: 140px; box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05); border-radius: 8px; z-index: 10000; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); padding: 4px 0; text-align: left;">
+                                    <a href="javascript:void(0)" id="user-menu-admin-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 14px; font-size: 11.5px; color: #2c3e50; text-decoration: none; font-weight: 700; transition: background 0.15s;" onclick="goToAdminTab()">
+                                        <span style="font-size: 13px;">🔒</span> Quản Trị
+                                    </a>
+                                    <div id="user-menu-divider" style="display: none; height: 1px; background: #edf2f7; margin: 4px 0;"></div>
+                                    <a href="javascript:void(0)" style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 11.5px; color: #e74c3c; text-decoration: none; font-weight: 700; transition: background 0.15s;" onclick="triggerLogout()">
+                                        <span style="font-size: 13px;">🚪</span> Đăng xuất
+                                    </a>
+                                </div>
+                            </div>
 
                         </div>
 
@@ -11626,57 +11651,41 @@ console.log('--- JS Block: Foundation started ---');
                                 // 🔐 ĐĂNG NHẬP / PHÂN QUYỀN
 
                                 function updateLogoutButton(username) {
-
-                                const btn = document.getElementById('nav-btn-logout');
-
-                                if (btn) { btn.innerHTML = `👤 ${username} <span
-
-                                    style="font-size:11px; font-weight:normal; margin-left:5px;">(Đăng xuất)</span>`;
-
-                                btn.style.display = 'inline-block'; }
-
+                                    const container = document.getElementById('user-menu-container');
+                                    const displayName = document.getElementById('user-display-name');
+                                    if (container && displayName) {
+                                        displayName.innerText = `👤 ${username}`;
+                                        container.style.display = 'inline-block';
+                                    }
                                 }
 
                                 function doLogout() {
-
-                                localStorage.removeItem('meds_session');
-
-                                document.getElementById('login-overlay').style.display = 'flex';
-
-                                document.getElementById('nav-btn-logout').style.display = 'none';
-
-                                document.getElementById('login-user').focus();
-
+                                    localStorage.removeItem('meds_session');
+                                    document.getElementById('login-overlay').style.display = 'flex';
+                                    document.getElementById('user-menu-container').style.display = 'none';
+                                    document.getElementById('login-user').focus();
                                 }
 
                                 function applyPermissions(role, permsStr) {
+                                    const allTabs = document.querySelectorAll('.nav-tab');
+                                    const adminBtn = document.getElementById('nav-btn-admin');
+                                    const dropdownAdminBtn = document.getElementById('user-menu-admin-btn');
+                                    const dropdownDivider = document.getElementById('user-menu-divider');
 
-                                const allTabs = document.querySelectorAll('.nav-tab');
-
-                                const adminBtn = document.getElementById('nav-btn-admin');
-
-                                if (role === 'Admin' || permsStr === 'ALL') {
-
-                                allTabs.forEach(t => t.style.display = 'block');
-
-                                if (adminBtn) adminBtn.style.display = 'block';
-
-                                document.body.classList.remove('read-only-user');
-
-                                } else {
-
-                                const allowed = permsStr.split(',').map(s => s.trim());
-
-                                allowed.push('tab-home');
-
-                                allTabs.forEach(t => { t.style.display = allowed.includes(t.getAttribute('data-tab')) ?
-
-                                'block' : 'none'; });
-
-                                document.body.classList.add('read-only-user');
-
-                                }
-
+                                    if (role === 'Admin' || permsStr === 'ALL') {
+                                        allTabs.forEach(t => t.style.display = 'block');
+                                        if (adminBtn) adminBtn.style.display = 'block';
+                                        if (dropdownAdminBtn) dropdownAdminBtn.style.display = 'flex';
+                                        if (dropdownDivider) dropdownDivider.style.display = 'block';
+                                        document.body.classList.remove('read-only-user');
+                                    } else {
+                                        const allowed = permsStr.split(',').map(s => s.trim());
+                                        allowed.push('tab-home');
+                                        allTabs.forEach(t => { t.style.display = allowed.includes(t.getAttribute('data-tab')) ? 'block' : 'none'; });
+                                        if (dropdownAdminBtn) dropdownAdminBtn.style.display = 'none';
+                                        if (dropdownDivider) dropdownDivider.style.display = 'none';
+                                        document.body.classList.add('read-only-user');
+                                    }
                                 }
 
                                 function togglePermissionsBox() {
@@ -13033,6 +13042,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 });
+
+        // --- USER MENU DROPDOWN LOGIC ---
+        function goToAdminTab() {
+            const adminTabBtn = document.getElementById('nav-btn-admin') || document.querySelector('.nav-tab[data-tab="tab-admin"]');
+            if (adminTabBtn) {
+                adminTabBtn.click();
+            }
+            document.getElementById('user-dropdown-menu').style.display = 'none';
+            const arrow = document.getElementById('user-dropdown-arrow');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+        }
+
+        function triggerLogout() {
+            document.getElementById('user-dropdown-menu').style.display = 'none';
+            const arrow = document.getElementById('user-dropdown-arrow');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+            showCustomConfirm('Đăng xuất tài khoản', 'Bạn có chắc chắn muốn đăng xuất không?', doLogout);
+        }
+
+        // Event Listeners for toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnUser = document.getElementById('nav-btn-user');
+            const menu = document.getElementById('user-dropdown-menu');
+            const arrow = document.getElementById('user-dropdown-arrow');
+
+            if (btnUser && menu) {
+                btnUser.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = menu.style.display === 'block';
+                    menu.style.display = isOpen ? 'none' : 'block';
+                    if (arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+            }
+
+            document.addEventListener('click', (e) => {
+                if (menu && menu.style.display === 'block') {
+                    const container = document.getElementById('user-menu-container');
+                    if (container && !container.contains(e.target)) {
+                        menu.style.display = 'none';
+                        if (arrow) arrow.style.transform = 'rotate(0deg)';
+                    }
+                }
+            });
+        });
 
                                                 </script>
 

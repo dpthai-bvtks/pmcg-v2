@@ -1439,3 +1439,15 @@ thay bằng biểu tượng 🎉 thông báo: Hệ thống đã chốt sổ và 
 
 Tôi đã chỉnh sửa nội dung thông báo thành công sau khi chốt sổ theo yêu cầu rút gọn của bác sĩ:
 - Nội dung hiển thị mới: `Hệ thống đã chốt sổ và tự động cập nhật dữ liệu mới thành công!` với biểu tượng `🎉`. Thay đổi đã được áp dụng và kiểm thử thành công trên nhánh `main` của repository.
+
+
+### User Input
+
+ngoài ra, đưa tab admin gắn với nút admin (Đăng xuất), thay thế nút đó thành kiểu mũi tên xổ xuống gồm menu và đăng xuất, giống kiểu như hình là ví dụ của facebook
+
+### Planner Response
+
+Tôi đã thay thế nút Đăng xuất cũ bằng một thanh trình đơn thả xuống (User Profile Dropdown Menu) cao cấp lấy cảm hứng từ menu Facebook:
+1. **Tạo cấu trúc HTML mới**: Thiết kế nút bấm hiển thị tên người dùng và biểu tượng mũi tên `▼` có khả năng xoay ngược khi mở menu. Đi kèm với đó là menu con chứa 2 lựa chọn: **Quản trị (Admin)** (nếu tài khoản là Admin) và **Đăng xuất** có icon tinh tế và đường phân cách phân chia rõ ràng.
+2. **Quản lý phân quyền hiển thị**: Tích hợp điều kiện kiểm tra trong hàm `applyPermissions()`. Nếu tài khoản đăng nhập có quyền Admin, mục "Quản trị" trong menu thả xuống sẽ tự động hiển thị, ngược lại sẽ bị ẩn đi đối với nhân sự thông thường.
+3. **Hiệu ứng mỹ thuật và sự kiện**: Cấu hình CSS hiệu ứng hover mượt mà và viết mã Javascript lắng nghe sự kiện click. Khi người dùng click ngoài vùng menu, trình đơn sẽ tự động thu gọn lại để tối ưu không gian hiển thị.
