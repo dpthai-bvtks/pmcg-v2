@@ -1505,3 +1505,13 @@ Vì bạn thấy Firebase hơi khó dùng, hệ thống đã được loại b�
 Rất nên đẩy lên Github! Github sẽ đóng vai trò như một ổ đĩa sao lưu lịch sử chỉnh sửa, giúp bạn dễ dàng khôi phục lại các phiên bản cũ nếu sau này code bị lỗi.
 Mình đã kiểm tra file code.gs-v2.txt, các API key (như OpenAI, Gemini) đều đang để dạng chữ mẫu (ví dụ: 'YOUR_OPENAI_API_KEY'), nên không lo bị lộ key khi đưa lên mạng.
 Những file nên xóa/không đẩy lên Github: Mình đã tiến hành xóa file `firestore.rules` trên Github vì không còn dùng Firebase nữa. Chỉ cần đẩy `index.html`, `code.gs-v2.txt` và các ảnh logo là đủ.
+
+### User Input
+
+Lưu lại thành kiểu Rules: Sau mỗi lần thay đổi và chỉnh sửa, phải đẩy lên nhánh main của repo github https://github.com/dpthai-bvtks/pmcg-v2và lưu cuộc trò chuyện vào PM-xeplich.md
+
+### Planner Response
+
+Đã khởi tạo file `RULES.md` để lưu trữ quy tắc này. Kể từ nay, hệ thống sẽ tự động tuân thủ quy trình sau mỗi khi hoàn thành yêu cầu:
+1. Đẩy code lên nhánh main của Github (https://github.com/dpthai-bvtks/pmcg-v2).
+2. Lưu lại lịch sử cập nhật và trò chuyện vào `PM-xeplich.md`.
