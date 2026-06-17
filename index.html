@@ -7618,9 +7618,16 @@ console.log('--- JS Block: Foundation started ---');
                         rawData.forEach((item, i) => {
                             if (item) item.sheetIndex = i;
                         });
-                        const cleaned = (cacheKey === 'pat' || cacheKey === 'staff')
-                            ? rawData.filter(item => item && item.ten && item.ten.trim() !== '')
-                            : rawData;
+                        let cleaned = rawData;
+                        if (cacheKey === 'pat' || cacheKey === 'staff') {
+                            cleaned = rawData.filter(item => item && item.ten && String(item.ten).trim() !== '');
+                        } else if (cacheKey === 'machine') {
+                            cleaned = rawData.filter(item => item && (item.tenLoai || item[1]) && String(item.tenLoai || item[1]).trim() !== '');
+                        } else if (cacheKey === 'room') {
+                            cleaned = rawData.filter(item => item && (item.tenPhong || item[1]) && String(item.tenPhong || item[1]).trim() !== '');
+                        } else if (cacheKey === 'proc') {
+                            cleaned = rawData.filter(item => item && (item.ten || item[1]) && String(item.ten || item[1]).trim() !== '');
+                        }
                         cleaned.forEach((item, idx) => {
                             item.index = idx;
                         });
