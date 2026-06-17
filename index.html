@@ -7643,10 +7643,15 @@ console.log('--- JS Block: Foundation started ---');
                         const data = [];
                         snapshot.forEach(doc => {
                             const item = doc.data();
-                            item.id = doc.id;
-                            data.push(item);
+                            if (item && item.ten && item.ten.trim() !== '') {
+                                item.id = doc.id;
+                                data.push(item);
+                            }
                         });
                         data.sort((a, b) => (a.index || 0) - (b.index || 0));
+                        data.forEach((item, idx) => {
+                            item.index = idx;
+                        });
 
                         dataCache[cacheKey] = data;
                         window.dataCacheTime[cacheKey] = Date.now();
@@ -7676,7 +7681,15 @@ console.log('--- JS Block: Foundation started ---');
             google.script.run
                 .withSuccessHandler(data => {
                     if (typeof dataCache !== 'undefined') {
-                        dataCache[cacheKey] = data || [];
+                        const rawData = data || [];
+                        rawData.forEach((item, i) => {
+                            if (item) item.sheetIndex = i;
+                        });
+                        const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
+                        cleaned.forEach((item, idx) => {
+                            item.index = idx;
+                        });
+                        dataCache[cacheKey] = cleaned;
                     }
                     window.dataCacheTime = window.dataCacheTime || {};
                     window.dataCacheTime[cacheKey] = Date.now();
@@ -7693,7 +7706,15 @@ console.log('--- JS Block: Foundation started ---');
             google.script.run
                 .withSuccessHandler(data => {
                     if (typeof dataCache !== 'undefined') {
-                        dataCache[cacheKey] = data || [];
+                        const rawData = data || [];
+                        rawData.forEach((item, i) => {
+                            if (item) item.sheetIndex = i;
+                        });
+                        const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
+                        cleaned.forEach((item, idx) => {
+                            item.index = idx;
+                        });
+                        dataCache[cacheKey] = cleaned;
                     }
                     window.dataCacheTime = window.dataCacheTime || {};
                     window.dataCacheTime[cacheKey] = Date.now();
@@ -7724,10 +7745,15 @@ console.log('--- JS Block: Foundation started ---');
                 const data = [];
                 snapshot.forEach(doc => {
                     const item = doc.data();
-                    item.id = doc.id;
-                    data.push(item);
+                    if (item && item.ten && item.ten.trim() !== '') {
+                        item.id = doc.id;
+                        data.push(item);
+                    }
                 });
                 data.sort((a, b) => (a.index || 0) - (b.index || 0));
+                data.forEach((item, idx) => {
+                    item.index = idx;
+                });
 
                 if (JSON.stringify(dataCache[cacheKey]) === JSON.stringify(data)) {
                     return;
@@ -7769,6 +7795,7 @@ console.log('--- JS Block: Foundation started ---');
                     const ref = window.db.collection('patients').doc();
                     batch.set(ref, {
                         index: idx,
+                        sheetIndex: p.sheetIndex !== undefined ? p.sheetIndex : idx,
                         ten: p.ten || '',
                         namSinh: p.namSinh || '',
                         ngayVao: p.ngayVao || '',
@@ -7799,6 +7826,7 @@ console.log('--- JS Block: Foundation started ---');
                     const ref = window.db.collection('staff').doc();
                     batch.set(ref, {
                         index: idx,
+                        sheetIndex: s.sheetIndex !== undefined ? s.sheetIndex : idx,
                         ten: s.ten || '',
                         vaiTro: s.vaiTro || '',
                         trangThai: s.trangThai || '',
@@ -7822,14 +7850,24 @@ console.log('--- JS Block: Foundation started ---');
                 const [ten, nam, ngay, gio, ban, ra, phong, tt] = args;
                 window.db.collection('patients').get().then(snapshot => {
                     const nextIndex = snapshot.size;
+                    let maxSheetIndex = -1;
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        if (d.sheetIndex !== undefined && d.sheetIndex > maxSheetIndex) {
+                            maxSheetIndex = d.sheetIndex;
+                        }
+                    });
+                    const nextSheetIndex = maxSheetIndex + 1;
                     window.db.collection('patients').add({
                         index: nextIndex,
+                        sheetIndex: nextSheetIndex,
                         ten, namSinh: nam, ngayVao: ngay, gioVao: gio, gioBan: ban, gioRa: ra, phong, thuThuat: tt
                     });
                 });
             } else if (action === 'editBenhNhan') {
                 const [idx, ten, nam, ngay, gio, ban, ra, phong, tt] = args;
-                window.db.collection('patients').where('index', '==', parseInt(idx)).get().then(snapshot => {
+                const editSheetIdx = parseInt(idx);
+                window.db.collection('patients').where('sheetIndex', '==', editSheetIdx).get().then(snapshot => {
                     snapshot.forEach(doc => {
                         doc.ref.update({
                             ten, namSinh: nam, ngayVao: ngay, gioVao: gio, gioBan: ban, gioRa: ra, phong, thuThuat: tt
@@ -7838,15 +7876,19 @@ console.log('--- JS Block: Foundation started ---');
                 });
             } else if (action === 'deleteBenhNhan') {
                 const [idx] = args;
-                const deleteIdx = parseInt(idx);
+                const deleteSheetIdx = parseInt(idx);
                 window.db.collection('patients').get().then(snapshot => {
                     snapshot.forEach(doc => {
                         const data = doc.data();
+                        const docSheetIdx = parseInt(data.sheetIndex !== undefined ? data.sheetIndex : data.index);
                         const docIdx = parseInt(data.index);
-                        if (docIdx === deleteIdx) {
+                        if (docSheetIdx === deleteSheetIdx) {
                             doc.ref.delete();
-                        } else if (docIdx > deleteIdx) {
-                            doc.ref.update({ index: docIdx - 1 });
+                        } else if (docSheetIdx > deleteSheetIdx) {
+                            doc.ref.update({
+                                index: docIdx - 1,
+                                sheetIndex: docSheetIdx - 1
+                            });
                         }
                     });
                 });
@@ -7859,14 +7901,24 @@ console.log('--- JS Block: Foundation started ---');
                 const [ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe] = args;
                 window.db.collection('staff').get().then(snapshot => {
                     const nextIndex = snapshot.size;
+                    let maxSheetIndex = -1;
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        if (d.sheetIndex !== undefined && d.sheetIndex > maxSheetIndex) {
+                            maxSheetIndex = d.sheetIndex;
+                        }
+                    });
+                    const nextSheetIndex = maxSheetIndex + 1;
                     window.db.collection('staff').add({
                         index: nextIndex,
+                        sheetIndex: nextSheetIndex,
                         ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe
                     });
                 });
             } else if (action === 'editNhanSu') {
                 const [idx, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe] = args;
-                window.db.collection('staff').where('index', '==', parseInt(idx)).get().then(snapshot => {
+                const editSheetIdx = parseInt(idx);
+                window.db.collection('staff').where('sheetIndex', '==', editSheetIdx).get().then(snapshot => {
                     snapshot.forEach(doc => {
                         doc.ref.update({
                             ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe
@@ -7875,15 +7927,19 @@ console.log('--- JS Block: Foundation started ---');
                 });
             } else if (action === 'deleteNhanSu') {
                 const [idx] = args;
-                const deleteIdx = parseInt(idx);
+                const deleteSheetIdx = parseInt(idx);
                 window.db.collection('staff').get().then(snapshot => {
                     snapshot.forEach(doc => {
                         const data = doc.data();
+                        const docSheetIdx = parseInt(data.sheetIndex !== undefined ? data.sheetIndex : data.index);
                         const docIdx = parseInt(data.index);
-                        if (docIdx === deleteIdx) {
+                        if (docSheetIdx === deleteSheetIdx) {
                             doc.ref.delete();
-                        } else if (docIdx > deleteIdx) {
-                            doc.ref.update({ index: docIdx - 1 });
+                        } else if (docSheetIdx > deleteSheetIdx) {
+                            doc.ref.update({
+                                index: docIdx - 1,
+                                sheetIndex: docSheetIdx - 1
+                            });
                         }
                     });
                 });
@@ -8419,9 +8475,17 @@ console.log('--- JS Block: Foundation started ---');
 
             const obj = { ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe };
 
-            if (editIndex.staff > -1) { dataCache.staff[editIndex.staff] = obj; google.script.run.editNhanSu(editIndex.staff, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe); }
-
-            else { dataCache.staff.push(obj); google.script.run.addNhanSu(ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe); }
+            if (editIndex.staff > -1) {
+                const oldItem = dataCache.staff[editIndex.staff];
+                const sheetIdx = oldItem.sheetIndex !== undefined ? oldItem.sheetIndex : editIndex.staff;
+                obj.sheetIndex = sheetIdx;
+                obj.index = editIndex.staff;
+                dataCache.staff[editIndex.staff] = obj;
+                google.script.run.editNhanSu(sheetIdx, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe);
+            } else {
+                dataCache.staff.push(obj);
+                google.script.run.addNhanSu(ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe);
+            }
 
             cancelEdit('staff'); renderStaffTable();
 
@@ -8473,27 +8537,26 @@ console.log('--- JS Block: Foundation started ---');
 
                 if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang xóa..."; }
 
-                dataCache.staff.splice(i, 1); renderStaffTable();
+                const deletedSheetIndex = s.sheetIndex !== undefined ? s.sheetIndex : i;
+                dataCache.staff.splice(i, 1);
+                dataCache.staff.forEach((item, idx) => {
+                    item.index = idx;
+                    if (item.sheetIndex !== undefined && item.sheetIndex > deletedSheetIndex) {
+                        item.sheetIndex--;
+                    }
+                });
+                renderStaffTable();
 
                 google.script.run.withSuccessHandler(() => { 
-
                     if (window.hideGlobalLoading) window.hideGlobalLoading();
-
                     if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
                     if (typeof loadDashboard === 'function') loadDashboard(); 
-
                 })
-
                     .withFailureHandler(e => {
-
                         if (window.hideGlobalLoading) window.hideGlobalLoading();
-
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
                         alert('Lỗi khi xóa: ' + e);
-
-                    }).deleteNhanSu(i);
+                    }).deleteNhanSu(deletedSheetIndex);
 
             });
 
@@ -8839,9 +8902,17 @@ console.log('--- JS Block: Foundation started ---');
 
             const obj = { ten, namSinh: nam, ngayVao: ngay, gioVao: gio, gioBan: ban, gioRa: ra, phong, thuThuat: tt };
 
-            if (editIndex.pat > -1) { dataCache.pat[editIndex.pat] = obj; google.script.run.editBenhNhan(editIndex.pat, ten, nam, ngay, gio, ban, ra, phong, tt); }
-
-            else { dataCache.pat.push(obj); google.script.run.addBenhNhan(ten, nam, ngay, gio, ban, ra, phong, tt); }
+            if (editIndex.pat > -1) {
+                const oldItem = dataCache.pat[editIndex.pat];
+                const sheetIdx = oldItem.sheetIndex !== undefined ? oldItem.sheetIndex : editIndex.pat;
+                obj.sheetIndex = sheetIdx;
+                obj.index = editIndex.pat;
+                dataCache.pat[editIndex.pat] = obj;
+                google.script.run.editBenhNhan(sheetIdx, ten, nam, ngay, gio, ban, ra, phong, tt);
+            } else {
+                dataCache.pat.push(obj);
+                google.script.run.addBenhNhan(ten, nam, ngay, gio, ban, ra, phong, tt);
+            }
 
             cancelEdit('pat'); renderPatientsTable();
 
@@ -8914,48 +8985,33 @@ console.log('--- JS Block: Foundation started ---');
                 
 
                 // Xóa tạm trên giao diện
-
+                const deletedSheetIndex = p.sheetIndex !== undefined ? p.sheetIndex : i;
                 dataCache.pat.splice(i, 1);
-
+                dataCache.pat.forEach((item, idx) => {
+                    item.index = idx;
+                    if (item.sheetIndex !== undefined && item.sheetIndex > deletedSheetIndex) {
+                        item.sheetIndex--;
+                    }
+                });
                 renderPatientsTable();
 
-                
-
                 // Khóa nút lưu để chống thao tác đè trong lúc chờ mạng
-
                 const btnSave = document.getElementById('btn-save-pat');
-
                 if (btnSave) { btnSave.disabled = true; btnSave.innerText = "Đang đồng bộ..."; }
 
-
-
                 // Gọi máy chủ xóa ngay lập tức
-
                 google.script.run
-
                     .withSuccessHandler(() => { 
-
                         if (window.hideGlobalLoading) window.hideGlobalLoading();
-
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
-                        // Tải lại toàn bộ dữ liệu mới nhất để đảm bảo đồng bộ số thứ tự dòng
-
                         if (typeof loadDashboard === 'function') loadDashboard(); 
-
                     })
-
                     .withFailureHandler(e => {
-
                         if (window.hideGlobalLoading) window.hideGlobalLoading();
-
                         if (btnSave) { btnSave.disabled = false; btnSave.innerText = "Thêm"; }
-
                         alert('Lỗi khi xóa vĩnh viễn: ' + e);
-
                     })
-
-                    .deleteBenhNhan(i);
+                    .deleteBenhNhan(deletedSheetIndex);
 
             });
 
@@ -12387,28 +12443,30 @@ console.log('--- JS Block: Foundation started ---');
 
 
 
-                                                google.script.run.withSuccessHandler(patData => { const el =
-
-                                                document.getElementById('statBN'); if(el) el.textContent =
-
-                                                patData.length; window.dataCache = window.dataCache||{};
-
-                                                window.dataCache.pat = patData; }).getBenhNhan();
+                                                google.script.run.withSuccessHandler(patData => {
+                                                    const rawData = patData || [];
+                                                    rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
+                                                    const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
+                                                    cleaned.forEach((item, idx) => { item.index = idx; });
+                                                    const el = document.getElementById('statBN'); 
+                                                    if(el) el.textContent = cleaned.length; 
+                                                    window.dataCache = window.dataCache||{};
+                                                    window.dataCache.pat = cleaned; 
+                                                }).getBenhNhan();
 
                                                 google.script.run.withSuccessHandler(staffData => {
-
-                                                const working = staffData.filter(s => { const st =
-
-                                                s.trangThai||s[3]||'', r = s.vaiTro||s[2]||''; return st==='Đi làm' &&
-
-                                                r!=='Điều dưỡng'; }).length;
-
-                                                const el = document.getElementById('statStaff'); if(el) el.textContent =
-
-                                                working;
-
-                                                window.dataCache.staff = staffData;
-
+                                                    const rawData = staffData || [];
+                                                    rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
+                                                    const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
+                                                    cleaned.forEach((item, idx) => { item.index = idx; });
+                                                    const working = cleaned.filter(s => { 
+                                                        const st = s.trangThai || ''; 
+                                                        const r = s.vaiTro || ''; 
+                                                        return st==='Đi làm' && r!=='Điều dưỡng'; 
+                                                    }).length;
+                                                    const el = document.getElementById('statStaff'); 
+                                                    if(el) el.textContent = working;
+                                                    window.dataCache.staff = cleaned;
                                                 }).getNhanSu();
 
 
