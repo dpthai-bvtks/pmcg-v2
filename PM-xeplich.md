@@ -1429,3 +1429,13 @@ Tôi đã phân tích nguyên nhân và xử lý lỗi đồng bộ sau khi ch�
 1. **Nguyên nhân**: Khi bấm "Chốt sổ & sang ngày mới", client gọi hàm `chuyenNgayMoi()` trực tiếp qua Google Apps Script để xóa dữ liệu trên Google Sheets. Sau đó trang web tự động reload. Tuy nhiên, do Firestore là lớp cơ sở dữ liệu cache trung gian và lúc này chưa nhận được bản tin thay đổi, client sau khi reload sẽ ưu tiên nạp lại đống dữ liệu cũ đang lưu trên Firestore, dẫn đến việc giao diện trông như chưa được dọn dẹp (bác sĩ phải đồng bộ thủ công mới sạch).
 2. **Giải pháp**: Cập nhật hàm `callChotSo()` trong [index.html](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/index.html). Ngay khi nhận được phản hồi chốt sổ thành công từ Google Sheets, hệ thống sẽ thực hiện `Promise.all` gọi lệnh tải cưỡng bức (`forceRefresh = true`) để dọn sạch và nạp lại toàn bộ dữ liệu trắng từ Google Sheets sang Firestore. Chỉ sau khi Firestore hoàn tất cập nhật, trang web mới thực hiện reload.
 3. **Thông báo thành công**: Thêm check `chot_so_success_toast` khi trang tải lại để hiển thị hộp thoại nổi màu xanh lá cây chúc mừng chốt sổ và chuyển ngày mới thành công sang Firestore.
+
+
+### User Input
+
+thay bằng biểu tượng 🎉 thông báo: Hệ thống đã chốt sổ và tự động cập nhật dữ liệu mới thành công!
+
+### Planner Response
+
+Tôi đã chỉnh sửa nội dung thông báo thành công sau khi chốt sổ theo yêu cầu rút gọn của bác sĩ:
+- Nội dung hiển thị mới: `Hệ thống đã chốt sổ và tự động cập nhật dữ liệu mới thành công!` với biểu tượng `🎉`. Thay đổi đã được áp dụng và kiểm thử thành công trên nhánh `main` của repository.
