@@ -3990,15 +3990,7 @@
 
 
 
-                <div class="sidebar-footer"
 
-                    style="margin-top: auto; padding: 15px 0;">
-
-                    <button class="nav-tab" data-tab="tab-admin" id="nav-btn-admin"
-
-                        style="display:none; width:100%; padding:10px; background:#c0392b; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:13px; text-align:center;"><span class="icon">🔒</span><span class="text" style="margin-left: 5px;">Quản Trị</span></button>
-
-                </div>
 
             </div>
 
@@ -13045,10 +13037,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // --- USER MENU DROPDOWN LOGIC ---
         function goToAdminTab() {
-            const adminTabBtn = document.getElementById('nav-btn-admin') || document.querySelector('.nav-tab[data-tab="tab-admin"]');
-            if (adminTabBtn) {
-                adminTabBtn.click();
-            }
+            window.location.hash = '#tab-admin';
             document.getElementById('user-dropdown-menu').style.display = 'none';
             const arrow = document.getElementById('user-dropdown-arrow');
             if (arrow) arrow.style.transform = 'rotate(0deg)';
