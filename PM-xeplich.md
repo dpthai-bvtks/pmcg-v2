@@ -1525,3 +1525,13 @@ khi vào tab Bệnh nhân tihỉnh thoảng lại hiền khung xanh như góc tr
 1. **Sửa lỗi kéo hết trang mới thấy danh sách (Scroll Bug)**: Nguyên nhân là do cấu trúc CSS Flexbox của `.tab-content` và `.split-layout` chưa giới hạn chiều cao (thiếu `min-height: 0` và `flex: 1`), khiến thẻ `.main-table` tự do giãn ra bằng toàn bộ kích thước nội dung bảng bên trong, làm trang bị tràn chiều cao 100vh và buộc toàn bộ body phải scroll.
    - **Giải pháp**: Cập nhật lại toàn bộ CSS liên quan (`.main-content`, `.tab-content`, `.split-layout`, `.main-table`, `.sidebar-form`) để ép chúng co giãn đúng chuẩn Flexbox. Giờ đây toàn bộ ứng dụng sẽ vừa khít màn hình, chỉ có vùng danh sách bệnh nhân là có thanh cuộn riêng. Tiêu đề và ô tìm kiếm sẽ luôn được ghim ở trên cùng!
 2. **Khung xanh góc trên bên trái**: Đã kiểm tra toàn bộ mã nguồn HTML/CSS nhưng không phát hiện thẻ `div` hay `iframe` nào có màu xanh to như vậy. Có khả năng đây là lỗi từ popup tự điền (autofill) của trình duyệt khi input được tự động focus, hoặc do một Extension nào đó. Đã hỏi lại User để xác minh.
+
+### User Input
+
+mất luôn cuộn của bảng chứa danh sách bệnh nhân rồi
+
+### Planner Response
+
+1. **Sửa lỗi mất thanh cuộn bên trong bảng Bệnh Nhân**: Giải pháp Flexbox đợt trước gặp một xung đột nhỏ với bộ CSS Grid gốc của hệ thống (`.main-wrapper`), khiến thanh cuộn của bảng bị vô hiệu hoá. 
+   - **Giải pháp**: Đã hoàn trả lại cấu trúc cuộn tự nhiên của bảng (`.main-table`) và áp dụng công thức tính toán tĩnh giới hạn chiều cao chính xác (`max-height: calc(100vh - 240px)`).
+   - **Kết quả**: Bảng bệnh nhân đã **lấy lại được thanh cuộn**. Đồng thời toàn bộ trang web bên ngoài sẽ **hoàn toàn không bao giờ bị cuộn** nữa (vấn đề thanh tìm kiếm bị trôi lên đã được giải quyết triệt để).
