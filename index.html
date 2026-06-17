@@ -7,9 +7,7 @@
 <head>
 
     <base target="_top">
-    <!-- Firebase Compatibility SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 
     <meta charset="UTF-8">
 
@@ -5732,7 +5730,7 @@
 
                             <div
                                 style="background: #e8f8f5; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #1abc9c; flex-shrink: 0; display:flex; gap:10px; align-items:center; justify-content: space-between;">
-                                <span style="font-size:11px; font-weight:bold; color:#16a085;">🔄 Đồng bộ toàn bộ dữ liệu từ Google Sheets sang Firebase:</span>
+                                <span style="font-size:11px; font-weight:bold; color:#16a085;">🔄 Đồng bộ toàn bộ dữ liệu từ Google Sheets:</span>
                                 <button class="btn-success" onclick="triggerSheetsToFirebaseSync(this)"
                                     style="padding:6px 12px; font-size:12px; border:none; font-weight:bold;">ĐỒNG BỘ NGAY</button>
                             </div>
@@ -6445,17 +6443,7 @@
 
     <script>
 
-    // Initialize Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAxIrSMBwfvF8ZW2gkcuAIHu3PqrX--SDo",
-      authDomain: "pmcg-v2.firebaseapp.com",
-      projectId: "pmcg-v2",
-      storageBucket: "pmcg-v2.firebasestorage.app",
-      messagingSenderId: "464404204240",
-      appId: "1:464404204240:web:192df47704f2df50ad6cd5"
-    };
-    firebase.initializeApp(firebaseConfig);
-    window.db = firebase.firestore();
+
 
     window.showGlobalLoading = function(text) {
 
@@ -6671,21 +6659,7 @@ function callApi(functionName, args, onSuccess, onError) {
     .then(response => response.json())
     .then(result => {
         if (result.status === 'success') {
-            // ============================================================
-            // 🔄 ĐÁNH CHẶN THÀNH CÔNG ĐỂ ĐỒNG BỘ FIRESTORE REALTIME
-            // ============================================================
-            try {
-                if (['addBenhNhan', 'editBenhNhan', 'deleteBenhNhan'].includes(functionName)) {
-                    syncPatientToFirestore(functionName, args);
-                } else if (['addNhanSu', 'editNhanSu', 'deleteNhanSu'].includes(functionName)) {
-                    syncStaffToFirestore(functionName, args);
-                } else if (functionName === 'bulkUpdatePatients') {
-                    setTimeout(overwritePatientsInFirestore, 500);
-                }
-            } catch (fsErr) {
-                console.error("Firestore sync error:", fsErr);
-            }
-            // ============================================================
+
 
             if (onSuccess) onSuccess(result.data);
         } else {
@@ -7624,48 +7598,7 @@ console.log('--- JS Block: Foundation started ---');
             if (typeof callback === 'function') callbacksToRun.push(callback);
             if (Array.isArray(extraCallbacks)) callbacksToRun = callbacksToRun.concat(extraCallbacks);
 
-            // ==========================================
-            // 🔄 TÍCH HỢP FIREBASE FIRESTORE REALTIME SYNC
-            // ==========================================
-            if (cacheKey === 'pat' || cacheKey === 'staff') {
-                const colName = cacheKey === 'pat' ? 'patients' : 'staff';
 
-                if (forceRefresh) {
-                    loadFromSheetsAndWriteToFirestore(apiMethod, cacheKey, colName, callbacksToRun);
-                    return;
-                }
-
-                window.db.collection(colName).get().then(snapshot => {
-                    if (snapshot.empty) {
-                        console.log("Firestore " + colName + " is empty. Pulling from Sheets...");
-                        loadFromSheetsAndWriteToFirestore(apiMethod, cacheKey, colName, callbacksToRun);
-                    } else {
-                        const data = [];
-                        snapshot.forEach(doc => {
-                            const item = doc.data();
-                            if (item && item.ten && item.ten.trim() !== '') {
-                                item.id = doc.id;
-                                data.push(item);
-                            }
-                        });
-                        data.sort((a, b) => (a.index || 0) - (b.index || 0));
-                        data.forEach((item, idx) => {
-                            item.index = idx;
-                        });
-
-                        dataCache[cacheKey] = data;
-                        window.dataCacheTime[cacheKey] = Date.now();
-
-                        callbacksToRun.forEach(cb => cb());
-                        setupFirestoreListener(cacheKey, colName);
-                    }
-                }).catch(err => {
-                    console.error("Firestore read error, falling back to Sheets:", err);
-                    loadFromSheets(apiMethod, cacheKey, callbacksToRun);
-                });
-                return;
-            }
-            // ==========================================
 
             if (!forceRefresh && typeof dataCache !== 'undefined' && dataCache[cacheKey] && window.dataCacheTime[cacheKey] && dataCache[cacheKey].length > 0) {
                 if (now - window.dataCacheTime[cacheKey] < CACHE_TTL) {
@@ -7702,261 +7635,19 @@ console.log('--- JS Block: Foundation started ---');
             [apiMethod]();
         }
 
-        function loadFromSheetsAndWriteToFirestore(apiMethod, cacheKey, colName, callbacks) {
-            google.script.run
-                .withSuccessHandler(data => {
-                    if (typeof dataCache !== 'undefined') {
-                        const rawData = data || [];
-                        rawData.forEach((item, i) => {
-                            if (item) item.sheetIndex = i;
-                        });
-                        const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
-                        cleaned.forEach((item, idx) => {
-                            item.index = idx;
-                        });
-                        dataCache[cacheKey] = cleaned;
-                    }
-                    window.dataCacheTime = window.dataCacheTime || {};
-                    window.dataCacheTime[cacheKey] = Date.now();
-
-                    callbacks.forEach(cb => cb());
-
-                    if (cacheKey === 'pat') {
-                        overwritePatientsInFirestore();
-                    } else if (cacheKey === 'staff') {
-                        overwriteStaffInFirestore();
-                    }
-
-                    setupFirestoreListener(cacheKey, colName);
-                })
-                .withFailureHandler(e => {
-                    console.error("❌ Lỗi tải [" + cacheKey + "] từ Sheets:", e);
-                    callbacks.forEach(cb => cb());
-                })
-            [apiMethod]();
-        }
-
-        let firestoreListeners = { pat: false, staff: false };
-        function setupFirestoreListener(cacheKey, colName) {
-            if (firestoreListeners[cacheKey]) return;
-            firestoreListeners[cacheKey] = true;
-
-            window.db.collection(colName).onSnapshot(snapshot => {
-                const data = [];
-                snapshot.forEach(doc => {
-                    const item = doc.data();
-                    if (item && item.ten && item.ten.trim() !== '') {
-                        item.id = doc.id;
-                        data.push(item);
-                    }
-                });
-                data.sort((a, b) => (a.index || 0) - (b.index || 0));
-                data.forEach((item, idx) => {
-                    item.index = idx;
-                });
-
-                if (JSON.stringify(dataCache[cacheKey]) === JSON.stringify(data)) {
-                    return;
-                }
-
-                dataCache[cacheKey] = data;
-                window.dataCacheTime[cacheKey] = Date.now();
-
-                const activeTab = document.querySelector('.nav-tab.active')?.getAttribute('data-tab');
-                if (cacheKey === 'pat') {
-                    if (activeTab === 'tab-patients') {
-                        if (typeof editIndex !== 'undefined' && editIndex.pat === -1 && !isPatientFormActive()) {
-                            renderPatientsTable();
-                        }
-                    } else if (activeTab === 'tab-busy') {
-                        if (typeof editIndex !== 'undefined' && editIndex.pat === -1 && !isBusyFormActive()) {
-                            renderBusyPat();
-                        }
-                    }
-                } else if (cacheKey === 'staff') {
-                    if (activeTab === 'tab-busy') {
-                        if (typeof editIndex !== 'undefined' && editIndex.staff === -1 && !isBusyFormActive()) {
-                            renderBusyStaff();
-                        }
-                    }
-                }
-            });
-        }
-
-        function overwritePatientsInFirestore() {
-            if (!window.db || !dataCache.pat) return;
-            window.db.collection('patients').get().then(snapshot => {
-                const batch = window.db.batch();
-                snapshot.forEach(doc => batch.delete(doc.ref));
-                return batch.commit();
-            }).then(() => {
-                const batch = window.db.batch();
-                dataCache.pat.forEach((p, idx) => {
-                    const ref = window.db.collection('patients').doc();
-                    batch.set(ref, {
-                        index: idx,
-                        sheetIndex: p.sheetIndex !== undefined ? p.sheetIndex : idx,
-                        ten: p.ten || '',
-                        namSinh: p.namSinh || '',
-                        ngayVao: p.ngayVao || '',
-                        gioVao: p.gioVao || '',
-                        gioBan: p.gioBan || '',
-                        gioRa: p.gioRa || '',
-                        phong: p.phong || '',
-                        thuThuat: p.thuThuat || ''
-                    });
-                });
-                return batch.commit();
-            }).then(() => {
-                console.log("✅ Overwritten patients in Firestore.");
-            }).catch(err => {
-                console.error("❌ Error overwriting patients in Firestore:", err);
-            });
-        }
-
-        function overwriteStaffInFirestore() {
-            if (!window.db || !dataCache.staff) return;
-            window.db.collection('staff').get().then(snapshot => {
-                const batch = window.db.batch();
-                snapshot.forEach(doc => batch.delete(doc.ref));
-                return batch.commit();
-            }).then(() => {
-                const batch = window.db.batch();
-                dataCache.staff.forEach((s, idx) => {
-                    const ref = window.db.collection('staff').doc();
-                    batch.set(ref, {
-                        index: idx,
-                        sheetIndex: s.sheetIndex !== undefined ? s.sheetIndex : idx,
-                        ten: s.ten || '',
-                        vaiTro: s.vaiTro || '',
-                        trangThai: s.trangThai || '',
-                        thoiGianLam: s.thoiGianLam || '',
-                        kyNang: s.kyNang || '',
-                        gioBan: s.gioBan || '',
-                        nguoiThayThe: s.nguoiThayThe || ''
-                    });
-                });
-                return batch.commit();
-            }).then(() => {
-                console.log("✅ Overwritten staff in Firestore.");
-            }).catch(err => {
-                console.error("❌ Error overwriting staff in Firestore:", err);
-            });
-        }
-
-        function syncPatientToFirestore(action, args) {
-            if (!window.db) return;
-            if (action === 'addBenhNhan') {
-                const [ten, nam, ngay, gio, ban, ra, phong, tt] = args;
-                window.db.collection('patients').get().then(snapshot => {
-                    const nextIndex = snapshot.size;
-                    let maxSheetIndex = -1;
-                    snapshot.forEach(doc => {
-                        const d = doc.data();
-                        if (d.sheetIndex !== undefined && d.sheetIndex > maxSheetIndex) {
-                            maxSheetIndex = d.sheetIndex;
-                        }
-                    });
-                    const nextSheetIndex = maxSheetIndex + 1;
-                    window.db.collection('patients').add({
-                        index: nextIndex,
-                        sheetIndex: nextSheetIndex,
-                        ten, namSinh: nam, ngayVao: ngay, gioVao: gio, gioBan: ban, gioRa: ra, phong, thuThuat: tt
-                    });
-                });
-            } else if (action === 'editBenhNhan') {
-                const [idx, ten, nam, ngay, gio, ban, ra, phong, tt] = args;
-                const editSheetIdx = parseInt(idx);
-                window.db.collection('patients').where('sheetIndex', '==', editSheetIdx).get().then(snapshot => {
-                    snapshot.forEach(doc => {
-                        doc.ref.update({
-                            ten, namSinh: nam, ngayVao: ngay, gioVao: gio, gioBan: ban, gioRa: ra, phong, thuThuat: tt
-                        });
-                    });
-                });
-            } else if (action === 'deleteBenhNhan') {
-                const [idx] = args;
-                const deleteSheetIdx = parseInt(idx);
-                window.db.collection('patients').get().then(snapshot => {
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const docSheetIdx = parseInt(data.sheetIndex !== undefined ? data.sheetIndex : data.index);
-                        const docIdx = parseInt(data.index);
-                        if (docSheetIdx === deleteSheetIdx) {
-                            doc.ref.delete();
-                        } else if (docSheetIdx > deleteSheetIdx) {
-                            doc.ref.update({
-                                index: docIdx - 1,
-                                sheetIndex: docSheetIdx - 1
-                            });
-                        }
-                    });
-                });
-            }
-        }
-
-        function syncStaffToFirestore(action, args) {
-            if (!window.db) return;
-            if (action === 'addNhanSu') {
-                const [ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe] = args;
-                window.db.collection('staff').get().then(snapshot => {
-                    const nextIndex = snapshot.size;
-                    let maxSheetIndex = -1;
-                    snapshot.forEach(doc => {
-                        const d = doc.data();
-                        if (d.sheetIndex !== undefined && d.sheetIndex > maxSheetIndex) {
-                            maxSheetIndex = d.sheetIndex;
-                        }
-                    });
-                    const nextSheetIndex = maxSheetIndex + 1;
-                    window.db.collection('staff').add({
-                        index: nextIndex,
-                        sheetIndex: nextSheetIndex,
-                        ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe
-                    });
-                });
-            } else if (action === 'editNhanSu') {
-                const [idx, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe] = args;
-                const editSheetIdx = parseInt(idx);
-                window.db.collection('staff').where('sheetIndex', '==', editSheetIdx).get().then(snapshot => {
-                    snapshot.forEach(doc => {
-                        doc.ref.update({
-                            ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe
-                        });
-                    });
-                });
-            } else if (action === 'deleteNhanSu') {
-                const [idx] = args;
-                const deleteSheetIdx = parseInt(idx);
-                window.db.collection('staff').get().then(snapshot => {
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const docSheetIdx = parseInt(data.sheetIndex !== undefined ? data.sheetIndex : data.index);
-                        const docIdx = parseInt(data.index);
-                        if (docSheetIdx === deleteSheetIdx) {
-                            doc.ref.delete();
-                        } else if (docSheetIdx > deleteSheetIdx) {
-                            doc.ref.update({
-                                index: docIdx - 1,
-                                sheetIndex: docSheetIdx - 1
-                            });
-                        }
-                    });
-                });
-            }
-        }
-
         function triggerSheetsToFirebaseSync(btn) {
             const origText = btn.innerText;
             btn.disabled = true;
             btn.innerText = "⏳ ĐANG ĐỒNG BỘ...";
-            if (window.showGlobalLoading) window.showGlobalLoading("Đang nạp dữ liệu từ Google Sheets...");
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang tải dữ liệu từ Google Sheets...");
+
+            window.dataCacheTime = {}; // Xóa cache time
 
             Promise.all([
-                new Promise((resolve, reject) => {
+                new Promise((resolve) => {
                     loadEntity('getBenhNhan', 'pat', () => resolve(), [], true);
                 }),
-                new Promise((resolve, reject) => {
+                new Promise((resolve) => {
                     loadEntity('getNhanSu', 'staff', () => resolve(), [], true);
                 })
             ]).then(() => {
@@ -7970,13 +7661,12 @@ console.log('--- JS Block: Foundation started ---');
                 btn.disabled = false;
                 btn.innerText = origText;
                 if (window.showToast) {
-                    window.showToast("❌ Lỗi đồng bộ: " + err, "error", 5000);
+                    window.showToast("❌ Lỗi tải dữ liệu: " + err, "error", 5000);
                 } else {
-                    alert("❌ Lỗi đồng bộ: " + err);
+                    alert("❌ Lỗi tải dữ liệu: " + err);
                 }
             });
         }
-
         function loadMachines() { loadEntity('getDanhSachMay', 'machine', renderMachinesTable); }
 
         function loadRooms() { loadEntity('getPhongThuThuat', 'room', renderRoomsTable); }
