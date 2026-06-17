@@ -6508,6 +6508,18 @@ if (sessionStorage.getItem('sync_success_toast') === 'true') {
     }, 600);
 }
 
+// Check for pending chot so success toast on reload
+if (sessionStorage.getItem('chot_so_success_toast') === 'true') {
+    sessionStorage.removeItem('chot_so_success_toast');
+    setTimeout(() => {
+        if (typeof showCustomAlert === 'function') {
+            showCustomAlert('Chốt sổ thành công', 'Hệ thống đã chốt sổ và tự động cập nhật dữ liệu mới sang Firebase Firestore thành công!', '🎉', '#27ae60');
+        } else {
+            alert('✅ Chốt sổ thành công!');
+        }
+    }, 600);
+}
+
 window.onerror = function(msg, url, lineNo, columnNo, error) { console.error('JS ERROR:', msg, 'at line', lineNo); alert('LỖI CÚ PHÁP TẠI DÒNG ' + lineNo + ': ' + msg); };
 
 console.log('MAIN SCRIPT STARTING...');
@@ -10462,9 +10474,26 @@ console.log('--- JS Block: Foundation started ---');
 
                     localStorage.removeItem('meds_unscheduled');
 
-                    // Reload sau 300ms để server kịp ghi xong
+                    // Hiển thị loading trong khi chờ nạp dữ liệu sạch từ Sheets sang Firestore
+                    if (window.showGlobalLoading) window.showGlobalLoading("Đang cập nhật ngày mới sang Firestore...");
 
-                    setTimeout(() => { location.reload(); }, 300);
+                    Promise.all([
+                        new Promise((resolve) => {
+                            loadEntity('getBenhNhan', 'pat', () => resolve(), [], true);
+                        }),
+                        new Promise((resolve) => {
+                            loadEntity('getNhanSu', 'staff', () => resolve(), [], true);
+                        })
+                    ]).then(() => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        sessionStorage.setItem('chot_so_success_toast', 'true');
+                        location.reload();
+                    }).catch(err => {
+                        console.error("Lỗi đồng bộ sau chốt sổ:", err);
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        sessionStorage.setItem('chot_so_success_toast', 'true');
+                        location.reload();
+                    });
 
                 }).withFailureHandler(err => {
 

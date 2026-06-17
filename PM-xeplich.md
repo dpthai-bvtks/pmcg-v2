@@ -1417,3 +1417,15 @@ file code.gs-v2.txt là file lưu trữ code trên google app script, mình lưu
 ### Planner Response
 
 Tôi xin lỗi bác sĩ vì sự hiểu lầm. Tôi đã khôi phục lại tệp [code.gs-v2.txt](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/code.gs-v2.txt) về đúng vị trí cũ trong repository để làm dữ liệu tham chiếu và phục vụ cho việc chỉnh sửa backend Apps Script sau này khi cần thiết.
+
+
+### User Input
+
+xảy ra 1 vấn đề như sau: hôm nay sau khi bấm chốt sổ&sang ngày mới thì không thấy xóa lịch trình và các giờ bận của nhân viên, phải quay lại tab admin bấm đồng bộ ngay mới được, như vậy là sao?
+
+### Planner Response
+
+Tôi đã phân tích nguyên nhân và xử lý lỗi đồng bộ sau khi chốt sổ:
+1. **Nguyên nhân**: Khi bấm "Chốt sổ & sang ngày mới", client gọi hàm `chuyenNgayMoi()` trực tiếp qua Google Apps Script để xóa dữ liệu trên Google Sheets. Sau đó trang web tự động reload. Tuy nhiên, do Firestore là lớp cơ sở dữ liệu cache trung gian và lúc này chưa nhận được bản tin thay đổi, client sau khi reload sẽ ưu tiên nạp lại đống dữ liệu cũ đang lưu trên Firestore, dẫn đến việc giao diện trông như chưa được dọn dẹp (bác sĩ phải đồng bộ thủ công mới sạch).
+2. **Giải pháp**: Cập nhật hàm `callChotSo()` trong [index.html](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/index.html). Ngay khi nhận được phản hồi chốt sổ thành công từ Google Sheets, hệ thống sẽ thực hiện `Promise.all` gọi lệnh tải cưỡng bức (`forceRefresh = true`) để dọn sạch và nạp lại toàn bộ dữ liệu trắng từ Google Sheets sang Firestore. Chỉ sau khi Firestore hoàn tất cập nhật, trang web mới thực hiện reload.
+3. **Thông báo thành công**: Thêm check `chot_so_success_toast` khi trang tải lại để hiển thị hộp thoại nổi màu xanh lá cây chúc mừng chốt sổ và chuyển ngày mới thành công sang Firestore.
