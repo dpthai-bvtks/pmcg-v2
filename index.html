@@ -7618,7 +7618,9 @@ console.log('--- JS Block: Foundation started ---');
                         rawData.forEach((item, i) => {
                             if (item) item.sheetIndex = i;
                         });
-                        const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
+                        const cleaned = (cacheKey === 'pat' || cacheKey === 'staff')
+                            ? rawData.filter(item => item && item.ten && item.ten.trim() !== '')
+                            : rawData;
                         cleaned.forEach((item, idx) => {
                             item.index = idx;
                         });
