@@ -1515,3 +1515,13 @@ Lưu lại thành kiểu Rules: Sau mỗi lần thay đổi và chỉnh sửa, p
 Đã khởi tạo file `RULES.md` để lưu trữ quy tắc này. Kể từ nay, hệ thống sẽ tự động tuân thủ quy trình sau mỗi khi hoàn thành yêu cầu:
 1. Đẩy code lên nhánh main của Github (https://github.com/dpthai-bvtks/pmcg-v2).
 2. Lưu lại lịch sử cập nhật và trò chuyện vào `PM-xeplich.md`.
+
+### User Input
+
+khi vào tab Bệnh nhân tihỉnh thoảng lại hiền khung xanh như góc trên bên trái, ngoài ra phải kéo hết tầm trang thì mới thấy hét danh sách bệnh nhân, như vậy lại che mất hàng tiêu đề bảng và ô tìm kiếm
+
+### Planner Response
+
+1. **Sửa lỗi kéo hết trang mới thấy danh sách (Scroll Bug)**: Nguyên nhân là do cấu trúc CSS Flexbox của `.tab-content` và `.split-layout` chưa giới hạn chiều cao (thiếu `min-height: 0` và `flex: 1`), khiến thẻ `.main-table` tự do giãn ra bằng toàn bộ kích thước nội dung bảng bên trong, làm trang bị tràn chiều cao 100vh và buộc toàn bộ body phải scroll.
+   - **Giải pháp**: Cập nhật lại toàn bộ CSS liên quan (`.main-content`, `.tab-content`, `.split-layout`, `.main-table`, `.sidebar-form`) để ép chúng co giãn đúng chuẩn Flexbox. Giờ đây toàn bộ ứng dụng sẽ vừa khít màn hình, chỉ có vùng danh sách bệnh nhân là có thanh cuộn riêng. Tiêu đề và ô tìm kiếm sẽ luôn được ghim ở trên cùng!
+2. **Khung xanh góc trên bên trái**: Đã kiểm tra toàn bộ mã nguồn HTML/CSS nhưng không phát hiện thẻ `div` hay `iframe` nào có màu xanh to như vậy. Có khả năng đây là lỗi từ popup tự điền (autofill) của trình duyệt khi input được tự động focus, hoặc do một Extension nào đó. Đã hỏi lại User để xác minh.
