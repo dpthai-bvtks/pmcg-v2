@@ -1544,3 +1544,12 @@ nút Đồng bộ ngay trong tab admin có còn tác dụng gì không, nếu kh
 
 1. **Gỡ bỏ nút "Đồng bộ ngay"**: Chức năng này ban đầu được thiết kế để đồng bộ dữ liệu với cơ sở dữ liệu Firebase. Do chúng ta đã thống nhất bỏ Firebase và làm việc trực tiếp với Google Sheets (với nút "Làm mới dữ liệu" ở trang Dashboard), nút này đã trở nên dư thừa.
    - **Giải pháp**: Đã xóa thành phần giao diện (nút bấm và khung chứa) trong tab Admin, đồng thời dọn dẹp mã nguồn (hàm `triggerSheetsToFirebaseSync`) để tối ưu hiệu suất và tránh nhầm lẫn.
+
+### User Input
+nhập bệnh nhân vào vẫn bị trùng lặp, khi bấm xếp lịch cũng bị trùng x2, x3
+
+### Planner Response
+1. Tìm nguyên nhân: Có 2 listener keydown đều xử lý phím Enter để click nút Luu. Khi nhấn Enter tab Benh Nhan, ca 2 listener kích hoạt, gọi savePatient() 2 lần -> ghi 2 bản ghi trùng vào Google Sheets.
+2. Giai phap 2 lop bao ve:
+   - Lop 1: Xóa đoạn code click nút Luu khoi Listener 2. Chi giu phan xu ly Enter/Escape cho modal/popup.
+   - Lop 2: Them co window._savePatientLock trong ham savePatient(). Neu ham dang duoc goi, cac lan goi tiep theo trong 1 giay se bi bo qua.
