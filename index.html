@@ -8564,6 +8564,12 @@ console.log('--- JS Block: Foundation started ---');
 
         function savePatient() {
 
+            // 🛡️ Chống gọi kép: Bỏ qua nếu đã đang xử lý
+            if (window._savePatientLock) { console.warn("savePatient: blocked double call"); return; }
+            window._savePatientLock = true;
+            setTimeout(() => { window._savePatientLock = false; }, 1000);
+
+
             let ten = document.getElementById('pat-name').value;
 
             const nam = document.getElementById('pat-year').value;
@@ -12533,37 +12539,12 @@ console.log('--- JS Block: Foundation started ---');
 
 
 
-                                                // TỐI ƯU UX 1: Ấn Enter ở bất kỳ ô nhập liệu nào cũng sẽ tự động nhấn nút Lưu/Thêm
-
-                                                if (event.key === 'Enter') {
-
-                                                    const activeEl = document.activeElement;
-
-                                                    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT')) {
-
-                                                        const formSection = activeEl.closest('.form-section, .import-controls, .login-box');
-
-                                                        if (formSection) {
-
-                                                            // Tìm nút màu xanh (Lưu/Thêm) trong cùng khu vực
-
-                                                            const saveBtn = formSection.querySelector('.btn-success') || formSection.querySelector('button[onclick="verifyPassword()"]');
-
-                                                            if (saveBtn && !saveBtn.disabled && saveBtn.offsetParent !== null) {
-
-                                                                event.preventDefault();
-
-                                                                saveBtn.click();
-
-                                                            }
-
-                                                        }
-
-                                                    }
-
-                                                }
+                                                // ⚠️ ĐÃ XÓA: Xử lý Enter tự động click nút Lưu/Thêm được
+                                                // xử lý tập trung tại listener ở trên (~dòng 7261)
+                                                // để tránh savePatient() bị gọi 2 lần gây trùng dữ liệu.
 
                                                 });
+
 
 
 
