@@ -1553,3 +1553,10 @@ nhập bệnh nhân vào vẫn bị trùng lặp, khi bấm xếp lịch cũng b
 2. Giai phap 2 lop bao ve:
    - Lop 1: Xóa đoạn code click nút Luu khoi Listener 2. Chi giu phan xu ly Enter/Escape cho modal/popup.
    - Lop 2: Them co window._savePatientLock trong ham savePatient(). Neu ham dang duoc goi, cac lan goi tiep theo trong 1 giay se bi bo qua.
+
+### User Input
+khi an chot so va sang ngay moi lai thay hien du lieu voi firebase, sau khi chot xong thi lai F5 lai trang
+
+### Planner Response
+- Nguyen nhan: Trong ham callChotSo(), sau khi chot so xong, co doan code con sot lai tu thoi dung Firebase: showGlobalLoading(Dang cap nhat sang Firestore...) va Promise.all([loadEntity...]) truoc khi reload. Dieu nay khien nguoi dung thay thong bao Firebase va phai doi them.
+- Giai phap: Xoa bo doan code Firebase trong success handler. Don gian hoa: xoa cache (dataCacheTime), dat chot_so_success_toast roi goi location.reload() luon. Trang se tai lai va lay du lieu moi tu Google Sheets.
