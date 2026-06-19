@@ -7548,7 +7548,7 @@ console.log('--- JS Block: Foundation started ---');
 
         function loadAllData() {
 
-            [loadMachines, loadRooms, loadScheduleList, loadProcedures].forEach(fn => fn());
+            [loadMachines, loadRooms, loadScheduleList, loadProcedures, loadPatients, loadStaff].forEach(fn => fn());
 
             google.script.run.withSuccessHandler(text => {
 
@@ -10341,22 +10341,36 @@ console.log('--- JS Block: Foundation started ---');
 
 
 
+                window._historyCache = window._historyCache || {};
         function xemLichSu() {
-
             const d = document.getElementById('history-date').value;
-
             if (!d) return alert("Chọn ngày!");
 
-            google.script.run.withSuccessHandler(data => {
-
-                if (!data || !data.length) return alert("Không có dữ liệu");
-
+            if (window._historyCache[d]) {
                 window.viewingImportedScheduleFile = true;
                 window._viewingHistoryDate = d;
-                window.currentScheduleData = data; filterSchedule();
+                window.currentScheduleData = window._historyCache[d];
+                filterSchedule();
+                return;
+            }
 
+            const btn = document.querySelector('button[onclick="xemLichSu()"]');
+            const oldText = btn ? btn.innerText : 'Xem';
+            if (btn) { btn.innerText = 'Đang tải...'; btn.disabled = true; }
+
+            google.script.run.withSuccessHandler(data => {
+                if (btn) { btn.innerText = oldText; btn.disabled = false; }
+                if (!data || !data.length) return alert("Không có dữ liệu");
+
+                window._historyCache[d] = data; // Lưu cache
+                window.viewingImportedScheduleFile = true;
+                window._viewingHistoryDate = d;
+                window.currentScheduleData = data;
+                filterSchedule();
+            }).withFailureHandler(err => {
+                if (btn) { btn.innerText = oldText; btn.disabled = false; }
+                alert("Lỗi tải lịch sử: " + err);
             }).getHistorySchedule(d);
-
         }
 
 
