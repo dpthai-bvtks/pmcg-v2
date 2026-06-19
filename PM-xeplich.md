@@ -1578,3 +1578,13 @@ khi minh dang xem lai lich cua ngay hom truoc thi 1 luc sau lai load quay lai li
 ### Planner Response
 Nguyen nhan: Ham startAutoSync() chay moi 15 giay va goi loadScheduleList() de tai lai lich hien tai tu Google Sheets, ghi de len lich su dang xem. Ham xemLichSu() khong bat co window.viewingImportedScheduleFile = true, nen autoSync van chay binh thuong va overwrite.
 Giai phap: Them window.viewingImportedScheduleFile = true va window._viewingHistoryDate = d vao ham xemLichSu() khi du lieu lich su duoc tai ve thanh cong. AutoSync se khong ghi de nua. Khi nguoi dung muon xem lai lich hien tai, bam nut Lich Hien Tai se reset co va khoi phuc autoSync.
+
+### User Input
+sau khi da co lich trinh cua khoa va an Xuat Lich Y Lenh thi file excel xuat ra se gom cac cot: Ngay, Ten Benh Nhan, Nam sinh, Phong(an di), Thu Thuat, Bat Dau, Ket Thuc, NV Chinh, May. Du lieu sap xep tu A den Z theo cap do: Phong, Ten Benh Nhan, Bat Dau
+
+### Planner Response
+Viet lai ham exportSchedule() voi cau truc moi:
+- Cot: Ngay, Ten BN, Nam Sinh, Phong (an, hidden: true), Thu Thuat, Bat Dau, Ket Thuc, NV Chinh, May.
+- Bo: STT, NV Phu, Giuong, Trang Thai/Ghi Chu.
+- Sap xep 3 cap: Phong (A-Z) -> Ten BN (A-Z) -> Bat Dau (A-Z) dung localeCompare vi.
+- Ten file: Lich_YLenh_DD-MM-YYYY.xlsx.
