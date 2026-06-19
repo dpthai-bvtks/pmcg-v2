@@ -1560,3 +1560,14 @@ khi an chot so va sang ngay moi lai thay hien du lieu voi firebase, sau khi chot
 ### Planner Response
 - Nguyen nhan: Trong ham callChotSo(), sau khi chot so xong, co doan code con sot lai tu thoi dung Firebase: showGlobalLoading(Dang cap nhat sang Firestore...) va Promise.all([loadEntity...]) truoc khi reload. Dieu nay khien nguoi dung thay thong bao Firebase va phai doi them.
 - Giai phap: Xoa bo doan code Firebase trong success handler. Don gian hoa: xoa cache (dataCacheTime), dat chot_so_success_toast roi goi location.reload() luon. Trang se tai lai va lay du lieu moi tu Google Sheets.
+
+### User Input
+kiem tra lai toan bo code xem con doan nao sot cua firebase khong
+
+### Planner Response
+Tim thay va sua 5 tham chieu Firebase con sot:
+1. Dong 6494: Thong bao toast dong bo thanh cong con ghi sang Firebase Firestore -> sua lai thanh tu Google Sheets.
+2. Dong 7632: Ham triggerSheetsToFirebaseSync (con sot, chua dung) -> doi ten thanh triggerDataRefresh.
+3. Dong 11696-11697: Comment Tat vi da co Firestore Realtime Sync -> sua lai thanh mo ta dung.
+4. Dong 11698: Comment realtime -> sua lai thanh mo ta dung.
+Ket qua: Quet lai khong con bat ky tham chieu Firebase/Firestore nao trong toan bo file index.html.
