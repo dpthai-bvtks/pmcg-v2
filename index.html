@@ -6491,7 +6491,7 @@ if (sessionStorage.getItem('sync_success_toast') === 'true') {
     sessionStorage.removeItem('sync_success_toast');
     setTimeout(() => {
         if (typeof showCustomAlert === 'function') {
-            showCustomAlert('Đồng bộ thành công', 'Hệ thống đã nạp và làm sạch toàn bộ dữ liệu từ Google Sheets sang Firebase Firestore thành công!', '🎉', '#27ae60');
+            showCustomAlert('Đồng bộ thành công', 'Hệ thống đã nạp và làm sạch toàn bộ dữ liệu từ Google Sheets thành công!', '🎉', '#27ae60');
         } else {
             alert('✅ Đồng bộ thành công!');
         }
@@ -7629,7 +7629,7 @@ console.log('--- JS Block: Foundation started ---');
             [apiMethod]();
         }
 
-        function triggerSheetsToFirebaseSync(btn) {
+        function triggerDataRefresh(btn) {
             const origText = btn.innerText;
             btn.disabled = true;
             btn.innerText = "⏳ ĐANG ĐỒNG BỘ...";
@@ -11693,9 +11693,9 @@ console.log('--- JS Block: Foundation started ---');
                                             loadScheduleList();
                                         }
 
-                                        // Đồng bộ Bệnh Nhân (Tắt vì đã có Firestore Realtime Sync)
-                                        // Đồng bộ Giờ Bận/Ra Viện (Tắt vì đã có Firestore Realtime Sync)
-                                    }, 15000); // Rút ngắn xuống 15s để trải nghiệm realtime tốt hơn
+                                        // Đồng bộ Bệnh Nhân (Bệnh nhân và nhân sự tải tự động khi tab active)
+                                        // Đồng bộ Giờ Bận/Ra Viện (Bệnh nhân và nhân sự tải tự động khi tab active)
+                                    }, 15000); // Tự động cập nhật lịch mỗi 15 giây
                                 }
 
                                 
