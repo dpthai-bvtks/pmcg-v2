@@ -9879,69 +9879,120 @@ console.log('--- JS Block: Foundation started ---');
 
             if (!window.currentScheduleData?.length) return alert("Chưa có lịch để xuất!");
 
-            // 1. Lấy dữ liệu và sắp xếp: Phòng → Tên BN → Bắt Đầu (A-Z)
-            const sortedData = [...(window.currentScheduleData || [])].sort((a, b) => {
-                const phongA = String(a.phong || '').trim().toLowerCase();
-                const phongB = String(b.phong || '').trim().toLowerCase();
-                if (phongA !== phongB) return phongA.localeCompare(phongB, 'vi');
-
-                const tenA = String(a.tenBN || '').trim().toLowerCase();
-                const tenB = String(b.tenBN || '').trim().toLowerCase();
-                if (tenA !== tenB) return tenA.localeCompare(tenB, 'vi');
-
-                const batDauA = String(a.gioDienRa || '').trim();
-                const batDauB = String(b.gioDienRa || '').trim();
-                return batDauA.localeCompare(batDauB);
+            // 1. Sắp xếp: Phòng → Tên BN → Bắt Đầu (A-Z)
+            const sorted = [...(window.currentScheduleData || [])].sort((a, b) => {
+                const pA = String(a.phong || '').trim().toLowerCase();
+                const pB = String(b.phong || '').trim().toLowerCase();
+                if (pA !== pB) return pA.localeCompare(pB, 'vi');
+                const tA = String(a.tenBN || '').trim().toLowerCase();
+                const tB = String(b.tenBN || '').trim().toLowerCase();
+                if (tA !== tB) return tA.localeCompare(tB, 'vi');
+                return String(a.gioDienRa || '').localeCompare(String(b.gioDienRa || ''));
             });
 
-            // 2. Tạo dữ liệu bảng
-            // Cột: Ngày | Tên BN | Năm Sinh | Phòng (ẩn) | Thủ Thuật | Bắt Đầu | Kết Thúc | NV Chính | Máy
-            let ws_data = [["Ngày", "Tên Bệnh Nhân", "Năm Sinh", "Phòng", "Thủ Thuật", "Bắt Đầu", "Kết Thúc", "NV Chính", "Máy"]];
+            // 2. Tiêu đề cột
+            // Cột: Ngày | Tên BN | Năm Sinh | Phòng | Thủ Thuật | Bắt Đầu | Kết Thúc | NV Chính | Máy
+            const HEADER = ["Ngày", "Tên Bệnh Nhân", "Năm Sinh", "Phòng", "Thủ Thuật", "Bắt Đầu", "Kết Thúc", "NV Chính", "Máy"];
+            const ws_data = [HEADER];
 
-            sortedData.forEach(row => {
+            // Chỉ số căn lề trái / căn giữa
+            const LEFT_COLS   = new Set([0, 1, 3, 4, 7, 8]); // Ngày, TênBN, Phòng, ThuThuat, NVChinh, May
+            const CENTER_COLS = new Set([2, 5, 6]);             // NamSinh, BatDau, KetThuc
+
+            // 3. Điền dữ liệu, thêm dòng phân cách phòng
+            let currentRoom = null;
+            sorted.forEach(row => {
                 const ngay = String(row.ngay || '').split('-').reverse().join('/');
+                const phong = String(row.phong || '').trim();
+
+                // Thêm dòng tiêu đề phòng khi chuyển phòng
+                if (phong !== currentRoom) {
+                    if (currentRoom !== null) ws_data.push(['', '', '', '', '', '', '', '', '']); // dòng trống
+                    ws_data.push(['📍 Phòng: ' + phong, '', '', '', '', '', '', '', '']); // dòng tiêu đề phòng
+                    currentRoom = phong;
+                }
+
                 ws_data.push([
                     ngay,
-                    String(row.tenBN || '').trim(),
+                    String(row.tenBN  || '').trim(),
                     String(row.namSinh || '').trim(),
-                    String(row.phong || '').trim(),
-                    String(row.thuThuat || '').trim(),
+                    phong,
+                    String(row.thuThuat  || '').trim(),
                     String(row.gioDienRa || '').trim(),
                     String(row.gioKetThuc || '').trim(),
-                    String(row.nvChinh || '').trim(),
-                    String(row.may || '').trim()
+                    String(row.nvChinh   || '').trim(),
+                    String(row.may       || '').trim()
                 ]);
             });
 
-            // 3. Tạo workbook
+            // 4. Tạo sheet
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-            // 4. Định dạng cột - Phòng (cột D, index 3) bị ẩn
+            // 5. Độ rộng cột (căn chỉnh vừa khổ A4 đứng)
             ws['!cols'] = [
-                { wch: 12 },              // Ngày
-                { wch: 28 },              // Tên Bệnh Nhân
-                { wch: 10 },              // Năm Sinh
-                { wch: 15, hidden: true }, // Phòng (ẩn)
-                { wch: 28 },              // Thủ Thuật
-                { wch: 10 },              // Bắt Đầu
-                { wch: 10 },              // Kết Thúc
-                { wch: 25 },              // NV Chính
-                { wch: 15 }               // Máy
+                { wch: 11 }, // Ngày
+                { wch: 20 }, // Tên BN
+                { wch: 8  }, // Năm Sinh
+                { wch: 10 }, // Phòng
+                { wch: 20 }, // Thủ Thuật
+                { wch: 7  }, // Bắt Đầu
+                { wch: 7  }, // Kết Thúc
+                { wch: 18 }, // NV Chính
+                { wch: 10 }  // Máy
             ];
 
-            // 5. Tên file theo ngày
-            let exportDate = '';
-            if (sortedData.length > 0) {
-                exportDate = String(sortedData[0].ngay || '').split('-').reverse().join('-') || new Date().toISOString().split('T')[0];
-            } else {
-                exportDate = new Date().toISOString().split('T')[0];
+            // 6. Chiều cao dòng (~18pt ≈ 6.35mm cho dữ liệu, 22pt cho tiêu đề)
+            ws['!rows'] = [];
+            for (let r = 0; r < ws_data.length; r++) {
+                const isHeader = r === 0;
+                const isRoomTitle = r > 0 && String(ws_data[r][0]).startsWith('📍');
+                ws['!rows'][r] = { hpt: isHeader ? 22 : isRoomTitle ? 20 : 18 };
             }
+
+            // 7. Căn lề ô + định dạng đậm tiêu đề / tiêu đề phòng
+            try {
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                for (let R = range.s.r; R <= range.e.r; R++) {
+                    const isHeader    = R === 0;
+                    const isRoomTitle = R > 0 && String(ws_data[R][0]).startsWith('📍');
+                    for (let C = range.s.c; C <= range.e.c; C++) {
+                        const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                        if (!ws[addr]) continue;
+                        const align = CENTER_COLS.has(C) ? 'center' : 'left';
+                        ws[addr].s = {
+                            alignment: { horizontal: align, vertical: 'center', wrapText: false },
+                            font: (isHeader || isRoomTitle) ? { bold: true } : {}
+                        };
+                    }
+                }
+            } catch(e) { /* Nếu thư viện không hỗ trợ style thì bỏ qua */ }
+
+            // 8. Thiết lập in A4 đứng, vừa chiều ngang
+            ws['!pageSetup'] = {
+                paperSize: 9,          // A4
+                orientation: 'portrait',
+                fitToPage: true,
+                fitToWidth: 1,         // Vừa khít 1 trang ngang
+                fitToHeight: 0,        // Số trang dọc tự động
+                horizontalDpi: 300,
+                verticalDpi: 300
+            };
+            ws['!margins'] = { left: 0.4, right: 0.3, top: 0.5, bottom: 0.5, header: 0.2, footer: 0.2 };
+
+            // 9. Tên file theo ngày
+            const firstRow = sorted[0];
+            const exportDate = firstRow
+                ? String(firstRow.ngay || '').split('-').reverse().join('-')
+                : new Date().toISOString().split('T')[0];
 
             XLSX.utils.book_append_sheet(wb, ws, "LichYLenh");
             XLSX.writeFile(wb, `Lich_YLenh_${exportDate}.xlsx`);
 
         }
+
+
+
 
 
 
