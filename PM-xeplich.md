@@ -1607,3 +1607,11 @@ khong can them dong tieu de phong (in dam) khi chuyen nhom phong, ngan cach nhau
 ### Planner Response
 Cap nhat lai ham exportSchedule():
 Bo doan chu "📍 Phòng: ..." (in dam), chi giu lai logic them dong trong (ws_data.push) khi chuyen nhom phong. Dong in dam da bi xoa.
+
+### User Input
+khi xem lại lịch cũ thì load dữ liệu hơi chậm, các tab khác cũng vậy, tăng tốc đi
+
+### Planner Response
+Tối ưu hoá hiệu năng (Speed Up):
+1. **Lịch sử (xemLichSu)**: Thêm cơ chế `window._historyCache`. Lịch cũ của một ngày sau khi tải lần đầu sẽ được lưu trên trình duyệt, các lần xem sau của cùng ngày đó sẽ hiển thị ngay lập tức không cần gọi mạng. Thêm thông báo "Đang tải..." khi chờ dữ liệu.
+2. **Các tab khác (Bệnh Nhân, Nhân Sự)**: Đưa `loadPatients` và `loadStaff` vào hàm `loadAllData()` chạy ngầm ngay khi tải trang. Khi chuyển sang tab Bệnh nhân / Nhân sự, giao diện sẽ hiện ngay lập tức (instant load) nhờ sử dụng dữ liệu đã pre-load sẵn trong cache của frontend (Cache TTL = 5 phút).
