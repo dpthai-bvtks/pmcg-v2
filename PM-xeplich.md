@@ -1600,3 +1600,10 @@ Cap nhat ham exportSchedule():
 4. Them dong tieu de phong (📍 Phong: ...) khi chung phong - nhom BN theo phong.
 5. Print setup: A4 doc, fitToWidth=1 (tu dong co thu de vua kho ngang), margins hep.
 6. Thu vien SheetJS community ed: style duoc set trong try/catch de tranh loi neu khong ho tro.
+
+### User Input
+khong can them dong tieu de phong (in dam) khi chuyen nhom phong, ngan cach nhau boi 1 hang trong la duoc
+
+### Planner Response
+Cap nhat lai ham exportSchedule():
+Bo doan chu "📍 Phòng: ..." (in dam), chi giu lai logic them dong trong (ws_data.push) khi chuyen nhom phong. Dong in dam da bi xoa.
