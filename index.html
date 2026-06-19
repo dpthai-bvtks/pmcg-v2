@@ -10269,6 +10269,8 @@ console.log('--- JS Block: Foundation started ---');
 
                 if (!data || !data.length) return alert("Không có dữ liệu");
 
+                window.viewingImportedScheduleFile = true;
+                window._viewingHistoryDate = d;
                 window.currentScheduleData = data; filterSchedule();
 
             }).getHistorySchedule(d);
