@@ -1588,3 +1588,15 @@ Viet lai ham exportSchedule() voi cau truc moi:
 - Bo: STT, NV Phu, Giuong, Trang Thai/Ghi Chu.
 - Sap xep 3 cap: Phong (A-Z) -> Ten BN (A-Z) -> Bat Dau (A-Z) dung localeCompare vi.
 - Ten file: Lich_YLenh_DD-MM-YYYY.xlsx.
+
+### User Input
+Dua cot Phong quay lai; can le trai cho cac cot Ngay/TenBN/ThuThuat/NVChinh/May; can giua cho NamSinh/BatDau/KetThuc; dong cao 18pt; in vua A4 dung, du cac cot
+
+### Planner Response
+Cap nhat ham exportSchedule():
+1. Cot Phong hien thi (bo hidden: true).
+2. Can le: Left cho Ngay/TenBN/Phong/ThuThuat/NVChinh/May; Center cho NamSinh/BatDau/KetThuc. Ap dung qua ws[addr].s = { alignment }.
+3. Chieu cao dong: 18pt du lieu, 22pt header, 20pt tieu de phong.
+4. Them dong tieu de phong (📍 Phong: ...) khi chung phong - nhom BN theo phong.
+5. Print setup: A4 doc, fitToWidth=1 (tu dong co thu de vua kho ngang), margins hep.
+6. Thu vien SheetJS community ed: style duoc set trong try/catch de tranh loi neu khong ho tro.
