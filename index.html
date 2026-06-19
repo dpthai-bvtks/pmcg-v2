@@ -9877,43 +9877,74 @@ console.log('--- JS Block: Foundation started ---');
 
         function exportSchedule() {
 
-            if (!window.currentScheduleData?.length && !window.currentRotData?.length) return alert("Chưa có lịch để xuất!");
+            if (!window.currentScheduleData?.length) return alert("Chưa có lịch để xuất!");
 
-            let ws_data = [["STT", "Ngày", "Tên Bệnh Nhân", "Năm Sinh", "Phòng", "Thủ Thuật", "Bắt Đầu", "Kết Thúc", "NV Chính", "NV Phụ", "Máy", "Giường", "Trạng Thái / Ghi Chú"]];
+            // 1. Lấy dữ liệu và sắp xếp: Phòng → Tên BN → Bắt Đầu (A-Z)
+            const sortedData = [...(window.currentScheduleData || [])].sort((a, b) => {
+                const phongA = String(a.phong || '').trim().toLowerCase();
+                const phongB = String(b.phong || '').trim().toLowerCase();
+                if (phongA !== phongB) return phongA.localeCompare(phongB, 'vi');
 
-            let stt = 1, currentExportDate = "";
+                const tenA = String(a.tenBN || '').trim().toLowerCase();
+                const tenB = String(b.tenBN || '').trim().toLowerCase();
+                if (tenA !== tenB) return tenA.localeCompare(tenB, 'vi');
 
-            (window.currentScheduleData || []).forEach(row => {
-
-                const ngayChuan = String(row.ngay).split('-').reverse().join('/');
-
-                if (!currentExportDate) currentExportDate = ngayChuan;
-
-                ws_data.push([stt++, ngayChuan, row.tenBN, row.namSinh, row.phong, row.thuThuat, row.gioDienRa, row.gioKetThuc, row.nvChinh, row.nvPhu, row.may, row.giuong, "✅ Đã xếp lịch"]);
-
+                const batDauA = String(a.gioDienRa || '').trim();
+                const batDauB = String(b.gioDienRa || '').trim();
+                return batDauA.localeCompare(batDauB);
             });
 
-            if (!currentExportDate) currentExportDate = new Date().toLocaleDateString('vi-VN');
+            // 2. Tạo dữ liệu bảng
+            // Cột: Ngày | Tên BN | Năm Sinh | Phòng (ẩn) | Thủ Thuật | Bắt Đầu | Kết Thúc | NV Chính | Máy
+            let ws_data = [["Ngày", "Tên Bệnh Nhân", "Năm Sinh", "Phòng", "Thủ Thuật", "Bắt Đầu", "Kết Thúc", "NV Chính", "Máy"]];
 
-            (window.currentRotData || []).forEach(raw => {
-
-                const row = normalizeDroppedItem(raw);
-
-                ws_data.push([stt++, currentExportDate, row.bn || '', row.ns || '', row.phong || row.room || '', row.tt || '', '', '', '', '', '', '', "❌ Không xếp được (Lý do: " + (row.reason || "Quá tải máy/Kín giờ") + ")"]);
-
+            sortedData.forEach(row => {
+                const ngay = String(row.ngay || '').split('-').reverse().join('/');
+                ws_data.push([
+                    ngay,
+                    String(row.tenBN || '').trim(),
+                    String(row.namSinh || '').trim(),
+                    String(row.phong || '').trim(),
+                    String(row.thuThuat || '').trim(),
+                    String(row.gioDienRa || '').trim(),
+                    String(row.gioKetThuc || '').trim(),
+                    String(row.nvChinh || '').trim(),
+                    String(row.may || '').trim()
+                ]);
             });
 
+            // 3. Tạo workbook
             const wb = XLSX.utils.book_new();
-
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-            ws['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 25 }, { wch: 10 }, { wch: 15 }, { wch: 25 }, { wch: 10 }, { wch: 10 }, { wch: 22 }, { wch: 22 }, { wch: 15 }, { wch: 15 }, { wch: 40 }];
+            // 4. Định dạng cột - Phòng (cột D, index 3) bị ẩn
+            ws['!cols'] = [
+                { wch: 12 },              // Ngày
+                { wch: 28 },              // Tên Bệnh Nhân
+                { wch: 10 },              // Năm Sinh
+                { wch: 15, hidden: true }, // Phòng (ẩn)
+                { wch: 28 },              // Thủ Thuật
+                { wch: 10 },              // Bắt Đầu
+                { wch: 10 },              // Kết Thúc
+                { wch: 25 },              // NV Chính
+                { wch: 15 }               // Máy
+            ];
 
-            XLSX.utils.book_append_sheet(wb, ws, "LichTrinh");
+            // 5. Tên file theo ngày
+            let exportDate = '';
+            if (sortedData.length > 0) {
+                exportDate = String(sortedData[0].ngay || '').split('-').reverse().join('-') || new Date().toISOString().split('T')[0];
+            } else {
+                exportDate = new Date().toISOString().split('T')[0];
+            }
 
-            XLSX.writeFile(wb, `Lich_YLenh_${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, "LichYLenh");
+            XLSX.writeFile(wb, `Lich_YLenh_${exportDate}.xlsx`);
 
         }
+
+
+
 
 
 
