@@ -9908,7 +9908,7 @@ console.log('--- JS Block: Foundation started ---');
                 // Thêm dòng tiêu đề phòng khi chuyển phòng
                 if (phong !== currentRoom) {
                     if (currentRoom !== null) ws_data.push(['', '', '', '', '', '', '', '', '']); // dòng trống
-                    ws_data.push(['📍 Phòng: ' + phong, '', '', '', '', '', '', '', '']); // dòng tiêu đề phòng
+                    
                     currentRoom = phong;
                 }
 
@@ -9946,8 +9946,8 @@ console.log('--- JS Block: Foundation started ---');
             ws['!rows'] = [];
             for (let r = 0; r < ws_data.length; r++) {
                 const isHeader = r === 0;
-                const isRoomTitle = r > 0 && String(ws_data[r][0]).startsWith('📍');
-                ws['!rows'][r] = { hpt: isHeader ? 22 : isRoomTitle ? 20 : 18 };
+
+                ws['!rows'][r] = { hpt: isHeader ? 22 : 18 };
             }
 
             // 7. Căn lề ô + định dạng đậm tiêu đề / tiêu đề phòng
@@ -9955,14 +9955,14 @@ console.log('--- JS Block: Foundation started ---');
                 const range = XLSX.utils.decode_range(ws['!ref']);
                 for (let R = range.s.r; R <= range.e.r; R++) {
                     const isHeader    = R === 0;
-                    const isRoomTitle = R > 0 && String(ws_data[R][0]).startsWith('📍');
+
                     for (let C = range.s.c; C <= range.e.c; C++) {
                         const addr = XLSX.utils.encode_cell({ r: R, c: C });
                         if (!ws[addr]) continue;
                         const align = CENTER_COLS.has(C) ? 'center' : 'left';
                         ws[addr].s = {
                             alignment: { horizontal: align, vertical: 'center', wrapText: false },
-                            font: (isHeader || isRoomTitle) ? { bold: true } : {}
+                            font: isHeader ? { bold: true } : {}
                         };
                     }
                 }
