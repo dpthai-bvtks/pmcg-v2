@@ -10237,26 +10237,11 @@ console.log('--- JS Block: Foundation started ---');
 
                     localStorage.removeItem('meds_unscheduled');
 
-                    // Hiển thị loading trong khi chờ nạp dữ liệu sạch từ Sheets sang Firestore
-                    if (window.showGlobalLoading) window.showGlobalLoading("Đang cập nhật ngày mới sang Firestore...");
+                    // Xóa cache để trang mới tải lại dữ liệu sạch từ Google Sheets
+                    window.dataCacheTime = {};
 
-                    Promise.all([
-                        new Promise((resolve) => {
-                            loadEntity('getBenhNhan', 'pat', () => resolve(), [], true);
-                        }),
-                        new Promise((resolve) => {
-                            loadEntity('getNhanSu', 'staff', () => resolve(), [], true);
-                        })
-                    ]).then(() => {
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-                        sessionStorage.setItem('chot_so_success_toast', 'true');
-                        location.reload();
-                    }).catch(err => {
-                        console.error("Lỗi đồng bộ sau chốt sổ:", err);
-                        if (window.hideGlobalLoading) window.hideGlobalLoading();
-                        sessionStorage.setItem('chot_so_success_toast', 'true');
-                        location.reload();
-                    });
+                    sessionStorage.setItem('chot_so_success_toast', 'true');
+                    location.reload();
 
                 }).withFailureHandler(err => {
 
