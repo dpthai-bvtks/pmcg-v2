@@ -1571,3 +1571,10 @@ Tim thay va sua 5 tham chieu Firebase con sot:
 3. Dong 11696-11697: Comment Tat vi da co Firestore Realtime Sync -> sua lai thanh mo ta dung.
 4. Dong 11698: Comment realtime -> sua lai thanh mo ta dung.
 Ket qua: Quet lai khong con bat ky tham chieu Firebase/Firestore nao trong toan bo file index.html.
+
+### User Input
+khi minh dang xem lai lich cua ngay hom truoc thi 1 luc sau lai load quay lai lich cua hien tai
+
+### Planner Response
+Nguyen nhan: Ham startAutoSync() chay moi 15 giay va goi loadScheduleList() de tai lai lich hien tai tu Google Sheets, ghi de len lich su dang xem. Ham xemLichSu() khong bat co window.viewingImportedScheduleFile = true, nen autoSync van chay binh thuong va overwrite.
+Giai phap: Them window.viewingImportedScheduleFile = true va window._viewingHistoryDate = d vao ham xemLichSu() khi du lieu lich su duoc tai ve thanh cong. AutoSync se khong ghi de nua. Khi nguoi dung muon xem lai lich hien tai, bam nut Lich Hien Tai se reset co va khoi phuc autoSync.
