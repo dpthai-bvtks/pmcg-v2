@@ -1615,3 +1615,11 @@ khi xem lại lịch cũ thì load dữ liệu hơi chậm, các tab khác cũng
 Tối ưu hoá hiệu năng (Speed Up):
 1. **Lịch sử (xemLichSu)**: Thêm cơ chế `window._historyCache`. Lịch cũ của một ngày sau khi tải lần đầu sẽ được lưu trên trình duyệt, các lần xem sau của cùng ngày đó sẽ hiển thị ngay lập tức không cần gọi mạng. Thêm thông báo "Đang tải..." khi chờ dữ liệu.
 2. **Các tab khác (Bệnh Nhân, Nhân Sự)**: Đưa `loadPatients` và `loadStaff` vào hàm `loadAllData()` chạy ngầm ngay khi tải trang. Khi chuyển sang tab Bệnh nhân / Nhân sự, giao diện sẽ hiện ngay lập tức (instant load) nhờ sử dụng dữ liệu đã pre-load sẵn trong cache của frontend (Cache TTL = 5 phút).
+
+### User Input
+xem lại phần xem lại lịch cũ, đang hiển thị sai giờ bắt đầu kết thúc, kiểm tra lại đi
+
+### Planner Response
+Nguyên nhân gây sai giờ: Google Sheets lưu thời gian (VD: 08:00) dưới dạng ngày 30/12/1899. Khi Google Apps Script đọc bằng `getValues()`, timezone cũ của Việt Nam năm 1899 (+07:06) làm giờ bị lệch thêm 6 phút (thành 08:06).
+Cách xử lý: 
+Sửa đổi hàm `getHistorySchedule` trong `code.gs-v2.txt` để lấy thêm `getDisplayValues()`, dùng chuỗi string chính xác như hiển thị trên Sheet cho cột "Bắt Đầu" và "Kết Thúc", bỏ qua chuyển đổi Date của Apps Script.

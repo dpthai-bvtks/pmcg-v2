@@ -968,15 +968,32 @@ function getSchedule() { const data = getSheetByName('LichTrinh').getDataRange()
 function getHistorySchedule(dateStr) {
   const timezone = Session.getScriptTimeZone();
   const formatDate = (val, fmt) => val instanceof Date ? Utilities.formatDate(val, timezone, fmt) : val;
-  return getAllData('SoThuThuat')
-    .filter(r => {
-      const dStr = r[1] instanceof Date ? Utilities.formatDate(r[1], timezone, "yyyy-MM-dd") : String(r[1]);
+  
+  const sheet = getSheetByName('SoThuThuat');
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  
+  const values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
+  const displayValues = sheet.getRange(2, 1, lastRow - 1, 13).getDisplayValues();
+  
+  return values
+    .map((r, i) => ({ r: r, d: displayValues[i] }))
+    .filter(row => {
+      const dStr = row.r[1] instanceof Date ? Utilities.formatDate(row.r[1], timezone, "yyyy-MM-dd") : String(row.r[1]);
       return dStr === String(dateStr);
     })
-    .map(r => ({
-      ngay: formatDate(r[1], "dd/MM/yyyy"), tenBN: r[2], namSinh: r[3], phong: r[4], thuThuat: r[5],
-      gioDienRa: formatDate(r[7], "HH:mm"), gioKetThuc: formatDate(r[8], "HH:mm"),
-      nvChinh: r[9], nvPhu: r[10], may: r[11], giuong: r[12]
+    .map(row => ({
+      ngay: formatDate(row.r[1], "dd/MM/yyyy"), 
+      tenBN: row.r[2], 
+      namSinh: row.r[3], 
+      phong: row.r[4], 
+      thuThuat: row.r[5],
+      gioDienRa: row.d[7], // Sử dụng display value cho giờ để tránh lỗi timezone 1899
+      gioKetThuc: row.d[8], // Sử dụng display value cho giờ
+      nvChinh: row.r[9], 
+      nvPhu: row.r[10], 
+      may: row.r[11], 
+      giuong: row.r[12]
     }));
 }
 
