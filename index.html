@@ -8564,51 +8564,57 @@ console.log('--- JS Block: Foundation started ---');
 
         function savePatient() {
 
-            // 🛡️ Chống gọi kép: Bỏ qua nếu đã đang xử lý
+            // 🛡️ Chống gọ́i kép: Bỏ qua néu đã đang xủ lý
             if (window._savePatientLock) { console.warn("savePatient: blocked double call"); return; }
             window._savePatientLock = true;
-            setTimeout(() => { window._savePatientLock = false; }, 1000);
-
 
             let ten = document.getElementById('pat-name').value;
-
             const nam = document.getElementById('pat-year').value;
-
             const ngay = document.getElementById('pat-date').value;
-
             const gio = document.getElementById('pat-time').value;
-
             const phong = document.getElementById('pat-room').value;
-
             const ban = document.getElementById('pat-busy').value;
-
             const ra = document.getElementById('pat-leave').value;
-
             const tt = Array.from(document.querySelectorAll('.pat-proc-cb:checked')).map(cb => cb.value).join(', ');
 
-            if (!ten) return alert("Nhập tên bệnh nhân");
+            if (!ten) { window._savePatientLock = false; return alert("Nhập tên bệnh nhân"); }
 
             ten = ten.trim().toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 
-            const obj = { ten, namSinh: nam, ngayVao: ngay, gioVao: gio, gioBan: ban, gioRa: ra, phong, thuThuat: tt };
+            // Khóa form trong lúc chờ server
+            const btnSave = document.getElementById('btn-save-pat');
+            if (btnSave) { btnSave.disabled = true; btnSave.innerText = 'Đang lưu...'; }
+
+            const onDone = () => {
+                window._savePatientLock = false;
+                if (btnSave) { btnSave.disabled = false; btnSave.innerText = 'Lưu'; }
+                // Reload sạch từ server đẻ tránh dũ liẹu bị nhân đôi
+                if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                if (typeof loadDashboard === 'function') loadDashboard();
+            };
+            const onError = (e) => {
+                window._savePatientLock = false;
+                if (btnSave) { btnSave.disabled = false; btnSave.innerText = 'Lưu'; }
+                alert('Lỗi khi lưu: ' + e);
+            };
+
+            cancelEdit('pat');
+            document.getElementById('pat-name').focus();
 
             if (editIndex.pat > -1) {
                 const oldItem = dataCache.pat[editIndex.pat];
                 const sheetIdx = oldItem.sheetIndex !== undefined ? oldItem.sheetIndex : editIndex.pat;
-                obj.sheetIndex = sheetIdx;
-                obj.index = editIndex.pat;
-                dataCache.pat[editIndex.pat] = obj;
-                google.script.run.editBenhNhan(sheetIdx, ten, nam, ngay, gio, ban, ra, phong, tt);
+                google.script.run
+                    .withSuccessHandler(onDone)
+                    .withFailureHandler(onError)
+                    .editBenhNhan(sheetIdx, ten, nam, ngay, gio, ban, ra, phong, tt);
             } else {
-                dataCache.pat.push(obj);
-                google.script.run.addBenhNhan(ten, nam, ngay, gio, ban, ra, phong, tt);
+                google.script.run
+                    .withSuccessHandler(onDone)
+                    .withFailureHandler(onError)
+                    .addBenhNhan(ten, nam, ngay, gio, ban, ra, phong, tt);
             }
-
-            cancelEdit('pat'); renderPatientsTable();
-
-            document.getElementById('pat-name').focus();
-
-            if (typeof loadDashboard === 'function') loadDashboard();
 
         }
 
