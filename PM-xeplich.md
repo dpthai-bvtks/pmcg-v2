@@ -1623,3 +1623,15 @@ xem lại phần xem lại lịch cũ, đang hiển thị sai giờ bắt đầu
 Nguyên nhân gây sai giờ: Google Sheets lưu thời gian (VD: 08:00) dưới dạng ngày 30/12/1899. Khi Google Apps Script đọc bằng `getValues()`, timezone cũ của Việt Nam năm 1899 (+07:06) làm giờ bị lệch thêm 6 phút (thành 08:06).
 Cách xử lý: 
 Sửa đổi hàm `getHistorySchedule` trong `code.gs-v2.txt` để lấy thêm `getDisplayValues()`, dùng chuỗi string chính xác như hiển thị trên Sheet cho cột "Bắt Đầu" và "Kết Thúc", bỏ qua chuyển đổi Date của Apps Script.
+
+### User Input
+kiểm tra lại, khi có 1 người xóa tên hay thêm tên bệnh nhân lại bị trùng, bị lặp lại, ví dụ đang có 4-5 bệnh nhân Phan Văn Đảm
+
+### Planner Response
+Nguyên nhân: Hàm savePatient() cũ gọi dataCache.pat.push(obj) thêm dữ liệu vào cache ngay lập tức, NHƯNG không có withSuccessHandler. Sau vài giây, loadPatients() (preload từ loadAllData) được gọi lại, tải dữ liệu từ server về và **ghi đè toàn bộ cache** - nhưng dữ liệu server đã có thêm bản mới → cache local có 2 bản = trùng!
+
+Cách sửa:
+- Bỏ việc push vào cache local ngay.
+- Thêm withSuccessHandler và withFailureHandler cho cả editBenhNhan và addBenhNhan.
+- Chỉ sau khi server xác nhận thành công mới gọi loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true) để reload sạch từ server.
+- Trong khi chờ: khóa nút Lưu, hiển thị "Đang lưu...".
