@@ -8599,12 +8599,15 @@ console.log('--- JS Block: Foundation started ---');
                 alert('Lỗi khi lưu: ' + e);
             };
 
+            // Chụp index TRƯỚC khi cancelEdit reset về -1
+            const currentEditIdx = editIndex.pat;
+            const currentItem = currentEditIdx > -1 ? dataCache.pat[currentEditIdx] : null;
+
             cancelEdit('pat');
             document.getElementById('pat-name').focus();
 
-            if (editIndex.pat > -1) {
-                const oldItem = dataCache.pat[editIndex.pat];
-                const sheetIdx = oldItem.sheetIndex !== undefined ? oldItem.sheetIndex : editIndex.pat;
+            if (currentEditIdx > -1 && currentItem) {
+                const sheetIdx = currentItem.sheetIndex !== undefined ? currentItem.sheetIndex : currentEditIdx;
                 google.script.run
                     .withSuccessHandler(onDone)
                     .withFailureHandler(onError)
