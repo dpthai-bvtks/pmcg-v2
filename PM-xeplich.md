@@ -1635,3 +1635,12 @@ Cách sửa:
 - Thêm withSuccessHandler và withFailureHandler cho cả editBenhNhan và addBenhNhan.
 - Chỉ sau khi server xác nhận thành công mới gọi loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true) để reload sạch từ server.
 - Trong khi chờ: khóa nút Lưu, hiển thị "Đang lưu...".
+
+### User Input
+khi sửa bệnh nhân cũ để thêm hoặc bớt thủ thuật thì khi ấn lưu lại thành bệnh nhân mới
+
+### Planner Response
+Nguyên nhân: Lỗi do fix trước gây ra. cancelEdit('pat') được gọi TRƯỚC if(editIndex.pat > -1).
+cancelEdit() reset editIndex.pat = -1, nên nhánh if không bao giờ đúng → luôn gọi addBenhNhan thay vì editBenhNhan.
+
+Cách sửa: Lưu giá trị editIndex.pat vào biến cục bộ (currentEditIdx) ngay từ đầu hàm, TRƯỚC khi cancelEdit được gọi. Dùng currentEditIdx để kiểm tra và truyền vào editBenhNhan.
