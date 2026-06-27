@@ -1644,3 +1644,18 @@ Nguyên nhân: Lỗi do fix trước gây ra. cancelEdit('pat') được gọi T
 cancelEdit() reset editIndex.pat = -1, nên nhánh if không bao giờ đúng → luôn gọi addBenhNhan thay vì editBenhNhan.
 
 Cách sửa: Lưu giá trị editIndex.pat vào biến cục bộ (currentEditIdx) ngay từ đầu hàm, TRƯỚC khi cancelEdit được gọi. Dùng currentEditIdx để kiểm tra và truyền vào editBenhNhan.
+
+### User Input
+khi chọn xem lịch cũ thì các tab sẽ thay đổi theo từng ngày, nhân viên bận giờ nào chứ không phải bận giờ làm thủ thuật
+
+### Planner Response
+Thiết kế lại hoàn toàn tính năng xem lịch cũ:
+1. Bỏ panel phụ bên dưới lịch trình.
+2. Khi ấn "Xem" lịch cũ:
+   - Lịch trình hiển thị như cũ (filterSchedule).
+   - Tab "Bệnh Nhân": cập nhật danh sách bệnh nhân đã được điều trị ngày đó.
+   - Tab "Giờ Bận / Ra Viện" - phần Nhân Viên: hiển thị các khung giờ nhân viên đã làm (giờ bận thực tế = giờ họ làm thủ thuật trong ngày đó).
+   - Tab "Giờ Bận / Ra Viện" - phần Bệnh Nhân: hiển thị khung giờ BN bận (các ca thủ thuật của ngày đó).
+3. Dữ liệu được tái tạo từ SoThuThuat và lưu vào dataCache.pat / dataCache.staff tạm thời.
+4. Dữ liệu hiện tại được backup trước khi ghi đè.
+5. Khi ấn "Lịch Hiện Tại": restore dataCache về dữ liệu thực, render lại tất cả tab về ngày hiện tại.
