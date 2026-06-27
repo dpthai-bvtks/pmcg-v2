@@ -1061,32 +1061,67 @@ function getHistoryFullData(dateStr) {
     String(a.tenBN).localeCompare(String(b.tenBN), 'vi')
   );
 
-  // 3. Giờ bận nhân viên (gộp theo NV)
-  const staffMap = {};
-  rows.forEach(row => {
-    const gbd = row.d[7], gkt = row.d[8];
-    if (!gbd || !gkt) return;
-    [row.r[9], row.r[10]].filter(nv => nv && String(nv).trim()).forEach(nv => {
-      const tenNV = String(nv).trim();
-      if (!staffMap[tenNV]) staffMap[tenNV] = { ten: tenNV, slots: [] };
-      staffMap[tenNV].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
-    });
-  });
-  const staffBusy = Object.values(staffMap).sort((a, b) => a.ten.localeCompare(b.ten, 'vi'));
+  // 3 & 4. Giờ bận nhân viên & Giờ bận bệnh nhân
+  let staffBusy = [];
+  let patBusy = [];
+  
+  const sheetLichSuBan = SS.getSheetByName('LichSuBan');
+  let hasManualBusy = false;
+  if (sheetLichSuBan) {
+    const lsbData = sheetLichSuBan.getDataRange().getDisplayValues();
+    const lsbRows = lsbData.filter(r => r[0] === dateStr);
+    if (lsbRows.length > 0) {
+      hasManualBusy = true;
+      const parseGioBan = gbStr => gbStr ? String(gbStr).split(',').map(s => {
+        const parts = s.split('-'); return parts.length === 2 ? { from: parts[0].trim(), to: parts[1].trim(), tt: 'Báo bận' } : null;
+      }).filter(x => x) : [];
+      
+      const sMap = {};
+      const pMap = {};
+      
+      lsbRows.forEach(r => {
+        if (r[1] === "Nhân Viên") {
+          const tenNV = String(r[2]).trim();
+          if (!sMap[tenNV]) sMap[tenNV] = { ten: tenNV, slots: [] };
+          sMap[tenNV].slots.push(...parseGioBan(r[5]));
+        } else if (r[1] === "Bệnh Nhân") {
+          const key = String(r[2]).trim().toUpperCase() + '|' + String(r[3]).trim();
+          if (!pMap[key]) pMap[key] = { tenBN: r[2], namSinh: r[3], phong: r[4], slots: [] };
+          pMap[key].slots.push(...parseGioBan(r[5]));
+        }
+      });
+      staffBusy = Object.values(sMap).sort((a, b) => a.ten.localeCompare(b.ten, 'vi'));
+      patBusy = Object.values(pMap).sort((a, b) => String(a.phong).localeCompare(String(b.phong), 'vi') || String(a.tenBN).localeCompare(String(b.tenBN), 'vi'));
+    }
+  }
 
-  // 4. Giờ bận bệnh nhân (gộp theo BN)
-  const patBusyMap = {};
-  rows.forEach(row => {
-    const gbd = row.d[7], gkt = row.d[8];
-    if (!gbd || !gkt) return;
-    const key = String(row.r[2]).trim().toUpperCase() + '|' + String(row.r[3]).trim();
-    if (!patBusyMap[key]) patBusyMap[key] = { tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], slots: [] };
-    patBusyMap[key].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
-  });
-  const patBusy = Object.values(patBusyMap).sort((a, b) =>
-    String(a.phong).localeCompare(String(b.phong), 'vi') ||
-    String(a.tenBN).localeCompare(String(b.tenBN), 'vi')
-  );
+  // Fallback nếu ngày đó chưa được lưu lịch sử bận (các ngày cũ trước khi update code này)
+  if (!hasManualBusy) {
+    const staffMapFallback = {};
+    rows.forEach(row => {
+      const gbd = row.d[7], gkt = row.d[8];
+      if (!gbd || !gkt) return;
+      [row.r[9], row.r[10]].filter(nv => nv && String(nv).trim()).forEach(nv => {
+        const tenNV = String(nv).trim();
+        if (!staffMapFallback[tenNV]) staffMapFallback[tenNV] = { ten: tenNV, slots: [] };
+        staffMapFallback[tenNV].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
+      });
+    });
+    staffBusy = Object.values(staffMapFallback).sort((a, b) => a.ten.localeCompare(b.ten, 'vi'));
+
+    const patBusyMapFallback = {};
+    rows.forEach(row => {
+      const gbd = row.d[7], gkt = row.d[8];
+      if (!gbd || !gkt) return;
+      const key = String(row.r[2]).trim().toUpperCase() + '|' + String(row.r[3]).trim();
+      if (!patBusyMapFallback[key]) patBusyMapFallback[key] = { tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], slots: [] };
+      patBusyMapFallback[key].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
+    });
+    patBusy = Object.values(patBusyMapFallback).sort((a, b) =>
+      String(a.phong).localeCompare(String(b.phong), 'vi') ||
+      String(a.tenBN).localeCompare(String(b.tenBN), 'vi')
+    );
+  }
 
   return { schedule, patients, staffBusy, patBusy };
 }
@@ -1096,8 +1131,11 @@ function chuyenNgayMoi() {
   const timezone = Session.getScriptTimeZone();
   const formatDate = d => d instanceof Date ? Utilities.formatDate(d, "GMT+7", "dd/MM/yyyy") : d;
   const scheduleData = getSchedule();
+  
+  let closeDate = formatDate(new Date(), "dd/MM/yyyy");
 
   if (scheduleData.length > 0) {
+    closeDate = scheduleData[0][0] || closeDate;
     const procedures = getThuThuat();
     const soThuThuatSheet = getSheetByName('SoThuThuat');
     let lastSTT = Math.max(0, soThuThuatSheet.getLastRow() - 1);
@@ -1110,22 +1148,45 @@ function chuyenNgayMoi() {
     if (newRows.length > 0) soThuThuatSheet.getRange(soThuThuatSheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
   }
 
-  // Đã bỏ xuatBaoCaoThuThuat
+  // --- LƯU LỊCH SỬ GIỜ BẬN ---
+  const historyBusyRows = [];
+  const sheetNS = getSheetByName('NhanSu');
+  const nsData = sheetNS.getDataRange().getDisplayValues();
+  for (let i = 1; i < nsData.length; i++) {
+    const row = nsData[i];
+    if (row[6] && String(row[6]).trim()) {
+      historyBusyRows.push([closeDate, "Nhân Viên", row[1], "", "", String(row[6]).trim()]);
+    }
+  }
 
   const sheetBN = getSheetByName('BenhNhan');
-  const bnData = sheetBN.getDataRange().getValues();
+  const bnData = sheetBN.getDataRange().getValues(); 
+  const bnDisplayData = sheetBN.getDataRange().getDisplayValues(); 
   const keptPatients = bnData.length > 0 ? [bnData[0]] : [];
 
   for (let i = 1; i < bnData.length; i++) {
+    const rowDisplay = bnDisplayData[i];
+    if (rowDisplay[5] && String(rowDisplay[5]).trim()) {
+      historyBusyRows.push([closeDate, "Bệnh Nhân", rowDisplay[1], rowDisplay[2], rowDisplay[7], String(rowDisplay[5]).trim()]);
+    }
     const row = bnData[i], gioRa = row[6];
     if (!gioRa || gioRa === '' || String(gioRa).toLowerCase() === 'none') {
       row[4] = ''; row[5] = ''; row[6] = ''; keptPatients.push(row);
     }
   }
+
+  if (historyBusyRows.length > 0) {
+    const sheetLichSuBan = getSheetByName('LichSuBan');
+    if (sheetLichSuBan.getLastRow() === 0) {
+      sheetLichSuBan.appendRow(['Ngày', 'Loại', 'Tên', 'Năm Sinh', 'Phòng', 'Giờ Bận']);
+      sheetLichSuBan.getRange(1, 1, 1, 6).setFontWeight("bold").setBackground("#d9ead3");
+    }
+    sheetLichSuBan.getRange(sheetLichSuBan.getLastRow() + 1, 1, historyBusyRows.length, 6).setValues(historyBusyRows);
+  }
+
   clearSheet('BenhNhan');
   if (keptPatients.length > 1) sheetBN.getRange(1, 1, keptPatients.length, keptPatients[0].length).setValues(keptPatients);
 
-  const sheetNS = getSheetByName('NhanSu');
   const staffCount = sheetNS.getLastRow() - 1;
   if (staffCount > 0) sheetNS.getRange(2, 7, staffCount, 1).clearContent();
   clearSheet('LichTrinh');
