@@ -1659,3 +1659,13 @@ Thiết kế lại hoàn toàn tính năng xem lịch cũ:
 3. Dữ liệu được tái tạo từ SoThuThuat và lưu vào dataCache.pat / dataCache.staff tạm thời.
 4. Dữ liệu hiện tại được backup trước khi ghi đè.
 5. Khi ấn "Lịch Hiện Tại": restore dataCache về dữ liệu thực, render lại tất cả tab về ngày hiện tại.
+
+### User Input
+tab giờ bận thì giờ bận của nhân viên viết ở cột G trong sheet NhanSu trong google sheet, tuy nhiên sẽ bị xóa khi ấn chốt sổ chứ không lưu vào lịch trình
+
+### Planner Response
+Cách xử lý: 
+1. Cập nhật hàm `chuyenNgayMoi()` trong Google Apps Script. 
+2. Trước khi xóa dữ liệu của cột báo bận trong bảng Nhân Sự và bảng Bệnh Nhân, code sẽ đọc các dữ liệu báo bận này và lưu chúng lại vào một tab mới trong Google Sheet mang tên **"LichSuBan"**.
+3. Tab "LichSuBan" sẽ lưu ngày chốt sổ, loại đối tượng (Nhân Viên / Bệnh Nhân), tên, và giờ bận nguyên gốc. Tab này sẽ tự động được tạo nếu chưa tồn tại.
+4. Cập nhật lại hàm `getHistoryFullData()` để ưu tiên đọc giờ bận nguyên gốc từ tab "LichSuBan" thay vì tái tạo lại từ giờ làm thủ thuật. Nếu chưa có dữ liệu ở tab "LichSuBan" (với các ngày chốt sổ trong quá khứ), hệ thống sẽ tự động chuyển về cách tái tạo cũ để vẫn hiển thị được lịch sử.
