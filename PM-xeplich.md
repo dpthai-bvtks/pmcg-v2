@@ -1669,3 +1669,13 @@ Cách xử lý:
 2. Trước khi xóa dữ liệu của cột báo bận trong bảng Nhân Sự và bảng Bệnh Nhân, code sẽ đọc các dữ liệu báo bận này và lưu chúng lại vào một tab mới trong Google Sheet mang tên **"LichSuBan"**.
 3. Tab "LichSuBan" sẽ lưu ngày chốt sổ, loại đối tượng (Nhân Viên / Bệnh Nhân), tên, và giờ bận nguyên gốc. Tab này sẽ tự động được tạo nếu chưa tồn tại.
 4. Cập nhật lại hàm `getHistoryFullData()` để ưu tiên đọc giờ bận nguyên gốc từ tab "LichSuBan" thay vì tái tạo lại từ giờ làm thủ thuật. Nếu chưa có dữ liệu ở tab "LichSuBan" (với các ngày chốt sổ trong quá khứ), hệ thống sẽ tự động chuyển về cách tái tạo cũ để vẫn hiển thị được lịch sử.
+
+### User Input
+tiện thể xem lại nút chọn ngày tháng ở tab Trang chủ, có vẻ như chưa hoạt động thì phải, thay đổi để giống chức năng xem lịch cũ đi
+
+### Planner Response
+Cách xử lý:
+1. Nâng cấp và hợp nhất chức năng của Date Picker trên **Trang chủ (Dashboard)** với Date Picker của **Xem lịch cũ**.
+2. Khi người dùng thay đổi ngày ở Dashboard (khác ngày hiện tại), hàm `loadDashboard()` sẽ tự động đọc dữ liệu lịch sử thông qua API `getHistoryFullData`.
+3. Toàn bộ app sẽ chuyển sang chế độ lịch sử (bao gồm cả các tab Bệnh nhân, Nhân sự, Lịch trình) VÀ các biểu đồ, con số thống kê trên Dashboard cũng sẽ tự động chuyển đổi sang dữ liệu của ngày hôm đó.
+4. Nút bấm "Xem" ở tab Xem lịch cũ (`xemLichSu()`) được thiết kế lại để tận dụng chung luồng này, đảm bảo tính đồng nhất 100% về mặt hiển thị giữa các tab.
