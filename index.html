@@ -10412,40 +10412,28 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function xemLichSu() {
-            const d = document.getElementById('history-date').value;
-            if (!d) return alert("Chọn ngày!");
-
-            // Nếu đã cache -> hiển thị ngay
-            if (window._historyCache[d]) {
-                const cached = window._historyCache[d];
-                window.viewingImportedScheduleFile = true;
-                window._viewingHistoryDate = d;
-                window.currentScheduleData = cached.schedule || cached;
-                filterSchedule();
-                applyHistoryDataToTabs(cached, d);
-                return;
-            }
-
-            const btn = document.querySelector('button[onclick="xemLichSu()"]');
-            const oldText = btn ? btn.innerText : 'Xem';
-            if (btn) { btn.innerText = 'Đang tải...'; btn.disabled = true; }
-
-            google.script.run.withSuccessHandler(data => {
-                if (btn) { btn.innerText = oldText; btn.disabled = false; }
-                if (!data || (!data.schedule?.length && !data.length)) return alert("Không có dữ liệu cho ngày này!");
-
-                const fullData = Array.isArray(data) ? { schedule: data, patients: [], staffBusy: [], patBusy: [] } : data;
-                window._historyCache[d] = fullData;
-                window.viewingImportedScheduleFile = true;
-                window._viewingHistoryDate = d;
-                window.currentScheduleData = fullData.schedule;
-                filterSchedule();
-                applyHistoryDataToTabs(fullData, d);
-            }).withFailureHandler(err => {
-                if (btn) { btn.innerText = oldText; btn.disabled = false; }
-                alert("Lỗi tải lịch sử: " + err);
-            }).getHistoryFullData(d);
-        }
+    const d = document.getElementById('history-date').value;
+    if (!d) return alert("Chọn ngày!");
+    
+    const dp = document.getElementById('dashboard-date-filter');
+    if (dp && dp.value !== d) {
+        dp.value = d;
+        const displayEl = document.getElementById('display-date');
+        if (displayEl) displayEl.textContent = d.split('-').reverse().join('/');
+    }
+    
+    if (typeof loadDashboard === 'function') {
+        const btn = document.querySelector('button[onclick="xemLichSu()"]');
+        const oldText = btn ? btn.innerText : 'Xem';
+        if (btn) { btn.innerText = 'Đang tải...'; btn.disabled = true; }
+        
+        setTimeout(() => {
+            loadDashboard();
+            if (btn) { btn.innerText = oldText; btn.disabled = false; }
+            alert("Đã cập nhật dữ liệu lịch sử cho ngày " + d + ". Bạn có thể xem trên tất cả các tab!");
+        }, 100);
+    }
+}
 
         // --- Tiện ích Tìm rảnh ---
 
@@ -12265,132 +12253,129 @@ console.log('--- JS Block: Foundation started ---');
                                                 // ============================================================
 
                                                 function loadDashboard() {
+    const datePicker = document.getElementById('dashboard-date-filter');
+    if (!datePicker.value) {
+        const today = new Date();
+        datePicker.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    }
+    const selectedDate = datePicker.value;
+    const displayEl = document.getElementById('display-date');
+    if (displayEl) displayEl.textContent = selectedDate.split('-').reverse().join('/');
 
-                                                const datePicker = document.getElementById('dashboard-date-filter');
+    // Sync to history date picker
+    const historyInput = document.getElementById('history-date');
+    if (historyInput && historyInput.value !== selectedDate) {
+        historyInput.value = selectedDate;
+    }
 
-                                                if (!datePicker.value) {
+    const d = new Date();
+    const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
-                                                const today = new Date();
+    if (selectedDate === safeTodayStr) {
+        // --- CHẾ ĐỘ LIVE HIỆN TẠI ---
+        if (window.viewingImportedScheduleFile) {
+            if (typeof restoreHistoryTabs === 'function') restoreHistoryTabs();
+        }
+        
+        google.script.run.withSuccessHandler(patData => {
+            const rawData = patData || [];
+            rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
+            const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
+            cleaned.forEach((item, idx) => { item.index = idx; });
+            const el = document.getElementById('statBN'); 
+            if(el) el.textContent = cleaned.length; 
+            window.dataCache = window.dataCache||{};
+            window.dataCache.pat = cleaned; 
+        }).getBenhNhan();
 
-                                                datePicker.value =
+        google.script.run.withSuccessHandler(staffData => {
+            const rawData = staffData || [];
+            rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
+            const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
+            cleaned.forEach((item, idx) => { item.index = idx; });
+            const working = cleaned.filter(s => { 
+                const st = s.trangThai || ''; 
+                const r = s.vaiTro || ''; 
+                return st==='Đi làm' && r!=='Điều dưỡng'; 
+            }).length;
+            const el = document.getElementById('statStaff'); 
+            if(el) el.textContent = working;
+            window.dataCache.staff = cleaned;
+        }).getNhanSu();
 
-                                                `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        const statScheduledEl = document.getElementById('statScheduled');
+        const statDroppedEl = document.getElementById('statDropped');
+        if (statScheduledEl) statScheduledEl.textContent = "...";
+        if (statDroppedEl) statDroppedEl.textContent = "...";
 
-                                                }
+        google.script.run.withSuccessHandler(function(rawSched) {
+            const duLieuTrongNgay = rawSched.filter(item => item.ngay === selectedDate || item[0] === selectedDate);
+            const dayData = duLieuTrongNgay.filter(item => { const g = item.gioDienRa||item[5]||''; return g && g!=='--' && !g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], item.gioDienRa||item[5], item.gioKetThuc||item[6], item.nvChinh||item[7], item.nvPhu||item[8], item.may||item[9], item.giuong||item[10]]);
+            const rotDataSheets = duLieuTrongNgay.filter(item => { const g = item.gioDienRa||item[5]||''; return g==='--'||g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
+            
+            let rotDataLocal = [];
+            try {
+                if (localStorage.getItem('meds_schedule_date') === selectedDate) {
+                    rotDataLocal = (JSON.parse(localStorage.getItem('meds_unscheduled')||'[]')).map(u => [selectedDate, u.bn||u.tenBN||'', u.ns||u.namSinh||'', u.room||u.phong||'', u.tt||u.thuThuat||'', '❌ Rớt', '--', '--', '--', '--', '--', u.reason||'Quá tải/Hết giờ']);
+                }
+            } catch(e) {}
+            const rotData = rotDataSheets.length > 0 ? rotDataSheets : rotDataLocal;
+            
+            if (statScheduledEl) statScheduledEl.textContent = dayData.length;
+            if (statDroppedEl) statDroppedEl.textContent = rotData.length;
+            
+            if (typeof renderDashboardPreview === 'function') renderDashboardPreview([...dayData, ...rotData]);
+            if (typeof renderCharts === 'function') renderCharts(dayData);
+        }).withFailureHandler(err => { console.error("Lỗi tải lịch:", err); }).getLichTrinh();
 
-                                                const selectedDate = datePicker.value;
+    } else {
+        // --- CHẾ ĐỘ LỊCH SỬ ---
+        const statScheduledEl = document.getElementById('statScheduled');
+        const statDroppedEl = document.getElementById('statDropped');
+        const statBN = document.getElementById('statBN');
+        const statStaff = document.getElementById('statStaff');
+        if (statScheduledEl) statScheduledEl.textContent = "...";
+        if (statDroppedEl) statDroppedEl.textContent = "...";
+        if (statBN) statBN.textContent = "...";
+        if (statStaff) statStaff.textContent = "...";
 
-                                                const displayEl = document.getElementById('display-date');
+        const processHistoryData = (data) => {
+            const fullData = Array.isArray(data) ? { schedule: data, patients: [], staffBusy: [], patBusy: [] } : data;
+            
+            window._historyCache = window._historyCache || {};
+            window._historyCache[selectedDate] = fullData;
+            window.viewingImportedScheduleFile = true;
+            window._viewingHistoryDate = selectedDate;
+            window.currentScheduleData = fullData.schedule || [];
+            
+            if (typeof applyHistoryDataToTabs === 'function') applyHistoryDataToTabs(fullData, selectedDate);
+            if (typeof filterSchedule === 'function') filterSchedule();
 
-                                                if (displayEl) displayEl.textContent =
+            if (statBN) statBN.textContent = (fullData.patients || []).length;
+            if (statStaff) statStaff.textContent = (fullData.staffBusy || []).length;
 
-                                                selectedDate.split('-').reverse().join('/');
+            const sched = fullData.schedule || [];
+            const dayData = sched.filter(item => { const g = item.gioDienRa||''; return g && g!=='--' && !g.includes('Rớt'); }).map(item => [item.ngay, item.tenBN, item.namSinh, item.phong, item.thuThuat, item.gioDienRa, item.gioKetThuc, item.nvChinh, item.nvPhu, item.may, item.giuong]);
+            const rotData = sched.filter(item => { const g = item.gioDienRa||''; return g==='--'||g.includes('Rớt'); }).map(item => [item.ngay, item.tenBN, item.namSinh, item.phong, item.thuThuat, '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
+            
+            if (statScheduledEl) statScheduledEl.textContent = dayData.length;
+            if (statDroppedEl) statDroppedEl.textContent = rotData.length;
+            
+            if (typeof renderDashboardPreview === 'function') renderDashboardPreview([...dayData, ...rotData]);
+            if (typeof renderCharts === 'function') renderCharts(dayData);
+        };
 
+        if (window._historyCache && window._historyCache[selectedDate]) {
+            processHistoryData(window._historyCache[selectedDate]);
+        } else {
+            google.script.run.withSuccessHandler(processHistoryData).withFailureHandler(err => {
+                console.error("Lỗi tải lịch sử Dashboard: " + err);
+            }).getHistoryFullData(selectedDate);
+        }
+    }
+}
 
-
-                                                google.script.run.withSuccessHandler(patData => {
-                                                    const rawData = patData || [];
-                                                    rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
-                                                    const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
-                                                    cleaned.forEach((item, idx) => { item.index = idx; });
-                                                    const el = document.getElementById('statBN'); 
-                                                    if(el) el.textContent = cleaned.length; 
-                                                    window.dataCache = window.dataCache||{};
-                                                    window.dataCache.pat = cleaned; 
-                                                }).getBenhNhan();
-
-                                                google.script.run.withSuccessHandler(staffData => {
-                                                    const rawData = staffData || [];
-                                                    rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
-                                                    const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
-                                                    cleaned.forEach((item, idx) => { item.index = idx; });
-                                                    const working = cleaned.filter(s => { 
-                                                        const st = s.trangThai || ''; 
-                                                        const r = s.vaiTro || ''; 
-                                                        return st==='Đi làm' && r!=='Điều dưỡng'; 
-                                                    }).length;
-                                                    const el = document.getElementById('statStaff'); 
-                                                    if(el) el.textContent = working;
-                                                    window.dataCache.staff = cleaned;
-                                                }).getNhanSu();
-
-
-
-                                                const statScheduledEl = document.getElementById('statScheduled'),
-
-                                                statDroppedEl = document.getElementById('statDropped');
-
-                                                if (statScheduledEl) statScheduledEl.textContent = "...";
-
-                                                if (statDroppedEl) statDroppedEl.textContent = "...";
-
-
-
-                                                google.script.run.withSuccessHandler(function(rawSched) {
-
-                                                const duLieuTrongNgay = rawSched.filter(item => item.ngay ===
-
-                                                selectedDate || item[0] === selectedDate);
-
-                                                const dayData = duLieuTrongNgay.filter(item => { const g =
-
-                                                item.gioDienRa||item[5]||''; return g && g!=='--' && !g.includes('Rớt');
-
-                                                }).map(item => [item.ngay||item[0], item.tenBN||item[1],
-
-                                                item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4],
-
-                                                item.gioDienRa||item[5], item.gioKetThuc||item[6],
-
-                                                item.nvChinh||item[7], item.nvPhu||item[8], item.may||item[9],
-
-                                                item.giuong||item[10]]);
-
-                                                const rotDataSheets = duLieuTrongNgay.filter(item => { const g =
-
-                                                item.gioDienRa||item[5]||''; return g==='--'||g.includes('Rớt');
-
-                                                }).map(item => [item.ngay||item[0], item.tenBN||item[1],
-
-                                                item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
-
-                                                let rotDataLocal = [];
-
-                                                try {
-
-                                                const savedDate = localStorage.getItem('meds_schedule_date');
-
-                                                if (savedDate === selectedDate) rotDataLocal =
-
-                                                (JSON.parse(localStorage.getItem('meds_unscheduled')||'[]')).map(u =>
-
-                                                [selectedDate, u.bn||u.tenBN||'', u.ns||u.namSinh||'',
-
-                                                u.room||u.phong||'', u.tt||u.thuThuat||'', '❌ Rớt', '--', '--', '--',
-
-                                                '--', '--', u.reason||'Quá tải/Hết giờ']);
-
-                                                } catch(e) {}
-
-                                                const rotData = rotDataSheets.length > 0 ? rotDataSheets : rotDataLocal;
-
-                                                if (statScheduledEl) statScheduledEl.textContent = dayData.length;
-
-                                                if (statDroppedEl) statDroppedEl.textContent = rotData.length;
-
-                                                if (typeof renderDashboardPreview === 'function')
-
-                                                renderDashboardPreview([...dayData, ...rotData]);
-
-                                                if (typeof renderCharts === 'function') renderCharts(dayData);
-
-                                                }).withFailureHandler(err => { console.error("Lỗi tải lịch:", err);
-
-                                                }).getLichTrinh();
-
-                                                }
-
-                                                function renderDashboardPreview(data) {
+function renderDashboardPreview(data) {
 
                                                 if (!data) return;
 
