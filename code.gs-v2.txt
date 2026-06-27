@@ -99,13 +99,33 @@ function getBenhNhan() {
     phong: r[7], thuThuat: r[8]
   }));
 }
-function addBenhNhan(ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat) { appendRow('BenhNhan', [getSheetByName('BenhNhan').getLastRow(), ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat]); }
-function editBenhNhan(rowIndex, ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat) {
-  const tenCu = getSheetByName('BenhNhan').getRange(rowIndex + 2, 2).getValue();
-  updateRow('BenhNhan', rowIndex, [rowIndex + 1, ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat]);
+function getExactRowIndex(sheetName, rowIndex, nameColumn, dobColumn, expectedName, expectedDob) {
+  if (!expectedName) return rowIndex;
+  const sheet = getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][nameColumn]).trim().toLowerCase() === String(expectedName).trim().toLowerCase() && 
+        String(data[i][dobColumn]).trim() === String(expectedDob || '').trim()) {
+      return i - 1;
+    }
+  }
+  return rowIndex;
+}
+
+function addBenhNhan(ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat) { 
+appendRow('BenhNhan', [getSheetByName('BenhNhan').getLastRow(), ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat]); }
+
+function editBenhNhan(rowIndex, ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat, oldTen, oldNamSinh) {
+  const exactIndex = getExactRowIndex('BenhNhan', rowIndex, 1, 2, oldTen, oldNamSinh);
+  const tenCu = getSheetByName('BenhNhan').getRange(exactIndex + 2, 2).getValue();
+  updateRow('BenhNhan', exactIndex, [exactIndex + 1, ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat]);
   updateNameEverywhere(tenCu, ten);
 }
-function deleteBenhNhan(rowIndex) { deleteRow('BenhNhan', rowIndex); }
+
+function deleteBenhNhan(rowIndex, ten, namSinh) { 
+  const exactIndex = getExactRowIndex('BenhNhan', rowIndex, 1, 2, ten, namSinh);
+  deleteRow('BenhNhan', exactIndex); 
+}
 
 // ============================================================
 // CORE UTILS
@@ -996,6 +1016,81 @@ function getHistorySchedule(dateStr) {
       giuong: row.r[12]
     }));
 }
+
+
+// Trả về đầy đủ dữ liệu lịch sử: lịch trình + BN + giờ bận NV + giờ bận BN
+function getHistoryFullData(dateStr) {
+  const timezone = Session.getScriptTimeZone();
+  const formatDate = (val, fmt) => val instanceof Date ? Utilities.formatDate(val, timezone, fmt) : val;
+
+  const sheet = getSheetByName('SoThuThuat');
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { schedule: [], patients: [], staffBusy: [], patBusy: [] };
+
+  const values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
+  const displayValues = sheet.getRange(2, 1, lastRow - 1, 13).getDisplayValues();
+
+  const rows = values
+    .map((r, i) => ({ r, d: displayValues[i] }))
+    .filter(row => {
+      const dStr = row.r[1] instanceof Date ? Utilities.formatDate(row.r[1], timezone, "yyyy-MM-dd") : String(row.r[1]);
+      return dStr === String(dateStr);
+    });
+
+  // 1. Lịch trình chi tiết
+  const schedule = rows.map(row => ({
+    ngay: formatDate(row.r[1], "dd/MM/yyyy"),
+    tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], thuThuat: row.r[5],
+    gioDienRa: row.d[7], gioKetThuc: row.d[8],
+    nvChinh: row.r[9], nvPhu: row.r[10], may: row.r[11], giuong: row.r[12]
+  }));
+
+  // 2. Tóm tắt danh sách bệnh nhân (gộp theo BN)
+  const patMap = {};
+  rows.forEach(row => {
+    const key = String(row.r[2]).trim().toUpperCase() + '|' + String(row.r[3]).trim();
+    if (!patMap[key]) {
+      patMap[key] = { tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], soLuongCa: 0, dsThuThuat: [] };
+    }
+    patMap[key].soLuongCa++;
+    const tt = String(row.r[5] || '').trim();
+    if (tt && !patMap[key].dsThuThuat.includes(tt)) patMap[key].dsThuThuat.push(tt);
+  });
+  const patients = Object.values(patMap).sort((a, b) =>
+    String(a.phong).localeCompare(String(b.phong), 'vi') ||
+    String(a.tenBN).localeCompare(String(b.tenBN), 'vi')
+  );
+
+  // 3. Giờ bận nhân viên (gộp theo NV)
+  const staffMap = {};
+  rows.forEach(row => {
+    const gbd = row.d[7], gkt = row.d[8];
+    if (!gbd || !gkt) return;
+    [row.r[9], row.r[10]].filter(nv => nv && String(nv).trim()).forEach(nv => {
+      const tenNV = String(nv).trim();
+      if (!staffMap[tenNV]) staffMap[tenNV] = { ten: tenNV, slots: [] };
+      staffMap[tenNV].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
+    });
+  });
+  const staffBusy = Object.values(staffMap).sort((a, b) => a.ten.localeCompare(b.ten, 'vi'));
+
+  // 4. Giờ bận bệnh nhân (gộp theo BN)
+  const patBusyMap = {};
+  rows.forEach(row => {
+    const gbd = row.d[7], gkt = row.d[8];
+    if (!gbd || !gkt) return;
+    const key = String(row.r[2]).trim().toUpperCase() + '|' + String(row.r[3]).trim();
+    if (!patBusyMap[key]) patBusyMap[key] = { tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], slots: [] };
+    patBusyMap[key].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
+  });
+  const patBusy = Object.values(patBusyMap).sort((a, b) =>
+    String(a.phong).localeCompare(String(b.phong), 'vi') ||
+    String(a.tenBN).localeCompare(String(b.tenBN), 'vi')
+  );
+
+  return { schedule, patients, staffBusy, patBusy };
+}
+
 
 function chuyenNgayMoi() {
   const timezone = Session.getScriptTimeZone();

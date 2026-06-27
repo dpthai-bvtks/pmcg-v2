@@ -10355,11 +10355,14 @@ console.log('--- JS Block: Foundation started ---');
             const d = document.getElementById('history-date').value;
             if (!d) return alert("Chọn ngày!");
 
+            // Nếu đã cache -> hiển thị người
             if (window._historyCache[d]) {
+                const cached = window._historyCache[d];
                 window.viewingImportedScheduleFile = true;
                 window._viewingHistoryDate = d;
-                window.currentScheduleData = window._historyCache[d];
+                window.currentScheduleData = cached.schedule || cached;
                 filterSchedule();
+                if (cached.patients) renderHistoryPanel(cached, d);
                 return;
             }
 
@@ -10369,19 +10372,71 @@ console.log('--- JS Block: Foundation started ---');
 
             google.script.run.withSuccessHandler(data => {
                 if (btn) { btn.innerText = oldText; btn.disabled = false; }
-                if (!data || !data.length) return alert("Không có dữ liệu");
+                if (!data || (!data.schedule?.length && !data.length)) return alert("Không có dữ liệu cho ngày này!");
 
-                window._historyCache[d] = data; // Lưu cache
+                const fullData = Array.isArray(data) ? { schedule: data, patients: [], staffBusy: [], patBusy: [] } : data;
+                window._historyCache[d] = fullData;
                 window.viewingImportedScheduleFile = true;
                 window._viewingHistoryDate = d;
-                window.currentScheduleData = data;
+                window.currentScheduleData = fullData.schedule;
                 filterSchedule();
+                renderHistoryPanel(fullData, d);
             }).withFailureHandler(err => {
                 if (btn) { btn.innerText = oldText; btn.disabled = false; }
                 alert("Lỗi tải lịch sử: " + err);
-            }).getHistorySchedule(d);
+            }).getHistoryFullData(d);
         }
 
+        function renderHistoryPanel(data, dateStr) {
+            const old = document.getElementById('history-detail-panel');
+            if (old) old.remove();
+            const { patients = [], staffBusy = [], patBusy = [] } = data;
+            if (!patients.length && !staffBusy.length && !patBusy.length) return;
+
+            const parts = dateStr.split('-');
+            const ngayHT = parts.length === 3 ? parts[2] + '/' + parts[1] + '/' + parts[0] : dateStr;
+
+            const buildSection = (title, icon, color, html) => `<details open style="margin-bottom:10px;border:1px solid ${color}40;border-radius:8px;overflow:hidden">
+                <summary style="padding:8px 14px;background:${color}15;cursor:pointer;font-weight:bold;color:${color};font-size:13px;list-style:none;display:flex;align-items:center;gap:6px">
+                    <span>${icon}</span> ${title}<span style="margin-left:auto;font-weight:normal;font-size:11px;color:#aaa">▼</span></summary>
+                <div style="padding:10px 14px;background:white;overflow-x:auto">${html}</div></details>`;
+
+            const makeTable = (headers, rows, evenBg, borderColor) => {
+                let t = `<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:${evenBg}">`;
+                headers.forEach(h => { t += `<th style="padding:5px 8px;border:1px solid ${borderColor};text-align:center">${h}</th>`; });
+                t += '</tr></thead><tbody>';
+                rows.forEach((r, i) => {
+                    t += `<tr style="background:${i%2===0?'#f9f9f9':'white'}">`;
+                    r.forEach(cell => { t += `<td style="padding:4px 8px;border:1px solid ${borderColor}">${cell}</td>`; });
+                    t += '</tr>';
+                });
+                return t + '</tbody></table>';
+            };
+
+            const slotBadge = (color, border) => sl =>
+                `<span style="display:inline-block;background:${color};border:1px solid ${border};border-radius:4px;padding:1px 6px;margin:2px;font-size:11px">${sl.from}–${sl.to} <span style="color:#888">(${sl.tt})</span></span>`;
+
+            const patRows = patients.map((p, i) => [i+1, `<b>${p.tenBN}</b>`, p.namSinh, p.phong, `<b>${p.soLuongCa}</b>`, p.dsThuThuat.join(', ')]);
+            const staffRows = staffBusy.map((s, i) => [i+1, `<b>${s.ten}</b>`, s.slots.map(slotBadge('#eaf4e8','#27ae6050')).join(' ')]);
+            const patBusyRows = patBusy.map((p, i) => [i+1, `<b>${p.tenBN}</b>`, p.phong, p.slots.map(slotBadge('#f4eaf8','#8e44ad50')).join(' ')]);
+
+            const patHtml = patients.length ? makeTable(['STT','Tên Bệnh Nhân','Năm Sinh','Phòng','Số Ca','Thủ Thuật'], patRows, '#2980b920', '#ddd') : '<i style="color:#888">Không có dữ liệu.</i>';
+            const staffHtml = staffBusy.length ? makeTable(['STT','Nhân Viên','Giờ Bận (Thủ Thuật)'], staffRows, '#27ae6020', '#ddd') : '<i style="color:#888">Không có dữ liệu.</i>';
+            const patBusyHtml = patBusy.length ? makeTable(['STT','Tên Bệnh Nhân','Phòng','Giờ Bận (Thủ Thuật)'], patBusyRows, '#8e44ad20', '#ddd') : '<i style="color:#888">Không có dữ liệu.</i>';
+
+            const panelHtml = `<div id="history-detail-panel" style="margin-top:16px;padding:12px;background:#fafafa;border:2px solid #8e44ad40;border-radius:10px">
+                <div style="font-weight:bold;font-size:14px;color:#8e44ad;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #ddd">
+                    Ửnh Dữ Liệu Ngày ${ngayHT}
+                    <button onclick="document.getElementById('history-detail-panel').remove()" style="float:right;background:none;border:none;cursor:pointer;color:#999;font-size:16px">×</button>
+                </div>
+                ${buildSection('Danh Sách Bệnh Nhân Đã Điều Trị ('+patients.length+' người)', '🏥', '#2980b9', patHtml)}
+                ${buildSection('Giờ Bận Nhân Viên ('+staffBusy.length+' người)', '👨‍⚕️', '#27ae60', staffHtml)}
+                ${buildSection('Giờ Bận Bệnh Nhân ('+patBusy.length+' người)', '🛏️', '#8e44ad', patBusyHtml)}
+            </div>`;
+
+            const anchor = document.getElementById('schedule-result');
+            if (anchor) anchor.insertAdjacentHTML('afterend', panelHtml);
+        }
 
 
         // --- Tiện ích Tìm rảnh ---
