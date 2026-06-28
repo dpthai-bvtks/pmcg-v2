@@ -1679,3 +1679,16 @@ Cách xử lý:
 2. Khi người dùng thay đổi ngày ở Dashboard (khác ngày hiện tại), hàm `loadDashboard()` sẽ tự động đọc dữ liệu lịch sử thông qua API `getHistoryFullData`.
 3. Toàn bộ app sẽ chuyển sang chế độ lịch sử (bao gồm cả các tab Bệnh nhân, Nhân sự, Lịch trình) VÀ các biểu đồ, con số thống kê trên Dashboard cũng sẽ tự động chuyển đổi sang dữ liệu của ngày hôm đó.
 4. Nút bấm "Xem" ở tab Xem lịch cũ (`xemLichSu()`) được thiết kế lại để tận dụng chung luồng này, đảm bảo tính đồng nhất 100% về mặt hiển thị giữa các tab.
+
+### User Input
+xem lại xem hôm nay là chủ nhật nhưng vẫn hiện lịch của ngày hôm qua 27/6 và tab Bệnh nhân vẫn đã xếp đủ, trạng thái của ngày hôm trước
+
+### Planner Response
+Nguyên nhân: Người dùng (hoặc nhân viên) chưa ấn nút **"CHỐT SỔ & SANG NGÀY MỚI"** vào cuối ngày hôm trước. Do đó, dữ liệu trên Google Sheet vẫn đang giữ nguyên lịch trình và danh sách bệnh nhân của ngày hôm qua.
+
+Cách xử lý:
+1. Đã cập nhật lại logic của Trang chủ (Dashboard). Khi người dùng mở app vào ngày hôm sau nhưng dữ liệu vẫn chưa được chốt sổ, hệ thống sẽ tự động phát hiện ra sự chênh lệch này.
+2. Hệ thống sẽ hiển thị một thông báo rõ ràng (Alert) cảnh báo người dùng rằng: "Dữ liệu của ngày hôm qua chưa được chốt sổ! Mặc định sẽ hiển thị dữ liệu của ngày này để bạn tiếp tục xử lý."
+3. Ô chọn ngày ở Trang chủ sẽ tự động lùi về đúng ngày chưa chốt sổ (ví dụ lùi về 27/06 thay vì hiện 28/06).
+4. Các con số thống kê và bảng xem trước trên Dashboard sẽ khớp hoàn toàn 100% với dữ liệu hiển thị trên các tab Lịch Trình, Bệnh Nhân, Nhân Sự. 
+5. Người dùng chỉ cần vào nhấn nút **CHỐT SỔ & SANG NGÀY MỚI**, sau đó tải lại trang (hoặc ấn Làm Mới ở Dashboard) là mọi thứ sẽ reset sang ngày Chủ Nhật trống trơn.
