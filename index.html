@@ -12254,15 +12254,40 @@ console.log('--- JS Block: Foundation started ---');
 
                                                 function loadDashboard() {
     const datePicker = document.getElementById('dashboard-date-filter');
+    
     if (!datePicker.value) {
-        const today = new Date();
-        datePicker.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        google.script.run.withSuccessHandler(function(rawSched) {
+            let activeDateStr = null;
+            if (rawSched && rawSched.length > 0 && rawSched[0][0]) {
+                activeDateStr = rawSched[0][0]; 
+            }
+            
+            let activeYMD = null;
+            if (activeDateStr) {
+                const parts = activeDateStr.split('/');
+                if (parts.length >= 3) activeYMD = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+
+            const d = new Date();
+            const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+            if (activeYMD && activeYMD !== safeTodayStr) {
+                alert(`⚠️ HỆ THỐNG PHÁT HIỆN:\nDữ liệu của ngày ${activeDateStr} chưa được chốt sổ!\nMặc định sẽ hiển thị dữ liệu của ngày này để bạn tiếp tục xử lý.`);
+                datePicker.value = activeYMD;
+            } else {
+                datePicker.value = safeTodayStr;
+            }
+            
+            window._systemActiveYMD = activeYMD || safeTodayStr;
+            loadDashboard(); // Resume
+        }).getLichTrinh();
+        return;
     }
+
     const selectedDate = datePicker.value;
     const displayEl = document.getElementById('display-date');
     if (displayEl) displayEl.textContent = selectedDate.split('-').reverse().join('/');
 
-    // Sync to history date picker
     const historyInput = document.getElementById('history-date');
     if (historyInput && historyInput.value !== selectedDate) {
         historyInput.value = selectedDate;
@@ -12270,9 +12295,10 @@ console.log('--- JS Block: Foundation started ---');
 
     const d = new Date();
     const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    
+    const isLiveMode = (window._systemActiveYMD === selectedDate) || (!window._systemActiveYMD && selectedDate === safeTodayStr);
 
-    if (selectedDate === safeTodayStr) {
-        // --- CHẾ ĐỘ LIVE HIỆN TẠI ---
+    if (isLiveMode) {
         if (window.viewingImportedScheduleFile) {
             if (typeof restoreHistoryTabs === 'function') restoreHistoryTabs();
         }
@@ -12309,9 +12335,10 @@ console.log('--- JS Block: Foundation started ---');
         if (statDroppedEl) statDroppedEl.textContent = "...";
 
         google.script.run.withSuccessHandler(function(rawSched) {
-            const duLieuTrongNgay = rawSched.filter(item => item.ngay === selectedDate || item[0] === selectedDate);
-            const dayData = duLieuTrongNgay.filter(item => { const g = item.gioDienRa||item[5]||''; return g && g!=='--' && !g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], item.gioDienRa||item[5], item.gioKetThuc||item[6], item.nvChinh||item[7], item.nvPhu||item[8], item.may||item[9], item.giuong||item[10]]);
-            const rotDataSheets = duLieuTrongNgay.filter(item => { const g = item.gioDienRa||item[5]||''; return g==='--'||g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
+            const validData = rawSched.filter(item => item.ngay === selectedDate || item[0] === selectedDate || (window._systemActiveYMD === selectedDate && item[0]));
+            
+            const dayData = validData.filter(item => { const g = item.gioDienRa||item[5]||''; return g && g!=='--' && !g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], item.gioDienRa||item[5], item.gioKetThuc||item[6], item.nvChinh||item[7], item.nvPhu||item[8], item.may||item[9], item.giuong||item[10]]);
+            const rotDataSheets = validData.filter(item => { const g = item.gioDienRa||item[5]||''; return g==='--'||g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
             
             let rotDataLocal = [];
             try {
