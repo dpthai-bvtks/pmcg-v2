@@ -1344,23 +1344,10 @@ function initSecurityDatabase() {
   const sheet = getSheetByName('TaiKhoan');
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(['ID', 'Tài Khoản', 'Mật Khẩu', 'Vai Trò', 'Quyền Hạn']);
-    sheet.appendRow([1, 'admin', '123456', 'Admin', 'ALL']);
+    sheet.appendRow([1, 'admin', hashPassword('123456'), 'Admin', 'ALL']);
   }
 }
-function verifyLogin(username, password) {
-  const user = getAllData('TaiKhoan').find(r => r[1].toString().toLowerCase() === username.trim().toLowerCase() && r[2].toString() === password.trim());
-  return user ? { success: true, role: user[3], permissions: user[4], username: user[1] } : { success: false, message: 'Sai tài khoản hoặc mật khẩu!' };
-}
 function getAccounts() { return getAllData('TaiKhoan').map(r => ({ id: r[0], user: r[1], pass: r[2], role: r[3], perms: r[4] })); }
-function saveAccount(id, username, password, role, permissions) {
-  const sheet = getSheetByName('TaiKhoan'), data = sheet.getDataRange().getValues();
-  const usernameLower = username.trim().toLowerCase();
-  let existingRowIndex = -1;
-  for (let i = 1; i < data.length; i++) { if (data[i][1].toString().toLowerCase() === usernameLower) { existingRowIndex = i + 1; break; } }
-  if (existingRowIndex !== -1) { sheet.getRange(existingRowIndex, 3, 1, 3).setValues([[password.trim(), role, permissions]]); return `Đã cập nhật tài khoản [${username}]!`; }
-  sheet.appendRow([sheet.getLastRow(), username.trim(), password.trim(), role, permissions]);
-  return `Đã thêm tài khoản mới [${username}]!`;
-}
 function deleteAccount(id) {
   const sheet = getSheetByName('TaiKhoan'), data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) { if (data[i][0].toString() === id.toString()) { sheet.deleteRow(i + 1); return "Đã xóa!"; } }
