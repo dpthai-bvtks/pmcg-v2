@@ -1692,3 +1692,9 @@ Cách xử lý:
 3. Ô chọn ngày ở Trang chủ sẽ tự động lùi về đúng ngày chưa chốt sổ (ví dụ lùi về 27/06 thay vì hiện 28/06).
 4. Các con số thống kê và bảng xem trước trên Dashboard sẽ khớp hoàn toàn 100% với dữ liệu hiển thị trên các tab Lịch Trình, Bệnh Nhân, Nhân Sự. 
 5. Người dùng chỉ cần vào nhấn nút **CHỐT SỔ & SANG NGÀY MỚI**, sau đó tải lại trang (hoặc ấn Làm Mới ở Dashboard) là mọi thứ sẽ reset sang ngày Chủ Nhật trống trơn.
+
+### User Input
+bỏ qua đi, chỉ cần tối ưu cho đỡ chậm là được. Hiện tại có 1 vấn đề: khi nhập giờ bận và giờ ra viện của bệnh nhân ở tab Giờ bận thì khi nhập xong tên và giờ và ấn enter thì có nhảy xuống bảng bên dưới nhưng không xóa tên ở ô nhập
+
+### Planner Response
+- Đã sửa lỗi giao diện: Bổ sung lệnh xóa tên bệnh nhân ở ô nhập (`busy-pat-input` và `leave-pat-input`) sau khi người dùng Lưu thành công, Hủy hoặc Xóa giờ bận/giờ ra viện. Trải nghiệm nhập liệu bây giờ sẽ liền mạch hơn (không cần phải bôi đen xóa tay tên người cũ nữa).
