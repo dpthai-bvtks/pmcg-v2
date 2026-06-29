@@ -1698,3 +1698,11 @@ bỏ qua đi, chỉ cần tối ưu cho đỡ chậm là được. Hiện tại 
 
 ### Planner Response
 - Đã sửa lỗi giao diện: Bổ sung lệnh xóa tên bệnh nhân ở ô nhập (`busy-pat-input` và `leave-pat-input`) sau khi người dùng Lưu thành công, Hủy hoặc Xóa giờ bận/giờ ra viện. Trải nghiệm nhập liệu bây giờ sẽ liền mạch hơn (không cần phải bôi đen xóa tay tên người cũ nữa).
+
+### User Input
+khi ấn chọn ngày để xem lịch cũ thì có kiểu xoay tròn loading cho đến khi hiện lịch cũ được không
+
+### Planner Response
+- Đã nâng cấp giao diện phần "Xem Lịch Cũ" (Chế độ Lịch sử): Bổ sung hiệu ứng xoay tròn loading (Global Loading Spinner) che toàn màn hình giống y hệt như các thao tác Xóa, Sửa. 
+- Hiệu ứng này sẽ giữ màn hình chờ cho đến khi dữ liệu lịch sử từ Google Sheets tải về thành công mới mở ra. Đảm bảo người dùng không bị thao tác nhầm hoặc thấy trang trắng trong lúc đợi.
+- Nếu đã tải xong một lần, các lần sau bấm lại ngày đó sẽ lấy từ bộ nhớ tạm ngay lập tức (không cần loading).
