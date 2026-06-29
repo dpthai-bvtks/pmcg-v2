@@ -10422,7 +10422,7 @@ console.log('--- JS Block: Foundation started ---');
 
         function xemLichSu() {
     const d = document.getElementById('history-date').value;
-    if (!d) return alert("Chọn ngày!");
+    if (!d) return window.showToast ? window.showToast("Vui lòng chọn ngày!", "error") : alert("Chọn ngày!");
     
     const dp = document.getElementById('dashboard-date-filter');
     if (dp && dp.value !== d) {
@@ -10432,15 +10432,7 @@ console.log('--- JS Block: Foundation started ---');
     }
     
     if (typeof loadDashboard === 'function') {
-        const btn = document.querySelector('button[onclick="xemLichSu()"]');
-        const oldText = btn ? btn.innerText : 'Xem';
-        if (btn) { btn.innerText = 'Đang tải...'; btn.disabled = true; }
-        
-        setTimeout(() => {
-            loadDashboard();
-            if (btn) { btn.innerText = oldText; btn.disabled = false; }
-            alert("Đã cập nhật dữ liệu lịch sử cho ngày " + d + ". Bạn có thể xem trên tất cả các tab!");
-        }, 100);
+        loadDashboard();
     }
 }
 
@@ -12403,9 +12395,17 @@ console.log('--- JS Block: Foundation started ---');
 
         if (window._historyCache && window._historyCache[selectedDate]) {
             processHistoryData(window._historyCache[selectedDate]);
+            if (window.showToast) window.showToast("Đã tải dữ liệu lịch sử từ bộ nhớ", "info", 2000);
         } else {
-            google.script.run.withSuccessHandler(processHistoryData).withFailureHandler(err => {
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang tải dữ liệu lịch sử...");
+            google.script.run.withSuccessHandler(data => {
+                processHistoryData(data);
+                if (window.hideGlobalLoading) window.hideGlobalLoading();
+                if (window.showToast) window.showToast("Đã tải xong dữ liệu lịch sử!", "success");
+            }).withFailureHandler(err => {
+                if (window.hideGlobalLoading) window.hideGlobalLoading();
                 console.error("Lỗi tải lịch sử Dashboard: " + err);
+                if (window.showToast) window.showToast("Lỗi tải dữ liệu: " + err, "error");
             }).getHistoryFullData(selectedDate);
         }
     }
