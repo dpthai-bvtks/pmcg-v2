@@ -8877,6 +8877,8 @@ console.log('--- JS Block: Foundation started ---');
             renderPatientsTable();
 
             fromObj.value = ''; toObj.value = ''; fromObj.focus();
+            const busyInput = document.getElementById('busy-pat-input');
+            if (busyInput) busyInput.value = '';
 
             google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, p.gioRa, p.phong, p.thuThuat);
 
@@ -8907,8 +8909,9 @@ console.log('--- JS Block: Foundation started ---');
                 renderPatientsTable();
 
                 document.getElementById('busy-pat-from').value = '';
-
                 document.getElementById('busy-pat-to').value = '';
+                const busyInput = document.getElementById('busy-pat-input');
+                if (busyInput) busyInput.value = '';
 
                 google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, p.gioRa, p.phong, p.thuThuat);
 
@@ -8926,7 +8929,9 @@ console.log('--- JS Block: Foundation started ---');
 
             if (!confirm(`Xóa toàn bộ giờ bận của BN: ${p.ten}?`)) return;
 
-            p.gioBan = ''; renderPatientsTable();
+            p.gioBan = ''; renderPatientsTable(); 
+            const busyInput = document.getElementById('busy-pat-input');
+            if (busyInput) busyInput.value = '';
 
             google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, '', p.gioRa, p.phong, p.thuThuat);
 
@@ -8999,6 +9004,8 @@ console.log('--- JS Block: Foundation started ---');
             renderPatientsTable();
 
             leaveObj.value = ''; leaveObj.focus();
+            const leaveInput = document.getElementById('leave-pat-input');
+            if (leaveInput) leaveInput.value = '';
 
             google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, leaveTime, p.phong, p.thuThuat);
 
@@ -9015,6 +9022,8 @@ console.log('--- JS Block: Foundation started ---');
             if (!confirm(`Hủy giờ ra viện của BN: ${p.ten}?`)) return;
 
             p.gioRa = ''; renderPatientsTable(); document.getElementById('leave-pat-time').value = '';
+            const leaveInput = document.getElementById('leave-pat-input');
+            if (leaveInput) leaveInput.value = '';
 
             google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, '', p.phong, p.thuThuat);
 
