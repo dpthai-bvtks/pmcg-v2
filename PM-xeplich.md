@@ -1716,3 +1716,15 @@ khi bấm Xếp lịch thứ 7 thì lại hiện ra như này là sao (Đang t�
   1. Đã cập nhật lại logic của hàm thành công khi xếp lịch tổng (`executeScheduling`) và xếp lịch thứ 7 (`xepLichSat`).
   2. Ngay sau khi máy chủ phản hồi xếp lịch thành công, biến ngày hoạt động chính `window._systemActiveYMD` trên client sẽ lập tức cập nhật sang ngày vừa xếp (ví dụ ngày Thứ Bảy).
   3. Khi gọi làm mới Dashboard, hệ thống sẽ xác định đây là chế độ trực tiếp (Live Mode) bình thường và hiển thị kết quả xếp lịch thứ 7 mới ngay lập tức mà không kích hoạt spinner xoay tròn "Đang tải dữ liệu lịch sử".
+
+### User Input
+ấn xếp lịch thứ 7 xong lại hiện ra bảng này, phải ấn nút Xem lịch hiện tại mới ra bảng cần xem (Bảng bị ghi đè thành bảng rỗng, hiển thị chữ "Đã tải xong dữ liệu lịch sử!")
+
+### Planner Response
+- **Nguyên nhân sâu xa:** 
+  1. Trong JavaScript của trình duyệt, hành động cập nhật giá trị `dashboardDate.value = dateVal` (dù thực hiện bằng code) có thể kích hoạt tiến trình làm mới của Dashboard trước khi dòng code gán biến trạng thái hoạt động chính `window._systemActiveYMD = dateVal` được thực thi (do bất đồng bộ hoặc thứ tự viết code cũ).
+  2. Việc này làm hệ thống kích hoạt chế độ Lịch sử (History Mode), gửi yêu cầu tải dữ liệu cũ của ngày Thứ 7 từ server. Khi tải xong, nó nhận về dữ liệu trống (vì ngày Thứ 7 này mới tinh, chưa được chốt sổ sang lịch sử).
+  3. Kết quả là nó ghi đè danh sách hiển thị `window.currentScheduleData` thành mảng rỗng (chỉ còn lại 2 ca rớt lưu ở bộ nhớ tạm cục bộ), và bật trạng thái `window.viewingImportedScheduleFile = true` khiến tab Ngày thường không chịu cập nhật dữ liệu trực tiếp nữa.
+- **Cách xử lý:** 
+  1. Đổi thứ tự gán biến: Đưa dòng gán biến `window._systemActiveYMD = dateVal` lên **trước** lệnh gán giá trị của ô chọn ngày `dashboardDate.value = dateVal`. Điều này triệt tiêu hoàn toàn khả năng chạy sai chế độ.
+  2. Bổ sung cơ chế reset trạng thái xem lịch cũ: Trong hàm `loadDashboard()`, mỗi khi xác định giao diện ở trạng thái Trực tiếp (Live Mode), hệ thống sẽ chủ động gán lại `window.viewingImportedScheduleFile = false`. Điều này giúp tab Xếp Lịch tự động mở khóa và cập nhật danh sách hiển thị của ngày vừa xếp mà không bắt người dùng phải click thủ công vào nút "Lịch Hiện Tại".

@@ -9683,11 +9683,14 @@ console.log('--- JS Block: Foundation started ---');
 
                     setUnscheduledData(out.unscheduled || [], dateVal);
 
+                    window._systemActiveYMD = dateVal;
+
+
+
                     const dashboardDate = document.getElementById('dashboard-date-filter');
 
                     if (dashboardDate) dashboardDate.value = dateVal;
 
-                    window._systemActiveYMD = dateVal;
 
                     localStorage.setItem('meds_schedule_date', dateVal);
 
@@ -11398,11 +11401,14 @@ console.log('--- JS Block: Foundation started ---');
 
                             if (normalDate) normalDate.value = dateVal;
 
+                            window._systemActiveYMD = dateVal;
+
+
+
                             const dashboardDate = document.getElementById('dashboard-date-filter');
 
                             if (dashboardDate) dashboardDate.value = dateVal;
 
-                            window._systemActiveYMD = dateVal;
                             document.querySelector('.nav-tab[data-tab="tab-schedule"]').click();
 
                             document.getElementById('schedule-search-input').value = '';
@@ -12303,9 +12309,8 @@ console.log('--- JS Block: Foundation started ---');
     const isLiveMode = (window._systemActiveYMD === selectedDate) || (!window._systemActiveYMD && selectedDate === safeTodayStr);
 
     if (isLiveMode) {
-        if (window.viewingImportedScheduleFile) {
-            if (typeof restoreHistoryTabs === 'function') restoreHistoryTabs();
-        }
+ window.viewingImportedScheduleFile = false;
+ if (typeof restoreHistoryTabs === 'function') restoreHistoryTabs();
         
         google.script.run.withSuccessHandler(patData => {
             const rawData = patData || [];
