@@ -1706,3 +1706,13 @@ khi ấn chọn ngày để xem lịch cũ thì có kiểu xoay tròn loading ch
 - Đã nâng cấp giao diện phần "Xem Lịch Cũ" (Chế độ Lịch sử): Bổ sung hiệu ứng xoay tròn loading (Global Loading Spinner) che toàn màn hình giống y hệt như các thao tác Xóa, Sửa. 
 - Hiệu ứng này sẽ giữ màn hình chờ cho đến khi dữ liệu lịch sử từ Google Sheets tải về thành công mới mở ra. Đảm bảo người dùng không bị thao tác nhầm hoặc thấy trang trắng trong lúc đợi.
 - Nếu đã tải xong một lần, các lần sau bấm lại ngày đó sẽ lấy từ bộ nhớ tạm ngay lập tức (không cần loading).
+
+### User Input
+khi bấm Xếp lịch thứ 7 thì lại hiện ra như này là sao (Đang tải dữ liệu lịch sử...)
+
+### Planner Response
+- **Nguyên nhân:** Khi nhấn "XẾP LỊCH THỨ 7", hệ thống sẽ tự động chạy thuật toán xếp lịch cho ngày thứ 7 (ví dụ 04/07/2026) trên Server. Khi xếp xong, giao diện Trang chủ (Dashboard) cũng được gọi làm mới lại. Tuy nhiên, do giá trị ngày hoạt động hiện tại trong bộ nhớ Client (`window._systemActiveYMD`) chưa được cập nhật theo ngày vừa xếp mới (vẫn ở ngày hôm trước, ví dụ Thứ Sáu 03/07/2026), Dashboard hiểu nhầm rằng người dùng đang muốn xem "Lịch Cũ" (Chế độ lịch sử) của ngày 04/07/2026. Do đó nó tự động bật hiệu ứng xoay tròn Loading "Đang tải dữ liệu lịch sử..." toàn màn hình, gây chặn giao diện.
+- **Cách xử lý:** 
+  1. Đã cập nhật lại logic của hàm thành công khi xếp lịch tổng (`executeScheduling`) và xếp lịch thứ 7 (`xepLichSat`).
+  2. Ngay sau khi máy chủ phản hồi xếp lịch thành công, biến ngày hoạt động chính `window._systemActiveYMD` trên client sẽ lập tức cập nhật sang ngày vừa xếp (ví dụ ngày Thứ Bảy).
+  3. Khi gọi làm mới Dashboard, hệ thống sẽ xác định đây là chế độ trực tiếp (Live Mode) bình thường và hiển thị kết quả xếp lịch thứ 7 mới ngay lập tức mà không kích hoạt spinner xoay tròn "Đang tải dữ liệu lịch sử".

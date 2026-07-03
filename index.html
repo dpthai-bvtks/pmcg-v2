@@ -9687,6 +9687,8 @@ console.log('--- JS Block: Foundation started ---');
 
                     if (dashboardDate) dashboardDate.value = dateVal;
 
+                    window._systemActiveYMD = dateVal;
+
                     localStorage.setItem('meds_schedule_date', dateVal);
 
                     localStorage.setItem('meds_success', JSON.stringify(out.schedule));
@@ -11400,6 +11402,7 @@ console.log('--- JS Block: Foundation started ---');
 
                             if (dashboardDate) dashboardDate.value = dateVal;
 
+                            window._systemActiveYMD = dateVal;
                             document.querySelector('.nav-tab[data-tab="tab-schedule"]').click();
 
                             document.getElementById('schedule-search-input').value = '';
