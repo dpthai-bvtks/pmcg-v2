@@ -4126,6 +4126,11 @@
 
                             </div>
 
+                             <div class="stat-mini-card" style="border-left-color: #9b59b6;">
+                                 <span class="s-label">📝 Tổng số ca thủ thuật:</span>
+                                 <span class="s-value" id="statTotalProcs" style="color: #8e44ad;">0</span>
+                             </div>
+
 
 
                             <div class="stat-mini-card" style="border-left-color: #2ecc71;">
@@ -12321,6 +12326,17 @@ console.log('--- JS Block: Foundation started ---');
             if(el) el.textContent = cleaned.length; 
             window.dataCache = window.dataCache||{};
             window.dataCache.pat = cleaned; 
+        
+            // Calculate total procedures
+            let totalProcs = 0;
+            cleaned.forEach(p => {
+                if (p.thuThuat) {
+                    const count = String(p.thuThuat).split(',').map(x => x.trim()).filter(x => x).length;
+                    totalProcs += count;
+                }
+            });
+            const totalProcsEl = document.getElementById('statTotalProcs');
+            if (totalProcsEl) totalProcsEl.textContent = totalProcs;
         }).getBenhNhan();
 
         google.script.run.withSuccessHandler(staffData => {
@@ -12359,6 +12375,8 @@ console.log('--- JS Block: Foundation started ---');
             
             if (statScheduledEl) statScheduledEl.textContent = dayData.length;
             if (statDroppedEl) statDroppedEl.textContent = rotData.length;
+            const totalProcsEl = document.getElementById('statTotalProcs');
+            if (totalProcsEl) totalProcsEl.textContent = dayData.length + rotData.length;
             
             if (typeof renderDashboardPreview === 'function') renderDashboardPreview([...dayData, ...rotData]);
             if (typeof renderCharts === 'function') renderCharts(dayData);
@@ -12374,6 +12392,8 @@ console.log('--- JS Block: Foundation started ---');
         if (statDroppedEl) statDroppedEl.textContent = "...";
         if (statBN) statBN.textContent = "...";
         if (statStaff) statStaff.textContent = "...";
+        const statTotalProcsEl = document.getElementById('statTotalProcs');
+        if (statTotalProcsEl) statTotalProcsEl.textContent = "...";
 
         const processHistoryData = (data) => {
             const fullData = Array.isArray(data) ? { schedule: data, patients: [], staffBusy: [], patBusy: [] } : data;

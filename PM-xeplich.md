@@ -1728,3 +1728,12 @@ khi bấm Xếp lịch thứ 7 thì lại hiện ra như này là sao (Đang t�
 - **Cách xử lý:** 
   1. Đổi thứ tự gán biến: Đưa dòng gán biến `window._systemActiveYMD = dateVal` lên **trước** lệnh gán giá trị của ô chọn ngày `dashboardDate.value = dateVal`. Điều này triệt tiêu hoàn toàn khả năng chạy sai chế độ.
   2. Bổ sung cơ chế reset trạng thái xem lịch cũ: Trong hàm `loadDashboard()`, mỗi khi xác định giao diện ở trạng thái Trực tiếp (Live Mode), hệ thống sẽ chủ động gán lại `window.viewingImportedScheduleFile = false`. Điều này giúp tab Xếp Lịch tự động mở khóa và cập nhật danh sách hiển thị của ngày vừa xếp mà không bắt người dùng phải click thủ công vào nút "Lịch Hiện Tại".
+
+### User Input
+dashboard Tổng quan trong ngày ngoài đếm các phần như ảnh thì bổ sung thêm sô lượng thủ thuật trong ngày. Khi ấn chốt sổ sang ngày mới thì ô đó sẽ hiện luôn tổng số ca thủ thuật, còn khi ấn xếp lịch mới đếm số ca xếp được và số ca rớt
+
+### Planner Response
+- **Nâng cấp Dashboard - Thêm thống kê "Tổng số ca thủ thuật":**
+  1. Đã thiết kế thêm thẻ thống kê thứ 5 mang tên **"📝 Tổng số ca thủ thuật"** với màu tím (`#9b59b6`) sang trọng nằm ở mục "TỔNG QUAN TRONG NGÀY" (phía dưới mục Bệnh nhân và trên mục Ca đã xếp lịch).
+  2. **Logic tính toán trực tiếp (Live Mode):** Tổng số ca thủ thuật được tính toán trực tiếp từ dữ liệu bệnh nhân đã nhập trong ngày (bằng cách phân tích danh sách thủ thuật của từng bệnh nhân và tính tổng). Do đó, khi bác **ấn chốt sổ sang ngày mới** hoặc khi bác **nhập/sửa danh sách bệnh nhân**, ô này sẽ lập tức đếm và hiện đúng tổng số ca thủ thuật cần làm của ngày hôm đó, dù chưa bấm nút xếp lịch (trong khi "Ca đã xếp lịch" và "Ca không xếp được" vẫn sẽ hiển thị `0` cho đến khi xếp lịch chạy).
+  3. **Logic tính toán lịch sử (History Mode):** Khi xem lại lịch cũ, ô này sẽ tự động hiển thị tổng số ca thủ thuật đã được ghi nhận trong lịch trình ngày hôm đó (Ca đã xếp + Ca rớt).
