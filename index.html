@@ -12273,14 +12273,19 @@ console.log('--- JS Block: Foundation started ---');
     if (!datePicker.value) {
         google.script.run.withSuccessHandler(function(rawSched) {
             let activeDateStr = null;
-            if (rawSched && rawSched.length > 0 && rawSched[0][0]) {
-                activeDateStr = rawSched[0][0]; 
+            if (rawSched && rawSched.length > 0) {
+                const firstRow = rawSched[0];
+                activeDateStr = firstRow.ngay || firstRow[0]; 
             }
             
             let activeYMD = null;
             if (activeDateStr) {
-                const parts = activeDateStr.split('/');
-                if (parts.length >= 3) activeYMD = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                if (activeDateStr.includes('/')) {
+                    const parts = activeDateStr.split('/');
+                    activeYMD = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                } else {
+                    activeYMD = activeDateStr;
+                }
             }
 
             const d = new Date();
@@ -12360,7 +12365,18 @@ console.log('--- JS Block: Foundation started ---');
         if (statDroppedEl) statDroppedEl.textContent = "...";
 
         google.script.run.withSuccessHandler(function(rawSched) {
-            const validData = rawSched.filter(item => item.ngay === selectedDate || item[0] === selectedDate || (window._systemActiveYMD === selectedDate && item[0]));
+            const toYMD = (dateStr) => {
+                if (!dateStr) return '';
+                if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+                return dateStr;
+            };
+            const validData = rawSched.filter(item => {
+                const itemDate = item.ngay || item[0];
+                return toYMD(itemDate) === selectedDate;
+            });
             
             const dayData = validData.filter(item => { const g = item.gioDienRa||item[5]||''; return g && g!=='--' && !g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], item.gioDienRa||item[5], item.gioKetThuc||item[6], item.nvChinh||item[7], item.nvPhu||item[8], item.may||item[9], item.giuong||item[10]]);
             const rotDataSheets = validData.filter(item => { const g = item.gioDienRa||item[5]||''; return g==='--'||g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
