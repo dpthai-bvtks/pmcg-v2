@@ -1753,3 +1753,11 @@ khi ấn xếp lịch ngày thứ 7 xong, ví dụ ngày mai là thứ 7 ngày 4
     2. Thực hiện lọc dữ liệu của ngày cần xem trước trên mảng dữ liệu thô trong bộ nhớ Google Apps Script.
     3. Định dạng cột thời gian/ngày tháng trực tiếp bằng Javascript một cách tối ưu cho khoảng ~100 dòng kết quả thay vì định dạng cho hàng vạn dòng.
     4. Trải nghiệm tải lịch cũ giờ đây sẽ giảm từ gần **1 phút** xuống chỉ còn **1 - 1.5 giây**!
+
+### User Input
+tích hợp hàm chuẩn hóa ngày tháng formatNgayVao từ bản V3 sang bản V2 đi. Ngoài ra đọc thêm các file trong D:\PM-DPT\PM-xeplich\khung_pm\ban_web\v3-test xem khác gì trong D:\PM-DPT\PM-xeplich\khung_pm\ban_web\v2-github
+
+### Planner Response
+- **Tích hợp tính năng định dạng ngày vào viện từ bản V3 sang bản V2:**
+  1. Đã đưa hàm `formatNgayVao(val)` từ bản V3 sang tích hợp vào `code.gs-v2.txt`. Hàm này giúp tự động kiểm tra định dạng ngày vào (Date object, chuỗi dd/MM/yyyy hoặc yyyy-MM-dd) và chuẩn hóa đồng nhất về dạng `dd/MM/yyyy` trước khi trả về client.
+  2. Đã cập nhật hàm `getBenhNhan()` trong `code.gs-v2.txt` để gọi `formatNgayVao(r[3])` cho cột ngày vào.

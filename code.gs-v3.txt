@@ -1,7 +1,7 @@
 // ============================================================
 // DATABASE UTILS
 // ============================================================
-const SS = SpreadsheetApp.openById('1f6mnFdOMvGNTiIB0zKqPEV-WBpxY1R2F_99SRbcUc5g');
+const SS = SpreadsheetApp.openById('1U0wJPDVynxxOLXz3r8IHccD98zlc9uVt1DR9_Pxn3bc');
 
 function doPost(e) {
   try {
@@ -317,6 +317,67 @@ function mutate(rawPatients, randFn, droppedNames) {
     patients.unshift(p);
   }
   return patients;
+}
+
+function calculateFitness(result) {
+  // result = { sched, rot, score: finalDropList.length, staff, proc, tl, ca }
+  let score = 10000 - result.rot.length * 1000;
+  
+  // Doctor continuity reward
+  const patientDocs = {};
+  result.sched.forEach(item => {
+    const key = `${item.HOTEN}_${item.NAMSINH}`;
+    if (!patientDocs[key]) patientDocs[key] = new Set();
+    if (item["NV CHÍNH"]) patientDocs[key].add(item["NV CHÍNH"]);
+  });
+  
+  Object.keys(patientDocs).forEach(key => {
+    const numDocs = patientDocs[key].size;
+    if (numDocs === 1) score += 150;
+    else if (numDocs === 2) score += 50;
+  });
+  
+  // Patient waiting time penalty
+  const patientTimes = {};
+  result.sched.forEach(item => {
+    const key = `${item.HOTEN}_${item.NAMSINH}`;
+    if (!patientTimes[key]) patientTimes[key] = [];
+    patientTimes[key].push([t2m(item.GIODIENRA), t2m(item.GIOKETTHUC)]);
+  });
+  
+  Object.keys(patientTimes).forEach(key => {
+    const times = patientTimes[key];
+    if (times.length > 1) {
+      times.sort((a, b) => a[0] - b[0]);
+      const totalSpan = times[times.length - 1][1] - times[0][0];
+      const totalDuration = times.reduce((acc, t) => acc + (t[1] - t[0]), 0);
+      const waitingTime = totalSpan - totalDuration;
+      score -= waitingTime * 0.1;
+    }
+  });
+  
+  return score;
+}
+
+function crossover(p1, p2, randFn) {
+  const child = [];
+  const p1Names = new Set();
+  
+  p1.forEach((pat) => {
+    if (randFn() < 0.5) {
+      child.push(JSON.parse(JSON.stringify(pat)));
+      p1Names.add(pat.name + "_" + pat.ns);
+    }
+  });
+  
+  p2.forEach(pat => {
+    const key = pat.name + "_" + pat.ns;
+    if (!p1Names.has(key)) {
+      child.push(JSON.parse(JSON.stringify(pat)));
+    }
+  });
+  
+  return child;
 }
 
 function runBestIteration(db, dateVal, existingSched = [], scenario = 1) {
@@ -1024,89 +1085,71 @@ function getSchedule() { const data = getSheetByName('LichTrinh').getDataRange()
 function getHistorySchedule(dateStr) {
   const timezone = Session.getScriptTimeZone();
   const formatDate = (val, fmt) => val instanceof Date ? Utilities.formatDate(val, timezone, fmt) : val;
-  const formatTime = (val) => {
-    if (val instanceof Date) {
-      return Utilities.formatDate(val, timezone, "HH:mm");
-    }
-    const str = String(val || '');
-    if (str.includes(':')) {
-      const match = str.match(/(\d{2}):(\d{2})/);
-      if (match) return `${match[1]}:${match[2]}`;
-    }
-    return str.trim();
-  };
   
   const sheet = getSheetByName('SoThuThuat');
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
   
   const values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
+  const displayValues = sheet.getRange(2, 1, lastRow - 1, 13).getDisplayValues();
   
   return values
-    .filter(r => {
-      const dStr = r[1] instanceof Date ? Utilities.formatDate(r[1], timezone, "yyyy-MM-dd") : String(r[1]);
+    .map((r, i) => ({ r: r, d: displayValues[i] }))
+    .filter(row => {
+      const dStr = row.r[1] instanceof Date ? Utilities.formatDate(row.r[1], timezone, "yyyy-MM-dd") : String(row.r[1]);
       return dStr === String(dateStr);
     })
-    .map(r => ({
-      ngay: formatDate(r[1], "dd/MM/yyyy"), 
-      tenBN: r[2], 
-      namSinh: r[3], 
-      phong: r[4], 
-      thuThuat: r[5],
-      gioDienRa: formatTime(r[7]), 
-      gioKetThuc: formatTime(r[8]), 
-      nvChinh: r[9], 
-      nvPhu: r[10], 
-      may: r[11], 
-      giuong: r[12]
+    .map(row => ({
+      ngay: formatDate(row.r[1], "dd/MM/yyyy"), 
+      tenBN: row.r[2], 
+      namSinh: row.r[3], 
+      phong: row.r[4], 
+      thuThuat: row.r[5],
+      gioDienRa: row.d[7], // Sử dụng display value cho giờ để tránh lỗi timezone 1899
+      gioKetThuc: row.d[8], // Sử dụng display value cho giờ
+      nvChinh: row.r[9], 
+      nvPhu: row.r[10], 
+      may: row.r[11], 
+      giuong: row.r[12]
     }));
 }
-
 
 // Trả về đầy đủ dữ liệu lịch sử: lịch trình + BN + giờ bận NV + giờ bận BN
 function getHistoryFullData(dateStr) {
   const timezone = Session.getScriptTimeZone();
   const formatDate = (val, fmt) => val instanceof Date ? Utilities.formatDate(val, timezone, fmt) : val;
-  const formatTime = (val) => {
-    if (val instanceof Date) {
-      return Utilities.formatDate(val, timezone, "HH:mm");
-    }
-    const str = String(val || '');
-    if (str.includes(':')) {
-      const match = str.match(/(\d{2}):(\d{2})/);
-      if (match) return `${match[1]}:${match[2]}`;
-    }
-    return str.trim();
-  };
 
   const sheet = getSheetByName('SoThuThuat');
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return { schedule: [], patients: [], staffBusy: [], patBusy: [] };
 
   const values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
+  const displayValues = sheet.getRange(2, 1, lastRow - 1, 13).getDisplayValues();
 
-  const rows = values.filter(r => {
-    const dStr = r[1] instanceof Date ? Utilities.formatDate(r[1], timezone, "yyyy-MM-dd") : String(r[1]);
-    return dStr === String(dateStr);
-  });
+  const rows = values
+    .map((r, i) => ({ r, d: displayValues[i] }))
+    .filter(row => {
+      const dStr = row.r[1] instanceof Date ? Utilities.formatDate(row.r[1], timezone, "yyyy-MM-dd") : String(row.r[1]);
+      return dStr === String(dateStr);
+    });
 
   // 1. Lịch trình chi tiết
-  const schedule = rows.map(r => ({
-    ngay: formatDate(r[1], "dd/MM/yyyy"),
-    tenBN: r[2], namSinh: r[3], phong: r[4], thuThuat: r[5],
-    gioDienRa: formatTime(r[7]), gioKetThuc: formatTime(r[8]),
-    nvChinh: r[9], nvPhu: r[10], may: r[11], giuong: r[12]
+  const schedule = rows.map(row => ({
+    ngay: formatDate(row.r[1], "dd/MM/yyyy"),
+    tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], thuThuat: row.r[5],
+    gioDienRa: row.d[7], gioKetThuc: row.d[8],
+    nvChinh: row.r[9], nvPhu: row.r[10], may: row.r[11], giuong: row.r[12]
   }));
 
   // 2. Tóm tắt danh sách bệnh nhân (gộp theo BN)
   const patMap = {};
-  rows.forEach(r => {
-    const key = String(r[2]).trim().toUpperCase() + '|' + String(r[3]).trim();
+  rows.forEach(row => {
+    const key = String(row.r[2]).trim().toUpperCase() + '|' + String(row.r[3]).trim();
     if (!patMap[key]) {
-      patMap[key] = { tenBN: r[2], namSinh: r[3], phong: r[4], soLuongCa: 0, dsThuThuat: [] };
+      patMap[key] = { tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], soLuongCa: 0, dsThuThuat: [] };
     }
     patMap[key].soLuongCa++;
-    const tt = String(r[5] || '').trim();
+    const tt = String(row.r[5] || '').trim();
     if (tt && !patMap[key].dsThuThuat.includes(tt)) patMap[key].dsThuThuat.push(tt);
   });
   const patients = Object.values(patMap).sort((a, b) =>
@@ -1121,12 +1164,8 @@ function getHistoryFullData(dateStr) {
   const sheetLichSuBan = SS.getSheetByName('LichSuBan');
   let hasManualBusy = false;
   if (sheetLichSuBan) {
-    const lsbData = sheetLichSuBan.getDataRange().getValues();
-    const lsbRows = lsbData.filter(r => {
-      const dStr = r[0] instanceof Date ? Utilities.formatDate(r[0], timezone, "yyyy-MM-dd") : String(r[0]);
-      return dStr === String(dateStr);
-    });
-    
+    const lsbData = sheetLichSuBan.getDataRange().getDisplayValues();
+    const lsbRows = lsbData.filter(r => r[0] === dateStr);
     if (lsbRows.length > 0) {
       hasManualBusy = true;
       const parseGioBan = gbStr => gbStr ? String(gbStr).split(',').map(s => {
@@ -1152,27 +1191,27 @@ function getHistoryFullData(dateStr) {
     }
   }
 
-  // Fallback nếu ngày đó chưa được lưu lịch sử bận
+  // Fallback nếu ngày đó chưa được lưu lịch sử bận (các ngày cũ trước khi update code này)
   if (!hasManualBusy) {
     const staffMapFallback = {};
     rows.forEach(row => {
-      const gbd = formatTime(row[7]), gkt = formatTime(row[8]);
+      const gbd = row.d[7], gkt = row.d[8];
       if (!gbd || !gkt) return;
-      [row[9], row[10]].filter(nv => nv && String(nv).trim()).forEach(nv => {
+      [row.r[9], row.r[10]].filter(nv => nv && String(nv).trim()).forEach(nv => {
         const tenNV = String(nv).trim();
         if (!staffMapFallback[tenNV]) staffMapFallback[tenNV] = { ten: tenNV, slots: [] };
-        staffMapFallback[tenNV].slots.push({ from: gbd, to: gkt, tt: row[5] });
+        staffMapFallback[tenNV].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
       });
     });
     staffBusy = Object.values(staffMapFallback).sort((a, b) => a.ten.localeCompare(b.ten, 'vi'));
 
     const patBusyMapFallback = {};
     rows.forEach(row => {
-      const gbd = formatTime(row[7]), gkt = formatTime(row[8]);
+      const gbd = row.d[7], gkt = row.d[8];
       if (!gbd || !gkt) return;
-      const key = String(row[2]).trim().toUpperCase() + '|' + String(row[3]).trim();
-      if (!patBusyMapFallback[key]) patBusyMapFallback[key] = { tenBN: row[2], namSinh: row[3], phong: row[4], slots: [] };
-      patBusyMapFallback[key].slots.push({ from: gbd, to: gkt, tt: row[5] });
+      const key = String(row.r[2]).trim().toUpperCase() + '|' + String(row.r[3]).trim();
+      if (!patBusyMapFallback[key]) patBusyMapFallback[key] = { tenBN: row.r[2], namSinh: row.r[3], phong: row.r[4], slots: [] };
+      patBusyMapFallback[key].slots.push({ from: gbd, to: gkt, tt: row.r[5] });
     });
     patBusy = Object.values(patBusyMapFallback).sort((a, b) =>
       String(a.phong).localeCompare(String(b.phong), 'vi') ||
@@ -1182,7 +1221,6 @@ function getHistoryFullData(dateStr) {
 
   return { schedule, patients, staffBusy, patBusy };
 }
-
 
 function chuyenNgayMoi() {
   const timezone = Session.getScriptTimeZone();
@@ -1455,8 +1493,6 @@ function updateNameEverywhere(oldName, newName) {
     }
   });
 }
-
-
 
 // ============================================================
 // APP STATE (MARQUEE & LIÊN KẾT NHANH)
