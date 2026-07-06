@@ -1761,3 +1761,15 @@ tích hợp hàm chuẩn hóa ngày tháng formatNgayVao từ bản V3 sang bả
 - **Tích hợp tính năng định dạng ngày vào viện từ bản V3 sang bản V2:**
   1. Đã đưa hàm `formatNgayVao(val)` từ bản V3 sang tích hợp vào `code.gs-v2.txt`. Hàm này giúp tự động kiểm tra định dạng ngày vào (Date object, chuỗi dd/MM/yyyy hoặc yyyy-MM-dd) và chuẩn hóa đồng nhất về dạng `dd/MM/yyyy` trước khi trả về client.
   2. Đã cập nhật hàm `getBenhNhan()` trong `code.gs-v2.txt` để gọi `formatNgayVao(r[3])` cho cột ngày vào.
+
+### User Input
+có, tích hợp đi (Tích hợp tính năng Nhập từ HIS từ bản V3 sang bản V2)
+
+### Planner Response
+- **Tích hợp tính năng "Nhập từ HIS (Y lệnh)":**
+  1. Đã đưa nút **🏥 Nhập từ HIS (Y lệnh)** vào giao diện quản lý bệnh nhân tại sidebar bên trái trong `index.html` (nằm trực tiếp dưới nút Nhập/Xuất Excel thông thường).
+  2. Tích hợp toàn bộ hệ thống xử lý JS để đọc file Excel từ HIS bệnh viện:
+     - Tự động quét hàng tiêu đề để nhận diện các cột Tên bệnh nhân, Năm sinh và Dịch vụ kỹ thuật.
+     - Hàm `mapHISToProcedure()` và danh sách từ khóa `HIS_MAPPING` tự động chuẩn hóa và chuyển đổi tên dịch vụ gốc của bệnh viện sang tên dịch vụ tương ứng chuẩn trong phần mềm.
+     - Tự động gộp dịch vụ và đối chiếu với danh sách bệnh nhân hiện tại: Nếu trùng khớp Tên + Năm sinh thì cập nhật thêm dịch vụ mới, giữ nguyên ngày vào/giờ vào/phòng bệnh; nếu là bệnh nhân mới thì tự động thêm mới vào danh sách.
+     - Hiển thị bảng Popup xem trước chi tiết (Bao gồm số ca cập nhật, số ca thêm mới, và danh sách các dịch vụ không nhận diện được) để người dùng xác nhận trước khi lưu.
