@@ -1826,3 +1826,14 @@ giữ lại Tính năng Huấn luyện AI & "Xuất file tổng kết AI", còn 
   - **Các phần đã xóa:**
     1. **Backend (`code.gs-v2.txt`):** Xóa bỏ các API liên kết AI cục bộ (`chatWithGemini`, `runKymaAPI`, `runGeminiAPI`, `runChatGPTAPI`, `runCopilotAPI`, `runGroqAPI`, `_callOpenAIStyle`) và gỡ bỏ quyền `chatWithGemini` khỏi whitelist.
     2. **Frontend (`index.html`):** Xóa bỏ thẻ HTML của cửa sổ chat nổi `ai-chat-box`, ô nhập liệu `ai-chat-input` và các dòng CSS thừa điều khiển nút AI chat ẩn (`#ai-chat-btn`, `.btn-ai-smart`).
+
+### User Input
+xem lại code và cách thức hoạt động khi đẩy file từ HIS lên, bị lặp thêm thủ thuật hào châm
+
+### Planner Response
+- **Sửa lỗi nhận diện nhầm viết tắt và lặp thêm thủ thuật "Hào châm" khi nhập từ HIS:**
+  - **Nguyên nhân:** Trong tệp `index.html`, hàm `normalizeStr()` dùng để chuẩn hóa từ khóa và tên dịch vụ có gắn `.trim()` ở cuối. Việc này vô tình cắt bỏ các khoảng trắng bao quanh từ khóa viết tắt. Ví dụ: từ khóa viết tắt của Hào châm được định nghĩa là `' hc '` (có khoảng trắng trước và sau) đã bị trim thành `"hc"`. Hệ thống sẽ so khớp tất cả các từ có chứa cụm ký tự `hc` ở bất cứ đâu (bao gồm cả chữ `PHCN` do chứa `p-h-c-n` có cụm `hc`). Vì thế, bất cứ bệnh nhân nào có dịch vụ `PHCN` hoặc viết tắt liên quan đều bị nhận diện nhầm thành `hào châm` và tự động điền thêm vào danh sách, tạo ra sự trùng lặp lặp đi lặp lại.
+  - **Cách khắc phục:**
+    1. Viết lại hàm `normalizeStrNoTrim()` để loại bỏ dấu tiếng Việt và viết thường nhưng **giữ lại nguyên vẹn khoảng trắng**.
+    2. Hàm `mapHISToProcedure()` đệm thêm khoảng trắng hai đầu tên dịch vụ (`' ' + name + ' '`) và đối chiếu với từ khóa không bị trim. 
+    3. Nhờ vậy, từ khóa `' hc '` sẽ chỉ khớp khi đứng riêng biệt (ví dụ: `"châm cứu, hc, điện châm"` thành `" cham cuu, hc, dien cham "` chứa `" hc "`), tránh hoàn toàn việc khớp nhầm vào bên trong chữ `PHCN` (`" phcn "`).

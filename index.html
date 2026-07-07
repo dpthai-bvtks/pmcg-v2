@@ -11568,20 +11568,25 @@ console.log('--- JS Block: Foundation started ---');
                                     { keywords: ['kéo cột sống lưng', 'keo lung', 'cot song lung'], target: 'kéo giãn' }
                                 ];
 
-                                // Chuẩn hóa chuỗi để so khớp (loại bỏ dấu, viết thường)
-                                function normalizeStr(str) {
+                                // Chuẩn hóa chuỗi để so khớp (loại bỏ dấu, viết thường, KHÔNG trim)
+                                function normalizeStrNoTrim(str) {
                                     return String(str || '').toLowerCase()
                                         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                                        .replace(/đ/g, 'd').trim();
+                                        .replace(/đ/g, 'd');
+                                }
+
+                                // Chuẩn hóa chuỗi để so khớp (loại bỏ dấu, viết thường và trim ở cuối)
+                                function normalizeStr(str) {
+                                    return normalizeStrNoTrim(str).trim();
                                 }
 
                                 // Ánh xạ tên dịch vụ HIS → tên thủ thuật trong phần mềm
                                 function mapHISToProcedure(hisServiceName) {
                                     if (!hisServiceName) return null;
-                                    const normalized = normalizeStr(hisServiceName);
+                                    const normalized = ' ' + normalizeStrNoTrim(hisServiceName) + ' ';
                                     for (const mapping of HIS_MAPPING) {
                                         for (const kw of mapping.keywords) {
-                                            if (normalized.includes(normalizeStr(kw))) {
+                                            if (normalized.includes(normalizeStrNoTrim(kw))) {
                                                 return mapping.target;
                                             }
                                         }
