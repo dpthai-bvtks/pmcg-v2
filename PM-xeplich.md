@@ -1795,3 +1795,14 @@ bảng trong google sheet thì hiện dạng ngày/tháng/năm nhưng trên web 
   3. **Đồng bộ Session ở Client:** Cập nhật `callApi` và `doLogin` gửi nhận `sessionId` qua bộ nhớ `localStorage`.
   4. **Phòng chống Stored XSS:** Viết hàm `escapeHtml()` ở client và lọc sạch các biến nhạy cảm như tên bệnh nhân, tài khoản, phòng điều trị hiển thị động qua `innerHTML`.
   5. **Dọn dẹp Git:** Đưa file cấu hình `scratch_cache_update.js` vào `.gitignore` để bảo mật thông tin đường dẫn Windows cục bộ.
+
+### User Input
+VM59 :1 Uncaught ReferenceError: doLogin is not defined
+
+### Planner Response
+- **Sửa lỗi cú pháp ngoặc nhọn thừa trong index.html:**
+  - **Nguyên nhân:** Quá trình thay thế code tự động ở bước trước vô tình để lại hai dấu đóng ngoặc `})` thừa tại:
+    1. Lệnh gọi fetch lấy dữ liệu Tìm Rảnh ở đầu file.
+    2. Hàm `callApi()` ở giữa file.
+    Điều này làm trình duyệt gặp lỗi biên dịch cú pháp toàn bộ khối lệnh JavaScript chính, khiến cho hàm `doLogin` (và tất cả các hàm khác) không được định nghĩa.
+  - **Cách khắc phục:** Đã loại bỏ hoàn toàn các dấu ngoặc thừa, xác minh cú pháp bằng bộ biên dịch cục bộ (mọi khối lệnh đã vượt qua kiểm tra cú pháp thành công), giúp khôi phục định nghĩa các hàm đăng nhập và hoạt động bình thường trên web.

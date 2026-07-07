@@ -107,8 +107,6 @@
 
             })
 
-            })
-
             .then(response => response.json())
 
             .then(result => {
@@ -6680,7 +6678,6 @@ function callApi(functionName, args, onSuccess, onError) {
             args: JSON.stringify(args),
             sessionId: sessionId
         })
-    })
     })
     .then(response => response.json())
     .then(result => {
