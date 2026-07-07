@@ -1806,3 +1806,13 @@ VM59 :1 Uncaught ReferenceError: doLogin is not defined
     2. Hàm `callApi()` ở giữa file.
     Điều này làm trình duyệt gặp lỗi biên dịch cú pháp toàn bộ khối lệnh JavaScript chính, khiến cho hàm `doLogin` (và tất cả các hàm khác) không được định nghĩa.
   - **Cách khắc phục:** Đã loại bỏ hoàn toàn các dấu ngoặc thừa, xác minh cú pháp bằng bộ biên dịch cục bộ (mọi khối lệnh đã vượt qua kiểm tra cú pháp thành công), giúp khôi phục định nghĩa các hàm đăng nhập và hoạt động bình thường trên web.
+
+### User Input
+sao 15:01 đã hết hạn rồi, tưởng thời hạn là 8 tiếng (Lỗi múi giờ lệch giữa script Google chạy UTC và Google Sheets hiển thị GMT+7)
+
+### Planner Response
+- **Sửa lỗi lệch múi giờ hiển thị của Phiên đăng nhập (Timezone Fix):**
+  - **Nguyên nhân:** Google Apps Script chạy mặc định trên máy chủ Google ở múi giờ quốc tế UTC (GMT+0). Khi ta lưu đối tượng `Date` vào Google Sheet của bác (đang đặt múi giờ Việt Nam GMT+7), Google Sheet sẽ hiển thị theo giờ UTC (ví dụ: đăng nhập lúc 14:01 PM giờ VN là 07:01 AM giờ UTC, cộng 8 tiếng thành 15:01 PM). Điều này làm người xem bảng tính nhầm lẫn rằng phiên đăng nhập chỉ còn 1 tiếng thay vì 8 tiếng.
+  - **Cách khắc phục:**
+    1. Lưu thời gian hết hạn dưới dạng **Số mili-giây tuyệt đối (Epoch milliseconds)** ở cột 5 (`Expires At MS`) để máy chủ so sánh chéo một cách chính xác tuyệt đối, không bị ảnh hưởng bởi múi giờ.
+    2. Thêm cột 6 hiển thị **Thời gian hết hạn thân thiện theo chuẩn GMT+7 (Việt Nam)** (`Expires At (GMT+7)`) ghi rõ ràng dạng chuỗi `dd/MM/yyyy HH:mm:ss` (ví dụ: đăng nhập lúc 14:01 sẽ ghi rõ hết hạn lúc 22:01) để người dùng xem trực quan trên trang tính.

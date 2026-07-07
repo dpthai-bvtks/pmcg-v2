@@ -55,7 +55,7 @@ function cleanExpiredSessions() {
   try {
     const sheet = getSheetByName('PhienDangNhap');
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At']);
+      sheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At MS', 'Expires At (GMT+7)']);
       return;
     }
     const data = sheet.getDataRange().getValues();
@@ -64,8 +64,8 @@ function cleanExpiredSessions() {
     const headers = data[0];
     const newRows = [];
     for (let i = 1; i < data.length; i++) {
-      const expiresAt = new Date(data[i][4]).getTime();
-      if (expiresAt > now) {
+      const expiresAtMs = Number(data[i][4]);
+      if (expiresAtMs > now) {
         newRows.push(data[i]);
       }
     }
@@ -100,7 +100,7 @@ function verifySession(sessionId, action) {
   
   const sheet = getSheetByName('PhienDangNhap');
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At']);
+    sheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At MS', 'Expires At (GMT+7)']);
     throw new Error("Phiên làm việc không tồn tại. Vui lòng đăng nhập lại.");
   }
   
@@ -113,8 +113,8 @@ function verifySession(sessionId, action) {
   let validSession = null;
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][1]).trim() === String(sessionId).trim()) {
-      const expiresAt = new Date(data[i][4]).getTime();
-      if (expiresAt > now) {
+      const expiresAtMs = Number(data[i][4]);
+      if (expiresAtMs > now) {
         validSession = {
           username: data[i][2],
           role: data[i][3]
@@ -1698,10 +1698,15 @@ function verifyLogin(username, password) {
     }
     
     const sessionId = Utilities.getUuid();
-    const expiresAt = new Date(new Date().getTime() + 8 * 60 * 60 * 1000); // 8 tiếng
+    const nowMs = new Date().getTime();
+    const expiresAtMs = nowMs + 8 * 60 * 60 * 1000; // 8 tiếng
+    const expiresAtStr = Utilities.formatDate(new Date(expiresAtMs), "GMT+7", "dd/MM/yyyy HH:mm:ss");
     
     const sessionSheet = getSheetByName('PhienDangNhap');
-    sessionSheet.appendRow([sessionSheet.getLastRow(), sessionId, matchedUser.username, matchedUser.role, expiresAt]);
+    if (sessionSheet.getLastRow() === 0) {
+      sessionSheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At MS', 'Expires At (GMT+7)']);
+    }
+    sessionSheet.appendRow([sessionSheet.getLastRow(), sessionId, matchedUser.username, matchedUser.role, expiresAtMs, expiresAtStr]);
     
     return {
       success: true,
