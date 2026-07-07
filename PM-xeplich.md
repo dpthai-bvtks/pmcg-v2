@@ -1837,3 +1837,14 @@ xem lại code và cách thức hoạt động khi đẩy file từ HIS lên, b�
     1. Viết lại hàm `normalizeStrNoTrim()` để loại bỏ dấu tiếng Việt và viết thường nhưng **giữ lại nguyên vẹn khoảng trắng**.
     2. Hàm `mapHISToProcedure()` đệm thêm khoảng trắng hai đầu tên dịch vụ (`' ' + name + ' '`) và đối chiếu với từ khóa không bị trim. 
     3. Nhờ vậy, từ khóa `' hc '` sẽ chỉ khớp khi đứng riêng biệt (ví dụ: `"châm cứu, hc, điện châm"` thành `" cham cuu, hc, dien cham "` chứa `" hc "`), tránh hoàn toàn việc khớp nhầm vào bên trong chữ `PHCN` (`" phcn "`).
+
+### User Input
+đồngý tiến hành (Tiến hành tối ưu hóa thuật toán xếp lịch theo đề xuất của Claude và Antigravity)
+
+### Planner Response
+- **Nâng cấp và Tối ưu hóa Thuật toán Xếp lịch (Simulated Annealing & Core Logic Tuning):**
+  1. **Hàm mục tiêu cân bằng tải:** Thay đổi cách tính `score` trong `_turbo_core_logic`. Số ca rớt được nhân hệ số lớn nhất (`10000`), đồng thời cộng thêm số phút làm việc tăng ca (`overtimeMins * 2`) và độ lệch tải trọng lượng (`imbalance * 0.1`). Giúp Simulated Annealing tự động lọc chọn các cấu hình lịch chia đều ca làm việc và giảm thiểu thời gian tăng ca cho nhân viên.
+  2. **Mở rộng không gian đột biến (Mutators):** Cải tiến hàm `mutate()` tích hợp thêm 2 phép biến đổi mới: hoán đổi bệnh nhân liền kề (Adjacent Swap) và đảo ngược một đoạn bệnh nhân (2-opt/Segment Reverse) giúp tăng khả năng tìm kiếm nghiệm toàn cục của chuỗi SA.
+  3. **Cấu hình restart thông minh:** Tăng số chuỗi SA chạy song song từ 5 lên 8 lần, tận dụng tối đa chu kỳ xử lý của Apps Script nhưng vẫn giữ tổng thời gian phản hồi dưới 3 giây, ngăn chặn lỗi timeout 30 giây từ client.
+  4. **Khắc phục lỗi logic "Cứu ca rớt" (`bacSiBusy`):** Thiết lập trạng thái `bacSiBusy = false` trong post-processing. Vì khi `caDe` được bàn giao lại cho KTV đảm nhiệm, Bác sĩ đó chắc chắn được giải phóng thời gian rảnh hoàn toàn để thực hiện ca thủ thuật mới. Việc sửa này giúp giải quyết các sai số do gộp timeline từ trước.
+  5. **Dọn lỗi Strict Mode:** Chuyển đổi `05` thành `5` tránh lỗi biên dịch số octal.

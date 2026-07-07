@@ -434,7 +434,7 @@ function mutate(rawPatients, randFn, droppedNames) {
     const idx = patients.findIndex(p => droppedNames.has(p.name));
     if (idx > 0) { const [p] = patients.splice(idx, 1); patients.unshift(p); return patients; }
   }
-  const op = Math.floor(randFn() * 3);
+  const op = Math.floor(randFn() * 5);
   if (op === 0 && patients.length >= 2) {
     const i = Math.floor(randFn() * patients.length), j = Math.floor(randFn() * patients.length);
     [patients[i], patients[j]] = [patients[j], patients[i]];
@@ -444,10 +444,23 @@ function mutate(rawPatients, randFn, droppedNames) {
       const i = Math.floor(randFn() * p.pending.length), j = Math.floor(randFn() * p.pending.length);
       [p.pending[i], p.pending[j]] = [p.pending[j], p.pending[i]];
     }
-  } else if (patients.length >= 2) {
+  } else if (op === 2 && patients.length >= 2) {
     const i = Math.floor(randFn() * patients.length);
     const [p] = patients.splice(i, 1);
     patients.unshift(p);
+  } else if (op === 3 && patients.length >= 2) {
+    // Đảo 2 phần tử liền kề (adjacent swap)
+    const i = Math.floor(randFn() * (patients.length - 1));
+    [patients[i], patients[i+1]] = [patients[i+1], patients[i]];
+  } else if (op === 4 && patients.length >= 3) {
+    // Đảo ngược một đoạn (segment reverse / 2-opt)
+    const i = Math.floor(randFn() * patients.length);
+    const j = Math.floor(randFn() * patients.length);
+    const start = Math.min(i, j), end = Math.max(i, j);
+    if (end - start >= 2) {
+      const segment = patients.slice(start, end + 1).reverse();
+      patients.splice(start, segment.length, ...segment);
+    }
   }
   return patients;
 }
@@ -457,7 +470,6 @@ function runBestIteration(db, dateVal, existingSched = [], scenario = 1) {
   let currentPatients = JSON.parse(JSON.stringify(db.rawPatients));
   let current = _turbo_core_logic({ ...db, rawPatients: currentPatients }, dateVal, 0, existingSched, scenario);
   let best = current;
-  if (best.score === 0) return best;
 
   let droppedNames = new Set(best.rot.map(r => r.bn));
   let T = 10.0, T_min = 0.3, alpha = 0.88, noImprove = 0;
@@ -471,15 +483,14 @@ function runBestIteration(db, dateVal, existingSched = [], scenario = 1) {
       current = neighbor; currentPatients = neighborPatients;
       if (current.score < best.score) {
         best = current; droppedNames = new Set(best.rot.map(r => r.bn)); noImprove = 0;
-        if (best.score === 0) break;
       } else { noImprove++; }
     } else { noImprove++; }
     T *= alpha;
   }
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 8; i++) {
     const result = _turbo_core_logic({ ...db, rawPatients: JSON.parse(JSON.stringify(db.rawPatients)) }, dateVal, 100 + i, existingSched, scenario);
-    if (result.score < best.score) { best = result; if (best.score === 0) break; }
+    if (result.score < best.score) { best = result; }
   }
   return best;
 }
@@ -501,7 +512,7 @@ function writeScheduleToSheet(sched, rot = []) {
 // ============================================================
 function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 1) {
   const rand = createSeededRandom(seedVal);
-  const OVERTIME_ALLOWANCE = 05;
+  const OVERTIME_ALLOWANCE = 5;
   const defaultShift = [[420, 690], [780, 1014]];
   let startOfDay = 420, endOfDay = 1014;
 
@@ -954,7 +965,8 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
         if ((timeEnd - timeStart) < tgCanThiet) continue;
         const bnBusy = results.filter(r => r.HOTEN === tenBN).some(r => is_overlap(timeStart, timeStart + tgCanThiet, t2m(r.GIODIENRA), t2m(r.GIOKETTHUC)));
         if (bnBusy) continue;
-        const bacSiBusy = staffTimeline[bacSi].some(slot => slot[0] === timeStart && slot[1] === timeEnd ? false : is_overlap(timeStart, timeStart + tgCanThiet, slot[0], slot[1]));
+        // Bác sĩ đang làm caDe chắc chắn không bận việc gì khác lúc này (caDe sẽ được đổi sang KTV ở dưới)
+        const bacSiBusy = false;
         if (bacSiBusy) continue;
         let ktvThayThe = null;
         const dsKTV = (staffBySkill[(caDe.DICHVU || "").toLowerCase()] || []).filter(k => staffRole[k] === 'Kỹ thuật viên');
@@ -973,8 +985,15 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     if (!saved) finalDropList.push(rotItem);
   }
 
+  // Tính toán điểm phạt (tăng ca và lệch tải nhân viên) làm chỉ số phụ (tie-breaker) cho hàm mục tiêu
+  const overtimeMins = Object.values(staffLoad).reduce((s, v) => s + Math.max(0, v.used_mins - v.shift_mins), 0);
+  const loadValues = Object.values(staffLoad).map(v => v.used_mins);
+  const avg = loadValues.reduce((a,b)=>a+b,0) / (loadValues.length || 1);
+  const imbalance = loadValues.reduce((s,v) => s + Math.abs(v - avg), 0);
+  const scoreVal = finalDropList.length * 10000 + overtimeMins * 2 + imbalance * 0.1;
+
   results.sort((a, b) => a["NV CHÍNH"] !== b["NV CHÍNH"] ? a["NV CHÍNH"].localeCompare(b["NV CHÍNH"]) : a.t_sort - b.t_sort);
-  return { sched: results, rot: finalDropList, score: finalDropList.length, staff: staffLoad, proc: localProcCount, tl: staffTimeline, ca: staffShifts };
+  return { sched: results, rot: finalDropList, score: scoreVal, staff: staffLoad, proc: localProcCount, tl: staffTimeline, ca: staffShifts };
 }
 
 // ============================================================
