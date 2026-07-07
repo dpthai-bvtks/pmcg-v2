@@ -84,6 +84,11 @@
 
 
 
+                        let sessionId = '';
+            try {
+                const session = JSON.parse(localStorage.getItem('meds_session') || '{}');
+                sessionId = session.sessionId || '';
+            } catch(e) {}
             fetch('https://script.google.com/macros/s/AKfycbykwx2ubeJVp5Uy16OrHw9SMzHtKchiM0I7a-t3D_D45RJJ9G6EXrJtlL8Cl12ySdqndg/exec', {
 
                 method: 'POST',
@@ -94,9 +99,13 @@
 
                     action: 'getTimRanhData',
 
-                    args: JSON.stringify([])
+                    args: JSON.stringify([]),
+
+                    sessionId: sessionId
 
                 })
+
+            })
 
             })
 
@@ -206,13 +215,15 @@
 
                 if (res.success) {
 
-                    localStorage.setItem('meds_session', JSON.stringify({
+                                        localStorage.setItem('meds_session', JSON.stringify({
 
                         username: res.username,
 
                         role: res.role,
 
-                        permissions: res.permissions
+                        permissions: res.permissions,
+
+                        sessionId: res.sessionId
 
                     }));
 
@@ -6531,6 +6542,19 @@ console.log('MAIN SCRIPT STARTING...');
 // ============================================================
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbykwx2ubeJVp5Uy16OrHw9SMzHtKchiM0I7a-t3D_D45RJJ9G6EXrJtlL8Cl12ySdqndg/exec';
+function escapeHtml(string) {
+    if (string === null || string === undefined) return '';
+    return String(string).replace(/[&<>"']/g, function(s) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[s];
+    });
+}
+
 
 
 
@@ -6643,13 +6667,20 @@ window.google.script.run = new Proxy({}, {
 
 
 function callApi(functionName, args, onSuccess, onError) {
+    let sessionId = '';
+    try {
+        const session = JSON.parse(localStorage.getItem('meds_session') || '{}');
+        sessionId = session.sessionId || '';
+    } catch(e) {}
     fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
             action: functionName,
-            args: JSON.stringify(args)
+            args: JSON.stringify(args),
+            sessionId: sessionId
         })
+    })
     })
     .then(response => response.json())
     .then(result => {
@@ -6716,9 +6747,14 @@ console.log('--- JS Block: Auth & Permissions started ---');
 
                                 // 1. Lưu thông tin người dùng
 
-                                localStorage.setItem('meds_session', JSON.stringify({username: res.username, role:
+                                                                localStorage.setItem('meds_session', JSON.stringify({username: res.username, role:
 
-                                res.role, permissions: res.permissions}));
+                                res.role, permissions: res.permissions, sessionId: res.sessionId}));
+
+                                // Gọi tải dữ liệu Tìm Rảnh ngay sau khi đăng nhập thành công
+                                if (typeof window.loadTimRanhDataFromServer === 'function') {
+                                    window.loadTimRanhDataFromServer();
+                                }
 
 
 
@@ -7963,7 +7999,7 @@ console.log('--- JS Block: Foundation started ---');
 
             tbody.innerHTML = dataCache.proc.map((item, i) => `<tr class="editable-row" onclick="editProc(${i})" title="Bấm sửa (Phím Delete để xóa)">
 
-        <td>${i + 1}</td><td>${item.ten}</td><td><strong>${item.vietTat}</strong></td>
+        <td>${i + 1}</td><td>${escapeHtml(item.ten)}</td><td><strong>${escapeHtml(item.vietTat)}</strong></td>
 
         <td>${item.thoiGianThucHien}</td><td>${item.thoiGianThuThuat}</td><td>${item.khoangCach}</td>
 
@@ -8272,7 +8308,7 @@ console.log('--- JS Block: Foundation started ---');
 
             const roomSelect = document.getElementById('pat-room');
 
-            if (roomSelect) roomSelect.innerHTML = dataCache.room.map(r => { const ten = String(r.tenPhong || r[1] || '').trim(); return `<option value="${ten}">${ten}</option>`; }).join('');
+            if (roomSelect) roomSelect.innerHTML = dataCache.room.map(r => { const ten = String(r.tenPhong || r[1] || '').trim(); return `<option value="${escapeHtml(ten)}">${escapeHtml(ten)}</option>`; }).join('');
 
             if (!dataCache.room.length) { tbody.innerHTML = renderEmptyRow(6, 'Chưa có dữ liệu phòng'); return; }
 
@@ -8282,13 +8318,13 @@ console.log('--- JS Block: Foundation started ---');
 
                 return `<tr class="editable-row" onclick="editRoom(${idx})" title="Bấm sửa (Phím Delete để xóa)">
 
-            <td>${i + 1}</td><td><strong>${item.tenPhong || item[1] || ''}</strong></td>
+            <td>${i + 1}</td><td><strong>${escapeHtml(item.tenPhong || item[1] || '')}</strong></td>
 
-            <td>${item.bacSi || item[2] || ''}</td>
+            <td>${escapeHtml(item.bacSi || item[2] || '')}</td>
 
             <td style="font-size:11px">${item.ktv || item[3] || ''}</td>
 
-            <td style="font-size:11px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.danhSachMay || item[4] || ''}</td>
+            <td style="font-size:11px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(item.danhSachMay || item[4] || '')}</td>
 
             <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteRoom(${idx})">Xóa</button></td>
 
@@ -8536,15 +8572,15 @@ console.log('--- JS Block: Foundation started ---');
 
                 <td>${i + 1}</td>
 
-                <td><strong>${item.ten}</strong> ${nhanTrangThai}</td>
+                <td><strong>${escapeHtml(item.ten)}</strong> ${nhanTrangThai}</td>
 
-                <td>${item.namSinh || ''}</td><td>${item.ngayVao || ''}</td><td>${item.gioVao || ''}</td>
+                <td>${escapeHtml(item.namSinh || '')}</td><td>${escapeHtml(item.ngayVao || '')}</td><td>${escapeHtml(item.gioVao || '')}</td>
 
-                <td><strong style="color:#c0392b">${item.gioRa || ''}</strong></td>
+                <td><strong style="color:#c0392b">${escapeHtml(item.gioRa || '')}</strong></td>
 
-                <td>${item.phong || ''}</td>
+                <td>${escapeHtml(item.phong || '')}</td>
 
-                <td style="font-size:11px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.thuThuat}"><strong>${getShortSkills(item.thuThuat)}</strong></td>
+                <td style="font-size:11px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(item.thuThuat)}"><strong>${escapeHtml(getShortSkills(item.thuThuat))}</strong></td>
 
                 <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deletePatient(${idx})">Xóa</button></td>
 
@@ -11880,7 +11916,7 @@ console.log('--- JS Block: Foundation started ---');
 
                                     <td>${acc.id}</td>
 
-                                    <td style="font-size:15px; color:#2c3e50;"><strong>${acc.user}</strong></td>
+                                    <td style="font-size:15px; color:#2c3e50;"><strong>${escapeHtml(acc.user)}</strong></td>
 
                                     <td><span style="color:#7f8c8d; font-style:italic; font-size:12px;">🔒 Đã bảo
 

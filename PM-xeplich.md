@@ -1784,3 +1784,14 @@ bảng trong google sheet thì hiện dạng ngày/tháng/năm nhưng trên web 
     1. Sửa lại logic của hàm `formatNgayVao(val)` trong `code.gs-v2.txt`.
     2. Thiết lập mặc định tin tưởng và giữ nguyên thứ tự `dd/MM/yyyy` từ Google Sheets (bởi vì trang tính của bác đã thiết lập đúng chuẩn Việt Nam).
     3. Chỉ hoán đổi thứ tự khi phát hiện phần tử thứ hai lớn hơn 12 (ví dụ `07/25/2026`, chắc chắn 25 là ngày nên sẽ chuyển về dạng chuẩn `25/07/2026`).
+
+### User Input
+đồng ý, tiến hành đi (Tiến hành nâng cấp bảo mật toàn diện cho dự án)
+
+### Planner Response
+- **Hoàn thành Nâng cấp Bảo mật Toàn diện (Security Hardening):**
+  1. **Xác thực phiên phía Máy chủ:** Thiết lập sheet `PhienDangNhap` trên Google Sheets và danh sách phân nhóm hành động whitelist (`PUBLIC_ACTIONS`, `USER_ACTIONS`, `ADMIN_ACTIONS`). Bắt buộc các yêu cầu gửi đến phải kèm `sessionId` hợp lệ và kiểm tra chéo quyền Admin trước khi thực thi. Tự động dọn dẹp phiên hết hạn qua `cleanExpiredSessions()`.
+  2. **Muối băm bảo mật mật khẩu:** Băm mật khẩu phối hợp khóa bí mật `PASSWORD_PEPPER` chống tấn công Rainbow Table. Triển khai cơ chế tự động chuyển dịch mật khẩu băm cũ sang chuẩn mới khi người dùng đăng nhập lần đầu tiên mà không làm gián đoạn hay bắt đổi mật khẩu thủ công.
+  3. **Đồng bộ Session ở Client:** Cập nhật `callApi` và `doLogin` gửi nhận `sessionId` qua bộ nhớ `localStorage`.
+  4. **Phòng chống Stored XSS:** Viết hàm `escapeHtml()` ở client và lọc sạch các biến nhạy cảm như tên bệnh nhân, tài khoản, phòng điều trị hiển thị động qua `innerHTML`.
+  5. **Dọn dẹp Git:** Đưa file cấu hình `scratch_cache_update.js` vào `.gitignore` để bảo mật thông tin đường dẫn Windows cục bộ.
