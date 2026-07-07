@@ -1816,3 +1816,13 @@ sao 15:01 đã hết hạn rồi, tưởng thời hạn là 8 tiếng (Lỗi mú
   - **Cách khắc phục:**
     1. Lưu thời gian hết hạn dưới dạng **Số mili-giây tuyệt đối (Epoch milliseconds)** ở cột 5 (`Expires At MS`) để máy chủ so sánh chéo một cách chính xác tuyệt đối, không bị ảnh hưởng bởi múi giờ.
     2. Thêm cột 6 hiển thị **Thời gian hết hạn thân thiện theo chuẩn GMT+7 (Việt Nam)** (`Expires At (GMT+7)`) ghi rõ ràng dạng chuỗi `dd/MM/yyyy HH:mm:ss` (ví dụ: đăng nhập lúc 14:01 sẽ ghi rõ hết hạn lúc 22:01) để người dùng xem trực quan trên trang tính.
+
+### User Input
+giữ lại Tính năng Huấn luyện AI & "Xuất file tổng kết AI", còn lại xóa những phần kia đi, mình không dùng đến rồi
+
+### Planner Response
+- **Dọn dẹp mã nguồn thừa (AI Chatbot & Unused APIs Cleanup):**
+  - **Mục tiêu:** Giữ lại các tính năng ghi nhận dữ liệu huấn luyện và nút **🧠 XUẤT FILE TỔNG KẾT AI** (dùng xuất Mega-Prompt cho AI bên ngoài). Xóa bỏ toàn bộ các API chatbot và giao diện chat chưa dùng đến để làm nhẹ mã nguồn.
+  - **Các phần đã xóa:**
+    1. **Backend (`code.gs-v2.txt`):** Xóa bỏ các API liên kết AI cục bộ (`chatWithGemini`, `runKymaAPI`, `runGeminiAPI`, `runChatGPTAPI`, `runCopilotAPI`, `runGroqAPI`, `_callOpenAIStyle`) và gỡ bỏ quyền `chatWithGemini` khỏi whitelist.
+    2. **Frontend (`index.html`):** Xóa bỏ thẻ HTML của cửa sổ chat nổi `ai-chat-box`, ô nhập liệu `ai-chat-input` và các dòng CSS thừa điều khiển nút AI chat ẩn (`#ai-chat-btn`, `.btn-ai-smart`).

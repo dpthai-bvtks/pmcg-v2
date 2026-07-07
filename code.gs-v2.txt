@@ -33,8 +33,7 @@ const USER_ACTIONS = [
   'runSaturdaySchedule',
   'runSupplementalScheduling',
   'chuyenNgayMoi',
-  'saveSchedule',
-  'chatWithGemini'
+  'saveSchedule'
 ];
 
 const ADMIN_ACTIONS = [
@@ -1472,61 +1471,6 @@ function runSupplementalScheduling(ngayXep, scenario) {
   return { addedCount: newRows.length, unscheduled: best ? best.rot : [], unscheduledCount: best ? best.rot.length : 0 };
 }
 
-// ============================================================
-// TRỢ LÝ AI
-// ============================================================
-const KYMA_API_KEY       = 'YOUR_KYMA_API_KEY';
-const GEMINI_API_KEY     = 'YOUR_GEMINI_API_KEY';
-const OPENAI_API_KEY     = 'YOUR_OPENAI_API_KEY';
-const GITHUB_COPILOT_KEY = 'YOUR_GITHUB_COPILOT_KEY';
-const GROQ_API_KEY       = 'YOUR_GROQ_API_KEY';
-
-function chatWithGemini(message) {
-  const runners = [runKymaAPI, runGeminiAPI, runChatGPTAPI, runCopilotAPI, runGroqAPI];
-  const names   = ["Kyma", "Gemini", "ChatGPT", "Copilot", "Groq"];
-  const errors  = [];
-  for (let i = 0; i < runners.length; i++) {
-    try { return runners[i](message); } catch (e) { errors.push(`${names[i]}: ${e.message}`); }
-  }
-  throw new Error("🚨 TẤT CẢ AI SẬP!\n" + errors.join("\n"));
-}
-
-function _callOpenAIStyle(url, apiKey, models, message) {
-  const errors = [];
-  for (const model of models) {
-    try {
-      const response = UrlFetchApp.fetch(url, {
-        method: "post", contentType: "application/json",
-        headers: { "Authorization": "Bearer " + apiKey },
-        payload: JSON.stringify({ model, messages: [{ role: "user", content: message }], temperature: 0.2 }),
-        muteHttpExceptions: true
-      });
-      const data = JSON.parse(response.getContentText());
-      if (data.error) { errors.push(`[${model}: ${data.error.message}]`); continue; }
-      if (data.choices?.[0]?.message) return data.choices[0].message.content;
-    } catch (e) { errors.push(`[${model}: ${e.message}]`); }
-  }
-  throw new Error(errors.join(" ➔ "));
-}
-
-function runKymaAPI(msg)    { return _callOpenAIStyle("https://api.kymaapi.com/v1/chat/completions",                    KYMA_API_KEY,       ['qwen-3.6-plus', 'llama-3.3-70b-versatile'], msg); }
-function runChatGPTAPI(msg) { return _callOpenAIStyle("https://api.openai.com/v1/chat/completions",                    OPENAI_API_KEY,     ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo'], msg); }
-function runCopilotAPI(msg) { return _callOpenAIStyle("https://models.inference.ai.azure.com/chat/completions",        GITHUB_COPILOT_KEY, ['gpt-4o'], msg); }
-function runGroqAPI(msg)    { return _callOpenAIStyle("https://api.groq.com/openai/v1/chat/completions",               GROQ_API_KEY,       ['llama-3.3-70b-versatile', 'deepseek-r1-distill-llama-70b', 'mixtral-8x7b-32768'], msg); }
-
-function runGeminiAPI(message) {
-  const models = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-pro'];
-  const errors = [], payload = JSON.stringify({ contents: [{ parts: [{ text: message }] }] });
-  for (const model of models) {
-    try {
-      const response = UrlFetchApp.fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, { method: "post", contentType: "application/json", payload, muteHttpExceptions: true });
-      const data = JSON.parse(response.getContentText());
-      if (data.error) { errors.push(`[${model}: ${data.error.message}]`); continue; }
-      if (data.candidates?.[0]?.content) return data.candidates[0].content.parts[0].text;
-    } catch (e) { errors.push(`[${model}: ${e.message}]`); }
-  }
-  throw new Error(errors.join(" ➔ "));
-}
 
 // ============================================================
 // ĐĂNG NHẬP & PHÂN QUYỀN
