@@ -1773,3 +1773,14 @@ có, tích hợp đi (Tích hợp tính năng Nhập từ HIS từ bản V3 sang
      - Hàm `mapHISToProcedure()` và danh sách từ khóa `HIS_MAPPING` tự động chuẩn hóa và chuyển đổi tên dịch vụ gốc của bệnh viện sang tên dịch vụ tương ứng chuẩn trong phần mềm.
      - Tự động gộp dịch vụ và đối chiếu với danh sách bệnh nhân hiện tại: Nếu trùng khớp Tên + Năm sinh thì cập nhật thêm dịch vụ mới, giữ nguyên ngày vào/giờ vào/phòng bệnh; nếu là bệnh nhân mới thì tự động thêm mới vào danh sách.
      - Hiển thị bảng Popup xem trước chi tiết (Bao gồm số ca cập nhật, số ca thêm mới, và danh sách các dịch vụ không nhận diện được) để người dùng xác nhận trước khi lưu.
+
+### User Input
+bảng trong google sheet thì hiện dạng ngày/tháng/năm nhưng trên web phần mềm thì lại hiện thành tháng/ngày/năm, xem lại đi
+
+### Planner Response
+- **Sửa lỗi tráo đổi Ngày và Tháng khi hiển thị trên giao diện Web:**
+  - **Nguyên nhân:** Hàm `formatNgayVao(val)` nhận giá trị ngày từ Google Sheets dưới dạng chuỗi (ví dụ `01/07/2026` - Ngày 1 tháng 7). Tuy nhiên, logic cũ của hàm này mặc định tự động hoán đổi hai phần tử đầu tiên nếu cả ngày và tháng đều nhỏ hơn hoặc bằng 12 (vì nó cho rằng định dạng mặc định đầu vào là của Mỹ `MM/dd/yyyy`). Điều này dẫn đến ngày `01/07/2026` (ngày 1 tháng 7) bị tráo thành `07/01/2026` (ngày 7 tháng 1) trên giao diện Web.
+  - **Cách khắc phục:** 
+    1. Sửa lại logic của hàm `formatNgayVao(val)` trong `code.gs-v2.txt`.
+    2. Thiết lập mặc định tin tưởng và giữ nguyên thứ tự `dd/MM/yyyy` từ Google Sheets (bởi vì trang tính của bác đã thiết lập đúng chuẩn Việt Nam).
+    3. Chỉ hoán đổi thứ tự khi phát hiện phần tử thứ hai lớn hơn 12 (ví dụ `07/25/2026`, chắc chắn 25 là ngày nên sẽ chuyển về dạng chuẩn `25/07/2026`).
