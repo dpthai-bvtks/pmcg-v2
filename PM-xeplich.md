@@ -1877,3 +1877,20 @@ xem lại vẫn bị hiện tên viết hoa toàn bộ, thêm nữa bị thêm t
   2. **Thủ thuật "laser" tự động thêm:** Do trong `HIS_MAPPING` có quy tắc tự động khớp từ khóa `laser` và map sang thủ thuật có tên `laser`. Nhưng trong danh mục thủ thuật của phòng khám không có dịch vụ nào tên là `laser` nên việc tự động điền này là không chính xác. Mình đã loại bỏ hoàn toàn quy tắc `laser` này khỏi `HIS_MAPPING`. Từ giờ, các dịch vụ liên quan đến laser trong file Excel HIS sẽ được đưa vào danh sách "Chưa nhận diện" (unrecognized) để bác sĩ tự kiểm tra và chọn thủ thuật thủ công phù hợp.
   3. **Lỗi Popup nhập HIS hiển thị thẻ HTML thô:** Thay đổi hàm hiển thị cảnh báo/popup `showCustomConfirm` và `showCustomAlert` sử dụng `innerHTML` thay cho `innerText` để trình duyệt tự động vẽ các thẻ HTML (như danh sách `<ul>`, các hộp thông tin `<div>` có viền màu đẹp mắt) thay vì hiển thị dạng văn bản thô dài dằng dặc. Đồng thời, toàn bộ dữ liệu động hiển thị trên popup đều được lọc qua bộ kiểm tra `escapeHtml` để chống lỗ hổng Stored XSS.
   4. **Giới hạn kích thước Popup:** Mở rộng chiều rộng tối đa của popup xác nhận lên `550px` (thay vì `400px`) để hiển thị báo cáo y lệnh HIS rõ ràng hơn, đồng thời giới hạn chiều cao tối đa của nội dung tin nhắn là `60vh` và tự động thêm thanh cuộn dọc (`overflow-y: auto`). Điều này đảm bảo popup luôn nằm gọn trong màn hình, không bao giờ bị tràn hay quá to.
+
+### User Input
+khi thêm giờ bận ở máy tính khác thì mãi chưa thấy máy tính này cập nhật theo, máy tính này khi load lại thì lại mất cái đã nhập lúc trước. Ngoài ra thêm lớp phủ che toàn bộ màn hình khi ấn xếp lịch, xếp bổ sung, chốt sổ hoặc tất cả khi thao tác đi
+
+### Planner Response
+- **Sửa lỗi cập nhật/mất giờ bận (lệch sheetIndex):**
+  1. **Nguyên nhân lệch chỉ số dòng:** Khi người dùng click chọn giờ bận trực tiếp trên lịch của bệnh nhân/nhân sự, hệ thống cũ truyền chỉ số dòng cục bộ `parseInt(idx)` (chỉ số của danh sách đã qua bộ lọc bỏ các dòng trống/dữ liệu lỗi) cho các hàm backend `editBenhNhan` / `editNhanSu` thay vì truyền `sheetIndex` (chỉ số dòng thực tế trên Google Sheets). Vì vậy dữ liệu giờ bận bị ghi đè nhầm vào dòng của bệnh nhân khác, làm mất/sai dữ liệu và gây hiện tượng trùng lặp hoặc biến mất khi tải lại trang.
+  2. **Khắc phục:** Mình đã đồng bộ toàn bộ các thao tác chỉnh sửa nhanh giờ bận/giờ ra viện (`savePatBusy`, `deleteSinglePatBusy`, `clearPatBusy`, `savePatLeave`, `clearPatLeave`, `saveStaffBusy`, `deleteSingleStaffBusy`, `clearStaffBusy`) sử dụng `sheetIndex` thực tế.
+  3. **Thêm cơ chế so khớp tên + năm sinh chống lệch dòng khi có thao tác đồng thời:** Đối với bệnh nhân, hàm cập nhật giờ bận được bổ sung tham số tên và năm sinh để máy chủ quét lại một lần nữa bằng `getExactRowIndex`. Cơ chế này đảm bảo dữ liệu ghi đúng 100% vào dòng của bệnh nhân đó kể cả khi có máy tính khác đang thêm/xóa dòng đồng thời.
+  4. **Tự động tải lại dữ liệu mới sau khi sửa đổi:** Sau khi cập nhật giờ bận thành công, hệ thống tự động làm mới bộ nhớ đệm (`dataCache`) và tải dữ liệu mới nhất từ máy chủ để các máy tính hiển thị đồng bộ ngay lập tức mà không cần F5 thủ công.
+
+- **Thêm lớp phủ toàn màn hình (Global Loading Overlay) khi thao tác nặng:**
+  1. Thêm lớp phủ tải toàn màn hình cùng thông điệp động khi thực hiện các tác vụ nặng:
+     - **Xếp lịch tổng:** "Đang chạy thuật toán xếp lịch tổng thể..."
+     - **Xếp bổ sung:** "Đang xếp lịch bổ sung bệnh nhân mới..."
+     - **Chốt sổ:** "Đang thực hiện chốt sổ ngày cũ và mở sổ ngày mới..."
+     - **Cập nhật giờ bận/giờ ra viện:** Tự động hiện màn hình khóa và xoay vòng tải để ngăn chặn các nhấp đúp (double-click) hoặc chuyển tab gây xung đột dữ liệu.

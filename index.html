@@ -8879,98 +8879,103 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         const savePatBusy = withLock(function () {
-
             const idx = getBusyPatIdx();
-
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân từ danh sách xổ xuống!');
-
             const fromObj = document.getElementById('busy-pat-from');
-
             const toObj = document.getElementById('busy-pat-to');
-
             const from = fromObj.value, to = toObj.value;
-
             if (!from || !to) return alert('Nhập thời gian!');
-
             const p = dataCache.pat[idx];
-
-            const newSlot = `${from}-${to}`;
-
+            const newSlot = from + '-' + to;
             if (window.editingPatSlot && window.editingPatName === p.ten) {
-
                 let slotsArr = p.gioBan ? p.gioBan.split(',').map(x => x.trim()) : [];
-
                 p.gioBan = slotsArr.filter(x => x && x !== window.editingPatSlot).join(', ');
-
-                window.editingPatSlot = '';
-
-                window.editingPatName = '';
-
+                window.editingPatSlot = ''; window.editingPatName = '';
             }
-
             p.gioBan = sortTimeSlots(p.gioBan ? p.gioBan + ', ' + newSlot : newSlot);
-
             renderPatientsTable();
-
             fromObj.value = ''; toObj.value = ''; fromObj.focus();
             const busyInput = document.getElementById('busy-pat-input');
             if (busyInput) busyInput.value = '';
 
-            google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, p.gioRa, p.phong, p.thuThuat);
-
+            const sheetIdx = p.sheetIndex !== undefined ? p.sheetIndex : idx;
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu giờ bận bệnh nhân...");
+            google.script.run
+                .withSuccessHandler(() => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .withFailureHandler(err => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    alert("Lỗi lưu giờ bận: " + err.message);
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .editBenhNhan(sheetIdx, p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, p.gioRa, p.phong, p.thuThuat, p.ten, p.namSinh);
         });
 
         function deleteSinglePatBusy() {
-
             const idx = getBusyPatIdx();
-
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
-
             const from = document.getElementById('busy-pat-from').value;
-
             const to = document.getElementById('busy-pat-to').value;
-
             if (!from || !to) return alert('Vui lòng click vào khoảng giờ trên bảng để xóa!');
-
             const p = dataCache.pat[idx];
-
             if (!p.gioBan) return;
+            const slotToDelete = from + '-' + to;
 
-            const slotToDelete = `${from}-${to}`;
-
-            showCustomConfirm("Xóa giờ bận", `Bác sĩ có muốn xóa giờ bận [ ${slotToDelete} ] của BN: ${p.ten}?`, function () {
-
+            showCustomConfirm("Xóa giờ bận", "Bác sĩ có muốn xóa giờ bận [ " + slotToDelete + " ] của BN: " + p.ten + "?", function () {
                 p.gioBan = p.gioBan.split(',').map(x => x.trim()).filter(x => x && x !== slotToDelete).join(', ');
-
                 renderPatientsTable();
-
                 document.getElementById('busy-pat-from').value = '';
                 document.getElementById('busy-pat-to').value = '';
                 const busyInput = document.getElementById('busy-pat-input');
                 if (busyInput) busyInput.value = '';
 
-                google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, p.gioRa, p.phong, p.thuThuat);
-
+                const sheetIdx = p.sheetIndex !== undefined ? p.sheetIndex : idx;
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa giờ bận bệnh nhân...");
+                google.script.run
+                    .withSuccessHandler(() => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                        loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                    })
+                    .withFailureHandler(err => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        alert("Lỗi xóa giờ bận: " + err.message);
+                        if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                        loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                    })
+                    .editBenhNhan(sheetIdx, p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, p.gioRa, p.phong, p.thuThuat, p.ten, p.namSinh);
             });
-
         }
 
         function clearPatBusy() {
-
             const idx = getBusyPatIdx();
-
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
-
             const p = dataCache.pat[idx];
-
-            if (!confirm(`Xóa toàn bộ giờ bận của BN: ${p.ten}?`)) return;
+            if (!confirm("Xóa toàn bộ giờ bận của BN: " + p.ten + "?")) return;
 
             p.gioBan = ''; renderPatientsTable(); 
             const busyInput = document.getElementById('busy-pat-input');
             if (busyInput) busyInput.value = '';
 
-            google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, '', p.gioRa, p.phong, p.thuThuat);
-
+            const sheetIdx = p.sheetIndex !== undefined ? p.sheetIndex : idx;
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa toàn bộ giờ bận...");
+            google.script.run
+                .withSuccessHandler(() => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .withFailureHandler(err => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    alert("Lỗi xóa giờ bận: " + err.message);
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .editBenhNhan(sheetIdx, p.ten, p.namSinh, p.ngayVao, p.gioVao, '', p.gioRa, p.phong, p.thuThuat, p.ten, p.namSinh);
         }
 
 
@@ -9022,47 +9027,61 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         const savePatLeave = withLock(function () {
-
             const idx = getLeavePatIdx();
-
-            if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
-
+            if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân từ danh sách xổ xuống!');
             const leaveObj = document.getElementById('leave-pat-time');
-
             const leaveTime = leaveObj.value;
-
             if (!leaveTime) return alert('Nhập giờ ra viện!');
-
             const p = dataCache.pat[idx];
 
             p.gioRa = leaveTime;
-
             renderPatientsTable();
-
             leaveObj.value = ''; leaveObj.focus();
             const leaveInput = document.getElementById('leave-pat-input');
             if (leaveInput) leaveInput.value = '';
 
-            google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, leaveTime, p.phong, p.thuThuat);
-
+            const sheetIdx = p.sheetIndex !== undefined ? p.sheetIndex : idx;
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang cập nhật giờ ra viện...");
+            google.script.run
+                .withSuccessHandler(() => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .withFailureHandler(err => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    alert("Lỗi cập nhật giờ ra viện: " + err.message);
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .editBenhNhan(sheetIdx, p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, leaveTime, p.phong, p.thuThuat, p.ten, p.namSinh);
         });
 
         function clearPatLeave() {
-
             const idx = getLeavePatIdx();
-
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
-
             const p = dataCache.pat[idx];
-
-            if (!confirm(`Hủy giờ ra viện của BN: ${p.ten}?`)) return;
+            if (!confirm("Hủy giờ ra viện của BN: " + p.ten + "?")) return;
 
             p.gioRa = ''; renderPatientsTable(); document.getElementById('leave-pat-time').value = '';
             const leaveInput = document.getElementById('leave-pat-input');
             if (leaveInput) leaveInput.value = '';
 
-            google.script.run.editBenhNhan(parseInt(idx), p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, '', p.phong, p.thuThuat);
-
+            const sheetIdx = p.sheetIndex !== undefined ? p.sheetIndex : idx;
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang hủy giờ ra viện...");
+            google.script.run
+                .withSuccessHandler(() => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .withFailureHandler(err => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    alert("Lỗi hủy giờ ra viện: " + err.message);
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                })
+                .editBenhNhan(sheetIdx, p.ten, p.namSinh, p.ngayVao, p.gioVao, p.gioBan, '', p.phong, p.thuThuat, p.ten, p.namSinh);
         }
 
 
@@ -9160,93 +9179,99 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function saveStaffBusy() {
-
             const select = document.getElementById('busy-staff-select');
-
             if (!select) return;
-
             const idx = select.value;
-
+            if (idx === "") return alert('Chọn nhân viên!');
             const fromObj = document.getElementById('busy-staff-from');
-
             const toObj = document.getElementById('busy-staff-to');
-
             const from = fromObj.value, to = toObj.value;
-
-            if (!from || !to) return alert('Vui lòng chọn Từ giờ - Đến giờ!');
-
+            if (!from || !to) return alert('Nhập thời gian!');
             const s = dataCache.staff[idx];
-
-            const newSlot = `${from}-${to}`;
-
+            const newSlot = from + '-' + to;
             if (window.editingStaffSlot && String(window.editingStaffIdx) === String(idx)) {
-
                 s.gioBan = (s.gioBan ? s.gioBan.split(',').map(x => x.trim()).filter(x => x && x !== window.editingStaffSlot) : []).join(', ');
-
                 window.editingStaffSlot = ''; window.editingStaffIdx = '';
-
             }
-
             s.gioBan = sortTimeSlots(s.gioBan ? s.gioBan + ', ' + newSlot : newSlot);
-
             renderStaffTable();
-
             select.value = idx; fromObj.value = ''; toObj.value = ''; fromObj.focus();
 
-            google.script.run.editNhanSu(parseInt(idx), s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe);
-
+            const sheetIdx = s.sheetIndex !== undefined ? s.sheetIndex : idx;
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu giờ bận nhân sự...");
+            google.script.run
+                .withSuccessHandler(() => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
+                    loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
+                })
+                .withFailureHandler(err => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    alert("Lỗi lưu giờ bận: " + err.message);
+                    if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
+                    loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
+                })
+                .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe);
         }
 
         function deleteSingleStaffBusy() {
-
             const select = document.getElementById('busy-staff-select');
-
             if (!select) return;
-
             const idx = select.value;
-
             const from = document.getElementById('busy-staff-from').value;
-
             const to = document.getElementById('busy-staff-to').value;
-
             if (!from || !to) return alert('Vui lòng click vào một khoảng giờ trên bảng để xóa!');
-
             const s = dataCache.staff[idx];
-
             if (!s.gioBan) return;
+            const slotToDelete = from + '-' + to;
 
-            const slotToDelete = `${from}-${to}`;
-
-            showCustomConfirm("Xóa giờ bận", `Bác sĩ có muốn xóa giờ bận [ ${slotToDelete} ] của NV: ${s.ten}?`, function () {
-
+            showCustomConfirm("Xóa giờ bận", "Bác sĩ có muốn xóa giờ bận [ " + slotToDelete + " ] của NV: " + s.ten + "?", function () {
                 s.gioBan = s.gioBan.split(',').map(x => x.trim()).filter(x => x && x !== slotToDelete).join(', ');
-
                 renderStaffTable();
-
                 document.getElementById('busy-staff-from').value = '';
-
                 document.getElementById('busy-staff-to').value = '';
 
-                google.script.run.editNhanSu(parseInt(idx), s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe);
-
+                const sheetIdx = s.sheetIndex !== undefined ? s.sheetIndex : idx;
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa giờ bận nhân sự...");
+                google.script.run
+                    .withSuccessHandler(() => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
+                        loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
+                    })
+                    .withFailureHandler(err => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        alert("Lỗi xóa giờ bận: " + err.message);
+                        if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
+                        loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
+                    })
+                    .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe);
             });
-
         }
 
         function clearStaffBusy() {
-
             const select = document.getElementById('busy-staff-select');
-
             if (!select) return;
-
             const idx = select.value, s = dataCache.staff[idx];
-
-            if (!confirm(`Xóa toàn bộ giờ bận của NV: ${s.ten}?`)) return;
+            if (!confirm("Xóa toàn bộ giờ bận của NV: " + s.ten + "?")) return;
 
             s.gioBan = ''; renderStaffTable();
 
-            google.script.run.editNhanSu(parseInt(idx), s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, '', s.nguoiThayThe);
-
+            const sheetIdx = s.sheetIndex !== undefined ? s.sheetIndex : idx;
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang xóa toàn bộ giờ bận...");
+            google.script.run
+                .withSuccessHandler(() => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
+                    loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
+                })
+                .withFailureHandler(err => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    alert("Lỗi xóa giờ bận: " + err.message);
+                    if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
+                    loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
+                })
+                .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, '', s.nguoiThayThe);
         }
 
 
@@ -9684,166 +9709,105 @@ console.log('--- JS Block: Foundation started ---');
         function closeStrategyModal() { document.getElementById('strategyModal').style.display = 'none'; }
 
         function executeScheduling(strategy) {
-
             window.viewingImportedScheduleFile = false;
-
             closeStrategyModal();
-
             const dateVal = document.getElementById('schedule-date').value;
-
             const skipVal = document.getElementById('modal-skip-procs')?.value || "";
-
             const res = document.getElementById('schedule-result');
-
             const list = document.getElementById('schedule-list');
-
             const btn = document.getElementById('btn-run-sched');
 
             btn.innerText = '⏳ ĐANG XẾP LỊCH...'; btn.disabled = true; btn.style.background = '#f39c12';
-
             res.innerHTML = '';
-
             list.innerHTML = '<tr><td colspan="12" align="center"><div class="spinner"></div></td></tr>';
 
             const startTime = performance.now();
-
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang chạy thuật toán xếp lịch tổng thể...");
             google.script.run
-
                 .withSuccessHandler(out => {
-
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
                     const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
-
                     btn.innerText = 'CHẠY XẾP LỊCH TỔNG'; btn.disabled = false; btn.style.background = '#008b02';
-
                     window.currentScheduleData = out.schedule;
-
                     setUnscheduledData(out.unscheduled || [], dateVal);
-
                     window._systemActiveYMD = dateVal;
 
-
-
                     const dashboardDate = document.getElementById('dashboard-date-filter');
-
                     if (dashboardDate) dashboardDate.value = dateVal;
 
-
                     localStorage.setItem('meds_schedule_date', dateVal);
-
                     localStorage.setItem('meds_success', JSON.stringify(out.schedule));
 
-                    res.innerHTML = `<div class="alert alert-success" style="margin-top:10px">Xếp thành công: <b>${out.scheduleCount}</b> ca. Rớt: <b>${out.unscheduledCount}</b> ca. <span style="margin-left:15px; color:#555; font-size:13px;">(⏱ <b>${timeTaken} giây</b>)</span></div>`;
-
+                    res.innerHTML = '<div class="alert alert-success" style="margin-top:10px">Xếp thành công: <b>' + out.scheduleCount + '</b> ca. Rớt: <b>' + out.unscheduledCount + '</b> ca. <span style="margin-left:15px; color:#555; font-size:13px;">(⏱ <b>' + timeTaken + ' giây</b>)</span></div>';
                     filterSchedule();
-
                     if (typeof renderStats === 'function') renderStats(window.lastUnscheduledData);
-
                     if (typeof renderPatientsTable === 'function') renderPatientsTable();
-
                     if (typeof loadDashboard === 'function') loadDashboard();
 
                     setTimeout(() => {
-
                         const contentEl = document.getElementById('custom-popup-content');
-
                         if (contentEl) contentEl.innerHTML = `
-
                     <div>✅ Xếp thành công: <b style="color:#27ae60; font-size:18px;">${out.scheduleCount}</b> ca</div>
-
                     <div>❌ Không xếp được: <b style="color:#c0392b; font-size:18px;">${out.unscheduledCount}</b> ca</div>
-
                     <hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">
-
                     <div style="font-size:14px; color:#7f8c8d;">⏱ Thời gian: <b>${timeTaken}</b> giây</div>`;
-
                         const popup = document.getElementById('custom-success-popup');
-
                         if (popup) popup.style.display = 'flex';
-
                     }, 100);
-
                 })
-
                 .withFailureHandler(err => {
-
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
                     btn.innerText = 'CHẠY XẾP LỊCH TỔNG'; btn.disabled = false; btn.style.background = '#008b02';
-
-                    res.innerHTML = `<div class="alert alert-danger">Lỗi Backend: ${err.message}</div>`;
-
+                    res.innerHTML = '<div class="alert alert-danger">Lỗi Backend: ' + err.message + '</div>';
                     if (typeof showThongBao === 'function') showThongBao("LỖI HỆ THỐNG", "Có lỗi xảy ra: " + err.message, "error");
-
                 })
-
                 .runScheduling(dateVal, strategy, skipVal);
-
         }
 
         function runExtraScheduling() {
-
             window.viewingImportedScheduleFile = false;
-
             const dateVal = document.getElementById('schedule-date').value;
-
             if (!dateVal) return alert("Vui lòng chọn ngày để xếp bổ sung!");
-
             const btn = document.getElementById('btn-run-extra');
-
             btn.innerText = '⏳ ĐANG TÌM CHỖ TRỐNG...'; btn.disabled = true;
 
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang xếp lịch bổ sung bệnh nhân mới...");
             google.script.run
-
                 .withSuccessHandler(out => {
-
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
                     btn.innerText = '⚡ XẾP BỔ SUNG BN MỚI'; btn.disabled = false;
-
                     if (out.error) return alert(out.error);
 
                     let currentUnscheduled = [];
-
                     try {
-
                         const saved = localStorage.getItem('meds_unscheduled');
-
                         if (saved && localStorage.getItem('meds_schedule_date') === dateVal) currentUnscheduled = JSON.parse(saved);
-
                     } catch (e) { }
 
                     const newUnscheduled = out.unscheduled || [];
-
                     setUnscheduledData([...currentUnscheduled, ...newUnscheduled], dateVal);
-
                     const addedCount = Number(out.addedCount || 0);
-
                     const failCount = Number(out.unscheduledCount ?? newUnscheduled.length);
-
                     const totalFail = window.lastUnscheduledData.length;
 
                     const contentEl = document.getElementById('custom-popup-content');
-
                     if (contentEl) contentEl.innerHTML = `
-
                     <div>✅ Xếp bổ sung thành công: <b style="color:#27ae60; font-size:18px;">${addedCount}</b> ca</div>
-
                     <div>❌ Không xếp được lần này: <b style="color:#c0392b; font-size:18px;">${failCount}</b> ca</div>
-
                     <hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">
-
                     <div style="font-size:14px; color:#7f8c8d;">Tổng số ca rớt hiện tại: <b>${totalFail}</b> ca</div>`;
 
                     const popup = document.getElementById('custom-success-popup');
-
                     if (popup) popup.style.display = 'flex';
-
-                    else alert(`Đã xếp thêm thành công ${addedCount} ca!\nKhông xếp được lần này: ${failCount} ca.\nTổng số ca rớt hiện tại: ${totalFail} ca.`);
-
+                    else alert("Đã xếp thêm thành công " + addedCount + " ca!\nKhông xếp được lần này: " + failCount + " ca.\nTổng số ca rớt hiện tại: " + totalFail + " ca.");
                     loadScheduleList();
-
                 })
-
-                .withFailureHandler(err => { btn.innerText = '⚡ XẾP BỔ SUNG BN MỚI'; btn.disabled = false; alert("Lỗi kết nối: " + err.message); })
-
+                .withFailureHandler(err => {
+                    if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    btn.innerText = '⚡ XẾP BỔ SUNG BN MỚI'; btn.disabled = false;
+                    alert("Lỗi kết nối: " + err.message);
+                })
                 .runSupplementalScheduling(dateVal);
-
         }
 
 
@@ -10349,53 +10313,33 @@ console.log('--- JS Block: Foundation started ---');
 
 
         function callChotSo() {
-
             showCustomConfirm("Chốt sổ?", "Bạn có chắc chắn muốn chốt sổ ngày hôm nay?", function() {
-
                 const btn = document.getElementById('btn-chot-so');
-
                 btn.innerText = '⏳ Đang xử lý...'; btn.disabled = true;
-
-                // Chặn autoSync ngay lập tức để không bị kéo dữ liệu cũ về
-
                 window._chotSoDone = false;
-
                 window.viewingImportedScheduleFile = true;
 
-                google.script.run.withSuccessHandler(res => {
-
-                    // Xóa sạch mọi dữ liệu ca rớt và lịch cũ trong bộ nhớ
-
-                    window.currentScheduleData = [];
-
-                    window.lastUnscheduledData = [];
-
-                    window.currentRotData = [];
-
-                    localStorage.removeItem('meds_success');
-
-                    localStorage.removeItem('meds_schedule_date');
-
-                    localStorage.removeItem('meds_unscheduled');
-
-                    // Xóa cache để trang mới tải lại dữ liệu sạch từ Google Sheets
-                    window.dataCacheTime = {};
-
-                    sessionStorage.setItem('chot_so_success_toast', 'true');
-                    location.reload();
-
-                }).withFailureHandler(err => {
-
-                    alert("Lỗi: " + err.message);
-
-                    btn.disabled = false;
-
-                    window.viewingImportedScheduleFile = false;
-
-                }).chuyenNgayMoi();
-
+                if (window.showGlobalLoading) window.showGlobalLoading("Đang thực hiện chốt sổ ngày cũ và mở sổ ngày mới...");
+                google.script.run
+                    .withSuccessHandler(res => {
+                        window.currentScheduleData = [];
+                        window.lastUnscheduledData = [];
+                        window.currentRotData = [];
+                        localStorage.removeItem('meds_success');
+                        localStorage.removeItem('meds_schedule_date');
+                        localStorage.removeItem('meds_unscheduled');
+                        window.dataCacheTime = {};
+                        sessionStorage.setItem('chot_so_success_toast', 'true');
+                        location.reload();
+                    })
+                    .withFailureHandler(err => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        alert("Lỗi: " + err.message);
+                        btn.disabled = false;
+                        window.viewingImportedScheduleFile = false;
+                    })
+                    .chuyenNgayMoi();
             });
-
         }
 
 
