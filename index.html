@@ -8561,7 +8561,7 @@ console.log('--- JS Block: Foundation started ---');
 
         function savePatient() {
 
-            // 🛡️ Chống gọ́i kép: Bỏ qua néu đã đang xủ lý
+            // 🛡️ Chống gọi kép: Bỏ qua nếu đã đang xử lý
             if (window._savePatientLock) { console.warn("savePatient: blocked double call"); return; }
             window._savePatientLock = true;
 
@@ -8578,27 +8578,66 @@ console.log('--- JS Block: Foundation started ---');
 
             ten = ten.trim().toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 
-            // Khóa form trong lúc chờ server
+            // Khóa form và nút lưu
             const btnSave = document.getElementById('btn-save-pat');
             if (btnSave) { btnSave.disabled = true; btnSave.innerText = 'Đang lưu...'; }
 
+            // Hiển thị màn hình khóa để chống bấm đè gây trùng lặp dữ liệu
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu bệnh nhân...");
+
+            // Chụp index TRƯỚC khi cancelEdit reset về -1
+            const currentEditIdx = editIndex.pat;
+            const currentItem = currentEditIdx > -1 ? dataCache.pat[currentEditIdx] : null;
+
+            // ⚡ Cập nhật tức thời lên giao diện (Optimistic UI Update) để người dùng không phải chờ
+            if (currentEditIdx > -1 && currentItem) {
+                currentItem.ten = ten;
+                currentItem.namSinh = nam;
+                currentItem.ngayVao = ngay;
+                currentItem.gioVao = gio;
+                currentItem.gioBan = ban;
+                currentItem.gioRa = ra;
+                currentItem.phong = phong;
+                currentItem.thuThuat = tt;
+                renderPatientsTable();
+            } else {
+                const newPat = {
+                    ten: ten,
+                    namSinh: nam,
+                    ngayVao: ngay,
+                    gioVao: gio,
+                    gioBan: ban,
+                    gioRa: ra,
+                    phong: phong,
+                    thuThuat: tt,
+                    sheetIndex: dataCache.pat ? dataCache.pat.length : 0,
+                    index: dataCache.pat ? dataCache.pat.length : 0
+                };
+                if (!dataCache.pat) dataCache.pat = [];
+                dataCache.pat.push(newPat);
+                renderPatientsTable();
+            }
+
             const onDone = () => {
                 window._savePatientLock = false;
+                if (window.hideGlobalLoading) window.hideGlobalLoading();
                 if (btnSave) { btnSave.disabled = false; btnSave.innerText = 'Lưu'; }
-                // Reload sạch từ server đẻ tránh dũ liẹu bị nhân đôi
+                
+                // Đồng bộ ngầm chạy sau để cập nhật chuẩn xác index thực tế từ server
                 if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
                 loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
                 if (typeof loadDashboard === 'function') loadDashboard();
             };
             const onError = (e) => {
                 window._savePatientLock = false;
+                if (window.hideGlobalLoading) window.hideGlobalLoading();
                 if (btnSave) { btnSave.disabled = false; btnSave.innerText = 'Lưu'; }
                 alert('Lỗi khi lưu: ' + e);
+                
+                // Khôi phục lại dữ liệu gốc từ máy chủ nếu xảy ra lỗi lưu
+                if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
             };
-
-            // Chụp index TRƯỚC khi cancelEdit reset về -1
-            const currentEditIdx = editIndex.pat;
-            const currentItem = currentEditIdx > -1 ? dataCache.pat[currentEditIdx] : null;
 
             cancelEdit('pat');
             document.getElementById('pat-name').focus();

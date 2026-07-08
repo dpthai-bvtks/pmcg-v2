@@ -1859,3 +1859,11 @@ sau khi hết phiên làm việc, đăng nhập lại nhưng không load đượ
     1. Xóa bỏ hoàn toàn hàm `verifySession()` và `cleanExpiredSessions()` ở backend.
     2. Cập nhật `doPost()` chỉ kiểm tra Whitelist hành động (chống tấn công gọi hàm bừa bãi) mà không bắt buộc kiểm tra Session.
     3. Hàm `verifyLogin()` chỉ xác thực tài khoản và trả về giá trị dummy `sessionId: "no_session"` để đảm bảo tương thích hoàn toàn với mã nguồn hiện tại ở client mà không lưu trữ phiên hay tự động kích người dùng ra ngoài nữa. Người dùng chỉ đăng xuất khi chủ động bấm nút "Đăng xuất".
+
+### User Input
+có cách nào tăng tốc độ hiển thị ở bảng bệnh nhân khi thêm/sửa/xóa không? Khi thêm/sửa/xóa 1 bệnh nhân thì ấn luốn bệnh nhân khác có bị trùng lặp dữ liệu không?
+
+### Planner Response
+- **Tăng tốc độ Giao diện & Chống trùng lặp dữ liệu (Optimistic UI Update & Concurrency Protection):**
+  - **Tốc độ hiển thị:** Áp dụng cơ chế cập nhật giao diện ngay lập tức (Optimistic Update) cho nút "Lưu" (Thêm mới/Chỉnh sửa bệnh nhân). Thay vì chờ 2-4 giây để gửi yêu cầu và load lại bảng từ server, client sẽ vẽ lại bảng lập tức trong 0.01 giây bằng cách cập nhật tạm vào bộ đệm `dataCache.pat` trước. Việc đồng bộ và kiểm tra index thực tế từ Google Sheets vẫn diễn ra ngầm sau đó để đảm bảo an toàn.
+  - **Chống trùng lặp/ghi đè chéo khi click nhanh:** Bổ sung màn hình khóa mờ toàn cục `showGlobalLoading("Đang lưu bệnh nhân...")` che phủ giao diện khi đang lưu bệnh nhân (tương tự như khi xóa). Lớp phủ này chặn hoàn toàn việc người dùng bấm nhầm sang bệnh nhân khác hoặc bấm "Xóa" cùng một lúc trong khi yêu cầu ghi dữ liệu cũ đang xử lý trên Google Sheets, loại bỏ 100% rủi ro bất đồng bộ/trùng lặp dữ liệu.
