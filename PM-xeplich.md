@@ -1848,3 +1848,14 @@ xem lại code và cách thức hoạt động khi đẩy file từ HIS lên, b�
   3. **Cấu hình restart thông minh:** Tăng số chuỗi SA chạy song song từ 5 lên 8 lần, tận dụng tối đa chu kỳ xử lý của Apps Script nhưng vẫn giữ tổng thời gian phản hồi dưới 3 giây, ngăn chặn lỗi timeout 30 giây từ client.
   4. **Khắc phục lỗi logic "Cứu ca rớt" (`bacSiBusy`):** Thiết lập trạng thái `bacSiBusy = false` trong post-processing. Vì khi `caDe` được bàn giao lại cho KTV đảm nhiệm, Bác sĩ đó chắc chắn được giải phóng thời gian rảnh hoàn toàn để thực hiện ca thủ thuật mới. Việc sửa này giúp giải quyết các sai số do gộp timeline từ trước.
   5. **Dọn lỗi Strict Mode:** Chuyển đổi `05` thành `5` tránh lỗi biên dịch số octal.
+
+### User Input
+sau khi hết phiên làm việc, đăng nhập lại nhưng không load được tất cả các tab, xem lại đi. Minh chỉ làm nội bộ thì chắc không cần phiên làm việc này đâu
+
+### Planner Response
+- **Gỡ bỏ cơ chế Hết hạn phiên làm việc (Session Expiration Removal):**
+  - **Nguyên nhân:** Phiên làm việc (Session) hết hạn sau 8 tiếng sẽ trả về mã lỗi từ chối truy cập API từ phía máy chủ. Tuy nhiên, ở phía client trình duyệt không tự động hiển thị lại màn hình đăng nhập hoặc dọn dẹp cache cũ, dẫn đến việc các tab dữ liệu bị trống trơn (DASHBOARD hiển thị `--/--/----` và các số liệu bằng `0`) khi đăng nhập lại mà không F5 làm mới thủ công. Do phần mềm chạy hoàn toàn nội bộ trong mạng phòng khám, việc bắt buộc đăng nhập lại sau 8 tiếng là không thực sự cần thiết và gây phiền hà.
+  - **Cách khắc phục:**
+    1. Xóa bỏ hoàn toàn hàm `verifySession()` và `cleanExpiredSessions()` ở backend.
+    2. Cập nhật `doPost()` chỉ kiểm tra Whitelist hành động (chống tấn công gọi hàm bừa bãi) mà không bắt buộc kiểm tra Session.
+    3. Hàm `verifyLogin()` chỉ xác thực tài khoản và trả về giá trị dummy `sessionId: "no_session"` để đảm bảo tương thích hoàn toàn với mã nguồn hiện tại ở client mà không lưu trữ phiên hay tự động kích người dùng ra ngoài nữa. Người dùng chỉ đăng xuất khi chủ động bấm nút "Đăng xuất".

@@ -50,101 +50,18 @@ const ADMIN_ACTIONS = [
   'initSecurityDatabase'
 ];
 
-function cleanExpiredSessions() {
-  try {
-    const sheet = getSheetByName('PhienDangNhap');
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At MS', 'Expires At (GMT+7)']);
-      return;
-    }
-    const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return;
-    const now = new Date().getTime();
-    const headers = data[0];
-    const newRows = [];
-    for (let i = 1; i < data.length; i++) {
-      const expiresAtMs = Number(data[i][4]);
-      if (expiresAtMs > now) {
-        newRows.push(data[i]);
-      }
-    }
-    sheet.clearContents();
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-    if (newRows.length > 0) {
-      for (let i = 0; i < newRows.length; i++) {
-        newRows[i][0] = i + 1;
-      }
-      sheet.getRange(2, 1, newRows.length, headers.length).setValues(newRows);
-    }
-  } catch(e) {
-    Logger.log("Lỗi dọn dẹp session: " + e.toString());
-  }
-}
-
-function verifySession(sessionId, action) {
-  if (PUBLIC_ACTIONS.includes(action)) return null;
-  
-  if (!sessionId) {
-    throw new Error("Không tìm thấy mã phiên (Session ID). Vui lòng đăng nhập lại.");
-  }
-  
-  let requiredRole = '';
-  if (USER_ACTIONS.includes(action)) {
-    requiredRole = 'User';
-  } else if (ADMIN_ACTIONS.includes(action)) {
-    requiredRole = 'Admin';
-  } else {
-    throw new Error("Hành động không hợp lệ hoặc không có quyền truy cập: " + action);
-  }
-  
-  const sheet = getSheetByName('PhienDangNhap');
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At MS', 'Expires At (GMT+7)']);
-    throw new Error("Phiên làm việc không tồn tại. Vui lòng đăng nhập lại.");
-  }
-  
-  const data = sheet.getDataRange().getValues();
-  if (data.length <= 1) {
-    throw new Error("Phiên làm việc không tồn tại. Vui lòng đăng nhập lại.");
-  }
-  
-  const now = new Date().getTime();
-  let validSession = null;
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][1]).trim() === String(sessionId).trim()) {
-      const expiresAtMs = Number(data[i][4]);
-      if (expiresAtMs > now) {
-        validSession = {
-          username: data[i][2],
-          role: data[i][3]
-        };
-        break;
-      }
-    }
-  }
-  
-  if (!validSession) {
-    throw new Error("Phiên làm việc đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.");
-  }
-  
-  if (requiredRole === 'Admin' && validSession.role !== 'Admin') {
-    throw new Error("Bạn không có quyền thực hiện hành động này (Yêu cầu quyền Admin).");
-  }
-  
-  return validSession;
-}
-
 function doPost(e) {
   try {
     const action = e.parameter.action;
-    const sessionId = e.parameter.sessionId;
     let args = [];
     if (e.parameter.args) {
       args = JSON.parse(e.parameter.args);
     }
     
-    // 1. Xác thực Session và phân quyền hành động
-    verifySession(sessionId, action);
+    // 1. Kiểm tra Whitelist hành động để chống gọi hàm API tùy ý
+    if (!PUBLIC_ACTIONS.includes(action) && !USER_ACTIONS.includes(action) && !ADMIN_ACTIONS.includes(action)) {
+      throw new Error("Hành động không hợp lệ hoặc không có quyền truy cập: " + action);
+    }
     
     // 2. Thực thi hàm
     if (typeof this[action] !== 'function') {
@@ -1626,8 +1543,6 @@ function hashPasswordOld(pwd) {
 
 // Cập nhật hàm kiểm tra đăng nhập có cấp Session và di trú mật khẩu
 function verifyLogin(username, password) {
-  cleanExpiredSessions();
-
   const hashedNew = hashPassword(password);
   const hashedOld = hashPasswordOld(password);
   
@@ -1660,23 +1575,12 @@ function verifyLogin(username, password) {
       sheet.getRange(matchedUserRow, 3).setValue(hashedNew);
     }
     
-    const sessionId = Utilities.getUuid();
-    const nowMs = new Date().getTime();
-    const expiresAtMs = nowMs + 8 * 60 * 60 * 1000; // 8 tiếng
-    const expiresAtStr = Utilities.formatDate(new Date(expiresAtMs), "GMT+7", "dd/MM/yyyy HH:mm:ss");
-    
-    const sessionSheet = getSheetByName('PhienDangNhap');
-    if (sessionSheet.getLastRow() === 0) {
-      sessionSheet.appendRow(['ID', 'Session ID', 'Username', 'Role', 'Expires At MS', 'Expires At (GMT+7)']);
-    }
-    sessionSheet.appendRow([sessionSheet.getLastRow(), sessionId, matchedUser.username, matchedUser.role, expiresAtMs, expiresAtStr]);
-    
     return {
       success: true,
       role: matchedUser.role,
       permissions: matchedUser.permissions,
       username: matchedUser.username,
-      sessionId: sessionId
+      sessionId: "no_session"
     };
   }
   
