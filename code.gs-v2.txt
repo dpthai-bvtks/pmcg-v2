@@ -144,9 +144,21 @@ function clearSheet(sheetName) {
 function getDanhSachMay() { return getAllData('DanhSachMay').map(r => ({ id: r[0], tenLoai: r[1], maMay: r[2], trangThai: r[3] })); }
 function addMayMoc(tenLoai, maMay, soLuong, trangThai) {
   const sheet = getSheetByName('DanhSachMay');
-  let nextId = sheet.getLastRow();
-  for (let i = 0; i < parseInt(soLuong); i++) {
-    appendRow('DanhSachMay', [nextId++, tenLoai, `${maMay}${i + 1}`, trangThai]);
+  const lastRow = sheet.getLastRow();
+  let nextId = lastRow > 1 ? lastRow : 1;
+  const soLuongInt = Math.max(1, parseInt(soLuong) || 1);
+  const newRows = [];
+  for (let i = 0; i < soLuongInt; i++) {
+    newRows.push([nextId++, tenLoai, `${maMay}${i + 1}`, trangThai]);
+  }
+  if (newRows.length > 0) {
+    const lock = LockService.getDocumentLock();
+    try {
+      lock.waitLock(15000);
+      sheet.getRange(lastRow + 1, 1, newRows.length, 4).setValues(newRows);
+    } finally {
+      lock.releaseLock();
+    }
   }
 }
 function editMayMoc(rowIndex, tenLoai, maMay, trangThai) { updateRow('DanhSachMay', rowIndex, [rowIndex + 1, tenLoai, maMay, trangThai]); }
