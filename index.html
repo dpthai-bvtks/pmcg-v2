@@ -6496,15 +6496,15 @@ console.log('MAIN SCRIPT STARTING...');
 const API_URL = 'https://script.google.com/macros/s/AKfycbykwx2ubeJVp5Uy16OrHw9SMzHtKchiM0I7a-t3D_D45RJJ9G6EXrJtlL8Cl12ySdqndg/exec';
 function escapeHtml(string) {
     if (string === null || string === undefined) return '';
-    return String(string).replace(/[&<>"']/g, function(s) {
-        return {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
-        }[s];
-    });
+    const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+        "`": "&#x60;"
+    };
+    return String(string).replace(/[&<>"'`]/g, s => map[s]);
 }
 
 

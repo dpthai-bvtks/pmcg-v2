@@ -51,34 +51,8 @@ const ADMIN_ACTIONS = [
 ];
 
 function doPost(e) {
-  try {
-    const action = e.parameter.action;
-    let args = [];
-    if (e.parameter.args) {
-      args = JSON.parse(e.parameter.args);
-    }
-    
-    // 1. Kiểm tra Whitelist hành động để chống gọi hàm API tùy ý
-    if (!PUBLIC_ACTIONS.includes(action) && !USER_ACTIONS.includes(action) && !ADMIN_ACTIONS.includes(action)) {
-      throw new Error("Hành động không hợp lệ hoặc không có quyền truy cập: " + action);
-    }
-    
-    // 2. Thực thi hàm
-    if (typeof this[action] !== 'function') {
-      throw new Error("Hàm API không tồn tại: " + action);
-    }
-    
-    const result = this[action].apply(this, args);
-    
-    const response = { status: "success", data: result };
-    return ContentService.createTextOutput(JSON.stringify(response))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    const response = { status: "error", error: error.message || error.toString() };
-    return ContentService.createTextOutput(JSON.stringify(response))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+  return ContentService.createTextOutput(JSON.stringify({ status: "error", error: "API endpoint disabled." }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 // Hàm doGet này có thể giữ lại nếu bạn vẫn muốn vào trang tĩnh cũ thông qua link Google
@@ -104,10 +78,43 @@ function include(filename) { return HtmlService.createHtmlOutputFromFile(filenam
 function getSheetByName(name) { return SS.getSheetByName(name) || SS.insertSheet(name); }
 function getAllData(sheetName) { const data = getSheetByName(sheetName).getDataRange().getValues(); return data.length > 1 ? data.slice(1) : []; }
 function getAllDisplayData(sheetName) { const data = getSheetByName(sheetName).getDataRange().getDisplayValues(); return data.length > 1 ? data.slice(1) : []; }
-function appendRow(sheetName, values) { getSheetByName(sheetName).appendRow(values); }
-function updateRow(sheetName, rowIndex, values) { getSheetByName(sheetName).getRange(rowIndex + 2, 1, 1, values.length).setValues([values]); }
-function deleteRow(sheetName, rowIndex) { getSheetByName(sheetName).deleteRow(rowIndex + 2); }
-function clearSheet(sheetName) { const s = getSheetByName(sheetName); if (s.getLastRow() > 1) s.deleteRows(2, s.getLastRow() - 1); }
+function appendRow(sheetName, values) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    getSheetByName(sheetName).appendRow(values);
+  } finally {
+    lock.releaseLock();
+  }
+}
+function updateRow(sheetName, rowIndex, values) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    getSheetByName(sheetName).getRange(rowIndex + 2, 1, 1, values.length).setValues([values]);
+  } finally {
+    lock.releaseLock();
+  }
+}
+function deleteRow(sheetName, rowIndex) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    getSheetByName(sheetName).deleteRow(rowIndex + 2);
+  } finally {
+    lock.releaseLock();
+  }
+}
+function clearSheet(sheetName) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const s = getSheetByName(sheetName);
+    if (s.getLastRow() > 1) s.deleteRows(2, s.getLastRow() - 1);
+  } finally {
+    lock.releaseLock();
+  }
+}
 
 // CRUD Máy Móc
 function getDanhSachMay() { return getAllData('DanhSachMay').map(r => ({ id: r[0], tenLoai: r[1], maMay: r[2], trangThai: r[3] })); }
@@ -1254,7 +1261,10 @@ function getHistoryFullData(dateStr) {
 
 
 function chuyenNgayMoi() {
-  const timezone = Session.getScriptTimeZone();
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const timezone = Session.getScriptTimeZone();
   const formatDate = d => d instanceof Date ? Utilities.formatDate(d, "GMT+7", "dd/MM/yyyy") : d;
   const scheduleData = getSchedule();
   
@@ -1317,16 +1327,25 @@ function chuyenNgayMoi() {
   if (staffCount > 0) sheetNS.getRange(2, 7, staffCount, 1).clearContent();
   clearSheet('LichTrinh');
   return "Đã chốt sổ thành công!";
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function bulkUpdatePatients(rows, replaceAll) {
-  const sheet = getSheetByName('BenhNhan');
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const sheet = getSheetByName('BenhNhan');
   if (replaceAll && sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
   if (rows.length === 0) return "Danh sách trống!";
   let lastId = sheet.getLastRow() > 1 ? parseInt(sheet.getRange(sheet.getLastRow(), 1).getValue()) || 0 : 0;
   const rowsToAppend = rows.map(r => [++lastId, r.ten, r.namSinh, r.ngayVao, r.gioVao, r.gioBan, r.gioRa, r.phong, r.thuThuat]);
   sheet.getRange(sheet.getLastRow() + 1, 1, rowsToAppend.length, 9).setValues(rowsToAppend);
   return replaceAll ? `Đã THAY THẾ toàn bộ bằng ${rowsToAppend.length} bệnh nhân mới!` : `Đã BỔ SUNG thêm ${rowsToAppend.length} bệnh nhân!`;
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function runSupplementalScheduling(ngayXep, scenario) {
