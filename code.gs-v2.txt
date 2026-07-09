@@ -604,6 +604,11 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
 
   let patients = db.rawPatients.map(p => ({ ...p, pending: [...p.pending], failed: false }));
   const tempDropList = [], results = [], localProcCount = {};
+  
+  // Tính tỷ lệ trung bình thủ thuật / nhân sự để nhận diện ngày đông hay vắng
+  const totalPendingProcs = patients.reduce((sum, p) => sum + p.pending.length, 0);
+  const activeStaffCount = db.rawStaff.length;
+  const isCrowdedDay = activeStaffCount > 0 ? (totalPendingProcs / activeStaffCount >= 3.5) : true;
 
   // Sắp xếp thứ tự thủ thuật trong hàng chờ mỗi bệnh nhân
   patients.forEach(p => {
@@ -721,6 +726,13 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
       const isInMyRoom  = staffMyRooms[nvChinh].includes(targetRoom);
       const isFloating  = staffMyRooms[nvChinh].length === 0;
       if (!(isInMyRoom || isFloating)) {
+        // Chỉ cho phép nhân sự từ phòng khác sang giúp nếu ngày đông HOẶC phòng hiện tại không có ai có kỹ năng này
+        const hasSkilledStaffInRoom = (staffBySkill[tenThuThuat.toLowerCase()] || []).some(s =>
+          staffMyRooms[s].includes(targetRoom)
+        );
+        if (!isCrowdedDay && hasSkilledStaffInRoom) continue;
+
+        // Nếu được phép sang giúp (ngày đông), áp dụng logic cũ: chỉ sang khi phòng mình rảnh
         const threshold = scenario === 2 ? 1 : 0;
         const benhNhanChoTrongPhong = patients.filter(_p =>
           staffMyRooms[nvChinh].includes(_p.room) && _p.pending.length > threshold &&
@@ -733,11 +745,22 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
       if (canPhu === 1) {
         const validSubs = candidatesSub.filter(x => x !== nvChinh);
         if (validSubs.length === 0) continue;
-        validSubs.sort((a, b) => {
+
+        // Kiểm tra xem phòng hiện tại có nhân sự phụ (điều dưỡng) nào không
+        const hasSubInRoom = validSubs.some(s => staffMyRooms[s].includes(targetRoom));
+        
+        // Nếu ngày không đông và trong phòng có nhân sự phụ của chính phòng đó, ép buộc dùng người trong phòng
+        const filteredSubs = (!isCrowdedDay && hasSubInRoom)
+          ? validSubs.filter(x => staffMyRooms[x].includes(targetRoom) || staffMyRooms[x].length === 0)
+          : validSubs;
+
+        if (filteredSubs.length === 0) continue;
+
+        filteredSubs.sort((a, b) => {
           const aR = staffMyRooms[a].includes(targetRoom) ? 0 : 1, bR = staffMyRooms[b].includes(targetRoom) ? 0 : 1;
           return aR !== bR ? aR - bR : staffLoad[a].used_mins - staffLoad[b].used_mins;
         });
-        nvPhu = validSubs[0];
+        nvPhu = filteredSubs[0];
       }
 
       // Block nhân viên chính
