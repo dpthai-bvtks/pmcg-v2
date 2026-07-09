@@ -434,10 +434,10 @@ function mutate(rawPatients, randFn, droppedNames) {
   return patients;
 }
 
-function runBestIteration(db, dateVal, existingSched = [], scenario = 1) {
+function runBestIteration(db, dateVal, existingSched = [], scenario = 1, crowdedOverride = -1) {
   let rand = createSeededRandom(42);
   let currentPatients = JSON.parse(JSON.stringify(db.rawPatients));
-  let current = _turbo_core_logic({ ...db, rawPatients: currentPatients }, dateVal, 0, existingSched, scenario);
+  let current = _turbo_core_logic({ ...db, rawPatients: currentPatients }, dateVal, 0, existingSched, scenario, crowdedOverride);
   let best = current;
 
   let droppedNames = new Set(best.rot.map(r => r.bn));
@@ -445,7 +445,7 @@ function runBestIteration(db, dateVal, existingSched = [], scenario = 1) {
 
   while (T > T_min && noImprove < 20) {
     const neighborPatients = mutate(currentPatients, rand, droppedNames);
-    const neighbor = _turbo_core_logic({ ...db, rawPatients: neighborPatients }, dateVal, 0, existingSched, scenario);
+    const neighbor = _turbo_core_logic({ ...db, rawPatients: neighborPatients }, dateVal, 0, existingSched, scenario, crowdedOverride);
     const delta = neighbor.score - current.score;
     const accept = delta < 0 || (rand() < Math.exp(-delta / T));
     if (accept) {
@@ -458,7 +458,7 @@ function runBestIteration(db, dateVal, existingSched = [], scenario = 1) {
   }
 
   for (let i = 0; i < 8; i++) {
-    const result = _turbo_core_logic({ ...db, rawPatients: JSON.parse(JSON.stringify(db.rawPatients)) }, dateVal, 100 + i, existingSched, scenario);
+    const result = _turbo_core_logic({ ...db, rawPatients: JSON.parse(JSON.stringify(db.rawPatients)) }, dateVal, 100 + i, existingSched, scenario, crowdedOverride);
     if (result.score < best.score) { best = result; }
   }
   return best;
@@ -479,7 +479,7 @@ function writeScheduleToSheet(sched, rot = []) {
 // ============================================================
 // LÕI XẾP LỊCH TURBO
 // ============================================================
-function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 1) {
+function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 1, crowdedOverride = -1) {
   const rand = createSeededRandom(seedVal);
   const OVERTIME_ALLOWANCE = 5;
   const defaultShift = [[420, 690], [780, 1014]];
@@ -608,7 +608,9 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
   // Tính tỷ lệ trung bình thủ thuật / nhân sự để nhận diện ngày đông hay vắng
   const totalPendingProcs = patients.reduce((sum, p) => sum + p.pending.length, 0);
   const activeStaffCount = db.rawStaff.length;
-  const isCrowdedDay = activeStaffCount > 0 ? (totalPendingProcs / activeStaffCount >= 3.5) : true;
+  const autoCrowded = activeStaffCount > 0 ? (totalPendingProcs / activeStaffCount >= 3.5) : true;
+  // crowdedOverride: 1 = bác chọn ngày đông, 0 = bác chọn ngày vắng, -1 = tự động
+  const isCrowdedDay = crowdedOverride === 1 ? true : (crowdedOverride === 0 ? false : autoCrowded);
 
   // Sắp xếp thứ tự thủ thuật trong hàng chờ mỗi bệnh nhân
   patients.forEach(p => {
@@ -991,7 +993,7 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
 // ============================================================
 // RUNNER XẾP LỊCH THƯỜNG NGÀY
 // ============================================================
-function runScheduling(ngayXep, strategyKey, skipProcsStr) {
+function runScheduling(ngayXep, strategyKey, skipProcsStr, crowdedOverride) {
   const scenarioMap = { opt_rare: 1, balanced: 2, contingency: 3 };
   const scenario = scenarioMap[strategyKey] || 1;
   const db = buildBaseDb();
@@ -1037,7 +1039,7 @@ function runScheduling(ngayXep, strategyKey, skipProcsStr) {
     });
   });
 
-  const best = runBestIteration(db, ngayXep, [], scenario);
+  const best = runBestIteration(db, ngayXep, [], scenario, crowdedOverride);
   const finalDropList = (best ? best.rot : []).concat(forcedDrops).map(r => ({ ...r, ngay: r.ngay || ngayXep }));
   writeScheduleToSheet(best ? best.sched : [], finalDropList);
 

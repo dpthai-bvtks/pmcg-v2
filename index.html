@@ -6231,9 +6231,37 @@
 
 
 
-            <div
+            <div style="margin: 0 0 14px 0; background: #eaf6fb; padding: 12px; border-radius: 8px; border: 1px dashed #2980b9; text-align: left;">
 
-                style="margin: 15px 0 20px 0; background: #fdf2e9; padding: 12px; border-radius: 8px; border: 1px dashed #e67e22; text-align: left;">
+                <label style="font-weight: bold; color: #1a5276; font-size: 13px; display: block; margin-bottom: 8px;">
+
+                    🏥 Tình trạng bệnh nhân hôm nay:
+
+                </label>
+
+                <div style="display: flex; gap: 10px;">
+
+                    <button id="btn-crowded-yes" onclick="setCrowdedMode(true)"
+
+                        style="flex:1; padding: 10px 6px; border-radius: 7px; border: 2px solid #2980b9; background: #2980b9; color: white; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s;">
+
+                        👥 Ngày đông<br><span style="font-size:11px; font-weight:normal;">Cho phép hỗ trợ chéo phòng</span>
+
+                    </button>
+
+                    <button id="btn-crowded-no" onclick="setCrowdedMode(false)"
+
+                        style="flex:1; padding: 10px 6px; border-radius: 7px; border: 2px solid #bdc3c7; background: white; color: #555; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s;">
+
+                        🌿 Ngày vắng<br><span style="font-size:11px; font-weight:normal;">Nhân sự làm phòng của mình</span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div style="margin: 0 0 14px 0; background: #fdf2e9; padding: 12px; border-radius: 8px; border: 1px dashed #e67e22; text-align: left;">
 
                 <label style="font-weight: bold; color: #d35400; font-size: 13px; display: block; margin-bottom: 6px;">
 
@@ -9734,11 +9762,30 @@ console.log('--- JS Block: Foundation started ---');
 
         function closeStrategyModal() { document.getElementById('strategyModal').style.display = 'none'; }
 
+        // Trạng thái chọn ngày đông/vắng, mặc định = null (tự động tính)
+        window._crowdedMode = null;
+
+        function setCrowdedMode(isCrowded) {
+            window._crowdedMode = isCrowded;
+            const btnYes = document.getElementById('btn-crowded-yes');
+            const btnNo  = document.getElementById('btn-crowded-no');
+            if (!btnYes || !btnNo) return;
+            if (isCrowded) {
+                btnYes.style.background = '#2980b9'; btnYes.style.color = 'white'; btnYes.style.borderColor = '#2980b9';
+                btnNo.style.background  = 'white';  btnNo.style.color  = '#555';   btnNo.style.borderColor  = '#bdc3c7';
+            } else {
+                btnNo.style.background  = '#27ae60'; btnNo.style.color = 'white'; btnNo.style.borderColor = '#27ae60';
+                btnYes.style.background = 'white';   btnYes.style.color = '#555';  btnYes.style.borderColor = '#bdc3c7';
+            }
+        }
+
         function executeScheduling(strategy) {
             window.viewingImportedScheduleFile = false;
             closeStrategyModal();
             const dateVal = document.getElementById('schedule-date').value;
             const skipVal = document.getElementById('modal-skip-procs')?.value || "";
+            // Truyền lựa chọn ngày đông/vắng: 1 = đông, 0 = vắng, -1 = tự động
+            const crowdedVal = window._crowdedMode === true ? 1 : (window._crowdedMode === false ? 0 : -1);
             const res = document.getElementById('schedule-result');
             const list = document.getElementById('schedule-list');
             const btn = document.getElementById('btn-run-sched');
@@ -9787,7 +9834,7 @@ console.log('--- JS Block: Foundation started ---');
                     res.innerHTML = '<div class="alert alert-danger">Lỗi Backend: ' + err.message + '</div>';
                     if (typeof showThongBao === 'function') showThongBao("LỖI HỆ THỐNG", "Có lỗi xảy ra: " + err.message, "error");
                 })
-                .runScheduling(dateVal, strategy, skipVal);
+                .runScheduling(dateVal, strategy, skipVal, crowdedVal);
         }
 
         function runExtraScheduling() {
