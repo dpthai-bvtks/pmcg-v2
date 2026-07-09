@@ -51,8 +51,32 @@ const ADMIN_ACTIONS = [
 ];
 
 function doPost(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: "error", error: "API endpoint disabled." }))
-    .setMimeType(ContentService.MimeType.JSON);
+  try {
+    const action = e.parameter.action;
+    let args = [];
+    if (e.parameter.args) {
+      args = JSON.parse(e.parameter.args);
+    }
+    
+    // 1. Kiểm tra Whitelist hành động
+    const allActions = [...PUBLIC_ACTIONS, ...USER_ACTIONS, ...ADMIN_ACTIONS];
+    if (!allActions.includes(action)) {
+      throw new Error("Hành động không hợp lệ: " + action);
+    }
+    
+    // 2. Thực thi hàm
+    if (typeof this[action] !== 'function') {
+      throw new Error("Hàm API không tồn tại: " + action);
+    }
+    
+    const result = this[action].apply(this, args);
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
 // Hàm doGet này có thể giữ lại nếu bạn vẫn muốn vào trang tĩnh cũ thông qua link Google
@@ -118,7 +142,13 @@ function clearSheet(sheetName) {
 
 // CRUD Máy Móc
 function getDanhSachMay() { return getAllData('DanhSachMay').map(r => ({ id: r[0], tenLoai: r[1], maMay: r[2], trangThai: r[3] })); }
-function addMayMoc(tenLoai, maMay, soLuong, trangThai) { const sheet = getSheetByName('DanhSachMay'); for (let i = 0; i < parseInt(soLuong); i++) appendRow('DanhSachMay', [sheet.getLastRow(), tenLoai, `${maMay}${i + 1}`, trangThai]); }
+function addMayMoc(tenLoai, maMay, soLuong, trangThai) {
+  const sheet = getSheetByName('DanhSachMay');
+  let nextId = sheet.getLastRow();
+  for (let i = 0; i < parseInt(soLuong); i++) {
+    appendRow('DanhSachMay', [nextId++, tenLoai, `${maMay}${i + 1}`, trangThai]);
+  }
+}
 function editMayMoc(rowIndex, tenLoai, maMay, trangThai) { updateRow('DanhSachMay', rowIndex, [rowIndex + 1, tenLoai, maMay, trangThai]); }
 function deleteMayMoc(rowIndex) { deleteRow('DanhSachMay', rowIndex); }
 
@@ -275,13 +305,16 @@ function updatePatientCache(patient, thuThuatInfo) {
 }
 
 function mergeTimeline(timeline) {
-  if (timeline.length < 2) return timeline;
-  timeline.sort((a, b) => a[0] - b[0]);
-  const merged = [timeline[0]];
-  for (let i = 1; i < timeline.length; i++) {
+  if (!timeline || timeline.length < 2) return timeline || [];
+  const sorted = timeline.slice().sort((a, b) => a[0] - b[0]);
+  const merged = [[sorted[0][0], sorted[0][1]]];
+  for (let i = 1; i < sorted.length; i++) {
     const last = merged[merged.length - 1];
-    if (timeline[i][0] <= last[1]) last[1] = Math.max(last[1], timeline[i][1]);
-    else merged.push(timeline[i]);
+    if (sorted[i][0] <= last[1]) {
+      last[1] = Math.max(last[1], sorted[i][1]);
+    } else {
+      merged.push([sorted[i][0], sorted[i][1]]);
+    }
   }
   return merged;
 }
