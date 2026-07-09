@@ -9118,7 +9118,11 @@ console.log('--- JS Block: Foundation started ---');
 
             if (!select || !thead || !tbody) return;
 
+            const prevVal = select.value;
             select.innerHTML = dataCache.staff.map((s, i) => `<option value="${i}">${String(s.ten).toUpperCase()}</option>`).join('');
+            if (prevVal !== "" && prevVal !== null && select.querySelector(`option[value="${prevVal}"]`)) {
+                select.value = prevVal;
+            }
 
             const busyIndices = dataCache.staff.map((s, i) => (s.gioBan?.trim()) ? i : -1).filter(i => i > -1);
 

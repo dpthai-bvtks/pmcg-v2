@@ -1907,3 +1907,11 @@ có thêm 1 vấn đề như sau: ví dụ hôm qua mình quên chưa ấn chố
   3. **Cảnh báo trực quan cho người dùng:** 
      - Khi người dùng cố gắng thực hiện các thao tác: Thêm/Sửa/Xóa bệnh nhân, Nhập tệp y lệnh HIS, Thêm/Xóa giờ bận của bệnh nhân & nhân viên, hoặc Cập nhật/Hủy giờ ra viện của bệnh nhân... hệ thống sẽ ngay lập tức chặn lại và hiển thị hộp cảnh báo màu đỏ nổi bật: *"⚠️ CHƯA CHỐT SỔ NGÀY CŨ: Hệ thống phát hiện dữ liệu ngày cũ chưa được chốt sổ! Vui lòng thực hiện Chốt sổ trước khi thao tác..."*.
   4. **Tự động mở khóa:** Ngay sau khi người dùng thực hiện bấm nút **Chốt sổ** để kết thúc ngày cũ, trang web sẽ tải lại với ngày làm việc mới và tất cả các chức năng chỉnh sửa dữ liệu được tự động mở khóa hoàn toàn bình thường.
+
+### User Input
+thêm nữa, khi nhập giờ bận của bác sĩ B xong thì lại quay về bác sĩ A, trong khi mình muốn nhập liên tiếp các khoảng giờ bận của bác sĩ B
+
+### Planner Response
+- **Sửa lỗi reset dropdown chọn bác sĩ khi lưu giờ bận:**
+  1. **Nguyên nhân sự cố:** Khi lưu hoặc xóa giờ bận của Bác sĩ B, hệ thống sẽ thực hiện cuộc gọi bất đồng bộ đến server. Sau khi thành công, callback chạy hàm `renderStaffTable()` -> `renderBusyStaff()` để vẽ lại giao diện và nạp danh sách bác sĩ mới nhất vào dropdown `#busy-staff-select`. Việc ghi đè toàn bộ `select.innerHTML` mà không khôi phục giá trị đã chọn trước đó khiến dropdown tự động reset về lựa chọn đầu tiên (Bác sĩ A).
+  2. **Giải pháp:** Trong hàm vẽ danh sách giờ bận `renderBusyStaff()`, mình đã chụp lại giá trị bác sĩ đang được chọn trước đó (`const prevVal = select.value`), sau khi vẽ lại cấu trúc HTML của dropdown sẽ tự động gán ngược lại giá trị đã lưu (`select.value = prevVal`). Điều này đảm bảo bác sĩ đang được thao tác vẫn giữ nguyên lựa chọn, giúp bác nhập liên tục nhiều khoảng giờ bận cho một bác sĩ cực kỳ nhanh chóng và tiện lợi.
