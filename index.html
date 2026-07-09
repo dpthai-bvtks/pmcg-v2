@@ -8560,6 +8560,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function savePatient() {
+            if (checkUnclosedDay()) return;
+
 
             // 🛡️ Chống gọi kép: Bỏ qua nếu đã đang xử lý
             if (window._savePatientLock) { console.warn("savePatient: blocked double call"); return; }
@@ -8658,6 +8660,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function editPatient(index) {
+            if (checkUnclosedDay()) return;
+
 
             editIndex.pat = index;
 
@@ -8710,6 +8714,8 @@ console.log('--- JS Block: Foundation started ---');
         // ============================================================
 
         function deletePatient(i) {
+            if (checkUnclosedDay()) return;
+
 
             const p = dataCache.pat[i];
 
@@ -8879,6 +8885,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         const savePatBusy = withLock(function () {
+            if (checkUnclosedDay()) return;
+
             const idx = getBusyPatIdx();
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân từ danh sách xổ xuống!');
             const fromObj = document.getElementById('busy-pat-from');
@@ -8916,6 +8924,8 @@ console.log('--- JS Block: Foundation started ---');
         });
 
         function deleteSinglePatBusy() {
+            if (checkUnclosedDay()) return;
+
             const idx = getBusyPatIdx();
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
             const from = document.getElementById('busy-pat-from').value;
@@ -8952,6 +8962,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function clearPatBusy() {
+            if (checkUnclosedDay()) return;
+
             const idx = getBusyPatIdx();
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
             const p = dataCache.pat[idx];
@@ -9027,6 +9039,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         const savePatLeave = withLock(function () {
+            if (checkUnclosedDay()) return;
+
             const idx = getLeavePatIdx();
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân từ danh sách xổ xuống!');
             const leaveObj = document.getElementById('leave-pat-time');
@@ -9058,6 +9072,8 @@ console.log('--- JS Block: Foundation started ---');
         });
 
         function clearPatLeave() {
+            if (checkUnclosedDay()) return;
+
             const idx = getLeavePatIdx();
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
             const p = dataCache.pat[idx];
@@ -9179,6 +9195,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function saveStaffBusy() {
+            if (checkUnclosedDay()) return;
+
             const select = document.getElementById('busy-staff-select');
             if (!select) return;
             const idx = select.value;
@@ -9215,6 +9233,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function deleteSingleStaffBusy() {
+            if (checkUnclosedDay()) return;
+
             const select = document.getElementById('busy-staff-select');
             if (!select) return;
             const idx = select.value;
@@ -9250,6 +9270,8 @@ console.log('--- JS Block: Foundation started ---');
         }
 
         function clearStaffBusy() {
+            if (checkUnclosedDay()) return;
+
             const select = document.getElementById('busy-staff-select');
             if (!select) return;
             const idx = select.value, s = dataCache.staff[idx];
@@ -11577,6 +11599,8 @@ console.log('--- JS Block: Foundation started ---');
                                 }
 
                                 function importFromHIS() {
+            if (checkUnclosedDay()) return;
+
                                     const input = document.createElement('input');
                                     input.type = 'file';
                                     input.accept = '.xlsx, .xls';
@@ -12997,6 +13021,26 @@ function renderDashboardPreview(data) {
                                                 });
 
 
+
+
+        function checkUnclosedDay() {
+            const d = new Date();
+            const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            if (window._systemActiveYMD && window._systemActiveYMD !== safeTodayStr) {
+                const displayOldDate = window._systemActiveYMD.split('-').reverse().join('/');
+                if (typeof showCustomAlert === 'function') {
+                    showCustomAlert("⚠️ CHƯA CHỐT SỔ NGÀY CŨ", 
+                        "Hệ thống phát hiện dữ liệu ngày cũ (<b>" + displayOldDate + "</b>) chưa được chốt sổ!<br><br>" +
+                        "Để tránh mất mát và xung đột dữ liệu, toàn bộ thao tác chỉnh sửa bệnh nhân, giờ bận, và giờ ra viện đã bị khóa.<br><br>" +
+                        "Vui lòng thực hiện <b>Chốt sổ</b> ngày cũ trước khi tiếp tục thao tác dữ liệu.", 
+                        "⚠️", "#e74c3c");
+                } else {
+                    alert("⚠️ CHƯA CHỐT SỔ NGÀY CŨ\n\nHệ thống phát hiện ngày cũ (" + displayOldDate + ") chưa được chốt sổ!\n\nVui lòng thực hiện Chốt sổ trước khi tiếp tục.");
+                }
+                return true;
+            }
+            return false;
+        }
 
 
                                                 // TỐI ƯU UX 2: Tự động định dạng Giờ và Ngày khi gõ tắt (0830 -> 08:30)

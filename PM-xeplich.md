@@ -1894,3 +1894,16 @@ khi thêm giờ bận ở máy tính khác thì mãi chưa thấy máy tính nà
      - **Xếp bổ sung:** "Đang xếp lịch bổ sung bệnh nhân mới..."
      - **Chốt sổ:** "Đang thực hiện chốt sổ ngày cũ và mở sổ ngày mới..."
      - **Cập nhật giờ bận/giờ ra viện:** Tự động hiện màn hình khóa và xoay vòng tải để ngăn chặn các nhấp đúp (double-click) hoặc chuyển tab gây xung đột dữ liệu.
+
+### User Input
+có thêm 1 vấn đề như sau: ví dụ hôm qua mình quên chưa ấn chốt sổ, hôm nay có người lại nhập bệnh nhân ra viện, sau đó mình mới vào ấn chốt sổ thì lại bị xóa mất bệnh nhân đó. Giờ mình muốn nếu hôm nay quên chưa chốt sổ thì khi thao tác với danh sách bệnh nhân hay giờ bận thì đều bị khóa và hiện cảnh báo
+
+### Planner Response
+- **Thêm tính năng khóa dữ liệu & cảnh báo khi quên Chốt sổ ngày cũ:**
+  1. **Nguyên nhân sự cố:** Nếu người dùng quên chốt sổ ngày cũ (ví dụ: ngày 8/7), sang ngày hôm sau (9/7) họ thao tác nhập giờ ra viện hoặc thay đổi danh sách bệnh nhân. Khi người khác thực hiện "Chốt sổ" cho ngày cũ (8/7), hệ thống sẽ quét danh sách bệnh nhân và xóa đi các ca có điền giờ ra viện. Do các ca ra viện ngày 9/7 được nhập đè lên ngày 8/7 nên các ca này cũng bị chốt sổ và xóa khỏi danh sách, dẫn đến mất dữ liệu của ngày mới.
+  2. **Giải pháp chặn từ gốc:** 
+     - Thiết lập hàm giám sát ngày làm việc `checkUnclosedDay()` ở frontend. Hàm này so sánh ngày làm việc hiện tại của dữ liệu lưu trên server (`window._systemActiveYMD`) với ngày dương lịch thực tế của máy tính.
+     - Nếu phát hiện ngày của dữ liệu là ngày cũ (khác ngày hôm nay), hệ thống sẽ **khóa toàn bộ các thao tác chỉnh sửa ghi vào cơ sở dữ liệu** đối với bệnh nhân và giờ bận.
+  3. **Cảnh báo trực quan cho người dùng:** 
+     - Khi người dùng cố gắng thực hiện các thao tác: Thêm/Sửa/Xóa bệnh nhân, Nhập tệp y lệnh HIS, Thêm/Xóa giờ bận của bệnh nhân & nhân viên, hoặc Cập nhật/Hủy giờ ra viện của bệnh nhân... hệ thống sẽ ngay lập tức chặn lại và hiển thị hộp cảnh báo màu đỏ nổi bật: *"⚠️ CHƯA CHỐT SỔ NGÀY CŨ: Hệ thống phát hiện dữ liệu ngày cũ chưa được chốt sổ! Vui lòng thực hiện Chốt sổ trước khi thao tác..."*.
+  4. **Tự động mở khóa:** Ngay sau khi người dùng thực hiện bấm nút **Chốt sổ** để kết thúc ngày cũ, trang web sẽ tải lại với ngày làm việc mới và tất cả các chức năng chỉnh sửa dữ liệu được tự động mở khóa hoàn toàn bình thường.
