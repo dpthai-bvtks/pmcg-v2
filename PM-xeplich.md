@@ -1937,3 +1937,16 @@ chỉnh thành: font chữ Arial, cỡ chữ 14, row height 1cm, column autofit 
      - Cố định chiều cao dòng ở mức `28.35` point (~1cm).
      - Định dạng font Arial, cỡ chữ 14, kẻ viền đen mỏng toàn bộ dữ liệu.
      - Kiểm tra cột `NV Chính` cho từng hàng và gán các biến định dạng tuỳ chọn: Đậm (`BS Đạt`, `BS Thảo`), Nghiêng (`BS Thái`, `BS Thảo`, `KTV Lương`, `KTV Lê Hiền`), Gạch chân (`BS Hoa`, `KTV Lương`, `KTV Lê Hiền`), Đổ nền xám `D3D3D3` (`KTV Phan Hiền`).
+
+### User Input
+trong tab bệnh nhân có chức năng nhập danh sách từ file HIS, có thể thêm chức năng đó vào nút Nhập DS ở tab Thứ 7 không?
+
+### Planner Response
+- **Tích hợp Nhập danh sách HIS vào tab Thứ 7 (Lịch cuối tuần):**
+  1. Nâng cấp hàm `nhapDsSat()` thành "chế độ nạp thông minh" (Dual-mode parser), có thể nhận diện cả file Excel tiêu chuẩn của phần mềm và file Excel danh sách HIS do bệnh viện xuất ra.
+  2. **Cách nhận diện:** Đọc 15 dòng đầu tiên, nếu có chứa `Tên BN`, `Năm Sinh`, `Tên dịch vụ` thì sẽ được xác định là file HIS. Nếu có chứa `Mã truy xuất`, `Giờ sẵn sàng` thì coi là file sao lưu nội bộ.
+  3. **Xử lý HIS:** 
+     - Vì file HIS cấu trúc theo mỗi thủ thuật 1 dòng, phần mềm sẽ chuẩn hoá tên BN, dò tìm BN tương ứng đang có trong lưới lịch làm việc thứ 7 (`satCache`).
+     - Gom nhóm tất cả thủ thuật của BN đó, dùng hàm `mapHISToProcedure` để chuyển dịch vụ HIS thành tên chuẩn trong phần mềm.
+     - Tự động tích chọn (check) vào các ô checkbox thủ thuật tương ứng trên giao diện.
+     - Giữ nguyên luồng xử lý cho file xuất nội bộ cũ (vẫn nạp lại đúng các mục đã chọn và thời gian báo gọi).

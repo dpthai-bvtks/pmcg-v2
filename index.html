@@ -11286,111 +11286,119 @@ console.log('--- JS Block: Foundation started ---');
                             }
 
                             function nhapDsSat() {
+                                const input = document.createElement('input');
+                                input.type = 'file'; input.accept = '.xlsx, .xls';
+                                input.onchange = e => {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        const workbook = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+                                        const roa = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header:1});
+                                        
+                                        const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\u0111/g,'d').trim();
+                                        let isHIS = false;
+                                        let colTen = 6, colDichVu = 13, startRow = 1;
+                                        
+                                        // Kiểm tra file HIS hay file T7 nội bộ
+                                        for (let i = 0; i < Math.min(15, roa.length); i++) {
+                                            const rowStr = roa[i].map(c => norm(c)).join('|');
+                                            if (rowStr.includes('ma truy xuat') && rowStr.includes('gio san sang')) {
+                                                isHIS = false;
+                                                startRow = i + 1;
+                                                break;
+                                            } else if (rowStr.includes('ho ten') || rowStr.includes('ten benh') || rowStr.includes('ten bn') || rowStr.includes('benh nhan') || rowStr.includes('fullname')) {
+                                                isHIS = true;
+                                                startRow = i + 1;
+                                                roa[i].forEach((cell, idx) => {
+                                                    const cn = norm(cell);
+                                                    if (cn.includes('ho ten') || cn.includes('ten bn') || cn.includes('ten benh') || cn === 'ten_bn' || cn === 'hoten' || cn.includes('fullname')) colTen = idx;
+                                                    else if (cn.includes('dich vu') || cn.includes('thu thuat') || cn.includes('ten dvkt') || cn === 'dichvu' || cn === 'dich_vu' || cn.includes('service')) colDichVu = idx;
+                                                });
+                                                break;
+                                            }
+                                        }
 
-                            const input = document.createElement('input');
+                                        boChonHetSat();
+                                        let count = 0;
 
-                            input.type = 'file'; input.accept = '.xlsx, .xls';
+                                        if (isHIS) {
+                                            const hisMap = {};
+                                            const dataRows = roa.slice(startRow);
+                                            dataRows.forEach(row => {
+                                                const ten = String(row[colTen] || '').trim();
+                                                const dichVu = String(row[colDichVu] || '').trim();
+                                                const tenNorm = norm(ten);
+                                                if (!ten || tenNorm === 'ten_bn' || tenNorm === 'ho ten' || tenNorm === 'ten benh nhan' || tenNorm === 'hoten') return;
+                                                if (!dichVu) return;
+                                                
+                                                const properTen = ten.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+                                                if (!hisMap[properTen]) hisMap[properTen] = new Set();
+                                                
+                                                const lines = dichVu.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+                                                lines.forEach(line => {
+                                                    const cleaned = line.replace(/^\d+\.\s*/, '').replace(/\s*-\s*\d+\s*\(lần\)/i, '').trim();
+                                                    const mapped = mapHISToProcedure(cleaned || line) || mapHISToProcedure(line);
+                                                    if (mapped) hisMap[properTen].add(mapped);
+                                                });
+                                            });
 
-                            input.onchange = e => {
+                                            Object.keys(hisMap).forEach(ten => {
+                                                const searchTen = ten.toLowerCase();
+                                                let targetBid = Object.keys(satCache).find(k => satCache[k].info.ten.trim().toLowerCase() === searchTen);
+                                                if (!targetBid) return;
 
-                            const reader = new FileReader();
+                                                const available = satCache[targetBid].items.map((item,idx) => ({...item, idx})).filter(x => !x.checked);
+                                                
+                                                [...hisMap[ten]].forEach(tt => {
+                                                    const match = available.find(x => x.name.toLowerCase() === tt.toLowerCase());
+                                                    if (match) {
+                                                        satCache[targetBid].items[match.idx].checked = true;
+                                                        const cb = document.getElementById(`cb-sat-${targetBid}-${match.idx}`);
+                                                        if (cb) cb.checked = true;
+                                                        available.splice(available.indexOf(match), 1);
+                                                        count++;
+                                                    }
+                                                });
+                                            });
+                                        } else {
+                                            roa.forEach((row, i) => {
+                                                if (i < startRow || !row[2]) return;
+                                                const bid = String(row[0]||'').trim(), ten = String(row[1]||'').trim().toLowerCase();
+                                                let targetBid = (bid && satCache[bid]) ? bid : Object.keys(satCache).find(k => satCache[k].info.ten.trim().toLowerCase() === ten);
+                                                if (!targetBid) return;
 
-                            reader.onload = function(e) {
+                                                const available = satCache[targetBid].items.map((item,idx) => ({...item, idx})).filter(x => !x.checked);
 
-                            const workbook = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+                                                row[2].split(',').map(x => x.trim()).forEach(tt => {
+                                                    const match = available.find(x => x.name.toLowerCase() === tt.toLowerCase());
+                                                    if (match) {
+                                                        satCache[targetBid].items[match.idx].checked = true;
+                                                        const cb = document.getElementById(`cb-sat-${targetBid}-${match.idx}`);
+                                                        if (cb) cb.checked = true;
+                                                        available.splice(available.indexOf(match), 1);
+                                                        count++;
+                                                    }
+                                                });
 
-                            const roa = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header:1});
+                                                const importedTime = row[3];
+                                                if (importedTime) {
+                                                    const readyInput = document.querySelector(`#${satCache[targetBid].frameId} .input-ready-time`);
+                                                    if (readyInput) {
+                                                        readyInput.value = String(importedTime).trim();
+                                                        readyInput.style.color = '#c0392b';
+                                                        readyInput.style.fontWeight = 'bold';
+                                                        readyInput.style.backgroundColor = '#fff';
+                                                        readyInput.style.borderColor = '#c0392b';
+                                                    }
+                                                }
+                                            });
+                                        }
 
-                            boChonHetSat();
-
-                            let count = 0;
-
-                            roa.forEach((row, i) => {
-
-                            if (i === 0 || !row[2]) return;
-
-                            const bid = String(row[0]||'').trim(), ten = String(row[1]||'').trim().toLowerCase();
-
-                            let targetBid = (bid && satCache[bid]) ? bid : Object.keys(satCache).find(k =>
-
-                            satCache[k].info.ten.trim().toLowerCase() === ten);
-
-                            if (!targetBid) return;
-
-
-
-                            const available = satCache[targetBid].items.map((item,idx) => ({...item, idx})).filter(x =>
-
-                            !x.checked);
-
-
-
-                            // Đánh dấu các thủ thuật
-
-                            row[2].split(',').map(x => x.trim()).forEach(tt => {
-
-                            const match = available.find(x => x.name.toLowerCase() === tt.toLowerCase());
-
-                            if (match) {
-
-                            satCache[targetBid].items[match.idx].checked = true;
-
-                            const cb = document.getElementById(`cb-sat-${targetBid}-${match.idx}`);
-
-                            if (cb) cb.checked = true;
-
-                            available.splice(available.indexOf(match), 1);
-
-                            count++;
-
-                            }
-
-                            });
-
-
-
-                            // 🔥 ĐỌC VÀ ĐIỀN GIỜ SẴN SÀNG TỪ EXCEL (Cột thứ 4 - row[3])
-
-                            const importedTime = row[3];
-
-                            if (importedTime) {
-
-                            const readyInput = document.querySelector(`#${satCache[targetBid].frameId}
-
-                            .input-ready-time`);
-
-                            if (readyInput) {
-
-                            readyInput.value = String(importedTime).trim();
-
-                            // Đổi màu để Bác sĩ biết ô này đã được nạp dữ liệu thành công
-
-                            readyInput.style.color = '#c0392b';
-
-                            readyInput.style.fontWeight = 'bold';
-
-                            readyInput.style.backgroundColor = '#fff';
-
-                            readyInput.style.borderColor = '#c0392b';
-
-                            }
-
-                            }
-
-                            });
-
-                            updateSummarySat();
-
-                            alert(`Đã khôi phục thành công ${count} tick thủ thuật và Giờ sẵn sàng từ file Excel!`);
-
-                            };
-
-                            reader.readAsArrayBuffer(e.target.files[0]);
-
-                            };
-
-                            input.click();
-
+                                        updateSummarySat();
+                                        alert(`Đã nạp thành công ${count} thủ thuật ${isHIS ? 'từ file HIS' : 'từ file Excel Thứ 7'}!`);
+                                    };
+                                    reader.readAsArrayBuffer(e.target.files[0]);
+                                };
+                                input.click();
                             }
 
                             function getSatPayload() {
