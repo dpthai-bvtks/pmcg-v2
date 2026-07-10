@@ -1059,7 +1059,7 @@ function runScheduling(ngayXep, strategyKey, skipProcsStr, crowdedOverride) {
 // ============================================================
 function getSatData() {
   const timezone = Session.getScriptTimeZone();
-  const staff = getAllData('NhanSu').filter(r => r[3] !== 'Nghỉ cả ngày').map(r => ({ ten: r[1], vaiTro: r[2] }));
+  const staff = getAllData('NhanSu').map(r => ({ ten: r[1], vaiTro: r[2] }));
   const patients = getAllDisplayData('BenhNhan').filter(r => !r[6] || r[6] === 'None').map(r => ({
     id: r[0], ten: r[1], namSinh: r[2],
     gioVao: r[4] || "",

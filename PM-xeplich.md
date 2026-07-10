@@ -1950,3 +1950,10 @@ trong tab bệnh nhân có chức năng nhập danh sách từ file HIS, có th�
      - Gom nhóm tất cả thủ thuật của BN đó, dùng hàm `mapHISToProcedure` để chuyển dịch vụ HIS thành tên chuẩn trong phần mềm.
      - Tự động tích chọn (check) vào các ô checkbox thủ thuật tương ứng trên giao diện.
      - Giữ nguyên luồng xử lý cho file xuất nội bộ cũ (vẫn nạp lại đúng các mục đã chọn và thời gian báo gọi).
+
+### User Input
+phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện toàn bộ nhân sự chứ không quan tấm đến trạng thái đi làm của ngày thường
+
+### Planner Response
+- **Hiển thị toàn bộ nhân sự ở tab Thứ 7:**
+  1. Trong Apps Script, sửa đổi hàm `getSatData()`, xoá điều kiện lọc trạng thái nghỉ của ngày thường `filter(r => r[3] !== 'Nghỉ cả ngày')`. Đảm bảo lưới chọn nhân sự đi làm Thứ 7 trên giao diện hiển thị 100% nhân viên có trong danh sách.
