@@ -1915,3 +1915,11 @@ thêm nữa, khi nhập giờ bận của bác sĩ B xong thì lại quay về b
 - **Sửa lỗi reset dropdown chọn bác sĩ khi lưu giờ bận:**
   1. **Nguyên nhân sự cố:** Khi lưu hoặc xóa giờ bận của Bác sĩ B, hệ thống sẽ thực hiện cuộc gọi bất đồng bộ đến server. Sau khi thành công, callback chạy hàm `renderStaffTable()` -> `renderBusyStaff()` để vẽ lại giao diện và nạp danh sách bác sĩ mới nhất vào dropdown `#busy-staff-select`. Việc ghi đè toàn bộ `select.innerHTML` mà không khôi phục giá trị đã chọn trước đó khiến dropdown tự động reset về lựa chọn đầu tiên (Bác sĩ A).
   2. **Giải pháp:** Trong hàm vẽ danh sách giờ bận `renderBusyStaff()`, mình đã chụp lại giá trị bác sĩ đang được chọn trước đó (`const prevVal = select.value`), sau khi vẽ lại cấu trúc HTML của dropdown sẽ tự động gán ngược lại giá trị đã lưu (`select.value = prevVal`). Điều này đảm bảo bác sĩ đang được thao tác vẫn giữ nguyên lựa chọn, giúp bác nhập liên tục nhiều khoảng giờ bận cho một bác sĩ cực kỳ nhanh chóng và tiện lợi.
+
+### User Input
+đọc các file trong thư mục đang mở, xem lỗi này là do đâu: ở google sheet hiển thị giờ bắt đầu và giờ kết thúc đúng nhưng trên phần mềm lại hiện sai
+
+### Planner Response
+- **Sửa lỗi hiển thị sai thời gian Bắt Đầu và Kết Thúc ở Lịch Cũ / Lịch Toàn Hệ Thống:**
+  1. **Nguyên nhân:** Các hàm `getHistorySchedule` và `getHistoryFullData` trong Apps Script trước đây sử dụng `sheet.getRange(...).getValues()` để đọc dữ liệu. Khi đọc cột chứa thời gian (Giờ Bắt Đầu, Giờ Kết Thúc), Apps Script tự động chuyển đổi giá trị thành đối tượng `Date` và định dạng nó thông qua múi giờ mặc định (Timezone) của script. Nếu múi giờ không đồng bộ hoặc định dạng thời gian nhập tay ở Google Sheet bị Google phân tích sai so với ý định (ví dụ nhập `09.54` với dấu chấm), khi phần mềm trả về frontend sẽ hiển thị sai giờ hoàn toàn (ví dụ thành `14:12`...).
+  2. **Giải pháp:** Cập nhật cả `getHistorySchedule` và `getHistoryFullData` để gọi đồng thời `getValues()` và `getDisplayValues()`. Tại các cột quy định thời gian bắt đầu và kết thúc, phần mềm sẽ dùng trực tiếp chuỗi ký tự hiển thị (từ `getDisplayValues()`) để trả về cho người dùng (ví dụ đúng `09.54` như trên Sheet) thay vì đối tượng `Date` bị lệch múi giờ.
