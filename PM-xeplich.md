@@ -1923,3 +1923,17 @@ thêm nữa, khi nhập giờ bận của bác sĩ B xong thì lại quay về b
 - **Sửa lỗi hiển thị sai thời gian Bắt Đầu và Kết Thúc ở Lịch Cũ / Lịch Toàn Hệ Thống:**
   1. **Nguyên nhân:** Các hàm `getHistorySchedule` và `getHistoryFullData` trong Apps Script trước đây sử dụng `sheet.getRange(...).getValues()` để đọc dữ liệu. Khi đọc cột chứa thời gian (Giờ Bắt Đầu, Giờ Kết Thúc), Apps Script tự động chuyển đổi giá trị thành đối tượng `Date` và định dạng nó thông qua múi giờ mặc định (Timezone) của script. Nếu múi giờ không đồng bộ hoặc định dạng thời gian nhập tay ở Google Sheet bị Google phân tích sai so với ý định (ví dụ nhập `09.54` với dấu chấm), khi phần mềm trả về frontend sẽ hiển thị sai giờ hoàn toàn (ví dụ thành `14:12`...).
   2. **Giải pháp:** Cập nhật cả `getHistorySchedule` và `getHistoryFullData` để gọi đồng thời `getValues()` và `getDisplayValues()`. Tại các cột quy định thời gian bắt đầu và kết thúc, phần mềm sẽ dùng trực tiếp chuỗi ký tự hiển thị (từ `getDisplayValues()`) để trả về cho người dùng (ví dụ đúng `09.54` như trên Sheet) thay vì đối tượng `Date` bị lệch múi giờ.
+
+### User Input
+khi xuất file lịch trình thì có chỉnh được định dạng các ô, các dòng luôn không
+chỉnh thành: font chữ Arial, cỡ chữ 14, row height 1cm, column autofit width, với các dòng tương ứng với NV Chính BS Đạt - tô đậm, BS Hoa - gạch chân, BS Thái - in nghiêng, BS Thảo - đậm nghiêng, KTV Hà chip - bình thường, KTV Phan Hiền - màu nền xám, KTV Lương và KTV Lê Hiền - nghiêng gạch chân
+
+### Planner Response
+- **Nâng cấp tính năng xuất Excel với định dạng và tuỳ biến chi tiết (xlsx-js-style):**
+  1. **Nguyên nhân:** Thư viện `xlsx` bản miễn phí (SheetJS) trước đây không hỗ trợ lưu thông tin định dạng (style) vào file Excel khi tải xuống. Mọi căn chỉnh font chữ, màu nền, hay in đậm đều bị loại bỏ.
+  2. **Giải pháp:** Nâng cấp từ thư viện `xlsx.full.min.js` sang thư viện `xlsx.bundle.js` (của `xlsx-js-style`) để mở khóa khả năng chỉnh sửa style.
+  3. **Thực thi tính năng:** Trong hàm `exportSchedule()`, thêm các logic tính toán:
+     - Tính chiều rộng Autofit cho các cột dựa trên độ dài chuỗi lớn nhất.
+     - Cố định chiều cao dòng ở mức `28.35` point (~1cm).
+     - Định dạng font Arial, cỡ chữ 14, kẻ viền đen mỏng toàn bộ dữ liệu.
+     - Kiểm tra cột `NV Chính` cho từng hàng và gán các biến định dạng tuỳ chọn: Đậm (`BS Đạt`, `BS Thảo`), Nghiêng (`BS Thái`, `BS Thảo`, `KTV Lương`, `KTV Lê Hiền`), Gạch chân (`BS Hoa`, `KTV Lương`, `KTV Lê Hiền`), Đổ nền xám `D3D3D3` (`KTV Phan Hiền`).

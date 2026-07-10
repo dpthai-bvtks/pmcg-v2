@@ -62,7 +62,7 @@
 
 
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
     <script>
 
@@ -10025,44 +10025,93 @@ console.log('--- JS Block: Foundation started ---');
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-            // 5. Độ rộng cột (căn chỉnh vừa khổ A4 đứng)
-            ws['!cols'] = [
-                { wch: 11 }, // Ngày
-                { wch: 20 }, // Tên BN
-                { wch: 8  }, // Năm Sinh
-                { wch: 10 }, // Phòng
-                { wch: 20 }, // Thủ Thuật
-                { wch: 7  }, // Bắt Đầu
-                { wch: 7  }, // Kết Thúc
-                { wch: 18 }, // NV Chính
-                { wch: 10 }  // Máy
-            ];
+            // 5. Độ rộng cột (Autofit width)
+            const colWidths = HEADER.map(() => 0);
+            ws_data.forEach(row => {
+                row.forEach((cell, i) => {
+                    const len = String(cell || '').length;
+                    if (len > colWidths[i]) colWidths[i] = len;
+                });
+            });
+            ws['!cols'] = colWidths.map(w => ({ wch: w + 2 })); // Thêm chút khoảng trống
 
-            // 6. Chiều cao dòng (~18pt ≈ 6.35mm cho dữ liệu, 22pt cho tiêu đề)
+            // 6. Chiều cao dòng (1cm = ~28.35pt)
             ws['!rows'] = [];
             for (let r = 0; r < ws_data.length; r++) {
-                const isHeader = r === 0;
-
-                ws['!rows'][r] = { hpt: isHeader ? 22 : 18 };
+                ws['!rows'][r] = { hpt: 28.35 };
             }
 
-            // 7. Căn lề ô + định dạng đậm tiêu đề / tiêu đề phòng
+            // 7. Căn lề ô + định dạng font, viền, màu sắc dựa trên NV Chính
             try {
                 const range = XLSX.utils.decode_range(ws['!ref']);
                 for (let R = range.s.r; R <= range.e.r; R++) {
                     const isHeader    = R === 0;
+                    const nvRowData   = ws_data[R] || [];
+                    const isEmptyRow  = nvRowData.every(c => c === '');
+                    const nvChinh     = String(nvRowData[7] || '').trim().toLowerCase();
+                    
+                    let rowBold = false;
+                    let rowItalic = false;
+                    let rowUnderline = false;
+                    let rowBgColor = null;
+
+                    if (!isHeader && !isEmptyRow) {
+                        if (nvChinh === 'bs đạt') {
+                            rowBold = true;
+                        } else if (nvChinh === 'bs hoa') {
+                            rowUnderline = true;
+                        } else if (nvChinh === 'bs thái') {
+                            rowItalic = true;
+                        } else if (nvChinh === 'bs thảo') {
+                            rowBold = true;
+                            rowItalic = true;
+                        } else if (nvChinh === 'ktv hà chip') {
+                            // bình thường
+                        } else if (nvChinh === 'ktv phan hiền') {
+                            rowBgColor = "D3D3D3"; // Xám nhạt
+                        } else if (nvChinh === 'ktv lương' || nvChinh === 'ktv lê hiền') {
+                            rowItalic = true;
+                            rowUnderline = true;
+                        }
+                    } else if (isHeader) {
+                        rowBold = true; // Tiêu đề mặc định in đậm
+                    }
 
                     for (let C = range.s.c; C <= range.e.c; C++) {
                         const addr = XLSX.utils.encode_cell({ r: R, c: C });
                         if (!ws[addr]) continue;
                         const align = CENTER_COLS.has(C) ? 'center' : 'left';
-                        ws[addr].s = {
-                            alignment: { horizontal: align, vertical: 'center', wrapText: false },
-                            font: isHeader ? { bold: true } : {}
+                        
+                        const fontStyle = {
+                            name: "Arial",
+                            sz: 14,
+                            bold: rowBold,
+                            italic: rowItalic,
+                            underline: rowUnderline
                         };
+                        
+                        const cellStyle = {
+                            alignment: { horizontal: align, vertical: 'center', wrapText: false },
+                            font: fontStyle
+                        };
+
+                        if (!isEmptyRow) {
+                            cellStyle.border = {
+                                top: { style: "thin", color: { rgb: "000000" } },
+                                bottom: { style: "thin", color: { rgb: "000000" } },
+                                left: { style: "thin", color: { rgb: "000000" } },
+                                right: { style: "thin", color: { rgb: "000000" } }
+                            };
+                        }
+
+                        if (rowBgColor) {
+                            cellStyle.fill = { fgColor: { rgb: rowBgColor } };
+                        }
+
+                        ws[addr].s = cellStyle;
                     }
                 }
-            } catch(e) { /* Nếu thư viện không hỗ trợ style thì bỏ qua */ }
+            } catch(e) { console.error("Lỗi định dạng style: ", e); }
 
             // 8. Thiết lập in A4 đứng, vừa chiều ngang
             ws['!pageSetup'] = {
