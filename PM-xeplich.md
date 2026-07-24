@@ -1958,30 +1958,32 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 - **Hiển thị toàn bộ nhân sự ở tab Thứ 7:**
   1. Trong Apps Script, sửa đổi hàm `getSatData()`, xoá điều kiện lọc trạng thái nghỉ của ngày thường `filter(r => r[3] !== 'Nghỉ cả ngày')`. Đảm bảo lưới chọn nhân sự đi làm Thứ 7 trên giao diện hiển thị 100% nhân viên có trong danh sách.
 
-### User Input
-
-1. Äá»c file 25.xls xem khi nháº­p danh sÃ¡ch vÃ o tab thá»© 7 láº¡i bá»‹ nháº£y thá»§ thuáº­t parafin dÃ¹ khÃ´ng cÃ³ bá»‡nh nhÃ¢n nÃ o Ä‘Æ°á»£c chá»‰ Ä‘á»‹nh thá»§ thuáº­t Ä‘Ã³.
-2. Khi nháº­p danh sÃ¡ch bá»‡nh nhÃ¢n tá»« file HIS á»Ÿ tab bá»‡nh nhÃ¢n thÃ¬ cÃ³ thá»§ thuáº­t Äiá»u trá»‹ báº±ng siÃªu Ã¢m thÃ¬ náº¿u cÃ³ chá»‰ Ä‘á»‹nh SiÃªu Ã¢m á»• bá»¥ng thÃ¬ láº¡i bá»‹ nháº§m thÃ nh thá»§ thuáº­t Äiá»u trá»‹ báº±ng siÃªu Ã¢m.
-
-### Planner Response
-
-- **PhÃ¢n tÃ­ch bÃ¡o cÃ¡o lá»—i Parafin:** Sau khi kiá»ƒm tra toÃ n bá»™ dá»¯ liá»‡u trong file `25.xls`, xÃ¡c nháº­n pháº§n má»m khÃ´ng bá»‹ lá»—i nháº£y thá»§ thuáº­t. Táº¡i dÃ²ng sá»‘ 18 (Bá»‡nh nhÃ¢n Nguyá»…n Tháº¿ LÃ¢m) thá»±c sá»± cÃ³ Y lá»‡nh dá»‹ch vá»¥ lÃ  "1. Äiá»u trá»‹ báº±ng Parafin - 1 (Láº§n)". Do danh sÃ¡ch dÃ i nÃªn ngÆ°á»i dÃ¹ng Ä‘Ã£ nhÃ¬n sÃ³t chá»‰ Ä‘á»‹nh nÃ y trong file gá»‘c. Há»‡ thá»‘ng nháº­n diá»‡n thá»§ thuáº­t hoÃ n toÃ n chÃ­nh xÃ¡c.
-- **Sá»­a lá»—i nháº­n diá»‡n nháº§m SiÃªu Ã¢m:** ÄÃ£ tiáº¿n hÃ nh nÃ¢ng cáº¥p thuáº­t toÃ¡n nháº­n diá»‡n `mapHISToProcedure` trong file `index.html`. 
-  - Bá»• sung cÆ¡ cháº¿ loáº¡i trá»« (`excludes`) vÃ o `HIS_MAPPING`.
-  - Tá»« khÃ³a "siÃªu Ã¢m" giá» Ä‘Ã¢y sáº½ tá»± Ä‘á»™ng bá» qua náº¿u phÃ¡t hiá»‡n Ä‘i kÃ¨m vá»›i cÃ¡c tá»« khÃ³a cáº­n lÃ¢m sÃ ng nhÆ°: `á»• bá»¥ng`, `tuyáº¿n giÃ¡p`, `doppler`, `pháº§n phá»¥`, `tá»•ng quÃ¡t`, `tuyáº¿n vÃº`, `thai`, `tim`, `máº¡ch`, `mÃ ng phá»•i`, `khá»›p`, `pháº§n má»m`, `4d`, `3d`.
-  - Kháº¯c phá»¥c triá»‡t Ä‘á»ƒ tÃ¬nh tráº¡ng thá»§ thuáº­t "Äiá»u trá»‹ báº±ng siÃªu Ã¢m" (váº­t lÃ½ trá»‹ liá»‡u) bá»‹ tick nháº§m khi bá»‡nh nhÃ¢n cÃ³ y lá»‡nh Ä‘i siÃªu Ã¢m cháº©n Ä‘oÃ¡n hÃ¬nh áº£nh.
-- ÄÃ£ lÆ°u thay Ä‘á»•i vÃ o `index.html` vÃ  push lÃªn Github.
 
 
 ### User Input
 
-3. CÃ³ sá»± lá»‡ch hiá»ƒn thá»‹ ngÃ y thÃ¡ng trÃªn pháº§n má»m, chá»— thÃ¬ ngÃ y/thÃ¡ng/nÄƒm, chá»— thÃ¬ thÃ¡ng/ngÃ y/nÄƒm. YÃªu cáº§u chá»‰nh sá»­a láº¡i thÃ nh Ä‘á»‹nh dáº¡ng ngÃ y/thÃ¡ng/nÄƒm báº¥t ká»ƒ á»Ÿ mÃ¡y tÃ­nh nÃ o.
+1. Đọc file 25.xls xem khi nhập danh sách vào tab thứ 7 lại bị nhảy thủ thuật parafin dù không có bệnh nhân nào được chỉ định thủ thuật đó.
+2. Khi nhập danh sách bệnh nhân từ file HIS ở tab bệnh nhân thì có thủ thuật Điều trị bằng siêu âm thì nếu có chỉ định Siêu âm ổ bụng thì lại bị nhầm thành thủ thuật Điều trị bằng siêu âm.
 
 ### Planner Response
 
-- **Sá»­a lá»—i hiá»ƒn thá»‹ ngÃ y thÃ¡ng:** ÄÃ£ tÃ­ch há»£p thÆ° viá»‡n **Flatpickr** vÃ o `index.html` Ä‘á»ƒ kiá»ƒm soÃ¡t hoÃ n toÃ n viá»‡c chá»n vÃ  hiá»ƒn thá»‹ ngÃ y thÃ¡ng.
-  - Chuyá»ƒn Ä‘á»•i toÃ n bá»™ cÃ¡c tháº» `<input type="date">` (vá»‘n phá»¥ thuá»™c vÃ o ngÃ´n ngá»¯/vÃ¹ng cá»§a há»‡ Ä‘iá»u hÃ nh vÃ  trÃ¬nh duyá»‡t) sang giao diá»‡n chá»n ngÃ y Ä‘á»“ng nháº¥t.
-  - Ã‰p cá»©ng Ä‘á»‹nh dáº¡ng hiá»ƒn thá»‹ luÃ´n lÃ  `DD/MM/YYYY` á»Ÿ táº¥t cáº£ má»i nÆ¡i vÃ  trÃªn táº¥t cáº£ cÃ¡c loáº¡i thiáº¿t bá»‹ (bao gá»“m cáº£ mÃ¡y tÃ­nh vÃ  Ä‘iá»‡n thoáº¡i).
-  - Tá»± Ä‘á»™ng Ä‘á»“ng bá»™ giÃ¡ trá»‹ ngÃ y Ä‘Æ°á»£c chá»n (dáº¡ng `YYYY-MM-DD`) vá» cÃ¡c biáº¿n JavaScript cá»§a há»‡ thá»‘ng, giÃºp Ä‘áº£m báº£o code cÅ© hoáº¡t Ä‘á»™ng bÃ¬nh thÆ°á»ng mÃ  khÃ´ng cáº§n sá»­a Ä‘á»•i thÃªm.
-- ÄÃ£ Ä‘áº©y (push) code má»›i nháº¥t lÃªn nhÃ¡nh `main`.
+- **Phân tích báo cáo lỗi Parafin:** Sau khi kiểm tra toàn bộ dữ liệu trong file `25.xls`, xác nhận phần mềm không bị lỗi nhảy thủ thuật. Tại dòng số 18 (Bệnh nhân Nguyễn Thế Lâm) thực sự có Y lệnh dịch vụ là "1. Điều trị bằng Parafin - 1 (Lần)". Do danh sách dài nên người dùng đã nhìn sót chỉ định này trong file gốc. Hệ thống nhận diện thủ thuật hoàn toàn chính xác.
+- **Sửa lỗi nhận diện nhầm Siêu âm:** Đã tiến hành nâng cấp thuật toán nhận diện `mapHISToProcedure` trong file `index.html`. 
+  - Bổ sung cơ chế loại trừ (`excludes`) vào `HIS_MAPPING`.
+  - Từ khóa "siêu âm" giờ đây sẽ tự động bỏ qua nếu phát hiện đi kèm với các từ khóa cận lâm sàng như: `ổ bụng`, `tuyến giáp`, `doppler`, `phần phụ`, `tổng quát`, `tuyến vú`, `thai`, `tim`, `mạch`, `màng phổi`, `khớp`, `phần mềm`, `4d`, `3d`.
+  - Khắc phục triệt để tình trạng thủ thuật "Điều trị bằng siêu âm" (vật lý trị liệu) bị tick nhầm khi bệnh nhân có y lệnh đi siêu âm chẩn đoán hình ảnh.
+- Đã lưu thay đổi vào `index.html` và push lên Github.
+
+
+### User Input
+
+3. Có sự lệch hiển thị ngày tháng trên phần mềm, chỗ thì ngày/tháng/năm, chỗ thì tháng/ngày/năm. Yêu cầu chỉnh sửa lại thành định dạng ngày/tháng/năm bất kể ở máy tính nào.
+
+### Planner Response
+
+- **Sửa lỗi hiển thị ngày tháng:** Đã tích hợp thư viện **Flatpickr** vào `index.html` để kiểm soát hoàn toàn việc chọn và hiển thị ngày tháng.
+  - Chuyển đổi toàn bộ các thẻ `<input type="date">` (vốn phụ thuộc vào ngôn ngữ/vùng của hệ điều hành và trình duyệt) sang giao diện chọn ngày đồng nhất.
+  - Ép cứng định dạng hiển thị luôn là `DD/MM/YYYY` ở tất cả mọi nơi và trên tất cả các loại thiết bị (bao gồm cả máy tính và điện thoại).
+  - Tự động đồng bộ giá trị ngày được chọn (dạng `YYYY-MM-DD`) về các biến JavaScript của hệ thống, giúp đảm bảo code cũ hoạt động bình thường mà không cần sửa đổi thêm.
+- Đã đẩy (push) code mới nhất lên nhánh `main`.
 
