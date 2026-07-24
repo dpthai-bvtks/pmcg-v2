@@ -11655,7 +11655,7 @@ console.log('--- JS Block: Foundation started ---');
                                     { keywords: ['cấy chỉ', 'cay chi', ' cc,', ',cc,', ',cc', ' cc '], target: 'cấy chỉ' },
                                     { keywords: ['điện xung', 'dien xung', 'dòng điện xung', ' dx,', ',dx,', ',dx', ' dx '], target: 'điện xung' },
                                     { keywords: ['parafin', ' pa,', ',pa,', ',pa', ' pa '], target: 'parafin' },
-                                    { keywords: ['siêu âm', 'sieu am', ' sa,', ',sa,', ',sa', ' sa '], target: 'siêu âm' },
+                                    { keywords: ['siêu âm', 'sieu am', ' sa,', ',sa,', ',sa', ' sa '], excludes: ['ổ bụng', 'tuyến giáp', 'doppler', 'phần phụ', 'tổng quát', 'tuyến vú', 'thai', 'tim', 'mạch', 'màng phổi', 'khớp', 'phần mềm', '4d', '3d'], target: 'siêu âm' },
                                     { keywords: ['sóng ngắn', 'song ngan', ' sn,', ',sn,', ',sn', ' sn '], target: 'sóng ngắn' },
                                     { keywords: ['hồng ngoại', 'hong ngoai', 'tia hồng', ' hn,', ',hn,', ',hn', ' hn '], target: 'hồng ngoại' },
                                     { keywords: ['kỹ thuật xoa bóp vùng', 'xoa bóp vùng', 'xbv', 'xoa bop vung'], target: 'xoa bóp vùng' },
@@ -11689,6 +11689,17 @@ console.log('--- JS Block: Foundation started ---');
                                     if (!hisServiceName) return null;
                                     const normalized = ' ' + normalizeStrNoTrim(hisServiceName) + ' ';
                                     for (const mapping of HIS_MAPPING) {
+                                        let isExcluded = false;
+                                        if (mapping.excludes) {
+                                            for (const ex of mapping.excludes) {
+                                                if (normalized.includes(normalizeStrNoTrim(ex))) {
+                                                    isExcluded = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (isExcluded) continue;
+
                                         for (const kw of mapping.keywords) {
                                             if (normalized.includes(normalizeStrNoTrim(kw))) {
                                                 return mapping.target;
