@@ -3952,6 +3952,20 @@
             border-color: #27ae60;
             box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
         }
+
+        /* Ẩn viền chữ nhật đối với ô chọn ngày ở Dashboard (đã có wrapper bo tròn) */
+        input.dashboard-date.flatpickr-input[type="text"] {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            width: 90px !important;
+        }
+        
+        input.dashboard-date.flatpickr-input[type="text"]:focus {
+            border: none !important;
+            box-shadow: none !important;
+        }
     </style>
 
 </head>
@@ -4142,7 +4156,7 @@
 
                             style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 5px 15px; border-radius: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
 
-                            <input type="date" id="dashboard-date-filter" onchange="loadDashboard()"
+                            <input type="date" id="dashboard-date-filter" class="dashboard-date" onchange="loadDashboard()"
 
                                 style="border: none; outline: none; font-weight: bold; color: #1e3d2b; cursor: pointer;">
 
