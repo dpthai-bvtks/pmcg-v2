@@ -1998,3 +1998,9 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 ### Tùy chỉnh giao diện (Styling)
 - Chỉnh sửa lại CSS (Style) cho phần hiển thị ô nhập ngày tháng của thư viện Flatpickr. Giúp khung nhập liệu bo góc mềm mại hơn, có khoảng lề hợp lý, hiệu ứng viền sáng lên khi click vào, chữ được căn giữa. Đồng bộ phong cách đẹp mắt với giao diện tổng thể của phần mềm.
 
+
+
+### Tùy chỉnh giao diện (Styling) - Bản vá
+- Xóa viền hình chữ nhật dư thừa của ô ngày tháng riêng ở phần Dashboard. Lớp CSS cũ đã vô tình vẽ đè một cái viền chữ nhật bên trong cái khung (wrapper) vốn đã bo tròn sẵn của nút làm mới.
+- Khung chọn ngày ở Dashboard bây giờ sẽ lại trong suốt, hòa hợp thành một khối hình con nhộng cùng với nút "làm mới".
+
