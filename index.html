@@ -90,13 +90,21 @@
             });
 
             // Khởi tạo flatpickr trên tất cả các input type date
-            flatpickr('input[type="date"]', {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d/m/Y",
-                locale: "vn",
-                disableMobile: true, // Ép dùng giao diện chuẩn trên điện thoại thay vì native
-                allowInput: true
+            document.querySelectorAll('input[type="date"]').forEach(el => {
+                flatpickr(el, {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    locale: "vn",
+                    disableMobile: true,
+                    allowInput: true,
+                    onReady: function(_selectedDates, _dateStr, instance) {
+                        // Truyền class của input gốc sang altInput để CSS có thể target đúng
+                        if (instance.altInput && el.classList.length > 0) {
+                            el.classList.forEach(c => instance.altInput.classList.add(c));
+                        }
+                    }
+                });
             });
         });
     </script>
@@ -3954,15 +3962,15 @@
         }
 
         /* Ẩn viền chữ nhật đối với ô chọn ngày ở Dashboard (đã có wrapper bo tròn) */
-        input.dashboard-date.flatpickr-input[type="text"] {
+        input.dashboard-date {
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
-            padding: 0 !important;
+            padding: 0 4px !important;
             width: 90px !important;
         }
         
-        input.dashboard-date.flatpickr-input[type="text"]:focus {
+        input.dashboard-date:focus {
             border: none !important;
             box-shadow: none !important;
         }
