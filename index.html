@@ -5636,7 +5636,13 @@
 
                         </div>
 
-
+                        <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
+                            <label style="font-weight:bold; font-size:13px; color:#2c3e50; white-space:nowrap;">📅 Ngày tìm:</label>
+                            <input type="date" id="utils-search-date"
+                                style="padding:5px 10px; border:1px solid #bdc3c7; border-radius:4px; font-size:13px; font-weight:bold; color:#2c3e50; outline:none; cursor:pointer;">
+                            <button onclick="document.getElementById('utils-search-date').value=new Date().toISOString().slice(0,10); if(document.getElementById('utils-search-date')._flatpickr) document.getElementById('utils-search-date')._flatpickr.setDate(new Date());" 
+                                style="padding:5px 10px; background:#3498db; color:white; border:none; border-radius:4px; font-size:12px; cursor:pointer; font-weight:bold;">Hôm nay</button>
+                        </div>
 
                     </div>
 
@@ -7435,6 +7441,14 @@ console.log('--- JS Block: Foundation started ---');
                 }
 
                 if (tabId === 'tab-utils') {
+
+                    // Tự động điền ngày hôm nay khi lần đầu mở tab
+                    const utilsDateEl = document.getElementById('utils-search-date');
+                    if (utilsDateEl && !utilsDateEl.value) {
+                        const todayStr = new Date().toISOString().slice(0, 10);
+                        utilsDateEl.value = todayStr;
+                        if (utilsDateEl._flatpickr) utilsDateEl._flatpickr.setDate(todayStr, false);
+                    }
 
                     if (targetId === 'search-doc-time') timBacSiRanh();
 
@@ -10706,6 +10720,10 @@ console.log('--- JS Block: Foundation started ---');
 
             function timBacSiRanh() {
 
+            // Bắt buộc chọn ngày (Phương án B)
+            const searchDate = document.getElementById('utils-search-date')?.value || '';
+            if (!searchDate) return alert("Vui lòng chọn Ngày cần tìm ở trên trước!");
+
             const vao_str = document.getElementById('search-doc-time').value;
 
             if (!vao_str) return alert("Vui lòng nhập 'Giờ cần tìm' (VD: 14:00)!");
@@ -10727,6 +10745,20 @@ console.log('--- JS Block: Foundation started ---');
             if (!sourceData?.length) return alert("Chưa có dữ liệu từ sheet TimRanh hoặc file Excel. Vui lòng Nạp file!");
 
             }
+
+            // Lọc dữ liệu theo ngày đã chọn
+            sourceData = sourceData.filter(row => {
+                const rowDate = String(row.ngay || row[0] || '').trim();
+                // Chuẩn hóa: chuyển DD/MM/YYYY sang YYYY-MM-DD nếu cần
+                let normalized = rowDate;
+                if (/^\d{2}\/\d{2}\/\d{4}$/.test(rowDate)) {
+                    const [d, m, y] = rowDate.split('/');
+                    normalized = `${y}-${m}-${d}`;
+                }
+                return normalized === searchDate;
+            });
+
+            if (!sourceData.length) return alert(`Không có lịch nào trong ngày ${searchDate.split('-').reverse().join('/')}. Hãy kiểm tra lại nguồn dữ liệu.`);
 
             const t_vao = t2m(vao_str);
 
@@ -10864,6 +10896,10 @@ console.log('--- JS Block: Foundation started ---');
 
                         function timMayRanh() {
 
+                        // Bắt buộc chọn ngày (Phương án B)
+                        const searchDate = document.getElementById('utils-search-date')?.value || '';
+                        if (!searchDate) return alert("Vui lòng chọn Ngày cần tìm ở trên trước!");
+
                         const loai = document.getElementById('search-machine-type').value;
 
                         const gio_str = document.getElementById('search-machine-time').value;
@@ -10887,6 +10923,19 @@ console.log('--- JS Block: Foundation started ---');
                         if (!sourceData?.length) return alert("Chưa có dữ liệu từ sheet TimRanh hoặc file Excel. Vui lòng Nạp file!");
 
                         }
+
+                        // Lọc dữ liệu theo ngày đã chọn
+                        sourceData = sourceData.filter(row => {
+                            const rowDate = String(row.ngay || row[0] || '').trim();
+                            let normalized = rowDate;
+                            if (/^\d{2}\/\d{2}\/\d{4}$/.test(rowDate)) {
+                                const [d, m, y] = rowDate.split('/');
+                                normalized = `${y}-${m}-${d}`;
+                            }
+                            return normalized === searchDate;
+                        });
+
+                        if (!sourceData.length) return alert(`Không có lịch nào trong ngày ${searchDate.split('-').reverse().join('/')}. Hãy kiểm tra lại nguồn dữ liệu.`);
 
                         if (!loai || loai.includes("Chọn loại") || !gio_str) return alert("Vui lòng chọn Loại máy và nhập Giờ!");
 
