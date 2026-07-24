@@ -64,6 +64,37 @@
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
+    <!-- Thư viện hiển thị lịch Flatpickr chuẩn hóa ngày tháng -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Override .value setter to sync with flatpickr khi gán giá trị bằng JS
+            const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+            Object.defineProperty(HTMLInputElement.prototype, 'value', {
+                get: function() {
+                    return originalDescriptor.get.call(this);
+                },
+                set: function(val) {
+                    originalDescriptor.set.call(this, val);
+                    if (this._flatpickr) {
+                        this._flatpickr.setDate(val, false);
+                    }
+                }
+            });
+
+            // Khởi tạo flatpickr trên tất cả các input type date
+            flatpickr('input[type="date"]', {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                locale: "vn",
+                disableMobile: true, // Ép dùng giao diện chuẩn trên điện thoại thay vì native
+                allowInput: true
+            });
+        });
+    </script>
     <script>
 
         window.dataCacheTime = window.dataCacheTime || {};

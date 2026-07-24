@@ -1972,3 +1972,16 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
   - Kháº¯c phá»¥c triá»‡t Ä‘á»ƒ tÃ¬nh tráº¡ng thá»§ thuáº­t "Äiá»u trá»‹ báº±ng siÃªu Ã¢m" (váº­t lÃ½ trá»‹ liá»‡u) bá»‹ tick nháº§m khi bá»‡nh nhÃ¢n cÃ³ y lá»‡nh Ä‘i siÃªu Ã¢m cháº©n Ä‘oÃ¡n hÃ¬nh áº£nh.
 - ÄÃ£ lÆ°u thay Ä‘á»•i vÃ o `index.html` vÃ  push lÃªn Github.
 
+
+### User Input
+
+3. CÃ³ sá»± lá»‡ch hiá»ƒn thá»‹ ngÃ y thÃ¡ng trÃªn pháº§n má»m, chá»— thÃ¬ ngÃ y/thÃ¡ng/nÄƒm, chá»— thÃ¬ thÃ¡ng/ngÃ y/nÄƒm. YÃªu cáº§u chá»‰nh sá»­a láº¡i thÃ nh Ä‘á»‹nh dáº¡ng ngÃ y/thÃ¡ng/nÄƒm báº¥t ká»ƒ á»Ÿ mÃ¡y tÃ­nh nÃ o.
+
+### Planner Response
+
+- **Sá»­a lá»—i hiá»ƒn thá»‹ ngÃ y thÃ¡ng:** ÄÃ£ tÃ­ch há»£p thÆ° viá»‡n **Flatpickr** vÃ o `index.html` Ä‘á»ƒ kiá»ƒm soÃ¡t hoÃ n toÃ n viá»‡c chá»n vÃ  hiá»ƒn thá»‹ ngÃ y thÃ¡ng.
+  - Chuyá»ƒn Ä‘á»•i toÃ n bá»™ cÃ¡c tháº» `<input type="date">` (vá»‘n phá»¥ thuá»™c vÃ o ngÃ´n ngá»¯/vÃ¹ng cá»§a há»‡ Ä‘iá»u hÃ nh vÃ  trÃ¬nh duyá»‡t) sang giao diá»‡n chá»n ngÃ y Ä‘á»“ng nháº¥t.
+  - Ã‰p cá»©ng Ä‘á»‹nh dáº¡ng hiá»ƒn thá»‹ luÃ´n lÃ  `DD/MM/YYYY` á»Ÿ táº¥t cáº£ má»i nÆ¡i vÃ  trÃªn táº¥t cáº£ cÃ¡c loáº¡i thiáº¿t bá»‹ (bao gá»“m cáº£ mÃ¡y tÃ­nh vÃ  Ä‘iá»‡n thoáº¡i).
+  - Tá»± Ä‘á»™ng Ä‘á»“ng bá»™ giÃ¡ trá»‹ ngÃ y Ä‘Æ°á»£c chá»n (dáº¡ng `YYYY-MM-DD`) vá» cÃ¡c biáº¿n JavaScript cá»§a há»‡ thá»‘ng, giÃºp Ä‘áº£m báº£o code cÅ© hoáº¡t Ä‘á»™ng bÃ¬nh thÆ°á»ng mÃ  khÃ´ng cáº§n sá»­a Ä‘á»•i thÃªm.
+- ÄÃ£ Ä‘áº©y (push) code má»›i nháº¥t lÃªn nhÃ¡nh `main`.
+
