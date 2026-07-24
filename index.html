@@ -78,8 +78,13 @@
                 },
                 set: function(val) {
                     originalDescriptor.set.call(this, val);
-                    if (this._flatpickr) {
-                        this._flatpickr.setDate(val, false);
+                    if (this._flatpickr && !this._isSyncingFlatpickr) {
+                        this._isSyncingFlatpickr = true;
+                        try {
+                            this._flatpickr.setDate(val, false);
+                        } finally {
+                            this._isSyncingFlatpickr = false;
+                        }
                     }
                 }
             });
