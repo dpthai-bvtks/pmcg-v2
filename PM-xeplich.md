@@ -1957,3 +1957,18 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 ### Planner Response
 - **Hiển thị toàn bộ nhân sự ở tab Thứ 7:**
   1. Trong Apps Script, sửa đổi hàm `getSatData()`, xoá điều kiện lọc trạng thái nghỉ của ngày thường `filter(r => r[3] !== 'Nghỉ cả ngày')`. Đảm bảo lưới chọn nhân sự đi làm Thứ 7 trên giao diện hiển thị 100% nhân viên có trong danh sách.
+
+### User Input
+
+1. Äá»c file 25.xls xem khi nháº­p danh sÃ¡ch vÃ o tab thá»© 7 láº¡i bá»‹ nháº£y thá»§ thuáº­t parafin dÃ¹ khÃ´ng cÃ³ bá»‡nh nhÃ¢n nÃ o Ä‘Æ°á»£c chá»‰ Ä‘á»‹nh thá»§ thuáº­t Ä‘Ã³.
+2. Khi nháº­p danh sÃ¡ch bá»‡nh nhÃ¢n tá»« file HIS á»Ÿ tab bá»‡nh nhÃ¢n thÃ¬ cÃ³ thá»§ thuáº­t Äiá»u trá»‹ báº±ng siÃªu Ã¢m thÃ¬ náº¿u cÃ³ chá»‰ Ä‘á»‹nh SiÃªu Ã¢m á»• bá»¥ng thÃ¬ láº¡i bá»‹ nháº§m thÃ nh thá»§ thuáº­t Äiá»u trá»‹ báº±ng siÃªu Ã¢m.
+
+### Planner Response
+
+- **PhÃ¢n tÃ­ch bÃ¡o cÃ¡o lá»—i Parafin:** Sau khi kiá»ƒm tra toÃ n bá»™ dá»¯ liá»‡u trong file `25.xls`, xÃ¡c nháº­n pháº§n má»m khÃ´ng bá»‹ lá»—i nháº£y thá»§ thuáº­t. Táº¡i dÃ²ng sá»‘ 18 (Bá»‡nh nhÃ¢n Nguyá»…n Tháº¿ LÃ¢m) thá»±c sá»± cÃ³ Y lá»‡nh dá»‹ch vá»¥ lÃ  "1. Äiá»u trá»‹ báº±ng Parafin - 1 (Láº§n)". Do danh sÃ¡ch dÃ i nÃªn ngÆ°á»i dÃ¹ng Ä‘Ã£ nhÃ¬n sÃ³t chá»‰ Ä‘á»‹nh nÃ y trong file gá»‘c. Há»‡ thá»‘ng nháº­n diá»‡n thá»§ thuáº­t hoÃ n toÃ n chÃ­nh xÃ¡c.
+- **Sá»­a lá»—i nháº­n diá»‡n nháº§m SiÃªu Ã¢m:** ÄÃ£ tiáº¿n hÃ nh nÃ¢ng cáº¥p thuáº­t toÃ¡n nháº­n diá»‡n `mapHISToProcedure` trong file `index.html`. 
+  - Bá»• sung cÆ¡ cháº¿ loáº¡i trá»« (`excludes`) vÃ o `HIS_MAPPING`.
+  - Tá»« khÃ³a "siÃªu Ã¢m" giá» Ä‘Ã¢y sáº½ tá»± Ä‘á»™ng bá» qua náº¿u phÃ¡t hiá»‡n Ä‘i kÃ¨m vá»›i cÃ¡c tá»« khÃ³a cáº­n lÃ¢m sÃ ng nhÆ°: `á»• bá»¥ng`, `tuyáº¿n giÃ¡p`, `doppler`, `pháº§n phá»¥`, `tá»•ng quÃ¡t`, `tuyáº¿n vÃº`, `thai`, `tim`, `máº¡ch`, `mÃ ng phá»•i`, `khá»›p`, `pháº§n má»m`, `4d`, `3d`.
+  - Kháº¯c phá»¥c triá»‡t Ä‘á»ƒ tÃ¬nh tráº¡ng thá»§ thuáº­t "Äiá»u trá»‹ báº±ng siÃªu Ã¢m" (váº­t lÃ½ trá»‹ liá»‡u) bá»‹ tick nháº§m khi bá»‡nh nhÃ¢n cÃ³ y lá»‡nh Ä‘i siÃªu Ã¢m cháº©n Ä‘oÃ¡n hÃ¬nh áº£nh.
+- ÄÃ£ lÆ°u thay Ä‘á»•i vÃ o `index.html` vÃ  push lÃªn Github.
+
