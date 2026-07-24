@@ -1993,3 +1993,8 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 - Phát hiện lỗi xung đột vòng lặp vô hạn (infinite loop) giữa việc gán ngày tháng bằng JavaScript của hệ thống và việc cập nhật lịch của Flatpickr dẫn đến crash quá trình tải Dashboard (làm ô ngày bị trống và chữ `--/--/----` không được cập nhật).
 - **Giải pháp:** Đã thêm cơ chế khóa đồng bộ (re-entrancy guard `_isSyncingFlatpickr`) để ngắt vòng lặp, giúp quá trình nạp dữ liệu hoàn tất bình thường và tự động điền đúng ngày vào ô hiển thị.
 
+
+
+### Tùy chỉnh giao diện (Styling)
+- Chỉnh sửa lại CSS (Style) cho phần hiển thị ô nhập ngày tháng của thư viện Flatpickr. Giúp khung nhập liệu bo góc mềm mại hơn, có khoảng lề hợp lý, hiệu ứng viền sáng lên khi click vào, chữ được căn giữa. Đồng bộ phong cách đẹp mắt với giao diện tổng thể của phần mềm.
+
