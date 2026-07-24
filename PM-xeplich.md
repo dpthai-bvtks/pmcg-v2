@@ -1987,3 +1987,9 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
   - Tự động đồng bộ giá trị ngày được chọn (dạng `YYYY-MM-DD`) về các biến JavaScript của hệ thống, giúp đảm bảo code cũ hoạt động bình thường mà không cần sửa đổi thêm.
 - Đã đẩy (push) code mới nhất lên nhánh `main`.
 
+
+
+### Lỗi hiển thị trống ngày (Bug Fix)
+- Phát hiện lỗi xung đột vòng lặp vô hạn (infinite loop) giữa việc gán ngày tháng bằng JavaScript của hệ thống và việc cập nhật lịch của Flatpickr dẫn đến crash quá trình tải Dashboard (làm ô ngày bị trống và chữ `--/--/----` không được cập nhật).
+- **Giải pháp:** Đã thêm cơ chế khóa đồng bộ (re-entrancy guard `_isSyncingFlatpickr`) để ngắt vòng lặp, giúp quá trình nạp dữ liệu hoàn tất bình thường và tự động điền đúng ngày vào ô hiển thị.
+
