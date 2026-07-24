@@ -3925,6 +3925,33 @@
             color: #16a085 !important;
         }
 
+        /* Tùy chỉnh giao diện cho ô nhập ngày tháng của Flatpickr */
+        input.flatpickr-input[type="text"] {
+            border: 1px solid #ccc;
+            outline: none;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+            background: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            width: 110px;
+            text-align: center;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            height: 32px;
+        }
+        
+        input.flatpickr-input[type="text"]:hover {
+            border-color: #3498db;
+        }
+
+        input.flatpickr-input[type="text"]:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+        }
     </style>
 
 </head>
