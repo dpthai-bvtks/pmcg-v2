@@ -6755,6 +6755,8 @@ function callApi(functionName, args, onSuccess, onError) {
     } catch(e) {}
     fetch(API_URL, {
         method: 'POST',
+        credentials: 'omit',
+        mode: 'cors',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
             action: functionName,
@@ -6987,28 +6989,55 @@ function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
 }
 
 function saveReorderedData(dataKey, apiFunction) {
-    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
+    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới (Cập nhật từng dòng)...");
     const payload = JSON.parse(JSON.stringify(dataCache[dataKey]));
-    
-    const runner = google.script.run
-        .withSuccessHandler(res => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
-            } else {
-                alert(res);
-            }
-        })
-        .withFailureHandler(err => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            alert("Lỗi khi lưu thứ tự: " + err.message);
-        });
 
     if (apiFunction === 'bulkUpdatePatients') {
-        runner[apiFunction](payload, true);
-    } else {
-        runner[apiFunction](payload);
+        google.script.run
+            .withSuccessHandler(res => {
+                if (window.hideGlobalLoading) window.hideGlobalLoading();
+                if (typeof showCustomAlert === 'function') showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
+                else alert(res);
+            })
+            .withFailureHandler(err => {
+                if (window.hideGlobalLoading) window.hideGlobalLoading();
+                alert("Lỗi khi lưu thứ tự: " + err.message);
+            })
+            [apiFunction](payload, true);
+        return;
     }
+
+    // Tự động sửa lỗi "Hành động không hợp lệ" bằng cách gọi api sửa từng dòng (fallback)
+    (async function() {
+        try {
+            for (let i = 0; i < payload.length; i++) {
+                const item = payload[i];
+                await new Promise((resolve, reject) => {
+                    const onSuccess = () => resolve();
+                    const onError = (err) => reject(err);
+                    
+                    if (apiFunction === 'bulkUpdateThuThuat') {
+                        callApi('editThuThuat', [i, item.ten, item.vietTat, item.he, item.phanLoai, item.may, item.thoiGianThucHien, item.thoiGianThuThuat, item.khoangCach, item.canRutMay, item.canNguoiPhu, item.dsNguoiPhu], onSuccess, onError);
+                    } else if (apiFunction === 'bulkUpdateMayMoc') {
+                        callApi('editMayMoc', [i, item.ten, item.loai, item.soLuong, item.khoangCach], onSuccess, onError);
+                    } else if (apiFunction === 'bulkUpdateNhanSu') {
+                        callApi('editNhanSu', [i, item.ten, item.vaiTro, item.trangThai, item.thoiGianLam, item.kyNang, item.gioBan, item.nguoiThayThe], onSuccess, onError);
+                    } else if (apiFunction === 'bulkUpdatePhong') {
+                        callApi('editPhong', [i, item.tenPhong, item.bacSi, item.ktv, item.danhSachMay, item.soGiuong, item.danhSachGiuong], onSuccess, onError);
+                    } else {
+                        // Gọi hàm gốc nếu có
+                        callApi(apiFunction, [payload], onSuccess, onError);
+                    }
+                });
+            }
+            if (window.hideGlobalLoading) window.hideGlobalLoading();
+            if (typeof showCustomAlert === 'function') showCustomAlert("Lưu thành công", "Đã cập nhật lại toàn bộ thứ tự!", "✅", "#27ae60");
+            else alert("Đã cập nhật lại toàn bộ thứ tự!");
+        } catch (err) {
+            if (window.hideGlobalLoading) window.hideGlobalLoading();
+            alert("Lỗi khi lưu thứ tự: " + (err.message || err));
+        }
+    })();
 }
 // ==========================================
 
