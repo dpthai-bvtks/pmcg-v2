@@ -2027,3 +2027,4 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 - **Giải pháp đã thực hiện:** Tự động hóa hoàn toàn trên frontend.
   1. Xóa credentials: include và thêm credentials: omit vào fetch API. Điều này giúp loại bỏ cookie khỏi request, lách được Tracking Prevention của Edge.
   2. Sửa lại logic saveReorderedData trên frontend: Tự động dùng vòng lặp gọi API editThuThuat, editMayMoc... tuần tự cho từng dòng để cập nhật thứ tự lên Sheet, bỏ qua việc dùng bulkUpdate... chưa được deploy.
+  3. Tối ưu hóa UI/UX: Do việc gọi API từng dòng tốn thời gian (khiến giao diện bị khóa hiển thị vòng quay), tôi đã nâng cấp chức năng cập nhật để chạy ngầm (chỉ hiển thị thông báo góc dưới, không khóa màn hình) và chỉ cập nhật các dòng thực sự bị thay đổi vị trí.
