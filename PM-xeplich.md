@@ -2004,3 +2004,16 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 - Xóa viền hình chữ nhật dư thừa của ô ngày tháng riêng ở phần Dashboard. Lớp CSS cũ đã vô tình vẽ đè một cái viền chữ nhật bên trong cái khung (wrapper) vốn đã bo tròn sẵn của nút làm mới.
 - Khung chọn ngày ở Dashboard bây giờ sẽ lại trong suốt, hòa hợp thành một khối hình con nhộng cùng với nút "làm mới".
 
+
+### User Input
+4. Để lại sau đã, bổ xung thêm tính năng chọn ngày để tìm giờ rảnh dựa vào lịch trình của ngày đó
+5. Khi không chọn ngày (ô ngày bỏ trống), tính năng tìm kiếm nên hoạt động theo phương án B (Bắt buộc phải chọn ngày, báo lỗi nếu để trống)
+6. Khi chọn ngày xong thì thêm nút Xem để lấy được lịch trình ngày đó, rồi mới ấn được tìm giờ rảnh nhân sự/máy móc
+
+### Planner Response
+- **Nâng cấp tính năng Tìm Giờ Rảnh (tab-utils):**
+  - **Thêm bộ chọn ngày:** Tích hợp ô chọn ngày (date picker) vào thanh công cụ của tab Tiện ích tìm kiếm rảnh, đi kèm nút "Hôm nay" để thao tác nhanh. Ngày sẽ tự động được điền là ngày hiện tại khi lần đầu mở tab.
+  - **Cơ chế Bắt buộc chọn ngày (Phương án B):** Khi người dùng bấm tìm Bác sĩ rảnh hoặc Máy rảnh, phần mềm sẽ kiểm tra xem đã chọn ngày chưa. Nếu chưa chọn, hệ thống sẽ hiện thông báo lỗi và chặn việc tìm kiếm.
+  - **Nút 'Xem Lịch' và logic tải dữ liệu độc lập:** Bổ sung nút '📊 Xem Lịch' bên cạnh ô chọn ngày. Yêu cầu người dùng bắt buộc phải bấm nút này để tải toàn bộ lịch trình thực tế của ngày đã chọn từ máy chủ (hoạt động cho cả ngày trong quá khứ, hiện tại và tương lai) trước khi thực hiện tìm kiếm rảnh.
+  - **Tối ưu hóa dữ liệu nguồn:** Thay đổi luồng dữ liệu của hàm `timBacSiRanh()` và `timMayRanh()`. Thay vì dùng chung `currentScheduleData` của Dashboard (có thể bị sai ngày nếu người dùng không chú ý), giờ đây hai hàm này sử dụng độc lập dữ liệu lịch trình vừa được nút 'Xem Lịch' tải về, đảm bảo độ chính xác tuyệt đối.
+- Đã lưu thay đổi vào `index.html` và đẩy (push) lên nhánh `main`.
