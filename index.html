@@ -7850,7 +7850,12 @@ console.log('--- JS Block: Foundation started ---');
 
             const today = new Date();
 
-            if (document.getElementById('schedule-date')) document.getElementById('schedule-date').valueAsDate = today;
+            if (document.getElementById('schedule-date')) {
+                const y = today.getFullYear();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const d = String(today.getDate()).padStart(2, '0');
+                document.getElementById('schedule-date').value = `${y}-${m}-${d}`;
+            }
 
             if (document.getElementById('pat-date')) {
 
