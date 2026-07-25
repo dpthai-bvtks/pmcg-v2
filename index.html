@@ -6973,6 +6973,14 @@ function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
                 });
 
                 saveReorderedData(dataKey, apiFunction);
+
+                setTimeout(() => {
+                    if (dataKey === 'machine') renderMachinesTable();
+                    if (dataKey === 'proc') renderProceduresTable();
+                    if (dataKey === 'staff') renderStaffTable();
+                    if (dataKey === 'room') renderRoomsTable();
+                    if (dataKey === 'pat') renderPatientsTable();
+                }, 100);
             }
         });
     }
