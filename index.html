@@ -13250,7 +13250,7 @@ function renderDashboardPreview(data) {
         function checkUnclosedDay() {
             const d = new Date();
             const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            if (window._systemActiveYMD && window._systemActiveYMD !== safeTodayStr) {
+            if (window._systemActiveYMD && window._systemActiveYMD < safeTodayStr) {
                 const displayOldDate = window._systemActiveYMD.split('-').reverse().join('/');
                 if (typeof showCustomAlert === 'function') {
                     showCustomAlert("⚠️ CHƯA CHỐT SỔ NGÀY CŨ", 

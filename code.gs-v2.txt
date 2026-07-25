@@ -1717,3 +1717,64 @@ function saveAccount(id, username, password, role, permissions) {
   sheet.appendRow([sheet.getLastRow(), username.trim(), hashPassword(password), role, permissions]);
   return `Đã thêm tài khoản mới [${username}]!`;
 }
+
+// ===========================================
+// TÍNH NĂNG CHỐT SỔ TỰ ĐỘNG
+// ===========================================
+
+function caiDatTuDongChotSo() {
+  // Xóa trigger cũ (nếu có)
+  const triggers = ScriptApp.getProjectTriggers();
+  for (const trigger of triggers) {
+    if (trigger.getHandlerFunction() === 'autoChotSo') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  }
+
+  // Tạo trigger chạy lúc 16:00 mỗi ngày
+  ScriptApp.newTrigger('autoChotSo')
+    .timeBased()
+    .everyDays(1)
+    .atHour(16)
+    .create();
+    
+  Logger.log("Đã cài đặt thành công tự động chốt sổ vào lúc 16:00 hằng ngày.");
+}
+
+function convertDateStr(str) {
+   if (!str) return '';
+   const p = str.split('/');
+   if(p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
+   return str;
+}
+
+function autoChotSo() {
+  const d = new Date();
+  const day = d.getDay(); // 0 = CN, 1 = T2... 6 = T7
+
+  // CHỈ chạy vào T2 đến T6
+  if (day >= 1 && day <= 5) {
+     const todayISO = Utilities.formatDate(new Date(), "GMT+7", "yyyy-MM-dd");
+     const scheduleData = getSchedule();
+     
+     if (scheduleData.length > 0) {
+        const scheduleDate = scheduleData[0][0]; // Ngày của lịch hiện tại
+        const scheduleISO = convertDateStr(scheduleDate);
+        
+        // CHỈ chốt sổ nếu ngày của lịch <= ngày hôm nay. 
+        // Nếu scheduleISO > todayISO (đã sang lịch Thứ 7 / Tương lai), thì bỏ qua!
+        if (scheduleISO <= todayISO) {
+           chuyenNgayMoi();
+           Logger.log("Đã chốt sổ tự động cho ngày: " + scheduleDate);
+        } else {
+           Logger.log("Bỏ qua chốt sổ vì lịch hiện tại là tương lai: " + scheduleDate);
+        }
+     } else {
+        // Nếu lịch trống, vẫn gọi chuyenNgayMoi để làm sạch Nhân sự / Giờ bận
+        chuyenNgayMoi();
+        Logger.log("Đã chốt sổ tự động (Lịch trống)");
+     }
+  } else {
+     Logger.log("Bỏ qua vì hôm nay không phải T2-T6");
+  }
+}
