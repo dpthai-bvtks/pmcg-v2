@@ -2030,3 +2030,4 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
   3. Tối ưu hóa UI/UX: Do việc gọi API từng dòng tốn thời gian (khiến giao diện bị khóa hiển thị vòng quay), tôi đã nâng cấp chức năng cập nhật để chạy ngầm (chỉ hiển thị thông báo góc dưới, không khóa màn hình) và chỉ cập nhật các dòng thực sự bị thay đổi vị trí.
   4. Trả lại đường dẫn API: Đã cập nhật lại API_URL trong index.html về link Apps Script gốc của bản chính (thay vì bản của Khoa B) để kết nối đúng với file Google Sheet PMCG Database v2.
   5. Tinh chinh UI: Da xoa thong bao dang luu ngam, chi de lai thong bao luu thanh cong.
+  6. Sửa lỗi CORS / 404 (Google Rate Limit): Viết lại hàm callApi tích hợp hàng đợi (Queue), xử lý các request tuần tự cách nhau 300ms, giúp tránh tình trạng spam Google Apps Script gây ra lỗi 404/CORS khi tải trang.
