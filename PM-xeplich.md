@@ -2017,3 +2017,13 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
   - **Nút 'Xem Lịch' và logic tải dữ liệu độc lập:** Bổ sung nút '📊 Xem Lịch' bên cạnh ô chọn ngày. Yêu cầu người dùng bắt buộc phải bấm nút này để tải toàn bộ lịch trình thực tế của ngày đã chọn từ máy chủ (hoạt động cho cả ngày trong quá khứ, hiện tại và tương lai) trước khi thực hiện tìm kiếm rảnh.
   - **Tối ưu hóa dữ liệu nguồn:** Thay đổi luồng dữ liệu của hàm `timBacSiRanh()` và `timMayRanh()`. Thay vì dùng chung `currentScheduleData` của Dashboard (có thể bị sai ngày nếu người dùng không chú ý), giờ đây hai hàm này sử dụng độc lập dữ liệu lịch trình vừa được nút 'Xem Lịch' tải về, đảm bảo độ chính xác tuyệt đối.
 - Đã lưu thay đổi vào `index.html` và đẩy (push) lên nhánh `main`.
+
+
+### Phiên làm việc (25/07/2026)
+- **Yêu cầu của user:** Sửa triệt để lỗi Hành động không hợp lệ: bulkUpdateThuThuat khi kéo thả, và lỗi CORS do Tracking Prevention của Edge chặn getThuThuat.
+- **Nguyên nhân lỗi:**
+  1. Lỗi bulkUpdateThuThuat: Code Google Apps Script đang chạy trên server chưa có các hàm bulkUpdate... trong danh sách ADMIN_ACTIONS.
+  2. Lỗi CORS Failed to fetch: Trình duyệt Microsoft Edge kích hoạt Tracking Prevention, tự động chặn các cookie bên thứ ba gửi đến script.google.com.
+- **Giải pháp đã thực hiện:** Tự động hóa hoàn toàn trên frontend.
+  1. Xóa credentials: include và thêm credentials: omit vào fetch API. Điều này giúp loại bỏ cookie khỏi request, lách được Tracking Prevention của Edge.
+  2. Sửa lại logic saveReorderedData trên frontend: Tự động dùng vòng lặp gọi API editThuThuat, editMayMoc... tuần tự cho từng dòng để cập nhật thứ tự lên Sheet, bỏ qua việc dùng bulkUpdate... chưa được deploy.
