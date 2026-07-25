@@ -7029,43 +7029,13 @@ function saveReorderedData(dataKey, apiFunction, oldIndex = 0, newIndex = 0) {
         return;
     }
 
-    // Lách việc cập nhật chậm bằng cách:
-    // 1. Chỉ cập nhật các dòng thực sự bị thay đổi vị trí.
-    // 2. Chạy ngầm không hiện loading quay vòng tròn.
-    const startIdx = Math.min(oldIndex, newIndex);
-    const endIdx = Math.max(oldIndex, newIndex);
-    
-    // Đã ẩn thông báo "Đang cập nhật..." theo yêu cầu của người dùng
-
-    (async function() {
-        try {
-            for (let i = startIdx; i <= endIdx; i++) {
-                const item = payload[i];
-                if (!item) continue;
-                await new Promise((resolve, reject) => {
-                    const onSuccess = () => resolve();
-                    const onError = (err) => reject(err);
-                    
-                    if (apiFunction === 'bulkUpdateThuThuat') {
-                        callApi('editThuThuat', [i, item.ten, item.vietTat, item.he, item.phanLoai, item.may, item.thoiGianThucHien, item.thoiGianThuThuat, item.khoangCach, item.canRutMay, item.canNguoiPhu, item.dsNguoiPhu], onSuccess, onError);
-                    } else if (apiFunction === 'bulkUpdateMayMoc') {
-                        callApi('editMayMoc', [i, item.ten, item.loai, item.soLuong, item.khoangCach], onSuccess, onError);
-                    } else if (apiFunction === 'bulkUpdateNhanSu') {
-                        callApi('editNhanSu', [i, item.ten, item.vaiTro, item.trangThai, item.thoiGianLam, item.kyNang, item.gioBan, item.nguoiThayThe], onSuccess, onError);
-                    } else if (apiFunction === 'bulkUpdatePhong') {
-                        callApi('editPhong', [i, item.tenPhong, item.bacSi, item.ktv, item.danhSachMay, item.soGiuong, item.danhSachGiuong], onSuccess, onError);
-                    } else {
-                        callApi(apiFunction, [payload], onSuccess, onError);
-                    }
-                });
-            }
-            if (typeof showCustomAlert === 'function') showCustomAlert("Lưu thành công", "Lưu ngầm thứ tự mới hoàn tất!", "✅", "#27ae60");
-            else console.log("Lưu ngầm thứ tự mới hoàn tất!");
-        } catch (err) {
-            console.error("Lỗi khi lưu thứ tự:", err);
-            if (typeof showCustomAlert === 'function') showCustomAlert("Lỗi lưu ngầm", err.message || err, "❌", "#e74c3c");
-        }
-    })();
+    callApi(apiFunction, [payload], () => {
+        if (typeof showCustomAlert === 'function') showCustomAlert("Lưu thành công", "Lưu ngầm thứ tự mới hoàn tất!", "✅", "#27ae60");
+        else console.log("Lưu ngầm thứ tự mới hoàn tất!");
+    }, (err) => {
+        console.error("Lỗi khi lưu thứ tự:", err);
+        if (typeof showCustomAlert === 'function') showCustomAlert("Lỗi lưu ngầm", err.message || err, "❌", "#e74c3c");
+    });
 }
 // ==========================================
 
