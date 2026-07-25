@@ -70,82 +70,6 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <script>
 
-// ==========================================
-// DRAG AND DROP REORDER LOGIC
-// ==========================================
-function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody || tbody.children.length === 0 || tbody.querySelector('.drag-handle')) return;
-
-    // Add drag handles
-    const theadTr = tbody.parentElement.querySelector('thead tr');
-    if (theadTr && !theadTr.querySelector('.drag-th')) {
-        const th = document.createElement('th');
-        th.className = 'drag-th';
-        th.style.width = '40px';
-        th.innerHTML = '⇅';
-        theadTr.insertBefore(th, theadTr.firstChild);
-    }
-
-    tbody.querySelectorAll('tr').forEach(tr => {
-        if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
-        const td = document.createElement('td');
-        td.innerHTML = '<span class="drag-handle" style="cursor:grab; font-size:16px; color:#7f8c8d;">☰</span>';
-        td.style.width = '40px';
-        td.style.textAlign = 'center';
-        tr.insertBefore(td, tr.firstChild);
-    });
-
-    if (typeof Sortable !== 'undefined') {
-        if (tbody._sortable) tbody._sortable.destroy();
-        Sortable.create(tbody, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function (evt) {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                if (oldIndex === newIndex) return;
-
-                const dataArray = window.dataCache[dataKey];
-                const movedItem = dataArray.splice(oldIndex, 1)[0];
-                dataArray.splice(newIndex, 0, movedItem);
-
-                dataArray.forEach((item, idx) => {
-                    if (item.index !== undefined) item.index = idx;
-                    if (item.sheetIndex !== undefined) item.sheetIndex = idx;
-                });
-
-                saveReorderedData(dataKey, apiFunction);
-            }
-        });
-    }
-}
-
-function saveReorderedData(dataKey, apiFunction) {
-    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
-    const payload = JSON.parse(JSON.stringify(window.dataCache[dataKey]));
-    
-    const runner = google.script.run
-        .withSuccessHandler(res => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
-            } else {
-                alert(res);
-            }
-        })
-        .withFailureHandler(err => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            alert("Lỗi khi lưu thứ tự: " + err.message);
-        });
-
-    if (apiFunction === 'bulkUpdatePatients') {
-        runner[apiFunction](payload, true);
-    } else {
-        runner[apiFunction](payload);
-    }
-}
-// ==========================================
 
         document.addEventListener('DOMContentLoaded', () => {
             // Override .value setter to sync with flatpickr khi gán giá trị bằng JS
@@ -188,82 +112,6 @@ function saveReorderedData(dataKey, apiFunction) {
     </script>
     <script>
 
-// ==========================================
-// DRAG AND DROP REORDER LOGIC
-// ==========================================
-function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody || tbody.children.length === 0 || tbody.querySelector('.drag-handle')) return;
-
-    // Add drag handles
-    const theadTr = tbody.parentElement.querySelector('thead tr');
-    if (theadTr && !theadTr.querySelector('.drag-th')) {
-        const th = document.createElement('th');
-        th.className = 'drag-th';
-        th.style.width = '40px';
-        th.innerHTML = '⇅';
-        theadTr.insertBefore(th, theadTr.firstChild);
-    }
-
-    tbody.querySelectorAll('tr').forEach(tr => {
-        if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
-        const td = document.createElement('td');
-        td.innerHTML = '<span class="drag-handle" style="cursor:grab; font-size:16px; color:#7f8c8d;">☰</span>';
-        td.style.width = '40px';
-        td.style.textAlign = 'center';
-        tr.insertBefore(td, tr.firstChild);
-    });
-
-    if (typeof Sortable !== 'undefined') {
-        if (tbody._sortable) tbody._sortable.destroy();
-        Sortable.create(tbody, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function (evt) {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                if (oldIndex === newIndex) return;
-
-                const dataArray = window.dataCache[dataKey];
-                const movedItem = dataArray.splice(oldIndex, 1)[0];
-                dataArray.splice(newIndex, 0, movedItem);
-
-                dataArray.forEach((item, idx) => {
-                    if (item.index !== undefined) item.index = idx;
-                    if (item.sheetIndex !== undefined) item.sheetIndex = idx;
-                });
-
-                saveReorderedData(dataKey, apiFunction);
-            }
-        });
-    }
-}
-
-function saveReorderedData(dataKey, apiFunction) {
-    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
-    const payload = JSON.parse(JSON.stringify(window.dataCache[dataKey]));
-    
-    const runner = google.script.run
-        .withSuccessHandler(res => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
-            } else {
-                alert(res);
-            }
-        })
-        .withFailureHandler(err => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            alert("Lỗi khi lưu thứ tự: " + err.message);
-        });
-
-    if (apiFunction === 'bulkUpdatePatients') {
-        runner[apiFunction](payload, true);
-    } else {
-        runner[apiFunction](payload);
-    }
-}
-// ==========================================
 
 
         window.dataCacheTime = window.dataCacheTime || {};
@@ -6680,82 +6528,6 @@ function saveReorderedData(dataKey, apiFunction) {
 
     <script>
 
-// ==========================================
-// DRAG AND DROP REORDER LOGIC
-// ==========================================
-function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody || tbody.children.length === 0 || tbody.querySelector('.drag-handle')) return;
-
-    // Add drag handles
-    const theadTr = tbody.parentElement.querySelector('thead tr');
-    if (theadTr && !theadTr.querySelector('.drag-th')) {
-        const th = document.createElement('th');
-        th.className = 'drag-th';
-        th.style.width = '40px';
-        th.innerHTML = '⇅';
-        theadTr.insertBefore(th, theadTr.firstChild);
-    }
-
-    tbody.querySelectorAll('tr').forEach(tr => {
-        if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
-        const td = document.createElement('td');
-        td.innerHTML = '<span class="drag-handle" style="cursor:grab; font-size:16px; color:#7f8c8d;">☰</span>';
-        td.style.width = '40px';
-        td.style.textAlign = 'center';
-        tr.insertBefore(td, tr.firstChild);
-    });
-
-    if (typeof Sortable !== 'undefined') {
-        if (tbody._sortable) tbody._sortable.destroy();
-        Sortable.create(tbody, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function (evt) {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                if (oldIndex === newIndex) return;
-
-                const dataArray = window.dataCache[dataKey];
-                const movedItem = dataArray.splice(oldIndex, 1)[0];
-                dataArray.splice(newIndex, 0, movedItem);
-
-                dataArray.forEach((item, idx) => {
-                    if (item.index !== undefined) item.index = idx;
-                    if (item.sheetIndex !== undefined) item.sheetIndex = idx;
-                });
-
-                saveReorderedData(dataKey, apiFunction);
-            }
-        });
-    }
-}
-
-function saveReorderedData(dataKey, apiFunction) {
-    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
-    const payload = JSON.parse(JSON.stringify(window.dataCache[dataKey]));
-    
-    const runner = google.script.run
-        .withSuccessHandler(res => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
-            } else {
-                alert(res);
-            }
-        })
-        .withFailureHandler(err => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            alert("Lỗi khi lưu thứ tự: " + err.message);
-        });
-
-    if (apiFunction === 'bulkUpdatePatients') {
-        runner[apiFunction](payload, true);
-    } else {
-        runner[apiFunction](payload);
-    }
-}
-// ==========================================
 
 
 
@@ -7155,6 +6927,83 @@ console.log('--- JS Block: Foundation started ---');
 
 
         let dataCache = { machine: [], proc: [], staff: [], room: [], pat: [] };
+
+// ==========================================
+// DRAG AND DROP REORDER LOGIC
+// ==========================================
+function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody || tbody.children.length === 0 || tbody.querySelector('.drag-handle')) return;
+
+    const theadTr = tbody.parentElement.querySelector('thead tr');
+    if (theadTr && !theadTr.querySelector('.drag-th')) {
+        const th = document.createElement('th');
+        th.className = 'drag-th';
+        th.style.width = '40px';
+        th.innerHTML = '⇅';
+        theadTr.insertBefore(th, theadTr.firstChild);
+    }
+
+    tbody.querySelectorAll('tr').forEach(tr => {
+        if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
+        const td = document.createElement('td');
+        td.innerHTML = '<span class="drag-handle" style="cursor:grab; font-size:16px; color:#7f8c8d;">☰</span>';
+        td.style.width = '40px';
+        td.style.textAlign = 'center';
+        tr.insertBefore(td, tr.firstChild);
+    });
+
+    if (typeof Sortable !== 'undefined') {
+        if (tbody._sortable) tbody._sortable.destroy();
+        Sortable.create(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            onEnd: function (evt) {
+                const oldIndex = evt.oldIndex;
+                const newIndex = evt.newIndex;
+                if (oldIndex === newIndex) return;
+
+                const dataArray = dataCache[dataKey];
+                const movedItem = dataArray.splice(oldIndex, 1)[0];
+                dataArray.splice(newIndex, 0, movedItem);
+
+                dataArray.forEach((item, idx) => {
+                    if (item.index !== undefined) item.index = idx;
+                    if (item.sheetIndex !== undefined) item.sheetIndex = idx;
+                });
+
+                saveReorderedData(dataKey, apiFunction);
+            }
+        });
+    }
+}
+
+function saveReorderedData(dataKey, apiFunction) {
+    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
+    const payload = JSON.parse(JSON.stringify(dataCache[dataKey]));
+    
+    const runner = google.script.run
+        .withSuccessHandler(res => {
+            if (window.hideGlobalLoading) window.hideGlobalLoading();
+            if (typeof showCustomAlert === 'function') {
+                showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
+            } else {
+                alert(res);
+            }
+        })
+        .withFailureHandler(err => {
+            if (window.hideGlobalLoading) window.hideGlobalLoading();
+            alert("Lỗi khi lưu thứ tự: " + err.message);
+        });
+
+    if (apiFunction === 'bulkUpdatePatients') {
+        runner[apiFunction](payload, true);
+    } else {
+        runner[apiFunction](payload);
+    }
+}
+// ==========================================
+
 
         let editIndex = { machine: -1, proc: -1, staff: -1, room: -1, pat: -1 };
 
@@ -12191,7 +12040,7 @@ function renderPatientsTable_Original() {
                                                 // --- Bước 3: Merge với danh sách bệnh nhân hiện tại ---
                                                 // Bệnh nhân đã có → chỉ cập nhật thuThuat, giữ nguyên ngayVao/phong/giờ
                                                 // Bệnh nhân mới  → thêm mới với ngày hôm nay
-                                                const existingPats = (window.dataCache && window.dataCache.pat) ? window.dataCache.pat : [];
+                                                const existingPats = (dataCache && dataCache.pat) ? dataCache.pat : [];
                                                 const existingMap = {};
                                                 existingPats.forEach(p => {
                                                     const k = buildMatchKey(p.ten, p.namSinh);
@@ -12269,7 +12118,7 @@ function renderPatientsTable_Original() {
                                                             btn.innerText = '🏥 Nhập từ HIS (Y lệnh)'; btn.disabled = false;
                                                             showToast(`Nhập HIS: cập nhật ${updatedCount} BN, thêm mới ${newCount} BN`, 'success', 5000);
                                                             if (window.dataCacheTime) delete window.dataCacheTime['pat'];
-                                                            if (window.dataCache) delete window.dataCache['pat'];
+                                                            
                                                             loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
                                                         })
                                                         .withFailureHandler(err => {
@@ -13078,8 +12927,8 @@ function renderPatientsTable_Original() {
             cleaned.forEach((item, idx) => { item.index = idx; });
             const el = document.getElementById('statBN'); 
             if(el) el.textContent = cleaned.length; 
-            window.dataCache = window.dataCache||{};
-            window.dataCache.pat = cleaned; 
+            
+            dataCache.pat = cleaned; 
         
             // Calculate total procedures
             let totalProcs = 0;
@@ -13105,7 +12954,7 @@ function renderPatientsTable_Original() {
             }).length;
             const el = document.getElementById('statStaff'); 
             if(el) el.textContent = working;
-            window.dataCache.staff = cleaned;
+            dataCache.staff = cleaned;
         }).getNhanSu();
 
         const statScheduledEl = document.getElementById('statScheduled');
@@ -13792,82 +13641,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 
-// ==========================================
-// DRAG AND DROP REORDER LOGIC
-// ==========================================
-function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody || tbody.children.length === 0 || tbody.querySelector('.drag-handle')) return;
-
-    // Add drag handles
-    const theadTr = tbody.parentElement.querySelector('thead tr');
-    if (theadTr && !theadTr.querySelector('.drag-th')) {
-        const th = document.createElement('th');
-        th.className = 'drag-th';
-        th.style.width = '40px';
-        th.innerHTML = '⇅';
-        theadTr.insertBefore(th, theadTr.firstChild);
-    }
-
-    tbody.querySelectorAll('tr').forEach(tr => {
-        if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
-        const td = document.createElement('td');
-        td.innerHTML = '<span class="drag-handle" style="cursor:grab; font-size:16px; color:#7f8c8d;">☰</span>';
-        td.style.width = '40px';
-        td.style.textAlign = 'center';
-        tr.insertBefore(td, tr.firstChild);
-    });
-
-    if (typeof Sortable !== 'undefined') {
-        if (tbody._sortable) tbody._sortable.destroy();
-        Sortable.create(tbody, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function (evt) {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                if (oldIndex === newIndex) return;
-
-                const dataArray = window.dataCache[dataKey];
-                const movedItem = dataArray.splice(oldIndex, 1)[0];
-                dataArray.splice(newIndex, 0, movedItem);
-
-                dataArray.forEach((item, idx) => {
-                    if (item.index !== undefined) item.index = idx;
-                    if (item.sheetIndex !== undefined) item.sheetIndex = idx;
-                });
-
-                saveReorderedData(dataKey, apiFunction);
-            }
-        });
-    }
-}
-
-function saveReorderedData(dataKey, apiFunction) {
-    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
-    const payload = JSON.parse(JSON.stringify(window.dataCache[dataKey]));
-    
-    const runner = google.script.run
-        .withSuccessHandler(res => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
-            } else {
-                alert(res);
-            }
-        })
-        .withFailureHandler(err => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            alert("Lỗi khi lưu thứ tự: " + err.message);
-        });
-
-    if (apiFunction === 'bulkUpdatePatients') {
-        runner[apiFunction](payload, true);
-    } else {
-        runner[apiFunction](payload);
-    }
-}
-// ==========================================
 
 
     (function() {
@@ -13951,82 +13724,6 @@ function saveReorderedData(dataKey, apiFunction) {
 
 <script>
 
-// ==========================================
-// DRAG AND DROP REORDER LOGIC
-// ==========================================
-function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody || tbody.children.length === 0 || tbody.querySelector('.drag-handle')) return;
-
-    // Add drag handles
-    const theadTr = tbody.parentElement.querySelector('thead tr');
-    if (theadTr && !theadTr.querySelector('.drag-th')) {
-        const th = document.createElement('th');
-        th.className = 'drag-th';
-        th.style.width = '40px';
-        th.innerHTML = '⇅';
-        theadTr.insertBefore(th, theadTr.firstChild);
-    }
-
-    tbody.querySelectorAll('tr').forEach(tr => {
-        if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
-        const td = document.createElement('td');
-        td.innerHTML = '<span class="drag-handle" style="cursor:grab; font-size:16px; color:#7f8c8d;">☰</span>';
-        td.style.width = '40px';
-        td.style.textAlign = 'center';
-        tr.insertBefore(td, tr.firstChild);
-    });
-
-    if (typeof Sortable !== 'undefined') {
-        if (tbody._sortable) tbody._sortable.destroy();
-        Sortable.create(tbody, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function (evt) {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                if (oldIndex === newIndex) return;
-
-                const dataArray = window.dataCache[dataKey];
-                const movedItem = dataArray.splice(oldIndex, 1)[0];
-                dataArray.splice(newIndex, 0, movedItem);
-
-                dataArray.forEach((item, idx) => {
-                    if (item.index !== undefined) item.index = idx;
-                    if (item.sheetIndex !== undefined) item.sheetIndex = idx;
-                });
-
-                saveReorderedData(dataKey, apiFunction);
-            }
-        });
-    }
-}
-
-function saveReorderedData(dataKey, apiFunction) {
-    if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
-    const payload = JSON.parse(JSON.stringify(window.dataCache[dataKey]));
-    
-    const runner = google.script.run
-        .withSuccessHandler(res => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
-            } else {
-                alert(res);
-            }
-        })
-        .withFailureHandler(err => {
-            if (window.hideGlobalLoading) window.hideGlobalLoading();
-            alert("Lỗi khi lưu thứ tự: " + err.message);
-        });
-
-    if (apiFunction === 'bulkUpdatePatients') {
-        runner[apiFunction](payload, true);
-    } else {
-        runner[apiFunction](payload);
-    }
-}
-// ==========================================
 
 (function() {
     const tooltip = document.getElementById('sidebar-tooltip');
