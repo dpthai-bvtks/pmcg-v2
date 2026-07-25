@@ -2032,3 +2032,4 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
   5. Tinh chinh UI: Da xoa thong bao dang luu ngam, chi de lai thong bao luu thanh cong.
   6. Sửa lỗi CORS / 404 (Google Rate Limit): Viết lại hàm callApi tích hợp hàng đợi (Queue), xử lý các request tuần tự cách nhau 300ms, giúp tránh tình trạng spam Google Apps Script gây ra lỗi 404/CORS khi tải trang.
   7. Sửa lỗi di chuyển dòng bị trùng lặp: Tính năng kéo thả trước đó dùng API sửa từng dòng, vô tình kích hoạt hàm updateNameEverywhere trên backend khiến tên người cũ bị thay bằng tên người mới ở TOÀN BỘ file Google Sheet. Đã sửa lại bằng cách gọi thẳng bulkUpdate để lưu cục bộ, giúp vừa nhanh vừa không kích hoạt đổi tên diện rộng.
+  8. Gỡ tính năng kéo thả và Thêm Lớp Phủ: Đã gỡ bỏ toàn bộ thư viện SortableJS, xoá nút kéo thả để khôi phục giao diện bảng như ban đầu. Đã lập trình lớp phủ toàn màn hình tự động xuất hiện để khoá thao tác mỗi khi người dùng Thêm/Sửa/Xóa bất kỳ dữ liệu nào.
