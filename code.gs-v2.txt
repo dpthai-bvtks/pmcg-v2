@@ -37,6 +37,7 @@ const USER_ACTIONS = [
 ];
 
 const ADMIN_ACTIONS = [
+  'bulkUpdateMayMoc', 'bulkUpdateThuThuat', 'bulkUpdateNhanSu', 'bulkUpdatePhong',
   'addMayMoc', 'editMayMoc', 'deleteMayMoc',
   'addThuThuat', 'editThuThuat', 'deleteThuThuat',
   'addNhanSu', 'editNhanSu', 'deleteNhanSu',
@@ -1776,5 +1777,76 @@ function autoChotSo() {
      }
   } else {
      Logger.log("Bỏ qua vì hôm nay không phải T2-T6");
+  }
+}
+// ===========================================
+// HÀM LƯU HÀNG LOẠT (DÙNG CHO DRAG & DROP SẮP XẾP)
+// ===========================================
+
+function bulkUpdateMayMoc(rows) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const sheet = getSheetByName('MayMoc');
+    if (sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
+    if (rows.length === 0) return "Danh sách trống!";
+    
+    let lastId = 0;
+    const rowsToAppend = rows.map(r => [++lastId, r.ten, r.tenRutGon, r.loai, r.phong, r.maxCa]);
+    sheet.getRange(2, 1, rowsToAppend.length, 6).setValues(rowsToAppend);
+    return `Đã lưu thứ tự ${rowsToAppend.length} máy móc!`;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function bulkUpdateThuThuat(rows) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const sheet = getSheetByName('ThuThuat');
+    if (sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
+    if (rows.length === 0) return "Danh sách trống!";
+    
+    let lastId = 0;
+    const rowsToAppend = rows.map(r => [++lastId, r.ten, r.thoiGian, r.soKTV, r.mayMoc, r.vatTu, r.phanLoai, r.coTheKetHop]);
+    sheet.getRange(2, 1, rowsToAppend.length, 8).setValues(rowsToAppend);
+    return `Đã lưu thứ tự ${rowsToAppend.length} thủ thuật!`;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function bulkUpdateNhanSu(rows) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const sheet = getSheetByName('NhanSu');
+    if (sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
+    if (rows.length === 0) return "Danh sách trống!";
+    
+    let lastId = 0;
+    const rowsToAppend = rows.map(r => [++lastId, r.ten, r.maNV, r.chucDanh, r.phong, r.khungGio, r.gioBan, r.soBenhNhan]);
+    sheet.getRange(2, 1, rowsToAppend.length, 8).setValues(rowsToAppend);
+    return `Đã lưu thứ tự ${rowsToAppend.length} nhân sự!`;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function bulkUpdatePhong(rows) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const sheet = getSheetByName('Phong');
+    if (sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
+    if (rows.length === 0) return "Danh sách trống!";
+    
+    let lastId = 0;
+    const rowsToAppend = rows.map(r => [++lastId, r.ten, r.loai, r.maxGiuong]);
+    sheet.getRange(2, 1, rowsToAppend.length, 4).setValues(rowsToAppend);
+    return `Đã lưu thứ tự ${rowsToAppend.length} phòng!`;
+  } finally {
+    lock.releaseLock();
   }
 }
