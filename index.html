@@ -7013,9 +7013,7 @@ function saveReorderedData(dataKey, apiFunction, oldIndex = 0, newIndex = 0) {
     const startIdx = Math.min(oldIndex, newIndex);
     const endIdx = Math.max(oldIndex, newIndex);
     
-    if (typeof showCustomAlert === 'function') {
-        showCustomAlert("Đang cập nhật...", "Dữ liệu đang được lưu ngầm. Bạn cứ tiếp tục làm việc!", "⏳", "#f39c12");
-    }
+    // Đã ẩn thông báo "Đang cập nhật..." theo yêu cầu của người dùng
 
     (async function() {
         try {
