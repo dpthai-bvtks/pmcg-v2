@@ -3980,7 +3980,6 @@
         }
     </style>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 
 
@@ -6625,11 +6624,20 @@ console.log('MAIN SCRIPT STARTING...');
 const API_URL = 'https://script.google.com/macros/s/AKfycbykwx2ubeJVp5Uy16OrHw9SMzHtKchiM0I7a-t3D_D45RJJ9G6EXrJtlL8Cl12ySdqndg/exec';
 let apiQueue = [];
 let isApiProcessing = false;
+let mutationCount = 0;
+
+function checkMutationLoading() {
+    if (mutationCount > 0) {
+        if (window.showGlobalLoading) window.showGlobalLoading("Đang xử lý dữ liệu...");
+    } else {
+        if (window.hideGlobalLoading) window.hideGlobalLoading();
+    }
+}
 
 function processApiQueue() {
     if (isApiProcessing || apiQueue.length === 0) return;
     isApiProcessing = true;
-    const { functionName, args, onSuccess, onError } = apiQueue.shift();
+    const { functionName, args, onSuccess, onError, isMutation } = apiQueue.shift();
 
     let sessionId = '';
     try {
@@ -6670,374 +6678,24 @@ function processApiQueue() {
     })
     .finally(() => {
         isApiProcessing = false;
+        if (isMutation) {
+            mutationCount--;
+            checkMutationLoading();
+        }
         setTimeout(processApiQueue, 300); // Wait 300ms before next request to avoid rate limits
     });
 }
 
 function callApi(functionName, args, onSuccess, onError) {
-    apiQueue.push({ functionName, args, onSuccess, onError });
+    const isMutation = functionName.startsWith('add') || functionName.startsWith('edit') || functionName.startsWith('delete') || functionName.startsWith('bulkUpdate');
+    if (isMutation) {
+        mutationCount++;
+        checkMutationLoading();
+    }
+    apiQueue.push({ functionName, args, onSuccess, onError, isMutation });
     processApiQueue();
 }
 
-function escapeHtml(string) {
-    if (string === null || string === undefined) return '';
-    const map = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-        "`": "&#x60;"
-    };
-    return String(string).replace(/[&<>"'`]/g, s => map[s]);
-}
-
-
-
-
-window.google = window.google || {};
-
-window.google.script = window.google.script || {};
-
-window.google.script.run = new Proxy({}, {
-
-    get: function(target, prop) {
-
-        if (prop === 'withSuccessHandler') {
-
-            return function(successCallback) {
-
-                return new Proxy({}, {
-
-                    get: function(target2, prop2) {
-
-                        if (prop2 === 'withFailureHandler') {
-
-                            return function(errorCallback) {
-
-                                return new Proxy({}, {
-
-                                    get: function(target3, methodName) {
-
-                                        return function(...args) {
-
-                                            callApi(methodName, args, successCallback, errorCallback);
-
-                                        };
-
-                                    }
-
-                                });
-
-                            };
-
-                        }
-
-                        return function(...args) {
-
-                            callApi(prop2, args, successCallback, null);
-
-                        };
-
-                    }
-
-                });
-
-            };
-
-        }
-
-        if (prop === 'withFailureHandler') {
-
-            return function(errorCallback) {
-
-                return new Proxy({}, {
-
-                    get: function(target2, prop2) {
-
-                        if (prop2 === 'withSuccessHandler') {
-
-                            return function(successCallback) {
-
-                                return new Proxy({}, {
-
-                                    get: function(target3, methodName) {
-
-                                        return function(...args) {
-
-                                            callApi(methodName, args, successCallback, errorCallback);
-
-                                        };
-
-                                    }
-
-                                });
-
-                            };
-
-                        }
-
-                        return function(...args) {
-
-                            callApi(prop2, args, null, errorCallback);
-
-                        };
-
-                    }
-
-                });
-
-            };
-
-        }
-
-        return function(...args) {
-
-            callApi(prop, args, null, null);
-
-        };
-
-    }
-
-});
-
-
-
-
-
-
-
-
-
-
-
-// --- AUTH CODE MOVED TO TOP ---
-
-                                // ============================================================
-
-                                let adminAccCache = [];
-
-
-
-// --- Block Merged ---
-
-
-
-console.log('--- JS Block: Auth & Permissions started ---');
-
-                                window.doLogin = function() {
-
-                                const user = document.getElementById('login-user').value;
-
-                                const pass = document.getElementById('login-pass').value;
-
-                                const errDiv = document.getElementById('login-error');
-
-                                const btn = document.getElementById('btn-do-login');
-
-
-
-                                if (!user || !pass) { errDiv.innerText = "Vui lòng nhập đủ thông tin!";
-
-                                errDiv.style.display = "block"; return; }
-
-                                btn.innerText = "Đang kiểm tra..."; btn.disabled = true;
-
-
-
-                                google.script.run.withSuccessHandler(res => {
-
-                                if (res.success) {
-
-                                // 1. Lưu thông tin người dùng
-
-                                                                localStorage.setItem('meds_session', JSON.stringify({username: res.username, role:
-
-                                res.role, permissions: res.permissions, sessionId: res.sessionId}));
-
-                                // Gọi tải dữ liệu Tìm Rảnh ngay sau khi đăng nhập thành công
-                                if (typeof window.loadTimRanhDataFromServer === 'function') {
-                                    window.loadTimRanhDataFromServer();
-                                }
-
-
-
-                                // 🔥 2. Đặt thời gian hết hạn là 8 tiếng sau (8 * 60 * 60 * 1000 = 28,800,000 ms)
-
-                                localStorage.setItem('meds_session_exp', (Date.now() + 28800000).toString());
-
-
-
-                                document.getElementById('login-overlay').style.display = 'none';
-
-                                if (typeof updateLogoutButton === 'function') updateLogoutButton(res.username);
-
-                                                                if (typeof applyPermissions === 'function') applyPermissions(res.role, res.permissions);
-
-                                let targetTab = 'tab-home';
-
-                                if (window.location.hash && window.location.hash.startsWith('#tab-')) {
-
-                                    targetTab = window.location.hash.substring(1);
-
-                                }
-
-                                const tabBtn = document.querySelector(`.nav-tab[data-tab="${targetTab}"]`) || document.querySelector(`.nav-item[data-tab="${targetTab}"]`);
-
-                                if (tabBtn) {
-
-                                    tabBtn.click();
-
-                                } else {
-
-                                    document.querySelector('.nav-tab[data-tab="tab-home"]')?.click();
-
-                                }
-
-                                if (res.role === 'Admin' && typeof loadAccounts === 'function') loadAccounts();
-
-                                } else {
-
-                                errDiv.innerText = res.message; errDiv.style.display = "block";
-
-                                btn.innerText = "Đăng Nhập ➔"; btn.disabled = false;
-
-                                }
-
-                                }).verifyLogin(user, pass);
-
-                                }
-
-
-
-// ----------------------------
-
-
-
-// --- Block Merged ---
-
-
-
-console.log('--- JS Block: Main Logic started ---');
-
-        // ============================================================
-
-console.log('--- JS Block: Foundation started ---');
-
-        // 🔧 HELPER UTILITIES
-
-        // ============================================================
-
-
-
-        window.alert = function (message) {
-
-            const m = String(message).toLowerCase();
-
-            const [type, title] =
-
-                (m.includes('lỗi') || m.includes('thất bại')) ? ['error', 'LỖI HỆ THỐNG'] :
-
-                    (m.includes('thành công') || m.includes('xong')) ? ['success', 'THÀNH CÔNG'] :
-
-                        (m.includes('vui lòng') || m.includes('chưa')) ? ['warning', 'LƯU Ý'] :
-
-                            ['info', 'THÔNG BÁO'];
-
-            (typeof showThongBao === 'function') ? showThongBao(title, message, type) : console.log(message);
-
-        };
-
-
-
-        let dataCache = { machine: [], proc: [], staff: [], room: [], pat: [] };
-
-// ==========================================
-// DRAG AND DROP REORDER LOGIC
-// ==========================================
-function enableDragAndDrop(tbodyId, dataKey, apiFunction) {
-    const tbody = document.getElementById(tbodyId);
-    if (!tbody || tbody.children.length === 0 || tbody.querySelector('.drag-handle')) return;
-
-    const theadTr = tbody.parentElement.querySelector('thead tr');
-    if (theadTr && !theadTr.querySelector('.drag-th')) {
-        const th = document.createElement('th');
-        th.className = 'drag-th';
-        th.style.width = '40px';
-        th.innerHTML = '⇅';
-        theadTr.insertBefore(th, theadTr.firstChild);
-    }
-
-    tbody.querySelectorAll('tr').forEach(tr => {
-        if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
-        const td = document.createElement('td');
-        td.innerHTML = '<span class="drag-handle" style="cursor:grab; font-size:16px; color:#7f8c8d;">☰</span>';
-        td.style.width = '40px';
-        td.style.textAlign = 'center';
-        tr.insertBefore(td, tr.firstChild);
-    });
-
-    if (typeof Sortable !== 'undefined') {
-        if (tbody._sortable) tbody._sortable.destroy();
-        Sortable.create(tbody, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function (evt) {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                if (oldIndex === newIndex) return;
-
-                const dataArray = dataCache[dataKey];
-                const movedItem = dataArray.splice(oldIndex, 1)[0];
-                dataArray.splice(newIndex, 0, movedItem);
-
-                dataArray.forEach((item, idx) => {
-                    if (item.index !== undefined) item.index = idx;
-                    if (item.sheetIndex !== undefined) item.sheetIndex = idx;
-                });
-
-                saveReorderedData(dataKey, apiFunction, oldIndex, newIndex);
-
-                setTimeout(() => {
-                    if (dataKey === 'machine') renderMachinesTable();
-                    if (dataKey === 'proc') renderProceduresTable();
-                    if (dataKey === 'staff') renderStaffTable();
-                    if (dataKey === 'room') renderRoomsTable();
-                    if (dataKey === 'pat') renderPatientsTable();
-                }, 100);
-            }
-        });
-    }
-}
-
-function saveReorderedData(dataKey, apiFunction, oldIndex = 0, newIndex = 0) {
-    const payload = JSON.parse(JSON.stringify(dataCache[dataKey]));
-
-    if (apiFunction === 'bulkUpdatePatients') {
-        if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu thứ tự mới...");
-        google.script.run
-            .withSuccessHandler(res => {
-                if (window.hideGlobalLoading) window.hideGlobalLoading();
-                if (typeof showCustomAlert === 'function') showCustomAlert("Lưu thành công", res, "✅", "#27ae60");
-                else alert(res);
-            })
-            .withFailureHandler(err => {
-                if (window.hideGlobalLoading) window.hideGlobalLoading();
-                alert("Lỗi khi lưu thứ tự: " + err.message);
-            })
-            [apiFunction](payload, true);
-        return;
-    }
-
-    callApi(apiFunction, [payload], () => {
-        if (typeof showCustomAlert === 'function') showCustomAlert("Lưu thành công", "Lưu ngầm thứ tự mới hoàn tất!", "✅", "#27ae60");
-        else console.log("Lưu ngầm thứ tự mới hoàn tất!");
-    }, (err) => {
-        console.error("Lỗi khi lưu thứ tự:", err);
-        if (typeof showCustomAlert === 'function') showCustomAlert("Lỗi lưu ngầm", err.message || err, "❌", "#e74c3c");
-    });
-}
-// ==========================================
 
 
         let editIndex = { machine: -1, proc: -1, staff: -1, room: -1, pat: -1 };
@@ -8001,7 +7659,7 @@ function saveReorderedData(dataKey, apiFunction, oldIndex = 0, newIndex = 0) {
         
 function renderMachinesTable() {
     renderMachinesTable_Original();
-    setTimeout(() => { enableDragAndDrop('machines-list', 'machine', 'bulkUpdateMayMoc'); }, 50);
+    setTimeout(() => {  }, 50);
 }
 
 function renderMachinesTable_Original() {
@@ -8203,7 +7861,7 @@ function renderMachinesTable_Original() {
         
 function renderProceduresTable() {
     renderProceduresTable_Original();
-    setTimeout(() => { enableDragAndDrop('procedures-list', 'proc', 'bulkUpdateThuThuat'); }, 50);
+    setTimeout(() => {  }, 50);
 }
 
 function renderProceduresTable_Original() {
@@ -8333,7 +7991,7 @@ function renderProceduresTable_Original() {
         
 function renderStaffTable() {
     renderStaffTable_Original();
-    setTimeout(() => { enableDragAndDrop('staff-list', 'staff', 'bulkUpdateNhanSu'); }, 50);
+    setTimeout(() => {  }, 50);
 }
 
 function renderStaffTable_Original() {
@@ -8526,7 +8184,7 @@ function renderStaffTable_Original() {
         
 function renderRoomsTable() {
     renderRoomsTable_Original();
-    setTimeout(() => { enableDragAndDrop('rooms-list', 'room', 'bulkUpdatePhong'); }, 50);
+    setTimeout(() => {  }, 50);
 }
 
 function renderRoomsTable_Original() {
@@ -8732,7 +8390,7 @@ function renderRoomsTable_Original() {
         
 function renderPatientsTable() {
     renderPatientsTable_Original();
-    setTimeout(() => { enableDragAndDrop('patients-list', 'pat', 'bulkUpdatePatients'); }, 50);
+    setTimeout(() => {  }, 50);
 }
 
 function renderPatientsTable_Original() {
