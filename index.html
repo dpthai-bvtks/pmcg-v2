@@ -10817,24 +10817,35 @@ function renderPatientsTable_Original() {
             if (!date) return alert('Vui lòng chọn ngày!');
             var statusEl = document.getElementById('utils-lich-status');
             var btn = document.getElementById('btn-tai-lich-utils');
+
+            var handleSuccess = function(sched) {
+                window.utilsScheduleData = sched;
+                window.utilsScheduleDate = date;
+                var dd = date.split('-').reverse().join('/');
+                if (statusEl) {
+                    if (sched.length > 0) {
+                        statusEl.innerText = '✅ Ngày ' + dd + ': ' + sched.length + ' ca. Có thể Tìm rảnh!';
+                        statusEl.style.color = '#27ae60';
+                    } else {
+                        statusEl.innerText = '⚠️ Ngày ' + dd + ' chưa có lịch.';
+                        statusEl.style.color = '#e67e22';
+                    }
+                }
+                if (btn) { btn.disabled = false; btn.innerText = '📊 Xem Lịch'; }
+            };
+
+            if (window._systemActiveYMD && date === window._systemActiveYMD) {
+                if (statusEl) { statusEl.innerText = '⏳ Đang nạp lịch hiện tại...'; statusEl.style.color = '#3498db'; }
+                setTimeout(() => handleSuccess(window.currentScheduleData || []), 100);
+                return;
+            }
+
             if (statusEl) { statusEl.innerText = '⏳ Đang tải...'; statusEl.style.color = '#f39c12'; }
             if (btn) { btn.disabled = true; btn.innerText = '⏳ Đang tải...'; }
             google.script.run
                 .withSuccessHandler(function(data) {
                     var sched = (data && data.schedule) ? data.schedule : (Array.isArray(data) ? data : []);
-                    window.utilsScheduleData = sched;
-                    window.utilsScheduleDate = date;
-                    var dd = date.split('-').reverse().join('/');
-                    if (statusEl) {
-                        if (sched.length > 0) {
-                            statusEl.innerText = '✅ Ngày ' + dd + ': ' + sched.length + ' ca. Có thể Tìm rảnh!';
-                            statusEl.style.color = '#27ae60';
-                        } else {
-                            statusEl.innerText = '⚠️ Ngày ' + dd + ' chưa có lịch.';
-                            statusEl.style.color = '#e67e22';
-                        }
-                    }
-                    if (btn) { btn.disabled = false; btn.innerText = '📊 Xem Lịch'; }
+                    handleSuccess(sched);
                 })
                 .withFailureHandler(function(err) {
                     if (statusEl) { statusEl.innerText = '❌ Lỗi tải dữ liệu!'; statusEl.style.color = '#c0392b'; }
