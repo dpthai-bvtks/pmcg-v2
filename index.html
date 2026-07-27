@@ -6624,12 +6624,17 @@ console.log('MAIN SCRIPT STARTING...');
 const API_URL = 'https://script.google.com/macros/s/AKfycbykwx2ubeJVp5Uy16OrHw9SMzHtKchiM0I7a-t3D_D45RJJ9G6EXrJtlL8Cl12ySdqndg/exec';
 let apiQueue = [];
 let isApiProcessing = false;
+let mutationCount = 0;
 
-function processApiQueue() {
-    if (isApiProcessing || apiQueue.length === 0) return;
-    isApiProcessing = true;
-    const { functionName, args, onSuccess, onError } = apiQueue.shift();
+function checkMutationLoading() {
+    if (mutationCount > 0) {
+        if (window.showGlobalLoading) window.showGlobalLoading("Đang xử lý dữ liệu...");
+    } else {
+        if (window.hideGlobalLoading) window.hideGlobalLoading();
+    }
+}
 
+function doFetchRequest(functionName, args, onSuccess, onError, isMutation, onComplete) {
     let sessionId = '';
     try {
         const session = JSON.parse(localStorage.getItem('meds_session') || '{}');
@@ -6648,9 +6653,7 @@ function processApiQueue() {
         })
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         return response.json();
     })
     .then(result => {
@@ -6668,15 +6671,38 @@ function processApiQueue() {
         else alert('Lỗi kết nối API: ' + error.toString());
     })
     .finally(() => {
+        if (isMutation) {
+            mutationCount--;
+            checkMutationLoading();
+        }
+        if (onComplete) onComplete();
+    });
+}
+
+function processApiQueue() {
+    if (isApiProcessing || apiQueue.length === 0) return;
+    isApiProcessing = true;
+    const { functionName, args, onSuccess, onError, isMutation } = apiQueue.shift();
+    
+    doFetchRequest(functionName, args, onSuccess, onError, isMutation, () => {
         isApiProcessing = false;
-        setTimeout(processApiQueue, 300); // Wait 300ms before next request to avoid rate limits
+        setTimeout(processApiQueue, 300); // 300ms delay between queued requests
     });
 }
 
 function callApi(functionName, args, onSuccess, onError) {
-    apiQueue.push({ functionName, args, onSuccess, onError });
-    processApiQueue();
+    const isMutation = functionName.startsWith('add') || functionName.startsWith('edit') || functionName.startsWith('delete') || functionName.startsWith('bulkUpdate') || functionName.startsWith('chotSo');
+    if (isMutation) {
+        mutationCount++;
+        checkMutationLoading();
+        apiQueue.push({ functionName, args, onSuccess, onError, isMutation });
+        processApiQueue();
+    } else {
+        // NON-MUTATIONS run immediately without queue
+        doFetchRequest(functionName, args, onSuccess, onError, false, null);
+    }
 }
+
 
 function escapeHtml(string) {
     if (string === null || string === undefined) return '';
