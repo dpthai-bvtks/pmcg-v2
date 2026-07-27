@@ -1412,6 +1412,22 @@ function chuyenNgayMoi() {
   }
 }
 
+function bulkUpdatePatients(rows, replaceAll) {
+  const lock = LockService.getDocumentLock();
+  try {
+    lock.waitLock(15000);
+    const sheet = getSheetByName('BenhNhan');
+    if (replaceAll && sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
+    if (rows.length === 0) return "Danh sách trống!";
+    let lastId = sheet.getLastRow() > 1 ? parseInt(sheet.getRange(sheet.getLastRow(), 1).getValue()) || 0 : 0;
+    const rowsToAppend = rows.map(r => [++lastId, r.ten, r.namSinh, r.ngayVao, r.gioVao, r.gioBan, r.gioRa, r.phong, r.thuThuat]);
+    sheet.getRange(sheet.getLastRow() + 1, 1, rowsToAppend.length, 9).setValues(rowsToAppend);
+    return replaceAll ? `Đã THAY THẾ toàn bộ bằng ${rowsToAppend.length} bệnh nhân mới!` : `Đã BỔ SUNG thêm ${rowsToAppend.length} bệnh nhân!`;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function runSupplementalScheduling(ngayXep, scenario) {
   scenario = parseInt(scenario) || 1;
   const timezone = Session.getScriptTimeZone();
@@ -1758,6 +1774,3 @@ function autoChotSo() {
      Logger.log("Bỏ qua vì hôm nay không phải T2-T6");
   }
 }
-// ===========================================
-// HÀM LƯU HÀNG LOẠT (DÙNG CHO DRAG & DROP SẮP XẾP)
-// ===========================================
