@@ -1462,11 +1462,10 @@ function runSupplementalScheduling(ngayXep, scenario) {
       return (info[8] || "").toLowerCase() === thuThuatLich || (info[9] && info[9].toLowerCase() === thuThuatLich);
     });
   });
-  if (updatedSched.length !== currentSched.length) {
-    clearSheet('LichTrinh');
-    if (updatedSched.length > 0) getSheetByName('LichTrinh').getRange(2, 1, updatedSched.length, updatedSched[0].length).setValues(updatedSched);
-    currentSched = updatedSched;
-  }
+  // Luôn ghi lại sheet để đảm bảo xóa các dòng Rớt cũ
+  clearSheet('LichTrinh');
+  if (updatedSched.length > 0) getSheetByName('LichTrinh').getRange(2, 1, updatedSched.length, updatedSched[0].length).setValues(updatedSched);
+  currentSched = updatedSched;
 
   // Tổng hợp ca đã xếp và giờ bận của mỗi bệnh nhân
   const patientScheduledProcs = {}, patientBusySlots = {};
