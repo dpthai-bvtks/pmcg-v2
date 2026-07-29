@@ -1033,7 +1033,10 @@ function runScheduling(ngayXep, strategyKey, skipProcsStr, crowdedOverride) {
     busySlots.push([0, gioVao + 1]);
     const isRaVien = (r[6] && String(r[6]).trim() !== "");
 
-    const pendingFiltered = String(r[8]).split(",").map(x => x.trim()).filter(x => x).filter(tenThuThuat => {
+    const rawPending = String(r[8]).split(",").map(x => x.trim()).filter(x => x);
+    const uniquePending = [...new Set(rawPending.map(x => x.toLowerCase()))].map(lower => rawPending.find(x => x.toLowerCase() === lower));
+    
+    const pendingFiltered = uniquePending.filter(tenThuThuat => {
       if (!skipList.length || isRaVien) return true;
       const tenLower = tenThuThuat.toLowerCase(), info = db.thuThuatInfo[tenLower];
       const tenGoc = info ? (info[8] || "").toLowerCase() : tenLower;
@@ -1582,7 +1585,9 @@ function runSupplementalScheduling(ngayXep, scenario) {
   allPatients.forEach(r => {
     if (!r[8]) return;
     const key = String(r[1]).toUpperCase() + "_" + String(r[2]).trim();
-    const tatCaThuThuat = String(r[8]).split(",").map(x => x.trim()).filter(x => x);
+    const rawThuThuat = String(r[8]).split(",").map(x => x.trim()).filter(x => x);
+    const tatCaThuThuat = [...new Set(rawThuThuat.map(x => x.toLowerCase()))].map(lower => rawThuThuat.find(x => x.toLowerCase() === lower));
+    
     const daXepSet = patientScheduledProcs[key] || new Set();
     const chuaXep = tatCaThuThuat.filter(tt => {
       const tenLower = tt.toLowerCase(), info = db.thuThuatInfo[tenLower];
@@ -1759,4 +1764,10 @@ function autoChotSo() {
   } else {
      Logger.log("Bỏ qua vì hôm nay không phải T2-T6");
   }
+}
+// TaiKhoan API missing
+function getAccounts() { return getAllData('TaiKhoan').map(r => ({ id: r[0], user: r[1], pass: r[2], role: r[3], perms: r[4] })); }
+function deleteAccount(id) {
+  const sheet = getSheetByName('TaiKhoan'), data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) { if (data[i][0].toString() === id.toString()) { sheet.deleteRow(i + 1); return 'Đã xóa!'; } }
 }
