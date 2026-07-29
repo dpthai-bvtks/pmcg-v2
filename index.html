@@ -10051,7 +10051,12 @@ function renderPatientsTable_Original() {
                 .withSuccessHandler(out => {
                     if (window.hideGlobalLoading) window.hideGlobalLoading();
                     btn.innerText = '⚡ XẾP BỔ SUNG BN MỚI'; btn.disabled = false;
-                    if (out.error) return alert(out.error);
+                    if (out.error) {
+                        console.error("Backend error in runExtraScheduling:", out.error);
+                        const res = document.getElementById('schedule-result');
+                        if (res) res.innerHTML = '<div class="alert alert-warning" style="margin-top:10px">⚠️ ' + out.error + '</div>';
+                        return alert(out.error);
+                    }
 
                     let currentUnscheduled = [];
                     try {
@@ -10080,6 +10085,9 @@ function renderPatientsTable_Original() {
                 .withFailureHandler(err => {
                     if (window.hideGlobalLoading) window.hideGlobalLoading();
                     btn.innerText = '⚡ XẾP BỔ SUNG BN MỚI'; btn.disabled = false;
+                    console.error("Connection/Backend error in runExtraScheduling:", err);
+                    const res = document.getElementById('schedule-result');
+                    if (res) res.innerHTML = '<div class="alert alert-danger" style="margin-top:10px">❌ Lỗi hệ thống: ' + err.message + '</div>';
                     alert("Lỗi kết nối: " + err.message);
                 })
                 .runSupplementalScheduling(dateVal);
