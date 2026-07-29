@@ -1470,6 +1470,7 @@ function runSupplementalScheduling(ngayXep, scenario) {
   // Tổng hợp ca đã xếp và giờ bận của mỗi bệnh nhân
   const patientScheduledProcs = {}, patientBusySlots = {};
   currentSched.forEach(row => {
+    if (String(row[5]).includes("Rớt")) return; // LOẠI BỎ CA RỚT KHỎI DANH SÁCH ĐÃ XẾP
     const key = String(row[1]).toUpperCase() + "_" + String(row[2]).trim();
     const gioStart = t2m(row[5]), gioEnd = t2m(row[6]);
     if (!patientScheduledProcs[key]) patientScheduledProcs[key] = new Set();
