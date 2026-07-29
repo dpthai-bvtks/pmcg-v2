@@ -1176,6 +1176,75 @@ function getTimRanhData() {
 }
 function getSchedule() { const data = getSheetByName('LichTrinh').getDataRange().getDisplayValues(); return data.length > 1 ? data.slice(1) : []; }
 
+// Alias cho dashboard - trả về lịch trình hiện tại cùng format getSchedule
+function getLichTrinh() { return getSchedule(); }
+
+// Marquee text (thông báo dòng chữ chạy)
+function getMarqueeText() {
+  const sheet = getSheetByName('CaiDat');
+  if (!sheet || sheet.getLastRow() < 1) return '';
+  const data = sheet.getDataRange().getDisplayValues();
+  for (const row of data) {
+    if (String(row[0]).trim().toLowerCase() === 'marquee') return String(row[1] || '');
+  }
+  return '';
+}
+function layThongBaoDongChuChay() { return getMarqueeText(); }
+
+function saveMarqueeText(text) {
+  const sheet = getSheetByName('CaiDat');
+  const data = sheet.getDataRange().getDisplayValues();
+  for (let i = 0; i < data.length; i++) {
+    if (String(data[i][0]).trim().toLowerCase() === 'marquee') {
+      sheet.getRange(i + 1, 2).setValue(text);
+      return 'Đã lưu!';
+    }
+  }
+  sheet.appendRow(['marquee', text]);
+  return 'Đã lưu!';
+}
+function luuThongBaoDongChuChay(text) { return saveMarqueeText(text); }
+
+// Danh sách liên kết nhanh từ sheet 'LienKet'
+function layDanhSachLienKet() {
+  const sheet = getSheetByName('LienKet');
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  return sheet.getDataRange().getDisplayValues().slice(1)
+    .filter(r => r[0])
+    .map(r => ({ ten: r[0] || '', url: r[1] || '#', icon: r[2] || '🔗' }));
+}
+
+// Danh sách văn bản từ sheet 'VanBan'
+function layDanhSachVanBan() {
+  const sheet = getSheetByName('VanBan');
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  return sheet.getDataRange().getDisplayValues().slice(1)
+    .filter(r => r[0])
+    .map(r => ({ ten: r[0] || '', url: r[1] || '#', ngay: r[2] || '' }));
+}
+
+// AI Training Data
+function getAITrainingData() {
+  const sheet = getSheetByName('AITraining');
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  return sheet.getDataRange().getDisplayValues().slice(1);
+}
+function saveAITrainingData(rows) {
+  const sheet = getSheetByName('AITraining');
+  if (rows && rows.length > 0) sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
+  return 'Đã lưu!';
+}
+function clearAITrainingData() {
+  clearSheet('AITraining');
+  return 'Đã xóa!';
+}
+
+// Khởi tạo bảo mật (no-op nếu đã có)
+function initSecurityDatabase() {
+  getSheetByName('TaiKhoan');
+  return 'OK';
+}
+
 function getHistorySchedule(dateStr) {
   const timezone = Session.getScriptTimeZone();
   const formatDate = (val, fmt) => val instanceof Date ? Utilities.formatDate(val, timezone, fmt) : val;
