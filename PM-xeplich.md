@@ -2038,3 +2038,6 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 ### Cập nhật ngày 29/07/2026
 - **Yêu cầu của User:** Thay đổi logic xếp lịch tổng. Kỹ thuật viên sẽ ở cố định phòng mình phụ trách một cách tối đa, không đi hỗ trợ phòng khác. Còn bác sĩ thì vẫn có thể đi hỗ trợ.
 - **Giải pháp:** Cập nhật hàm `runBestIteration` trong `code.gs-v2.txt`. Thêm điều kiện kiểm tra khi xây dựng danh sách ứng viên (`candidatesMain`): Nếu nhân sự có vai trò là 'Kỹ thuật viên' và đã được phân công vào các phòng cố định, nhưng phòng hiện tại đang cần xếp lịch không nằm trong danh sách phòng phụ trách của họ thì bỏ qua (return), không đưa vào danh sách ứng viên. Điều này chặn hoàn toàn việc KTV bị điều đi hỗ trợ chéo, trong khi Bác sĩ vẫn giữ nguyên cơ chế cũ.
+
+- **Yêu cầu của User (lần 2):** Xếp lịch ngày vắng rớt 2 ca nhưng ấn xếp bổ sung không được. Mong muốn xếp bổ sung có thể lấp đầy chỗ rớt đó.
+- **Giải pháp:** Cập nhật lại logic chặn KTV hỗ trợ chéo trong hàm `runBestIteration`. Bổ sung biến `isSupplemental` kiểm tra xem có phải đang chạy tính năng Xếp bổ sung không (dựa vào tham số `existingSched` có dữ liệu hay không). Nếu đang chạy xếp bổ sung thì tạm thời bỏ chặn, cho phép KTV đi hỗ trợ chéo các phòng để vét các ca bị rớt.
