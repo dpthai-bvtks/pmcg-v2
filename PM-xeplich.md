@@ -2041,3 +2041,6 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 
 - **Yêu cầu của User (lần 2):** Xếp lịch ngày vắng rớt 2 ca nhưng ấn xếp bổ sung không được. Mong muốn xếp bổ sung có thể lấp đầy chỗ rớt đó.
 - **Giải pháp:** Cập nhật lại logic chặn KTV hỗ trợ chéo trong hàm `runBestIteration`. Bổ sung biến `isSupplemental` kiểm tra xem có phải đang chạy tính năng Xếp bổ sung không (dựa vào tham số `existingSched` có dữ liệu hay không). Nếu đang chạy xếp bổ sung thì tạm thời bỏ chặn, cho phép KTV đi hỗ trợ chéo các phòng để vét các ca bị rớt.
+
+- **Yêu cầu của User (lần 3):** Xếp bổ sung vẫn rớt 2 ca dù Bác sĩ vẫn rảnh. Nguyên nhân là do ở kịch bản ngày vắng (scenario = 3), thuật toán cấm tuyệt đối việc hỗ trợ chéo nếu trong phòng đã có người biết làm thủ thuật đó (dù người đó đang bận).
+- **Giải pháp:** Cập nhật lại 2 khối logic (chặn bác sĩ và chặn nhân sự phụ) trong hàm `runBestIteration`, dùng biến `isSupplemental` để gỡ bỏ toàn bộ giới hạn hỗ trợ chéo trong Xếp bổ sung. Cho phép hệ thống lấy bất kỳ nhân sự nào rảnh (Bác sĩ, KTV, Điều dưỡng) ở phòng khác để lấp vào các ca rớt.
