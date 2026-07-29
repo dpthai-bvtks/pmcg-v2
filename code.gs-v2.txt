@@ -689,6 +689,10 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
       if (tNow < (staffSetupReady[tenNV] || 0)) return;
       if (staffTimeline[tenNV].some(slot => is_overlap(tNow, tNow + tgNhanVien + 1, slot[0], slot[1]))) return;
       if (hasTeardown && staffTimeline[tenNV].some(slot => is_overlap(tearStart, tearEnd, slot[0], slot[1]))) return;
+      
+      // KTV được phân công phòng cố định sẽ không đi hỗ trợ phòng khác (nhưng KTV tự do thì vẫn được)
+      if (staffRole[tenNV] === 'Kỹ thuật viên' && staffMyRooms[tenNV].length > 0 && !staffMyRooms[tenNV].includes(targetRoom)) return;
+
       if (staffRole[tenNV]?.toLowerCase() !== 'điều dưỡng') candidatesMain.push(tenNV);
       else candidatesSub.push(tenNV);
     });
