@@ -1510,7 +1510,7 @@ function runSupplementalScheduling(ngayXep, scenario) {
   const sheet = getSheetByName('LichTrinh');
   let newRows = [];
   if (best) {
-    newRows = best.sched.map(item => [item.NGAY, item.HOTEN, item.NAMSINH, item.PHONG, item.DICHVU, item.GIODIENRA, item.GIOKETTHUC, item["NV CHINH"], item["NV PHỤ"], item.MAY, item.GIUONG]);
+    newRows = best.sched.map(item => [item.NGAY, item.HOTEN, item.NAMSINH, item.PHONG, item.DICHVU, item.GIODIENRA, item.GIOKETTHUC, item["NV CHÍNH"], item["NV PHỤ"], item.MAY, item.GIUONG]);
     if (newRows.length > 0) sheet.getRange(sheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
     
     // Ghi các ca tiếp tục rớt vào sheet
