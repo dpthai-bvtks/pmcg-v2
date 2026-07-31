@@ -2044,3 +2044,16 @@ phần chọn danh sách nhân sự đi làm ngày thứ 7 thì phải hiện to
 
 - **Yêu cầu của User (lần 3):** Xếp bổ sung vẫn rớt 2 ca dù Bác sĩ vẫn rảnh. Nguyên nhân là do ở kịch bản ngày vắng (scenario = 3), thuật toán cấm tuyệt đối việc hỗ trợ chéo nếu trong phòng đã có người biết làm thủ thuật đó (dù người đó đang bận).
 - **Giải pháp:** Cập nhật lại 2 khối logic (chặn bác sĩ và chặn nhân sự phụ) trong hàm `runBestIteration`, dùng biến `isSupplemental` để gỡ bỏ toàn bộ giới hạn hỗ trợ chéo trong Xếp bổ sung. Cho phép hệ thống lấy bất kỳ nhân sự nào rảnh (Bác sĩ, KTV, Điều dưỡng) ở phòng khác để lấp vào các ca rớt.
+
+### C?p nh?t ng�y 31/07/2026
+**Y�u c?u:**
+1. S?a l?i X?p b? sung b? nh�n b?n s? lu?ng th? thu?t l�n 293 ca thay v� 183 ca v� n�t b?m b? treo.
+2. S?a l?i t�m B�c si r?nh hi?n th? gi? r?nh b? sai, thi?u 1 ph�t (v� d?: b?n d?n 07:55 nhung b�o r?nh ? 07:55).
+
+**Nguy�n nh�n:**
+1. H�m unSupplementalScheduling kh�ng c� co ch? seenPatients d? lo?i b? c�c d�ng b? l?p t�n b?nh nh�n, d?n d?n m?i d�ng l?p t?o ra m?t ca th? thu?t nh�n b?n.
+2. Trong h�m 	imBacSiRanh, khi parse doc.gioBan, thu?t to�n s? d?ng tr?c ti?p gi? k?t th�c (v� d?  7:55) d? xem nhu b?t d?u r?nh, nhung theo quy t?c 1 kho?ng b?n d?n  7:55 nghia l� b?n d?n h?t ph�t  7:55, gi? r?nh ph?i c?ng th�m 1 ph�t l�  7:56.
+
+**Gi?i ph�p:**
+1. Th�m thu?t to�n deduplicate b?ng seenPatients v�o unSupplementalScheduling trong code.gs-v2.txt.
+2. C?ng th�m + 1 v�o 	2m(pts[1].trim()) khi parse doc.gioBan trong index.html.
