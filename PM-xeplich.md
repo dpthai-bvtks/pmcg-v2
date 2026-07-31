@@ -2079,3 +2079,13 @@ Ngu?i dùng mu?n thay d?i thao tác UI: Không b?t bu?c nh?p gi? k?t thúc n?u ch? m
 **Gi?i pháp:**
 - S?a các hàm saveStaffBusy, savePatBusy, deleteSingleStaffBusy, deleteSinglePatBusy trong index.html d? không b?t bu?c ô 	o ph?i có giá tr?. N?u d? tr?ng, s? l?y m?c d?nh 	o = from (thành 08:00-08:00).
 - Hoàn tác l?i (re-add) logic + 1 vào phút k?t thúc khi parse chu?i gioBan trong index.html và code.gs-v2.txt. Nhu v?y 08:00-08:00 s? parse thành [480, 481] (dúng yêu c?u b?n 1 phút ? 08:00), và 08:00-08:02 s? parse thành [480, 483] (b?n 3 phút).
+
+### C?p nh?t b? sung l?n 3 ngày 31/07/2026
+**Yêu c?u:**
+- Cho phép ?n phím Enter ngay t?i ô nh?p gi? d?u tiên (t? gi?) c?a m?c Gi? b?n d? luu luôn mà không c?n ?n nút Luu.
+
+**Nguyên nhân:**
+Tru?c dó ch? có ô th? 2 (d?n gi?) m?i du?c g?n s? ki?n onkeydown l?ng nghe phím Enter. Vì tính nang m?i cho phép b? qua ô th? 2 nên ngu?i dùng g?p b?t ti?n khi nh?p ô 1 xong ?n Enter không có tác d?ng.
+
+**Gi?i pháp:**
+- B? sung thu?c tính onkeydown l?ng nghe phím Enter cho c? ô usy-staff-from và usy-pat-from trong file index.html. Khi ?n Enter s? t? d?ng g?i hàm saveStaffBusy() / savePatBusy() tuong ?ng.
