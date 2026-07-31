@@ -1582,9 +1582,13 @@ function runSupplementalScheduling(ngayXep, scenario) {
   });
 
   // Tìm thủ thuật chưa xếp
+  const seenPatients = new Set();
   allPatients.forEach(r => {
     if (!r[8]) return;
     const key = String(r[1]).toUpperCase() + "_" + String(r[2]).trim();
+    if (seenPatients.has(key)) return;
+    seenPatients.add(key);
+    
     const rawThuThuat = String(r[8]).split(",").map(x => x.trim()).filter(x => x);
     const tatCaThuThuat = [...new Set(rawThuThuat.map(x => x.toLowerCase()))].map(lower => rawThuThuat.find(x => x.toLowerCase() === lower));
     
