@@ -2057,3 +2057,13 @@ pháº§n chá»n danh sÃ¡ch nhÃ¢n sá»± Ä‘i lÃ m ngÃ y thá»© 7 thÃ¬ pháº£i hiá»‡n to
 **Gi?i pháp:**
 1. Thêm thu?t toán deduplicate b?ng seenPatients vào unSupplementalScheduling trong code.gs-v2.txt.
 2. C?ng thêm + 1 vào 	2m(pts[1].trim()) khi parse doc.gioBan trong index.html.
+
+### C?p nh?t b? sung ngày 31/07/2026
+**Yêu c?u:**
+S?a l?i logic tính th?i gian r?nh khi nh?p th? công: n?u nh?p 08:00-08:01 thì ch? tính là b?n 1 phút ? 08:00.
+
+**Nguyên nhân:**
+Tru?c dó d? tránh trùng biên gi? b?n, thu?t toán dã c?ng thêm 1 phút vào gi? k?t thúc khi ngu?i dùng nh?p th? công (thành 08:02). Ği?u này làm cho ca 08:00-08:01 b? tính là 2 phút b?n (08:00 và 08:01).
+
+**Gi?i pháp:**
+B? toàn b? logic c?ng thêm + 1 khi parse gioBan th? công trong c? code.gs-v2.txt (cho c? nhân s? và b?nh nhân) và index.html. Nhu v?y 08:00-08:01 s? dúng là b?n ? 08:00 và t? 08:01 s? báo r?nh.
