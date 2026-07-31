@@ -2067,3 +2067,15 @@ Tru?c dó d? tránh trùng biên gi? b?n, thu?t toán dã c?ng thêm 1 phút vào gi? k?t
 
 **Gi?i pháp:**
 B? toàn b? logic c?ng thêm + 1 khi parse gioBan th? công trong c? code.gs-v2.txt (cho c? nhân s? và b?nh nhân) và index.html. Nhu v?y 08:00-08:01 s? dúng là b?n ? 08:00 và t? 08:01 s? báo r?nh.
+
+### C?p nh?t b? sung l?n 2 ngày 31/07/2026
+**Yêu c?u:**
+- Cho phép nh?p 1 ô (vd: 08:00) ? tru?ng Gi? b?n th? công và hi?u là b?n t? 08:00:00 d?n 08:00:59.
+- Tr? l?i quy t?c nh?p 08:00-08:02 là b?n d?n h?t phút 08:02 (t?c 08:02:59) nhu cu.
+
+**Nguyên nhân:**
+Ngu?i dùng mu?n thay d?i thao tác UI: Không b?t bu?c nh?p gi? k?t thúc n?u ch? mu?n b?n 1 phút, và mu?n gi? k?t thúc (n?u có) luôn tính tr?n v?n c? phút dó.
+
+**Gi?i pháp:**
+- S?a các hàm saveStaffBusy, savePatBusy, deleteSingleStaffBusy, deleteSinglePatBusy trong index.html d? không b?t bu?c ô 	o ph?i có giá tr?. N?u d? tr?ng, s? l?y m?c d?nh 	o = from (thành 08:00-08:00).
+- Hoàn tác l?i (re-add) logic + 1 vào phút k?t thúc khi parse chu?i gioBan trong index.html và code.gs-v2.txt. Nhu v?y 08:00-08:00 s? parse thành [480, 481] (dúng yêu c?u b?n 1 phút ? 08:00), và 08:00-08:02 s? parse thành [480, 483] (b?n 3 phút).
