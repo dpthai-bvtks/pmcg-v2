@@ -5057,6 +5057,7 @@
                                     style="padding:6px; border-radius:4px; border:1px solid #ccc; max-width:150px;"></select>
 
                                 <input type="text" id="busy-staff-from" onfocus="lastBusyContext='staff'"
+                                    onkeydown="if(event.key === 'Enter') { saveStaffBusy(); setTimeout(() => document.getElementById('busy-staff-select').focus(), 300); }"
 
                                     class="time-input"
 
@@ -5146,7 +5147,9 @@
 
                                 style="display:flex; align-items:center; gap:4px; margin-bottom:15px; flex-wrap:nowrap;">
 
-                                <input type="text" id="busy-pat-from" onfocus="lastBusyContext='pat'" class="time-input"
+                                <input type="text" id="busy-pat-from" onfocus="lastBusyContext='pat'"
+                                    onkeydown="if(event.key === 'Enter') { savePatBusy(); setTimeout(() => document.getElementById('busy-pat-input').focus(), 300); }"
+                                    class="time-input"
 
                                     style="padding:5px; width:55px; text-align:center; border:1px solid #ccc; border-radius:4px; font-size:13px;"
 
