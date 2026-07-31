@@ -10955,7 +10955,7 @@ function renderPatientsTable_Original() {
 
             if (doc.gioBan) doc.gioBan.split(',').forEach(b => { const pts = b.split('-'); if(pts.length===2)
 
-            busy.push([t2m(pts[0].trim()), t2m(pts[1].trim()) + 1]); });
+            busy.push([t2m(pts[0].trim()), t2m(pts[1].trim())]); });
 
             busy.sort((a,b) => a[0]-b[0]);
 
