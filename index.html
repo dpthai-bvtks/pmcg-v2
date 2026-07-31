@@ -9122,9 +9122,10 @@ function renderPatientsTable_Original() {
             const fromObj = document.getElementById('busy-pat-from');
             const toObj = document.getElementById('busy-pat-to');
             const from = fromObj.value, to = toObj.value;
-            if (!from || !to) return alert('Nhập thời gian!');
+            if (!from) return alert('Nhập thời gian!');
+            const finalTo = to || from;
             const p = dataCache.pat[idx];
-            const newSlot = from + '-' + to;
+            const newSlot = from + '-' + finalTo;
             if (window.editingPatSlot && window.editingPatName === p.ten) {
                 let slotsArr = p.gioBan ? p.gioBan.split(',').map(x => x.trim()) : [];
                 p.gioBan = slotsArr.filter(x => x && x !== window.editingPatSlot).join(', ');
@@ -9160,10 +9161,11 @@ function renderPatientsTable_Original() {
             if (idx === -1) return alert('Vui lòng chọn đích danh bệnh nhân!');
             const from = document.getElementById('busy-pat-from').value;
             const to = document.getElementById('busy-pat-to').value;
-            if (!from || !to) return alert('Vui lòng click vào khoảng giờ trên bảng để xóa!');
+            if (!from) return alert('Vui lòng click vào khoảng giờ trên bảng để xóa!');
+            const finalTo = to || from;
             const p = dataCache.pat[idx];
             if (!p.gioBan) return;
-            const slotToDelete = from + '-' + to;
+            const slotToDelete = from + '-' + finalTo;
 
             showCustomConfirm("Xóa giờ bận", "Bác sĩ có muốn xóa giờ bận [ " + slotToDelete + " ] của BN: " + p.ten + "?", function () {
                 p.gioBan = p.gioBan.split(',').map(x => x.trim()).filter(x => x && x !== slotToDelete).join(', ');
@@ -9438,9 +9440,10 @@ function renderPatientsTable_Original() {
             const fromObj = document.getElementById('busy-staff-from');
             const toObj = document.getElementById('busy-staff-to');
             const from = fromObj.value, to = toObj.value;
-            if (!from || !to) return alert('Nhập thời gian!');
+            if (!from) return alert('Nh?p th?i gian!');
+            const finalTo = to || from;
             const s = dataCache.staff[idx];
-            const newSlot = from + '-' + to;
+            const newSlot = from + '-' + finalTo;
             if (window.editingStaffSlot && String(window.editingStaffIdx) === String(idx)) {
                 s.gioBan = (s.gioBan ? s.gioBan.split(',').map(x => x.trim()).filter(x => x && x !== window.editingStaffSlot) : []).join(', ');
                 window.editingStaffSlot = ''; window.editingStaffIdx = '';
@@ -9474,10 +9477,11 @@ function renderPatientsTable_Original() {
             const idx = select.value;
             const from = document.getElementById('busy-staff-from').value;
             const to = document.getElementById('busy-staff-to').value;
-            if (!from || !to) return alert('Vui lòng click vào một khoảng giờ trên bảng để xóa!');
+            if (!from) return alert('Vui lng click vo m?t kho?ng gi? trn b?ng d? xa!');
+            const finalTo = to || from;
             const s = dataCache.staff[idx];
             if (!s.gioBan) return;
-            const slotToDelete = from + '-' + to;
+            const slotToDelete = from + '-' + finalTo;
 
             showCustomConfirm("Xóa giờ bận", "Bác sĩ có muốn xóa giờ bận [ " + slotToDelete + " ] của NV: " + s.ten + "?", function () {
                 s.gioBan = s.gioBan.split(',').map(x => x.trim()).filter(x => x && x !== slotToDelete).join(', ');
@@ -10955,7 +10959,7 @@ function renderPatientsTable_Original() {
 
             if (doc.gioBan) doc.gioBan.split(',').forEach(b => { const pts = b.split('-'); if(pts.length===2)
 
-            busy.push([t2m(pts[0].trim()), t2m(pts[1].trim())]); });
+            busy.push([t2m(pts[0].trim()), t2m(pts[1].trim()) + 1]); });
 
             busy.sort((a,b) => a[0]-b[0]);
 
