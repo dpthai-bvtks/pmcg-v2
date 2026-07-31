@@ -1087,6 +1087,8 @@ function getSatData() {
 
 function runSaturdaySchedule(payload, dateVal) {
   const db = buildBaseDb();
+  db.roomBeds = {};
+  db.roomStaff = {};
   const allBeds = [];
   getAllData('PhongThuThuat').forEach(r => {
     const soGiuong = parseInt(r[5]) || 15, bedStr = r[6] ? String(r[6]).trim() : "";
