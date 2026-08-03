@@ -181,6 +181,9 @@ function editNhanSu(rowIndex, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBa
 }
 function deleteNhanSu(rowIndex) { deleteRow('NhanSu', rowIndex); }
 
+function updateNameEverywhere(oldName, newName) {
+  // TODO: Cập nhật tên ở các sheet khác khi có thay đổi (chưa được triển khai)
+}
 // CRUD Phòng
 function getPhongThuThuat() { return getAllData('PhongThuThuat').map(r => ({ id: r[0], tenPhong: r[1], bacSi: r[2], ktv: r[3], danhSachMay: r[4], soGiuong: r[5], danhSachGiuong: r[6] })); }
 function addPhong(tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong) { appendRow('PhongThuThuat', [getSheetByName('PhongThuThuat').getLastRow(), tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong]); }
