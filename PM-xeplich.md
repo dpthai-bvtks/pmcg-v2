@@ -1435,3 +1435,15 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 **Giải pháp:**
 - Bổ sung lại hàm hashPassword(password) và hashPasswordOld(password) sử dụng SHA-256 từ mã nguồn cũ vào code.gs-v2.txt.
 - Chạy script khôi phục file PM-xeplich.md từ git và mapping lại từng chuỗi ký tự lỗi đích danh (Exact string matching) để đưa các cụm từ Mojibake về đúng tiếng Việt chuẩn 100%, xóa bỏ khoảng trắng thừa để file sạch đẹp.
+### Cập nhật bổ sung lần 4 ngày 03/08/2026
+**Yêu cầu:**
+- Sửa lỗi không xem được lịch sử (lịch trình, giờ bận) của ngày hiện tại ngay sau khi đã chốt sổ (ví dụ: chốt lúc 16h nhưng 16h15 muốn xem lại thì báo không có).
+
+**Nguyên nhân:**
+- Quá trình chốt sổ sẽ ghi ngày vào sheet SoThuThuat và LichSuBan dưới định dạng chuỗi dd/MM/yyyy (vd:  3/08/2026).
+- Khi user tải lịch sử, ứng dụng gửi request dạng chuẩn ISO yyyy-MM-dd (vd: 2026-08-03).
+- Do Google Sheets thỉnh thoảng không tự hiểu chuỗi dd/MM/yyyy là đối tượng Date (đặc biệt khi ngày > 12), phép so sánh chuỗi nguyên bản "03/08/2026" === "2026-08-03" bị sai, dẫn đến việc không tìm thấy lịch sử.
+
+**Giải pháp:**
+- Viết lại hàm đối chiếu ngày trong getHistorySchedule() và getHistoryFullData() (thuộc code.gs-v2.txt). 
+- Bổ sung logic dùng biểu thức chính quy (Regex) quét chuỗi lấy từ Google Sheets. Nếu chuỗi có dạng dd/MM/yyyy, sẽ tự động tách và đảo lại thành format yyyy-MM-dd để khớp hoàn hảo với request từ frontend. Đảm bảo load chuẩn lịch sử kể cả khi Google Sheets chỉ lưu định dạng String.
