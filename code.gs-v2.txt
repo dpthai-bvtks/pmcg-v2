@@ -12,8 +12,7 @@ const PUBLIC_ACTIONS = [
   'verifyLogin',
   'getMarqueeText',
   'layThongBaoDongChuChay',
-  'layDanhSachLienKet',
-  'layDanhSachVanBan'
+  'layDanhSachLienKet'
 ];
 
 const USER_ACTIONS = [
@@ -23,7 +22,6 @@ const USER_ACTIONS = [
   'getPhongThuThuat',
   'getBenhNhan',
   'getSchedule',
-  'getHistorySchedule',
   'getHistoryFullData',
   'getSatData',
   'getTimRanhData',
@@ -32,24 +30,22 @@ const USER_ACTIONS = [
   'runScheduling',
   'runSaturdaySchedule',
   'runSupplementalScheduling',
-  'chuyenNgayMoi',
-  'saveSchedule'
+  'chuyenNgayMoi'
 ];
 
 const ADMIN_ACTIONS = [
-  'bulkUpdateMayMoc', 'bulkUpdateThuThuat', 'bulkUpdateNhanSu', 'bulkUpdatePhong',
   'addMayMoc', 'editMayMoc', 'deleteMayMoc',
   'addThuThuat', 'editThuThuat', 'deleteThuThuat',
   'addNhanSu', 'editNhanSu', 'deleteNhanSu',
   'addPhong', 'editPhong', 'deletePhong',
   'addBenhNhan', 'editBenhNhan', 'deleteBenhNhan',
   'bulkUpdatePatients',
-  'uploadTimRanhData',
   'saveAITrainingData', 'clearAITrainingData',
   'saveMarqueeText', 'luuThongBaoDongChuChay',
-  'getAccounts', 'saveAccount', 'deleteAccount',
-  'initSecurityDatabase'
+  'getAccounts', 'saveAccount', 'deleteAccount'
 ];
+
+const ALL_ACTIONS = [...PUBLIC_ACTIONS, ...USER_ACTIONS, ...ADMIN_ACTIONS];
 
 function doPost(e) {
   try {
@@ -60,8 +56,7 @@ function doPost(e) {
     }
     
     // 1. Kiểm tra Whitelist hành động
-    const allActions = [...PUBLIC_ACTIONS, ...USER_ACTIONS, ...ADMIN_ACTIONS];
-    if (!allActions.includes(action)) {
+    if (!ALL_ACTIONS.includes(action)) {
       throw new Error("Hành động không hợp lệ: " + action);
     }
     
@@ -182,7 +177,38 @@ function editNhanSu(rowIndex, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBa
 function deleteNhanSu(rowIndex) { deleteRow('NhanSu', rowIndex); }
 
 function updateNameEverywhere(oldName, newName) {
-  // TODO: Cập nhật tên ở các sheet khác khi có thay đổi (chưa được triển khai)
+  if (!oldName || !newName || String(oldName).trim() === String(newName).trim()) return;
+  const oName = String(oldName).trim();
+  const nName = String(newName).trim();
+  try {
+    const sheetLT = getSheetByName('LichTrinh');
+    const dataLT = sheetLT.getDataRange().getValues();
+    let changedLT = false;
+    for (let i = 1; i < dataLT.length; i++) {
+      for (let j = 1; j < dataLT[i].length; j++) {
+        if (String(dataLT[i][j]).trim() === oName) {
+          dataLT[i][j] = nName;
+          changedLT = true;
+        }
+      }
+    }
+    if (changedLT) sheetLT.getDataRange().setValues(dataLT);
+    
+    const sheetBN = getSheetByName('BenhNhan');
+    const dataBN = sheetBN.getDataRange().getValues();
+    let changedBN = false;
+    for (let i = 1; i < dataBN.length; i++) {
+      for (let j = 1; j < dataBN[i].length; j++) {
+        if (String(dataBN[i][j]).trim() === oName) {
+          dataBN[i][j] = nName;
+          changedBN = true;
+        }
+      }
+    }
+    if (changedBN) sheetBN.getDataRange().setValues(dataBN);
+  } catch (e) {
+    Logger.log("Lỗi updateNameEverywhere: " + e.message);
+  }
 }
 // CRUD Phòng
 function getPhongThuThuat() { return getAllData('PhongThuThuat').map(r => ({ id: r[0], tenPhong: r[1], bacSi: r[2], ktv: r[3], danhSachMay: r[4], soGiuong: r[5], danhSachGiuong: r[6] })); }
@@ -1156,18 +1182,7 @@ function runSaturdaySchedule(payload, dateVal) {
 // ============================================================
 // TIỆN ÍCH & LỊCH SỬ
 // ============================================================
-function uploadTimRanhData(data) {
-  const sheet = getSheetByName('TimRanh');
-  if (!sheet) return false;
-  sheet.clearContents();
-  if (!data || data.length === 0) return true;
-  const rows = [['Thủ thuật', 'Giờ BĐ', 'Giờ KT', 'NV Chính', 'Máy']];
-  data.forEach(d => {
-    rows.push([d.thuThuat, d.gioDienRa, d.gioKetThuc, d.nvChinh, d.may]);
-  });
-  sheet.getRange(1, 1, rows.length, 5).setValues(rows);
-  return true;
-}
+
 
 function getTimRanhData() {
   const sheet = getSheetByName('TimRanh');
@@ -1243,14 +1258,7 @@ function layDanhSachLienKet() {
   return danhSach;
 }
 
-// Danh sách văn bản từ sheet VanBan
-function layDanhSachVanBan() {
-  const sheet = SS.getSheetByName("VanBan");
-  if (!sheet) return [];
-  return sheet.getDataRange().getDisplayValues().slice(1)
-    .filter(r => r[0] !== "")
-    .map(r => ({ soHieu: r[0], ten: r[1], coQuan: r[2], ngayKy: r[3], linkXem: r[4], linkTai: r[5] }));
-}
+
 
 // AI Training Data — lưu trong sheet DuLieuHuanLuyen
 function getAITrainingData() {
@@ -1273,69 +1281,10 @@ function clearAITrainingData() {
   return "Đã dọn sạch Kho dữ liệu Huấn luyện AI!";
 }
 
-// Khởi tạo bảo mật
-function initSecurityDatabase() {
-  const sheet = getSheetByName('TaiKhoan');
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(['ID', 'Tài Khoản', 'Mật Khẩu', 'Vai Trò', 'Quyền Hạn']);
-    sheet.appendRow([1, 'admin', hashPassword('123456'), 'Admin', 'ALL']);
-  }
-}
 
 
-function getHistorySchedule(dateStr) {
-  const timezone = Session.getScriptTimeZone();
-  const formatDate = (val, fmt) => val instanceof Date ? Utilities.formatDate(val, timezone, fmt) : val;
-  const formatTime = (val) => {
-    if (val instanceof Date) {
-      return Utilities.formatDate(val, timezone, "HH:mm");
-    }
-    const str = String(val || '');
-    if (str.includes(':')) {
-      const match = str.match(/(\d{2}):(\d{2})/);
-      if (match) return `${match[1]}:${match[2]}`;
-    }
-    return str.trim();
-  };
-  
-  const sheet = getSheetByName('SoThuThuat');
-  const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return [];
-  
-  const range = sheet.getRange(2, 1, lastRow - 1, 13);
-  const values = range.getValues();
-  const displayValues = range.getDisplayValues();
-  
-  return values
-    .map((r, i) => {
-      r.displayValues = displayValues[i];
-      return r;
-    })
-    .filter(r => {
-      let dStr = '';
-      if (r[1] instanceof Date) {
-        dStr = Utilities.formatDate(r[1], timezone, "yyyy-MM-dd");
-      } else {
-        const str = String(r[1]).trim();
-        const match = str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-        dStr = match ? `${match[3]}-${match[2]}-${match[1]}` : str;
-      }
-      return dStr === String(dateStr);
-    })
-    .map(r => ({
-      ngay: formatDate(r[1], "dd/MM/yyyy"), 
-      tenBN: r[2], 
-      namSinh: r[3], 
-      phong: r[4], 
-      thuThuat: r[5],
-      gioDienRa: formatTime(r.displayValues[7]), 
-      gioKetThuc: formatTime(r.displayValues[8]), 
-      nvChinh: r[9], 
-      nvPhu: r[10], 
-      may: r[11], 
-      giuong: r[12]
-    }));
-}
+
+
 
 // Trả về đầy đủ dữ liệu lịch sử: lịch trình + BN + giờ bận NV + giờ bận BN
 function getHistoryFullData(dateStr) {
@@ -1513,16 +1462,22 @@ function chuyenNgayMoi() {
 
   const sheetBN = getSheetByName('BenhNhan');
   const bnData = sheetBN.getDataRange().getValues(); 
-  const bnDisplayData = sheetBN.getDataRange().getDisplayValues(); 
   const keptPatients = bnData.length > 0 ? [bnData[0]] : [];
 
+  const formatTime = d => {
+    if (!d) return '';
+    if (d instanceof Date) return Utilities.formatDate(d, timezone, "HH:mm");
+    return String(d).trim();
+  };
+
   for (let i = 1; i < bnData.length; i++) {
-    const rowDisplay = bnDisplayData[i];
-    if (rowDisplay[5] && String(rowDisplay[5]).trim()) {
-      historyBusyRows.push([closeDate, "Bệnh Nhân", rowDisplay[1], rowDisplay[2], rowDisplay[7], String(rowDisplay[5]).trim()]);
+    const row = bnData[i];
+    const gioBanStr = formatTime(row[5]);
+    if (gioBanStr) {
+      historyBusyRows.push([closeDate, "Bệnh Nhân", row[1], row[2], row[7], gioBanStr]);
     }
-    const row = bnData[i], gioRa = row[6];
-    if (!gioRa || gioRa === '' || String(gioRa).toLowerCase() === 'none') {
+    const gioRa = row[6];
+    if (!gioRa || String(gioRa).trim() === '' || String(gioRa).toLowerCase() === 'none') {
       row[4] = ''; row[5] = ''; row[6] = ''; keptPatients.push(row);
     }
   }
@@ -1661,17 +1616,24 @@ function runSupplementalScheduling(ngayXep, scenario) {
 // ============================================================
 function hashPassword(pwd) {
   if (!pwd) return "";
+  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, pwd.trim() + PASSWORD_PEPPER, Utilities.Charset.UTF_8);
+  return rawHash.map(b => (b < 0 ? b + 256 : b).toString(16).padStart(2, '0')).join('');
+}
+
+function hashPasswordNoPepper(pwd) {
+  if (!pwd) return "";
   const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, pwd.trim(), Utilities.Charset.UTF_8);
   return rawHash.map(b => (b < 0 ? b + 256 : b).toString(16).padStart(2, '0')).join('');
 }
 
-function hashPasswordOld(pwd) {
+function hashPasswordPlain(pwd) {
   return pwd ? pwd.trim() : "";
 }
 
 function verifyLogin(username, password) {
   const hashedNew = hashPassword(password);
-  const hashedOld = hashPasswordOld(password);
+  const hashedNoPepper = hashPasswordNoPepper(password);
+  const hashedPlain = hashPasswordPlain(password);
   
   const sheet = getSheetByName('TaiKhoan');
   const data = sheet.getDataRange().getValues();
@@ -1688,7 +1650,7 @@ function verifyLogin(username, password) {
         matchedUser = { id: data[i][0], username: data[i][1], role: data[i][3], permissions: data[i][4] };
         matchedUserRow = i + 1;
         break;
-      } else if (storedHash === hashedOld) {
+      } else if (storedHash === hashedNoPepper || storedHash === hashedPlain) {
         matchedUser = { id: data[i][0], username: data[i][1], role: data[i][3], permissions: data[i][4] };
         matchedUserRow = i + 1;
         needMigration = true;

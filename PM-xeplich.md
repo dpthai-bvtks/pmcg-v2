@@ -1459,3 +1459,10 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 **Giải pháp:**
 - Cập nhật hàm loadScheduleList() và loadDashboard() trong index.html.
 - Thêm logic kiểm tra: Bất cứ khi nào hệ thống kéo dữ liệu lịch trình từ máy chủ về mà thấy **trống rỗng hoàn toàn** (ows.length === 0), nó sẽ tự động hiểu rằng lịch đã bị làm sạch (qua thao tác chốt sổ) hoặc đây là ngày mới chưa xếp lịch. Lúc này, mã sẽ lập tức ra lệnh ép trình duyệt xóa sạch bộ nhớ đệm ca rớt localStorage.removeItem('meds_unscheduled') và reset dữ liệu bộ nhớ RAM. Triệt tiêu hoàn toàn bóng ma ca rớt trên toàn bộ các thiết bị.
+### Cập nhật bổ sung lần 6 ngày 03/08/2026
+**Yêu cầu:** Refactor, tối ưu và bảo mật code.gs-v2.txt theo góp ý của Claude AI.
+**Chi tiết thực hiện:**
+- **Bảo mật**: Đưa PASSWORD_PEPPER vào quy trình băm mật khẩu hashPassword để chống lại các cuộc tấn công Brute-force. Nâng cấp hàm erifyLogin thành cơ chế nhận dạng đa mã băm (Mã có pepper, mã không pepper và text thuần). Nhờ vậy, khi các user cũ đăng nhập, hệ thống vẫn nhận diện được và tự động nâng cấp mã băm mới (migration) vào cơ sở dữ liệu một cách vô hình.
+- **Hoàn thiện Tính năng**: Xây dựng xong hàm updateNameEverywhere(oldName, newName). Hàm sẽ dùng vòng lặp cấp thấp lướt qua toàn bộ dữ liệu ở 2 sheet LichTrinh và BenhNhan. Nếu phát hiện ra bất kỳ dòng/cột nào có chứa tên cũ (của nhân sự, phòng, hoặc bệnh nhân), nó sẽ cập nhật đồng bộ thành tên mới ngay lập tức. Dữ liệu Lịch sử được bảo tồn nguyên vẹn.
+- **Dọn dẹp**: Xóa sổ các hàm dư thừa không bao giờ được gọi từ frontend (layDanhSachVanBan, uploadTimRanhData, initSecurityDatabase, getHistorySchedule) để tiết kiệm dung lượng. Gỡ bỏ 5 action ma (saveSchedule, ulkUpdateMayMoc...) khỏi whitelist.
+- **Tối ưu**: Rút biến ALL_ACTIONS ra ngoài Scope của doPost() để chỉ tính toán một lần khi khởi tạo Apps Script. Cải tiến chuyenNgayMoi() bằng cách bỏ lệnh gọi getDisplayValues() đắt đỏ, thay vào đó tự ép kiểu thời gian bằng logic Utilities.formatDate(), tiết kiệm tài nguyên CPU.
