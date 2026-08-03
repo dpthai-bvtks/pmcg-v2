@@ -12909,7 +12909,7 @@ function renderPatientsTable_Original() {
                 datePicker.value = safeTodayStr;
             }
             
-            window._systemActiveYMD = activeYMD || safeTodayStr;
+            window._systemActiveYMD = activeYMD;
             loadDashboard(); // Resume
         }).getLichTrinh();
         return;
