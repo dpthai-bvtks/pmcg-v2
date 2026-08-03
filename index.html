@@ -9571,7 +9571,13 @@ function renderPatientsTable_Original() {
 
                 ]));
 
-                if (droppedFromSheet.length) {
+                if (rows.length === 0) {
+
+                    localStorage.removeItem('meds_unscheduled');
+                    window.lastUnscheduledData = [];
+                    setUnscheduledData([]);
+
+                } else if (droppedFromSheet.length) {
 
                     let localDropped = [];
 
@@ -12987,11 +12993,15 @@ function renderPatientsTable_Original() {
             const rotDataSheets = validData.filter(item => { const g = item.gioDienRa||item[5]||''; return g==='--'||g.includes('Rớt'); }).map(item => [item.ngay||item[0], item.tenBN||item[1], item.namSinh||item[2], item.phong||item[3], item.thuThuat||item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
             
             let rotDataLocal = [];
-            try {
-                if (localStorage.getItem('meds_schedule_date') === selectedDate) {
-                    rotDataLocal = (JSON.parse(localStorage.getItem('meds_unscheduled')||'[]')).map(u => [selectedDate, u.bn||u.tenBN||'', u.ns||u.namSinh||'', u.room||u.phong||'', u.tt||u.thuThuat||'', '❌ Rớt', '--', '--', '--', '--', '--', u.reason||'Quá tải/Hết giờ']);
-                }
-            } catch(e) {}
+            if (rawSched.length === 0) {
+                localStorage.removeItem('meds_unscheduled');
+            } else {
+                try {
+                    if (localStorage.getItem('meds_schedule_date') === selectedDate) {
+                        rotDataLocal = (JSON.parse(localStorage.getItem('meds_unscheduled')||'[]')).map(u => [selectedDate, u.bn||u.tenBN||'', u.ns||u.namSinh||'', u.room||u.phong||'', u.tt||u.thuThuat||'', '❌ Rớt', '--', '--', '--', '--', '--', u.reason||'Quá tải/Hết giờ']);
+                    }
+                } catch(e) {}
+            }
             const rotData = rotDataSheets.length > 0 ? rotDataSheets : rotDataLocal;
             
             if (statScheduledEl) statScheduledEl.textContent = dayData.length;

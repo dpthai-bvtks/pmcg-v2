@@ -1447,3 +1447,15 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 **Giải pháp:**
 - Viết lại hàm đối chiếu ngày trong getHistorySchedule() và getHistoryFullData() (thuộc code.gs-v2.txt). 
 - Bổ sung logic dùng biểu thức chính quy (Regex) quét chuỗi lấy từ Google Sheets. Nếu chuỗi có dạng dd/MM/yyyy, sẽ tự động tách và đảo lại thành format yyyy-MM-dd để khớp hoàn hảo với request từ frontend. Đảm bảo load chuẩn lịch sử kể cả khi Google Sheets chỉ lưu định dạng String.
+### Cập nhật bổ sung lần 5 ngày 03/08/2026
+**Yêu cầu:**
+- Sửa lỗi khi một máy tính đã "Chốt sổ" thành công, nhưng trên các máy tính khác (hoặc sau khi load lại) vẫn thỉnh thoảng thấy xuất hiện các "ca rớt" (bị từ chối xếp lịch) trong bảng ở tab Xếp lịch và Dashboard.
+
+**Nguyên nhân:**
+- Khi quá trình "Xếp lịch" diễn ra, các ca không thể xếp (ca rớt) được lưu đệm vào bộ nhớ cục bộ của trình duyệt (localStorage.setItem('meds_unscheduled')).
+- Khi người dùng ở **Máy A** bấm "Chốt sổ", hệ thống sẽ dọn sạch dữ liệu trên Google Sheets (làm trống LichTrinh), đồng thời xóa localStorage của **chính Máy A đó**.
+- Tuy nhiên, **Máy B** không hề biết sự kiện "Chốt sổ" đã diễn ra, bộ nhớ localStorage của Máy B vẫn còn lưu danh sách ca rớt. Khi Máy B tải lại trang, nó thấy dữ liệu LichTrinh từ máy chủ trả về rỗng (do Máy A đã xóa), nhưng nó lại lấy danh sách ca rớt từ bộ nhớ cục bộ (localStorage) của chính nó đắp vào giao diện, dẫn đến hiện tượng bóng ma (ghost data).
+
+**Giải pháp:**
+- Cập nhật hàm loadScheduleList() và loadDashboard() trong index.html.
+- Thêm logic kiểm tra: Bất cứ khi nào hệ thống kéo dữ liệu lịch trình từ máy chủ về mà thấy **trống rỗng hoàn toàn** (ows.length === 0), nó sẽ tự động hiểu rằng lịch đã bị làm sạch (qua thao tác chốt sổ) hoặc đây là ngày mới chưa xếp lịch. Lúc này, mã sẽ lập tức ra lệnh ép trình duyệt xóa sạch bộ nhớ đệm ca rớt localStorage.removeItem('meds_unscheduled') và reset dữ liệu bộ nhớ RAM. Triệt tiêu hoàn toàn bóng ma ca rớt trên toàn bộ các thiết bị.
