@@ -10073,14 +10073,8 @@ function renderPatientsTable_Original() {
                         return alert(out.error);
                     }
 
-                    let currentUnscheduled = [];
-                    try {
-                        const saved = localStorage.getItem('meds_unscheduled');
-                        if (saved && localStorage.getItem('meds_schedule_date') === dateVal) currentUnscheduled = JSON.parse(saved);
-                    } catch (e) { }
-
                     const newUnscheduled = out.unscheduled || [];
-                    setUnscheduledData([...currentUnscheduled, ...newUnscheduled], dateVal);
+                    setUnscheduledData(newUnscheduled, dateVal);
                     const addedCount = Number(out.addedCount || 0);
                     const failCount = Number(out.unscheduledCount ?? newUnscheduled.length);
                     const totalFail = window.lastUnscheduledData.length;
