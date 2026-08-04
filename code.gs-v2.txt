@@ -1711,23 +1711,67 @@ function saveAccount(id, username, password, role, permissions) {
 // TÍNH NĂNG CHỐT SỔ TỰ ĐỘNG
 // ===========================================
 
+function getSystemSettings() {
+  const time = PropertiesService.getScriptProperties().getProperty('CHOT_SO_TIME') || "16:00";
+  return { chotSoTime: time };
+}
+
+function saveSystemSettings(settings) {
+  if (settings && settings.chotSoTime) {
+    PropertiesService.getScriptProperties().setProperty('CHOT_SO_TIME', settings.chotSoTime);
+    caiDatTuDongChotSo();
+    return "Đã lưu cài đặt và cập nhật giờ chốt sổ tự động!";
+  }
+  return "Không có dữ liệu hợp lệ.";
+}
+
 function caiDatTuDongChotSo() {
   // Xóa trigger cũ (nếu có)
+  const triggers = ScriptApp.getProjectTriggers();
+  for (const trigger of triggers) {
+    if (trigger.getHandlerFunction() === 'setupDailyChotSo' || trigger.getHandlerFunction() === 'autoChotSo') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  }
+
+  // Tạo trigger setupDailyChotSo chạy lúc 00:00~01:00 mỗi ngày để lập lịch chính xác
+  ScriptApp.newTrigger('setupDailyChotSo')
+    .timeBased()
+    .everyDays(1)
+    .atHour(0)
+    .create();
+    
+  Logger.log("Đã cài đặt thành công tự động chốt sổ (lập lịch mỗi sáng).");
+  
+  // Lập lịch cho ngày hôm nay luôn
+  setupDailyChotSo();
+}
+
+function setupDailyChotSo() {
+  // Xóa các trigger autoChotSo cũ (nếu có)
   const triggers = ScriptApp.getProjectTriggers();
   for (const trigger of triggers) {
     if (trigger.getHandlerFunction() === 'autoChotSo') {
       ScriptApp.deleteTrigger(trigger);
     }
   }
-
-  // Tạo trigger chạy lúc 16:00 mỗi ngày
-  ScriptApp.newTrigger('autoChotSo')
-    .timeBased()
-    .everyDays(1)
-    .atHour(16)
-    .create();
-    
-  Logger.log("Đã cài đặt thành công tự động chốt sổ vào lúc 16:00 hằng ngày.");
+  
+  const timeStr = PropertiesService.getScriptProperties().getProperty('CHOT_SO_TIME') || "16:00";
+  const [hr, min] = timeStr.split(':');
+  
+  const d = new Date();
+  d.setHours(parseInt(hr), parseInt(min), 0, 0);
+  
+  // Chỉ lập lịch nếu thời gian chốt sổ của hôm nay chưa trôi qua
+  if (d.getTime() > new Date().getTime()) {
+     ScriptApp.newTrigger('autoChotSo')
+       .timeBased()
+       .at(d)
+       .create();
+     Logger.log("Đã lập lịch chốt sổ vào lúc: " + d.toString());
+  } else {
+     Logger.log("Thời gian chốt sổ của ngày hôm nay đã trôi qua: " + d.toString());
+  }
 }
 
 function convertDateStr(str) {
@@ -1738,6 +1782,14 @@ function convertDateStr(str) {
 }
 
 function autoChotSo() {
+  // Xóa trigger chạy 1 lần (nếu có) để tránh rác
+  const triggers = ScriptApp.getProjectTriggers();
+  for (const trigger of triggers) {
+    if (trigger.getHandlerFunction() === 'autoChotSo') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  }
+
   const d = new Date();
   const day = d.getDay(); // 0 = CN, 1 = T2... 6 = T7
 

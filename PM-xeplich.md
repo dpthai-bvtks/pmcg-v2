@@ -1468,3 +1468,11 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Tối ưu**: Rút biến ALL_ACTIONS ra ngoài Scope của doPost() để chỉ tính toán một lần khi khởi tạo Apps Script. Cải tiến chuyenNgayMoi() bằng cách bỏ lệnh gọi getDisplayValues() đắt đỏ, thay vào đó tự ép kiểu thời gian bằng logic Utilities.formatDate(), tiết kiệm tài nguyên CPU.
 ### Sửa lỗi ngày 03/08/2026
 - **Frontend**: Sửa lỗi giao diện không cho phép tìm kiếm giờ rảnh của ngày hôm nay sau khi đã chốt sổ do biến _systemActiveYMD tự động lấy ngày hiện tại làm cache (ngay cả khi lịch đang trống). Đã cấu hình lại để ưu tiên lấy dữ liệu từ Backend khi lịch thực tế bị trống.
+
+
+### Phiên làm việc ngày 04/08/2026
+**Yêu cầu:** Cấu trúc lại tab Admin cho đẹp và thêm chức năng cài đặt giờ chốt sổ tự động có độ chính xác đến từng phút.
+**Giải pháp:** 
+- Giao diện Admin (`index.html`): Thay thế layout flex cũ bằng CSS Grid chia 3 thẻ Card gọn gàng (Cài đặt hệ thống, Quản lý Tài khoản, Kho Dữ liệu AI). Bổ sung ô Input Type Time để nhập giờ chốt sổ.
+- Backend (`code.gs-v2.txt`): Viết API `saveSystemSettings` và `getSystemSettings` kết hợp `PropertiesService` để lưu trữ cấu hình.
+- Trigger (`code.gs-v2.txt`): Để có thể hẹn giờ chính xác đến từng phút, tạo một trigger chạy hàng ngày lúc nửa đêm (`setupDailyChotSo`). Trigger này sẽ đọc giờ cài đặt và tạo ra một trigger chạy duy nhất 1 lần (one-off trigger) vào chính xác thời điểm đó trong ngày để thực hiện hàm `autoChotSo`.

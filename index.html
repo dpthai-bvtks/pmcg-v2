@@ -72,6 +72,8 @@
 
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadSystemSettings();
+
             // Override .value setter to sync with flatpickr khi gán giá trị bằng JS
             const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
             Object.defineProperty(HTMLInputElement.prototype, 'value', {
@@ -5790,327 +5792,135 @@
 
                 </div>
 
-                <div class="tab-content" id="tab-admin">
-
-                    <div style="display: flex; gap: 20px; align-items: stretch; height: calc(100vh - 120px);">
-
-
-
-                        <div
-
-                            style="flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-
-                            <div class="tab-header-title"
-
-                                style="background:#fadbd8; color:#c0392b; margin-top:0; border:none; margin-bottom: 10px; padding: 8px;">
-
-                                🔒 QUẢN
-
-                                LÝ TÀI KHOẢN & PHÂN QUYỀN</div>
-
-                            <div
-
-                                style="background: #fdf2e9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e67e22; flex-shrink: 0; display:flex; gap:10px; align-items:center;">
-
-                                <label style="font-size:11px; font-weight:bold; color:#d35400; white-space:nowrap;">📢
-
-                                    Dòng chữ chạy:</label>
-
-                                <input type="text" id="admin-marquee-input"
-
-                                    style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px;"
-
-                                    placeholder="Nhập nội dung thông báo cho toàn khoa...">
-
-                                <button class="btn-warning" onclick="luuDongChuChay(this)"
-
-                                    style="padding:6px 12px; font-size:12px; border:none; font-weight:bold;">Lưu
-
-                                    Lại</button>
-
+                                <div class="tab-content" id="tab-admin">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: stretch; height: calc(100vh - 120px); overflow-y: auto; padding-right: 5px;">
+                        
+                        <!-- CARD 1: CÀI ĐẶT HỆ THỐNG -->
+                        <div style="display: flex; flex-direction: column; background: #fff; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <div class="tab-header-title" style="background:#e8f8f5; color:#16a085; margin-top:0; border:none; margin-bottom: 15px; padding: 10px; border-radius: 6px;">
+                                ⚙️ CÀI ĐẶT HỆ THỐNG
                             </div>
-
                             
+                            <!-- Dòng chữ chạy -->
+                            <div style="background: #fdf2e9; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e67e22;">
+                                <label style="font-size:12px; font-weight:bold; color:#d35400; display:block; margin-bottom:8px;">📢 Dòng chữ chạy (Thông báo):</label>
+                                <input type="text" id="admin-marquee-input" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px; margin-bottom: 8px;" placeholder="Nhập nội dung thông báo cho toàn khoa...">
+                                <button class="btn-warning" onclick="luuDongChuChay(this)" style="width:100%; padding:8px; font-size:12px; border:none; font-weight:bold; cursor:pointer;">Lưu Thông Báo</button>
+                            </div>
 
-                            <div
+                            <!-- Giờ chốt sổ tự động -->
+                            <div style="background: #f4f6f7; padding: 12px; border-radius: 8px; border: 1px solid #bdc3c7;">
+                                <label style="font-size:12px; font-weight:bold; color:#2c3e50; display:block; margin-bottom:8px;">⏰ Giờ chốt sổ tự động (Hàng ngày):</label>
+                                <input type="time" id="admin-chotso-time" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:13px; margin-bottom: 8px;">
+                                <button class="btn-success" onclick="luuCaiDatChotSo(this)" style="width:100%; padding:8px; font-size:12px; border:none; font-weight:bold; cursor:pointer;">Lưu Giờ Chốt Sổ</button>
+                            </div>
+                        </div>
 
-                                style="background: #f1f2f6; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #dcdde1; flex-shrink: 0;">
-
+                        <!-- CARD 2: QUẢN LÝ TÀI KHOẢN -->
+                        <div style="display: flex; flex-direction: column; background: #fff; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <div class="tab-header-title" style="background:#fadbd8; color:#c0392b; margin-top:0; border:none; margin-bottom: 10px; padding: 8px; border-radius: 6px;">
+                                🔒 QUẢN LÝ TÀI KHOẢN & PHÂN QUYỀN
+                            </div>
+                            
+                            <!-- Form tạo/sửa tài khoản -->
+                            <div style="background: #f1f2f6; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #dcdde1; flex-shrink: 0;">
                                 <input type="hidden" id="acc-id">
-
                                 <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-
                                     <div style="flex: 1;">
-
-                                        <label
-
-                                            style="font-size:11px; font-weight:bold; color:#2c3e50; margin-bottom:2px; display:block;">Tài
-
-                                            khoản:</label>
-
-                                        <input type="text" id="acc-user"
-
-                                            style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px;">
-
+                                        <label style="font-size:11px; font-weight:bold; color:#2c3e50; margin-bottom:2px; display:block;">Tài khoản:</label>
+                                        <input type="text" id="acc-user" style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px;">
                                     </div>
-
                                     <div style="flex: 1;">
-
-                                        <label
-
-                                            style="font-size:11px; font-weight:bold; color:#2c3e50; margin-bottom:2px; display:block;">Mật
-
-                                            khẩu:</label>
-
-                                        <input type="text" id="acc-pass"
-
-                                            style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px;">
-
+                                        <label style="font-size:11px; font-weight:bold; color:#2c3e50; margin-bottom:2px; display:block;">Mật khẩu:</label>
+                                        <input type="text" id="acc-pass" style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px;">
                                     </div>
-
                                     <div style="flex: 1;">
-
-                                        <label
-
-                                            style="font-size:11px; font-weight:bold; color:#2c3e50; margin-bottom:2px; display:block;">Vai
-
-                                            trò:</label>
-
-                                        <select id="acc-role" onchange="togglePermissionsBox()"
-
-                                            style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px;">
-
+                                        <label style="font-size:11px; font-weight:bold; color:#2c3e50; margin-bottom:2px; display:block;">Vai trò:</label>
+                                        <select id="acc-role" onchange="togglePermissionsBox()" style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:12px;">
                                             <option value="User">User</option>
-
                                             <option value="Admin">Admin</option>
-
                                         </select>
-
                                     </div>
-
                                 </div>
-
-
-
-                                <div class="skills-box" id="acc-perms-box"
-
-                                    style="margin-top:0; padding:8px; background:#e2e8f0; border-radius:6px;">
-
-                                    <div
-
-                                        style="font-size:11px; font-weight:bold; margin-bottom:6px; border-bottom:1px solid #cbd5e1; padding-bottom:4px; color:#334155;">
-
+                                <div class="skills-box" id="acc-perms-box" style="margin-top:0; padding:8px; background:#e2e8f0; border-radius:6px;">
+                                    <div style="font-size:11px; font-weight:bold; margin-bottom:6px; border-bottom:1px solid #cbd5e1; padding-bottom:4px; color:#334155;">
                                         Phân quyền Tab (Chỉ dành cho User):</div>
-
-                                    <div
-
-                                        style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; font-size:11px;">
-
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-patients"> 🛌 B.Nhân</label>
-
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-schedule"> ⚡ X.Lịch</label>
-
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-sat"> 📅 Thứ 7</label>
-
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-busy"> ⏱ G.Bận</label>
-
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-stats"> 📊 T.Kê</label>
-
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-utils"> 🛠 T.Ích</label>
-
-                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-
-                                                class="perm-cb" value="tab-kiemtra"> ✅ K.Tra</label>
-
-                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input
-
-                                                type="checkbox" class="perm-cb" value="tab-machines"> ⚙️ Máy</label>
-
-                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input
-
-                                                type="checkbox" class="perm-cb" value="tab-procedures"> 💉
-
-                                            T.Thuật</label>
-
-                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input
-
-                                                type="checkbox" class="perm-cb" value="tab-rooms"> 🏥 Phòng</label>
-
-                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input
-
-                                                type="checkbox" class="perm-cb" value="tab-staff"> 👨‍⚕️ N.Sự</label>
-
+                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size:11px;">
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-patients"> 🛌 B.Nhân</label>
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-schedule"> ⚡ X.Lịch</label>
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-sat"> 📅 Thứ 7</label>
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-busy"> ⏱ G.Bận</label>
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-stats"> 📊 T.Kê</label>
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-utils"> 🛠 T.Ích</label>
+                                        <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-kiemtra"> ✅ K.Tra</label>
+                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-machines"> ⚙️ Máy</label>
+                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-procedures"> 💉 T.Thuật</label>
+                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-rooms"> 🏥 Phòng</label>
+                                        <label class="checkbox-item" style="color:#c0392b; margin-bottom:0;"><input type="checkbox" class="perm-cb" value="tab-staff"> 👨‍⚕️ N.Sự</label>
                                     </div>
-
                                 </div>
-
-                                <button class="btn-success" id="btn-save-acc" onclick="luuTaiKhoan()"
-
-                                    style="width:100%; margin-top:10px; padding:8px; font-size:13px;">Lưu Tài
-
-                                    Khoản</button>
-
+                                <button class="btn-success" id="btn-save-acc" onclick="luuTaiKhoan()" style="width:100%; margin-top:10px; padding:8px; font-size:13px; cursor:pointer;">Lưu Tài Khoản</button>
                             </div>
 
-
-
-                            <div style="flex: 1; overflow-y: auto; border: 1px solid #dcdde1; border-radius: 6px;">
-
+                            <div style="flex: 1; overflow-y: auto; border: 1px solid #dcdde1; border-radius: 6px; min-height: 150px;">
                                 <table style="margin-top:0; width:100%; border-collapse:collapse; font-size:12px;">
-
                                     <thead style="position:sticky; top:0; z-index:5;">
-
                                         <tr style="background:#2c3e50; color:white;">
-
                                             <th>ID</th>
-
                                             <th>Tài Khoản</th>
-
                                             <th>Mật Khẩu</th>
-
                                             <th>Quyền Hạn</th>
-
                                             <th>Thao Tác</th>
-
                                         </tr>
-
                                     </thead>
-
                                     <tbody id="acc-list"></tbody>
-
                                 </table>
-
                             </div>
-
                         </div>
 
-
-
-                        <div
-
-                            style="flex: 1; display: flex; flex-direction: column; background: #f9f0ff; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-
-                            <div class="tab-header-title"
-
-                                style="background:#8e44ad; color:#fff; margin-top:0; border:none; margin-bottom: 10px; padding: 8px;">
-
-                                🧠 KHO DỮ
-
-                                LIỆU HUẤN LUYỆN AI</div>
-
-
-
+                        <!-- CARD 3: KHO DỮ LIỆU HUẤN LUYỆN AI -->
+                        <div style="display: flex; flex-direction: column; background: #f9f0ff; border: 1px solid #dcdde1; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <div class="tab-header-title" style="background:#8e44ad; color:#fff; margin-top:0; border:none; margin-bottom: 10px; padding: 8px; border-radius: 6px;">
+                                🧠 KHO DỮ LIỆU HUẤN LUYỆN AI
+                            </div>
+                            
                             <div style="flex-shrink: 0;">
-
-                                <input type="file" id="hl-file-input" accept=".xlsx, .xls, .csv" style="display: none;"
-
-                                    onchange="handleHLFile(event)">
-
-                                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-
-                                    <button class="btn-purple" style="flex:1;"
-
-                                        onclick="document.getElementById('hl-file-input').click()">📁 Nạp File Excel
-
-                                        (HIS)</button>
-
-                                    <button class="btn-secondary" style="flex:1;" onclick="loadHLData()">🔄 Tải lại dữ
-
-                                        liệu</button>
-
-                                    <button class="btn-danger" style="flex:1;" onclick="clearHLData()">🗑 Xóa sạch
-
-                                        kho</button>
-
-                                    <button class="btn-purple" style="box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
-
-                                        onclick="exportAIPrompt()">🧠 XUẤT FILE TỔNG KẾT AI</button>
-
+                                <input type="file" id="hl-file-input" accept=".xlsx, .xls, .csv" style="display: none;" onchange="handleHLFile(event)">
+                                <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                                    <button class="btn-purple" style="flex:1; padding: 6px; cursor:pointer;" onclick="document.getElementById('hl-file-input').click()">📁 Nạp Excel (HIS)</button>
+                                    <button class="btn-secondary" style="flex:1; padding: 6px; cursor:pointer;" onclick="loadHLData()">🔄 Tải lại dữ liệu</button>
+                                    <button class="btn-danger" style="flex:1; padding: 6px; cursor:pointer;" onclick="clearHLData()">🗑 Xóa sạch</button>
+                                    <button class="btn-purple" style="box-shadow: 0 2px 4px rgba(0,0,0,0.2); padding: 6px; cursor:pointer;" onclick="exportAIPrompt()">🧠 XUẤT FILE</button>
                                 </div>
-
-                                <div
-
-                                    style="background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; margin-bottom: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
-
-                                    <strong
-
-                                        style="color: #2c3e50; display: block; margin-bottom: 5px; font-size: 12px;">📜
-
-                                        Quá trình xử lý:</strong>
-
-                                    <textarea id="hl-log" readonly
-
-                                        style="width: 100%; height: 80px; border: none; background: transparent; font-family: monospace; resize: none; color: #333; outline:none; font-size: 11px;"></textarea>
-
+                                <div style="background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; margin-bottom: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                                    <strong style="color: #2c3e50; display: block; margin-bottom: 5px; font-size: 12px;">📜 Quá trình xử lý:</strong>
+                                    <textarea id="hl-log" readonly style="width: 100%; height: 80px; border: none; background: transparent; font-family: monospace; resize: none; color: #333; outline:none; font-size: 11px;"></textarea>
                                 </div>
-
                             </div>
-
-
-
-                            <div
-
-                                style="flex: 1; overflow-y: auto; border: 1px solid #dcdde1; border-radius: 6px; background: white;">
-
-                                <table id="hl-table"
-
-                                    style="margin-top:0; width:100%; border-collapse:collapse; font-size:12px;">
-
+                            
+                            <div style="flex: 1; overflow-y: auto; border: 1px solid #dcdde1; border-radius: 6px; background: white; min-height: 150px;">
+                                <table id="hl-table" style="margin-top:0; width:100%; border-collapse:collapse; font-size:12px;">
                                     <thead style="position: sticky; top: 0; z-index: 5;">
-
                                         <tr style="background:#2c3e50; color:white;">
-
                                             <th>Ngày nạp</th>
-
                                             <th>Tên NV</th>
-
                                             <th>Thủ thuật</th>
-
                                             <th style="text-align:center;">Thực tế</th>
-
                                             <th style="text-align:center;">Khoảng cách</th>
-
                                         </tr>
-
                                     </thead>
-
                                     <tbody>
-
                                         <tr>
-
-                                            <td colspan="5" align="center" style="padding:20px; color:gray;">⏳ Bấm "Tải
-
-                                                lại dữ liệu" để xem...</td>
-
+                                            <td colspan="5" align="center" style="padding:20px; color:gray;">⏳ Bấm "Tải lại dữ liệu" để xem...</td>
                                         </tr>
-
                                     </tbody>
-
                                 </table>
-
                             </div>
-
                         </div>
-
-
 
                     </div>
-
                 </div>
-
-                <div class="tab-content" id="tab-stats" style="display:none!important">
+<div class="tab-content" id="tab-stats" style="display:none!important">
 
                     <div class="tab-header-title">📊 THỐNG KÊ & BÁO CÁO LÂM SÀNG</div>
 
@@ -12540,6 +12350,38 @@ function renderPatientsTable_Original() {
 
 
 
+
+                                // ============================================================
+                                // ⚙️ CÀI ĐẶT HỆ THỐNG
+                                // ============================================================
+                                function luuCaiDatChotSo(btn) {
+                                    const timeVal = document.getElementById("admin-chotso-time").value;
+                                    if(!timeVal) {
+                                        alert("Vui lòng chọn giờ chốt sổ!");
+                                        return;
+                                    }
+                                    const oldText = btn.innerText;
+                                    btn.innerText = "Đang lưu...";
+                                    btn.disabled = true;
+                                    google.script.run.withSuccessHandler(function(res) {
+                                        btn.innerText = oldText;
+                                        btn.disabled = false;
+                                        showCustomAlert("Cài đặt", res, "success", "#2ecc71");
+                                    }).withFailureHandler(function(err) {
+                                        btn.innerText = oldText;
+                                        btn.disabled = false;
+                                        alert("Lỗi: " + err);
+                                    }).saveSystemSettings({ chotSoTime: timeVal });
+                                }
+                                
+                                function loadSystemSettings() {
+                                    google.script.run.withSuccessHandler(function(res) {
+                                        if(res && res.chotSoTime) {
+                                            document.getElementById("admin-chotso-time").value = res.chotSoTime;
+                                        }
+                                    }).getSystemSettings();
+                                }
+                                
                                 // ============================================================
 
                                 // 📢 MARQUEE
@@ -13630,6 +13472,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Event Listeners for toggle
         document.addEventListener('DOMContentLoaded', () => {
+            loadSystemSettings();
+
             const btnUser = document.getElementById('nav-btn-user');
             const menu = document.getElementById('user-dropdown-menu');
             const arrow = document.getElementById('user-dropdown-arrow');
