@@ -1484,3 +1484,5 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Hotfix:** Đã sửa lỗi Syntax Error trong `index.html` (gây lỗi hiển thị màn hình tải và làm gián đoạn hàm loadSystemSettings) do code thay thế CSS bị chèn nhầm vị trí.
 
 - **Hoàn tất & Cleanup:** Xác nhận fix lỗi thành công trên Frontend (Github Pages) và Backend (Google Apps Script). Xóa các file script tạm dùng để test cú pháp trong quá trình debug.
+
+- **Cleanup:** Xóa bỏ các file script tạm thời `replace_keys.py` và `replace.py` (theo đúng Rule 3) để giữ cho thư mục làm việc luôn gọn gàng và không bị rác.
