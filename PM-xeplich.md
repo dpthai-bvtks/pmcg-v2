@@ -1476,3 +1476,5 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - Giao diện Admin (`index.html`): Thay thế layout flex cũ bằng CSS Grid chia 3 thẻ Card gọn gàng (Cài đặt hệ thống, Quản lý Tài khoản, Kho Dữ liệu AI). Bổ sung ô Input Type Time để nhập giờ chốt sổ.
 - Backend (`code.gs-v2.txt`): Viết API `saveSystemSettings` và `getSystemSettings` kết hợp `PropertiesService` để lưu trữ cấu hình.
 - Trigger (`code.gs-v2.txt`): Để có thể hẹn giờ chính xác đến từng phút, tạo một trigger chạy hàng ngày lúc nửa đêm (`setupDailyChotSo`). Trigger này sẽ đọc giờ cài đặt và tạo ra một trigger chạy duy nhất 1 lần (one-off trigger) vào chính xác thời điểm đó trong ngày để thực hiện hàm `autoChotSo`.
+
+- **Hotfix:** Đã khắc phục lỗi bảo mật API "Hành động không hợp lệ: getSystemSettings" do thiếu khai báo hàm trong danh sách whitelist truy cập của Server.
