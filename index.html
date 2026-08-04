@@ -9580,6 +9580,16 @@
 
                 if (!!a.__dropped !== !!b.__dropped) return a.__dropped ? 1 : -1;
 
+                let isDischargedA = false;
+                let isDischargedB = false;
+                if (window.dataCache && window.dataCache.pat) {
+                    const patA = window.dataCache.pat.find(p => p.ten === (a.tenBN || ''));
+                    if (patA && patA.gioRa && String(patA.gioRa).trim() !== '') isDischargedA = true;
+                    const patB = window.dataCache.pat.find(p => p.ten === (b.tenBN || ''));
+                    if (patB && patB.gioRa && String(patB.gioRa).trim() !== '') isDischargedB = true;
+                }
+                if (isDischargedA !== isDischargedB) return isDischargedA ? 1 : -1;
+
                 const activeSort = window.scheduleSortState;
 
                 if (activeSort) {
@@ -9690,13 +9700,20 @@
 
                 const reasonTitle = item.__dropped ? ` title="${item.reason || item.may || 'Không xếp được'}"` : '';
 
+                let isDischarged = false;
+                if (window.dataCache && window.dataCache.pat) {
+                    const pat = window.dataCache.pat.find(p => p.ten === (item.tenBN || ''));
+                    if (pat && pat.gioRa && String(pat.gioRa).trim() !== '') isDischarged = true;
+                }
+                const dischargeMark = isDischarged ? '<br><span style="color:#27ae60; font-size:11px; font-style:italic;">(✔ Đã ra viện)</span>' : '';
+
                 return `<tr class="${rowClass}"${reasonTitle}>
 
             <td style="text-align:center">${start + i + 1}</td>
 
             <td style="text-align:center">${ngayShort}</td>
 
-            <td style="font-weight:bold;">${item.tenBN || ''}</td>
+            <td style="font-weight:bold;">${item.tenBN || ''}${dischargeMark}</td>
 
             <td style="text-align:center;">${item.namSinh || ''}</td>
 
