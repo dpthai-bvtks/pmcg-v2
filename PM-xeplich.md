@@ -1492,3 +1492,5 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Bug Fix:** Xử lý triệt để lỗi kết nối CORS API (TypeError: Failed to fetch) bằng cách điều chỉnh cấu hình fetch() gửi đến Google Apps Script. Cập nhật hàm formatSlotDisplay() để chỉ hiện giờ bắt đầu cho các khoảng thời gian bận chỉ có 1 phút (hoặc start = end). Dọn dẹp script rác đúng theo rules.
 
 - **Bug Fix:** Sửa lỗi không xem được Lịch sử và Tìm giờ rảnh của 'Hôm nay' sau khi đã Chốt sổ (lúc 16h00). Cụ thể: bổ sung cờ \window._forceHistoryMode\ để ép hệ thống tải từ kho Lịch sử (SoThuThuat & LichSuBan) thay vì cố đọc dữ liệu lịch Live (đã bị xóa trắng sau khi chốt sổ) nếu người dùng chọn xem lại lịch của ngày hôm nay.
+
+- **Feature:** Nâng cấp tính năng In Lịch Trình. Tự động sắp xếp các bệnh nhân đã hoàn tất và ra viện (có giờ ra viện trong hệ thống) xuống cuối danh sách để dễ phân biệt, đồng thời bổ sung thêm nhãn \(✔ Đã ra viện)\ bên cạnh tên bệnh nhân trên bản in.

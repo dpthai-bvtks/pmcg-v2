@@ -10243,14 +10243,29 @@
                 displayDate = String(filteredSchedData[0].ngay).split('-').reverse().join('/');
 
             }
+            let printData = filteredSchedData.map((r, idx) => {
+                const clone = { ...r, __originalIndex: idx };
+                if (window.dataCache && window.dataCache.pat) {
+                    const pat = window.dataCache.pat.find(p => p.ten === clone.tenBN);
+                    clone.__isDischarged = (pat && pat.gioRa && String(pat.gioRa).trim() !== '') ? true : false;
+                }
+                return clone;
+            });
 
+            printData.sort((a, b) => {
+                if (a.__isDischarged === b.__isDischarged) {
+                    return a.__originalIndex - b.__originalIndex;
+                }
+                return a.__isDischarged ? 1 : -1;
+            });
 
-
-            const rows = filteredSchedData.map((row, i) => `<tr class="${row.__dropped ? 'print-dropped' : ''}">
+            const rows = printData.map((row, i) => {
+                const dischargeMark = row.__isDischarged ? '<br><span style="font-size:11px; font-style:italic;">(✔ Đã ra viện)</span>' : '';
+                return `<tr class="${row.__dropped ? 'print-dropped' : ''}">
 
                 <td>${i + 1}</td>
 
-                <td class="text-left nowrap"><strong>${row.tenBN}</strong></td>
+                <td class="text-left nowrap"><strong>${row.tenBN}</strong>${dischargeMark}</td>
 
                 <td>${row.namSinh}</td>
 
