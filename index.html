@@ -6446,6 +6446,16 @@ window.onerror = function(msg, url, lineNo, columnNo, error) { console.error('JS
 
 console.log('MAIN SCRIPT STARTING...');
 
+
+function formatSlotDisplay(slot) {
+    if (!slot || typeof slot !== 'string' || !slot.includes('-')) return slot;
+    const parts = slot.split('-');
+    if (parts.length === 2 && parts[0].trim() === parts[1].trim()) {
+        return parts[0].trim();
+    }
+    return slot;
+}
+
 // ============================================================
 
 // GITHUB PAGES API CONFIGURATION
@@ -8901,7 +8911,7 @@ function renderPatientsTable_Original() {
 
                 <td><strong>${p.ten}</strong></td>
 
-                <td style="color:#d35400; font-weight:bold;">${slot}</td>
+                <td style="color:#d35400; font-weight:bold;">${formatSlotDisplay(slot)}</td>
 
             </tr>`;
 
@@ -9221,7 +9231,7 @@ function renderPatientsTable_Original() {
 
                     tbHtml += slot
 
-                        ? `<td align="center" style="font-size:11px; color:#c0392b; font-weight:bold;" class="editable-row" onclick="editBusyStaff(${origIdx}, '${slot}')" title="Bấm sửa (Delete để xóa)">${slot}</td>`
+                        ? `<td align="center" style="font-size:11px; color:#c0392b; font-weight:bold;" class="editable-row" onclick="editBusyStaff(${origIdx}, '${slot}')" title="Bấm sửa (Delete để xóa)">${formatSlotDisplay(slot)}</td>`
 
                         : `<td align="center" style="color:#bdc3c7;">-</td>`;
 
