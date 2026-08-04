@@ -12,7 +12,8 @@ const PUBLIC_ACTIONS = [
   'verifyLogin',
   'getMarqueeText',
   'layThongBaoDongChuChay',
-  'layDanhSachLienKet'
+  'layDanhSachLienKet',
+  'getSystemSettings'
 ];
 
 const USER_ACTIONS = [
@@ -42,7 +43,8 @@ const ADMIN_ACTIONS = [
   'bulkUpdatePatients',
   'saveAITrainingData', 'clearAITrainingData',
   'saveMarqueeText', 'luuThongBaoDongChuChay',
-  'getAccounts', 'saveAccount', 'deleteAccount'
+  'getAccounts', 'saveAccount', 'deleteAccount',
+  'saveSystemSettings'
 ];
 
 const ALL_ACTIONS = [...PUBLIC_ACTIONS, ...USER_ACTIONS, ...ADMIN_ACTIONS];
