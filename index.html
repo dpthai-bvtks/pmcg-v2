@@ -10614,6 +10614,8 @@
                 if (displayEl) displayEl.textContent = d.split('-').reverse().join('/');
             }
 
+            window._forceHistoryMode = true;
+
             if (typeof loadDashboard === 'function') {
                 loadDashboard();
             }
@@ -12894,7 +12896,8 @@
             const d = new Date();
             const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-            const isLiveMode = (window._systemActiveYMD === selectedDate) || (!window._systemActiveYMD && selectedDate === safeTodayStr);
+            const isLiveMode = (window._forceHistoryMode === true) ? false : ((window._systemActiveYMD === selectedDate) || (!window._systemActiveYMD && selectedDate === safeTodayStr));
+            window._forceHistoryMode = false;
 
             if (isLiveMode) {
                 window.viewingImportedScheduleFile = false;

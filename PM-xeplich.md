@@ -1490,3 +1490,5 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **UI Tweaks:** Thêm hàm `formatSlotDisplay()` vào frontend để rút gọn hiển thị giờ bận. Thay vì hiện `08:00-08:00`, bảng giờ bận của Bác sĩ (và Bệnh nhân) nay sẽ chỉ hiện `08:00` cho gọn gàng.
 
 - **Bug Fix:** Xử lý triệt để lỗi kết nối CORS API (TypeError: Failed to fetch) bằng cách điều chỉnh cấu hình fetch() gửi đến Google Apps Script. Cập nhật hàm formatSlotDisplay() để chỉ hiện giờ bắt đầu cho các khoảng thời gian bận chỉ có 1 phút (hoặc start = end). Dọn dẹp script rác đúng theo rules.
+
+- **Bug Fix:** Sửa lỗi không xem được Lịch sử và Tìm giờ rảnh của 'Hôm nay' sau khi đã Chốt sổ (lúc 16h00). Cụ thể: bổ sung cờ \window._forceHistoryMode\ để ép hệ thống tải từ kho Lịch sử (SoThuThuat & LichSuBan) thay vì cố đọc dữ liệu lịch Live (đã bị xóa trắng sau khi chốt sổ) nếu người dùng chọn xem lại lịch của ngày hôm nay.
