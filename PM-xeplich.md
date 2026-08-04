@@ -1486,3 +1486,5 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Hoàn tất & Cleanup:** Xác nhận fix lỗi thành công trên Frontend (Github Pages) và Backend (Google Apps Script). Xóa các file script tạm dùng để test cú pháp trong quá trình debug.
 
 - **Cleanup:** Xóa bỏ các file script tạm thời `replace_keys.py` và `replace.py` (theo đúng Rule 3) để giữ cho thư mục làm việc luôn gọn gàng và không bị rác.
+
+- **UI Tweaks:** Thêm hàm `formatSlotDisplay()` vào frontend để rút gọn hiển thị giờ bận. Thay vì hiện `08:00-08:00`, bảng giờ bận của Bác sĩ (và Bệnh nhân) nay sẽ chỉ hiện `08:00` cho gọn gàng.
