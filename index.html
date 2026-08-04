@@ -9583,9 +9583,9 @@
                 let isDischargedA = false;
                 let isDischargedB = false;
                 if (window.dataCache && window.dataCache.pat) {
-                    const patA = window.dataCache.pat.find(p => p.ten === (a.tenBN || ''));
+                    const patA = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(a.tenBN || '').trim().toLowerCase());
                     if (patA && patA.gioRa && String(patA.gioRa).trim() !== '') isDischargedA = true;
-                    const patB = window.dataCache.pat.find(p => p.ten === (b.tenBN || ''));
+                    const patB = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(b.tenBN || '').trim().toLowerCase());
                     if (patB && patB.gioRa && String(patB.gioRa).trim() !== '') isDischargedB = true;
                 }
                 if (isDischargedA !== isDischargedB) return isDischargedA ? -1 : 1;
@@ -9702,7 +9702,7 @@
 
                 let isDischarged = false;
                 if (window.dataCache && window.dataCache.pat) {
-                    const pat = window.dataCache.pat.find(p => p.ten === (item.tenBN || ''));
+                    const pat = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(item.tenBN || '').trim().toLowerCase());
                     if (pat && pat.gioRa && String(pat.gioRa).trim() !== '') isDischarged = true;
                 }
                 const dischargeMark = isDischarged ? '<br><span style="color:#27ae60; font-size:11px; font-style:italic;">(✔ Đã ra viện)</span>' : '';
@@ -10080,7 +10080,7 @@
             let exportData = window.currentScheduleData.map((r, idx) => {
                 const clone = { ...r, __originalIndex: idx };
                 if (window.dataCache && window.dataCache.pat) {
-                    const pat = window.dataCache.pat.find(p => p.ten === clone.tenBN);
+                    const pat = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(clone.tenBN || '').trim().toLowerCase());
                     clone.__isDischarged = (pat && pat.gioRa && String(pat.gioRa).trim() !== '') ? true : false;
                 }
                 return clone;
@@ -10277,7 +10277,7 @@
             let printData = filteredSchedData.map((r, idx) => {
                 const clone = { ...r, __originalIndex: idx };
                 if (window.dataCache && window.dataCache.pat) {
-                    const pat = window.dataCache.pat.find(p => p.ten === clone.tenBN);
+                    const pat = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(clone.tenBN || '').trim().toLowerCase());
                     clone.__isDischarged = (pat && pat.gioRa && String(pat.gioRa).trim() !== '') ? true : false;
                 }
                 return clone;
