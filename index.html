@@ -9151,6 +9151,15 @@
             const p = dataCache.pat[idx];
 
             p.gioRa = leaveTime;
+            // Cập nhật ngay trên currentScheduleData để In/Xuất Excel phản ánh đúng
+            if (window.currentScheduleData) {
+                const patTenLower = String(p.ten || '').trim().toLowerCase();
+                window.currentScheduleData.forEach(row => {
+                    if (String(row.tenBN || '').trim().toLowerCase() === patTenLower) {
+                        row.__isDischarged = true;
+                    }
+                });
+            }
             renderPatientsTable();
             leaveObj.value = ''; leaveObj.focus();
             const leaveInput = document.getElementById('leave-pat-input');
@@ -9412,6 +9421,20 @@
 
         // ============================================================
 
+        // Helper: đánh dấu bệnh nhân đã ra viện vào dữ liệu lịch
+        function markDischargedInSchedule(schedData) {
+            if (!Array.isArray(schedData)) return schedData;
+            const patList = (typeof dataCache !== 'undefined' && dataCache.pat) ? dataCache.pat : [];
+            schedData.forEach(row => {
+                if (!row) return;
+                const tenBN = String(row.tenBN || '').trim().toLowerCase();
+                if (!tenBN) { row.__isDischarged = false; return; }
+                const matched = patList.find(p => String(p.ten || '').trim().toLowerCase() === tenBN);
+                row.__isDischarged = !!(matched && matched.gioRa && String(matched.gioRa).trim() !== '');
+            });
+            return schedData;
+        }
+
         function loadScheduleList() {
 
             if (window.viewingImportedScheduleFile) return;
@@ -9420,7 +9443,7 @@
 
                 const rows = (data || []).map(normalizeScheduleRow);
 
-                window.currentScheduleData = rows.filter(row => !isDroppedScheduleRow(row));
+                window.currentScheduleData = markDischargedInSchedule(rows.filter(row => !isDroppedScheduleRow(row)));
 
                 const droppedFromSheet = rows.filter(isDroppedScheduleRow).map(row => normalizeDroppedItem([
 
@@ -9580,14 +9603,8 @@
 
                 if (!!a.__dropped !== !!b.__dropped) return a.__dropped ? 1 : -1;
 
-                let isDischargedA = false;
-                let isDischargedB = false;
-                if (window.dataCache && window.dataCache.pat) {
-                    const patA = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(a.tenBN || '').trim().toLowerCase());
-                    if (patA && patA.gioRa && String(patA.gioRa).trim() !== '') isDischargedA = true;
-                    const patB = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(b.tenBN || '').trim().toLowerCase());
-                    if (patB && patB.gioRa && String(patB.gioRa).trim() !== '') isDischargedB = true;
-                }
+                let isDischargedA = !!a.__isDischarged;
+                let isDischargedB = !!b.__isDischarged;
                 if (isDischargedA !== isDischargedB) return isDischargedA ? -1 : 1;
 
                 const activeSort = window.scheduleSortState;
@@ -9700,11 +9717,7 @@
 
                 const reasonTitle = item.__dropped ? ` title="${item.reason || item.may || 'Không xếp được'}"` : '';
 
-                let isDischarged = false;
-                if (window.dataCache && window.dataCache.pat) {
-                    const pat = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(item.tenBN || '').trim().toLowerCase());
-                    if (pat && pat.gioRa && String(pat.gioRa).trim() !== '') isDischarged = true;
-                }
+                const isDischarged = !!item.__isDischarged;
                 const dischargeMark = isDischarged ? '<br><span style="color:#27ae60; font-size:11px; font-style:italic;">(✔ Đã ra viện)</span>' : '';
 
                 return `<tr class="${rowClass}"${reasonTitle}>
@@ -9900,7 +9913,7 @@
                     if (window.hideGlobalLoading) window.hideGlobalLoading();
                     const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
                     btn.innerText = 'CHẠY XẾP LỊCH TỔNG'; btn.disabled = false; btn.style.background = '#008b02';
-                    window.currentScheduleData = out.schedule;
+                    window.currentScheduleData = markDischargedInSchedule(out.schedule);
                     setUnscheduledData(out.unscheduled || [], dateVal);
                     window._systemActiveYMD = dateVal;
 
@@ -10076,21 +10089,11 @@
 
             if (!window.currentScheduleData?.length) return alert("Chưa có lịch để xuất!");
 
-            // Tính toán trạng thái ra viện
-            let exportData = window.currentScheduleData.map((r, idx) => {
-                const clone = { ...r, __originalIndex: idx };
-                if (window.dataCache && window.dataCache.pat) {
-                    const pat = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(clone.tenBN || '').trim().toLowerCase());
-                    clone.__isDischarged = (pat && pat.gioRa && String(pat.gioRa).trim() !== '') ? true : false;
-                }
-                return clone;
-            });
-
             // 1. Sắp xếp: Đã ra viện lên trên -> Phòng → Tên BN → Bắt Đầu (A-Z)
-            const sorted = exportData.sort((a, b) => {
-                if (a.__isDischarged !== b.__isDischarged) {
-                    return a.__isDischarged ? -1 : 1;
-                }
+            const sorted = [...window.currentScheduleData].sort((a, b) => {
+                const dA = !!a.__isDischarged;
+                const dB = !!b.__isDischarged;
+                if (dA !== dB) return dA ? -1 : 1;
                 const pA = String(a.phong || '').trim().toLowerCase();
                 const pB = String(b.phong || '').trim().toLowerCase();
                 if (pA !== pB) return pA.localeCompare(pB, 'vi');
@@ -10274,20 +10277,13 @@
                 displayDate = String(filteredSchedData[0].ngay).split('-').reverse().join('/');
 
             }
-            let printData = filteredSchedData.map((r, idx) => {
-                const clone = { ...r, __originalIndex: idx };
-                if (window.dataCache && window.dataCache.pat) {
-                    const pat = window.dataCache.pat.find(p => String(p.ten || '').trim().toLowerCase() === String(clone.tenBN || '').trim().toLowerCase());
-                    clone.__isDischarged = (pat && pat.gioRa && String(pat.gioRa).trim() !== '') ? true : false;
-                }
-                return clone;
-            });
+            let printData = filteredSchedData.map((r, idx) => ({ ...r, __originalIndex: idx }));
 
             printData.sort((a, b) => {
-                if (a.__isDischarged === b.__isDischarged) {
-                    return a.__originalIndex - b.__originalIndex;
-                }
-                return a.__isDischarged ? -1 : 1;
+                const dA = !!a.__isDischarged;
+                const dB = !!b.__isDischarged;
+                if (dA !== dB) return dA ? -1 : 1;
+                return a.__originalIndex - b.__originalIndex;
             });
 
             const rows = printData.map((row, i) => {
@@ -10527,7 +10523,7 @@
 
 
 
-                        window.currentScheduleData = scheduled;
+                        window.currentScheduleData = markDischargedInSchedule(scheduled);
 
                         window.lastUnscheduledData = dropped;
 
@@ -11670,7 +11666,7 @@
 
                     btn.innerText = '▶ XẾP LỊCH THỨ 7'; btn.disabled = false;
 
-                    window.currentScheduleData = res.sched || res.schedule || [];
+                    window.currentScheduleData = markDischargedInSchedule(res.sched || res.schedule || []);
 
                     setUnscheduledData(res.dropped || res.unscheduled || res.rot || [], dateVal);
 
@@ -13050,7 +13046,7 @@
                     window._historyCache[selectedDate] = fullData;
                     window.viewingImportedScheduleFile = true;
                     window._viewingHistoryDate = selectedDate;
-                    window.currentScheduleData = fullData.schedule || [];
+                    window.currentScheduleData = markDischargedInSchedule(fullData.schedule || []);
 
                     if (typeof applyHistoryDataToTabs === 'function') applyHistoryDataToTabs(fullData, selectedDate);
                     if (typeof filterSchedule === 'function') filterSchedule();
