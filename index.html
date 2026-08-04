@@ -9718,7 +9718,7 @@
                 const reasonTitle = item.__dropped ? ` title="${item.reason || item.may || 'Không xếp được'}"` : '';
 
                 const isDischarged = !!item.__isDischarged;
-                const dischargeMark = isDischarged ? '<br><span style="color:#27ae60; font-size:11px; font-style:italic;">(✔ Đã ra viện)</span>' : '';
+                const dischargeMark = isDischarged ? '<br><span style="color:#27ae60; font-size:11px; font-style:italic;">(✔ RV)</span>' : '';
 
                 return `<tr class="${rowClass}"${reasonTitle}>
 
@@ -10116,7 +10116,7 @@
             sorted.forEach(row => {
                 const ngay = String(row.ngay || '').split('-').reverse().join('/');
                 const phong = String(row.phong || '').trim();
-                const tenBNText = String(row.tenBN || '').trim() + (row.__isDischarged ? ' (✔ Đã ra viện)' : '');
+                const tenBNText = String(row.tenBN || '').trim() + (row.__isDischarged ? ' (✔ RV)' : '');
 
                 ws_data.push([
                     ngay,
@@ -10287,7 +10287,7 @@
             });
 
             const rows = printData.map((row, i) => {
-                const dischargeMark = row.__isDischarged ? '<br><span style="font-size:11px; font-style:italic;">(✔ Đã ra viện)</span>' : '';
+                const dischargeMark = row.__isDischarged ? '<br><span style="font-size:11px; font-style:italic;">(✔ RV)</span>' : '';
                 return `<tr class="${row.__dropped ? 'print-dropped' : ''}">
 
                 <td>${i + 1}</td>
