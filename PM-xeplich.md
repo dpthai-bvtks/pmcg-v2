@@ -1480,3 +1480,5 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Hotfix:** Đã khắc phục lỗi bảo mật API "Hành động không hợp lệ: getSystemSettings" do thiếu khai báo hàm trong danh sách whitelist truy cập của Server.
 
 - **Cải tiến UI Admin:** Chuyển đổi giao diện Tab Admin sang dạng Menu Sidebar (trái) và nội dung toàn màn hình (phải) để mở rộng không gian hiển thị cho từng phân hệ (Cài đặt, Quản lý tài khoản, Dữ liệu AI).
+
+- **Hotfix:** Đã sửa lỗi Syntax Error trong `index.html` (gây lỗi hiển thị màn hình tải và làm gián đoạn hàm loadSystemSettings) do code thay thế CSS bị chèn nhầm vị trí.
