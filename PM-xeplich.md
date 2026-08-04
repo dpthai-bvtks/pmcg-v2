@@ -1488,3 +1488,5 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Cleanup:** Xóa bỏ các file script tạm thời `replace_keys.py` và `replace.py` (theo đúng Rule 3) để giữ cho thư mục làm việc luôn gọn gàng và không bị rác.
 
 - **UI Tweaks:** Thêm hàm `formatSlotDisplay()` vào frontend để rút gọn hiển thị giờ bận. Thay vì hiện `08:00-08:00`, bảng giờ bận của Bác sĩ (và Bệnh nhân) nay sẽ chỉ hiện `08:00` cho gọn gàng.
+
+- **Bug Fix:** Xử lý triệt để lỗi kết nối CORS API (TypeError: Failed to fetch) bằng cách điều chỉnh cấu hình fetch() gửi đến Google Apps Script. Cập nhật hàm formatSlotDisplay() để chỉ hiện giờ bắt đầu cho các khoảng thời gian bận chỉ có 1 phút (hoặc start = end). Dọn dẹp script rác đúng theo rules.
