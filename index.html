@@ -8556,7 +8556,7 @@
 
         function renderPatientsTable() {
             renderPatientsTable_Original();
-            setTimeout(() => { }, 50);
+            if (typeof filterPatientTable === 'function') filterPatientTable();
         }
 
         function renderPatientsTable_Original() {
