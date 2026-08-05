@@ -13816,6 +13816,102 @@
         })();
     </script>
 
+    <!-- ============================================================ -->
+    <!-- REAL-TIME SYNC: Polling 15 giây đồng bộ giữa các máy        -->
+    <!-- ============================================================ -->
+    <script>
+    (function initRealtimeSync() {
+        const POLL_INTERVAL = 15000; // 15 giây
+        let lastKnownVersion = null;
+        let syncTimer = null;
+        let isSyncing = false;
+
+        // Toast thông báo đồng bộ
+        function showSyncToast(msg) {
+            let toast = document.getElementById('__sync-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = '__sync-toast';
+                toast.style.cssText = [
+                    'position:fixed', 'bottom:22px', 'right:22px', 'z-index:99999',
+                    'background:rgba(39,174,96,0.93)', 'color:#fff',
+                    'padding:9px 18px', 'border-radius:8px',
+                    'font-size:13px', 'font-family:inherit',
+                    'box-shadow:0 4px 18px rgba(0,0,0,0.18)',
+                    'transition:opacity 0.4s', 'opacity:0',
+                    'pointer-events:none'
+                ].join(';');
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+        }
+
+        // Reload dữ liệu bị thay đổi (không reload lịch — chỉ reload danh mục)
+        function syncRefreshData() {
+            if (typeof loadEntity !== 'function') return;
+            try {
+                // Xóa cache time để force refresh
+                if (window.dataCacheTime) {
+                    ['pat', 'proc', 'machine', 'staff', 'room'].forEach(k => {
+                        window.dataCacheTime[k] = 0;
+                    });
+                }
+                // Reload từng danh mục đang hiển thị
+                if (typeof loadPatients === 'function') loadPatients();
+                if (typeof loadProcs === 'function') loadProcs();
+                if (typeof loadMachines === 'function') loadMachines();
+                if (typeof loadStaff === 'function') loadStaff();
+                if (typeof loadRooms === 'function') loadRooms();
+            } catch(e) {}
+        }
+
+        function doPoll() {
+            if (isSyncing) return;
+            if (typeof google === 'undefined' || !google.script || !google.script.run) return;
+            isSyncing = true;
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    isSyncing = false;
+                    if (!data) return;
+                    const v = String(data.version || '0');
+                    if (lastKnownVersion === null) {
+                        lastKnownVersion = v; // lần đầu: ghi nhớ version hiện tại
+                        return;
+                    }
+                    if (v !== lastKnownVersion) {
+                        lastKnownVersion = v;
+                        syncRefreshData();
+                        showSyncToast('🔄 Đã đồng bộ dữ liệu mới');
+                    }
+                })
+                .withFailureHandler(function() { isSyncing = false; })
+                .getDataVersion();
+        }
+
+        // Bắt đầu sau khi trang load xong
+        document.addEventListener('DOMContentLoaded', function() {
+            // Poll lần đầu sau 5 giây (đợi login xong)
+            setTimeout(function() {
+                doPoll();
+                syncTimer = setInterval(doPoll, POLL_INTERVAL);
+            }, 5000);
+        });
+
+        // Dừng polling khi tab bị ẩn (tiết kiệm quota), bật lại khi tab hiện
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(syncTimer);
+            } else {
+                doPoll(); // sync ngay khi quay lại tab
+                syncTimer = setInterval(doPoll, POLL_INTERVAL);
+            }
+        });
+    })();
+    </script>
+
 </body>
 
 

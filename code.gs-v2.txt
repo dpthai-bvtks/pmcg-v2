@@ -13,7 +13,8 @@ const PUBLIC_ACTIONS = [
   'getMarqueeText',
   'layThongBaoDongChuChay',
   'layDanhSachLienKet',
-  'getSystemSettings'
+  'getSystemSettings',
+  'getDataVersion'
 ];
 
 const USER_ACTIONS = [
@@ -138,6 +139,25 @@ function clearSheet(sheetName) {
   }
 }
 
+// ============================================================
+// REAL-TIME SYNC
+// ============================================================
+// Tăng version mỗi khi có thao tác ghi dữ liệu — client sẽ polling hàm này
+function bumpDataVersion() {
+  try {
+    var cache = CacheService.getScriptCache();
+    var v = parseInt(cache.get('DATA_VERSION') || '0', 10) + 1;
+    cache.put('DATA_VERSION', String(v), 600);
+    cache.put('DATA_TIMESTAMP', String(Date.now()), 600);
+  } catch(e) { Logger.log('bumpDataVersion error: ' + e.message); }
+}
+function getDataVersion() {
+  try {
+    var cache = CacheService.getScriptCache();
+    return { version: cache.get('DATA_VERSION') || '0', ts: cache.get('DATA_TIMESTAMP') || '0' };
+  } catch(e) { return { version: '0', ts: '0' }; }
+}
+
 // CRUD Máy Móc
 function getDanhSachMay() { return getAllData('DanhSachMay').map(r => ({ id: r[0], tenLoai: r[1], maMay: r[2], trangThai: r[3] })); }
 function addMayMoc(tenLoai, maMay, soLuong, trangThai) {
@@ -158,25 +178,27 @@ function addMayMoc(tenLoai, maMay, soLuong, trangThai) {
       lock.releaseLock();
     }
   }
+  bumpDataVersion();
 }
-function editMayMoc(rowIndex, tenLoai, maMay, trangThai) { updateRow('DanhSachMay', rowIndex, [rowIndex + 1, tenLoai, maMay, trangThai]); }
-function deleteMayMoc(rowIndex) { deleteRow('DanhSachMay', rowIndex); }
+function editMayMoc(rowIndex, tenLoai, maMay, trangThai) { updateRow('DanhSachMay', rowIndex, [rowIndex + 1, tenLoai, maMay, trangThai]); bumpDataVersion(); }
+function deleteMayMoc(rowIndex) { deleteRow('DanhSachMay', rowIndex); bumpDataVersion(); }
 
 // CRUD Thủ Thuật
 function getThuThuat() { return getAllData('ThuThuat').map(r => ({ id: r[0], ten: r[1], vietTat: r[2], he: r[3], phanLoai: r[4], may: r[5], thoiGianThucHien: r[6], thoiGianThuThuat: r[7], khoangCach: r[8], canRutMay: r[9], canNguoiPhu: r[10], dsNguoiPhu: r[11] })); }
-function addThuThuat(ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu) { appendRow('ThuThuat', [getSheetByName('ThuThuat').getLastRow(), ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu]); }
-function editThuThuat(rowIndex, ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu) { updateRow('ThuThuat', rowIndex, [rowIndex + 1, ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu]); }
-function deleteThuThuat(rowIndex) { deleteRow('ThuThuat', rowIndex); }
+function addThuThuat(ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu) { appendRow('ThuThuat', [getSheetByName('ThuThuat').getLastRow(), ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu]); bumpDataVersion(); }
+function editThuThuat(rowIndex, ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu) { updateRow('ThuThuat', rowIndex, [rowIndex + 1, ten, vietTat, he, phanLoai, may, tgThucHien, tgThuThuat, khoangCach, canRutMay, canNguoiPhu, dsNguoiPhu]); bumpDataVersion(); }
+function deleteThuThuat(rowIndex) { deleteRow('ThuThuat', rowIndex); bumpDataVersion(); }
 
 // CRUD Nhân Sự
 function getNhanSu() { return getAllData('NhanSu').map(r => ({ id: r[0], ten: r[1], vaiTro: r[2], trangThai: r[3], thoiGianLam: r[4], kyNang: r[5], gioBan: r[6], nguoiThayThe: r[7] })); }
-function addNhanSu(ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe) { appendRow('NhanSu', [getSheetByName('NhanSu').getLastRow(), ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe]); }
+function addNhanSu(ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe) { appendRow('NhanSu', [getSheetByName('NhanSu').getLastRow(), ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe]); bumpDataVersion(); }
 function editNhanSu(rowIndex, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe) {
   const tenCu = getSheetByName('NhanSu').getRange(rowIndex + 2, 2).getValue();
   updateRow('NhanSu', rowIndex, [rowIndex + 1, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe]);
   updateNameEverywhere(tenCu, ten);
+  bumpDataVersion();
 }
-function deleteNhanSu(rowIndex) { deleteRow('NhanSu', rowIndex); }
+function deleteNhanSu(rowIndex) { deleteRow('NhanSu', rowIndex); bumpDataVersion(); }
 
 function updateNameEverywhere(oldName, newName) {
   if (!oldName || !newName || String(oldName).trim() === String(newName).trim()) return;
@@ -214,13 +236,14 @@ function updateNameEverywhere(oldName, newName) {
 }
 // CRUD Phòng
 function getPhongThuThuat() { return getAllData('PhongThuThuat').map(r => ({ id: r[0], tenPhong: r[1], bacSi: r[2], ktv: r[3], danhSachMay: r[4], soGiuong: r[5], danhSachGiuong: r[6] })); }
-function addPhong(tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong) { appendRow('PhongThuThuat', [getSheetByName('PhongThuThuat').getLastRow(), tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong]); }
+function addPhong(tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong) { appendRow('PhongThuThuat', [getSheetByName('PhongThuThuat').getLastRow(), tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong]); bumpDataVersion(); }
 function editPhong(rowIndex, tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong) {
   const tenCu = getSheetByName('PhongThuThuat').getRange(rowIndex + 2, 2).getValue();
   updateRow('PhongThuThuat', rowIndex, [rowIndex + 1, tenPhong, bacSi, ktv, danhSachMay, soGiuong, danhSachGiuong]);
   updateNameEverywhere(tenCu, tenPhong);
+  bumpDataVersion();
 }
-function deletePhong(rowIndex) { deleteRow('PhongThuThuat', rowIndex); }
+function deletePhong(rowIndex) { deleteRow('PhongThuThuat', rowIndex); bumpDataVersion(); }
 
 // CRUD Bệnh Nhân
 function formatNgayVao(val) {
@@ -280,18 +303,20 @@ function getExactRowIndex(sheetName, rowIndex, nameColumn, dobColumn, expectedNa
 }
 
 function addBenhNhan(ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat) { 
-appendRow('BenhNhan', [getSheetByName('BenhNhan').getLastRow(), ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat]); }
+appendRow('BenhNhan', [getSheetByName('BenhNhan').getLastRow(), ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat]); bumpDataVersion(); }
 
 function editBenhNhan(rowIndex, ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat, oldTen, oldNamSinh) {
   const exactIndex = getExactRowIndex('BenhNhan', rowIndex, 1, 2, oldTen, oldNamSinh);
   const tenCu = getSheetByName('BenhNhan').getRange(exactIndex + 2, 2).getValue();
   updateRow('BenhNhan', exactIndex, [exactIndex + 1, ten, namSinh, ngayVao, gioVao, gioBan, gioRa, phong, thuThuat]);
   updateNameEverywhere(tenCu, ten);
+  bumpDataVersion();
 }
 
 function deleteBenhNhan(rowIndex, ten, namSinh) { 
   const exactIndex = getExactRowIndex('BenhNhan', rowIndex, 1, 2, ten, namSinh);
   deleteRow('BenhNhan', exactIndex); 
+  bumpDataVersion();
 }
 
 // ============================================================
