@@ -6523,6 +6523,13 @@
                         if (onSuccess) onSuccess(result.data);
                     } else {
                         console.error('API Error:', result.error);
+                        
+                        if (result.error && result.error.includes("Phiên làm việc hết hạn hoặc không hợp lệ")) {
+                            alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+                            if (typeof doLogout === 'function') doLogout();
+                            return;
+                        }
+                        
                         if (onError) onError(result.error);
                         else alert('Lỗi: ' + result.error);
                     }
