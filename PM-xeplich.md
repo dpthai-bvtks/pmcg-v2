@@ -1496,3 +1496,15 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Feature:** Nâng cấp tính năng In Lịch Trình. Tự động sắp xếp các bệnh nhân đã hoàn tất và ra viện (có giờ ra viện trong hệ thống) xuống cuối danh sách để dễ phân biệt, đồng thời bổ sung thêm nhãn \(✔ Đã ra viện)\ bên cạnh tên bệnh nhân trên bản in.
 
 - **Feature:** Áp dụng tính năng tự động sắp xếp bệnh nhân đã ra viện xuống cuối danh sách và thêm nhãn \(✔ Đã ra viện)\ vào bảng hiển thị Lịch Trình trực tiếp trên màn hình phần mềm (khi bấm Xếp lịch / Xem lịch) để đồng bộ với bản in.
+
+### Phiên làm việc ngày 05/08/2026
+**Yêu cầu:** Triển khai các giải pháp bảo mật và tối ưu hóa hệ thống từ báo cáo phân tích mã nguồn. Sửa lỗi giao diện mất bộ lọc khi lưu bệnh nhân.
+**Giải pháp:**
+- **Bảo mật (`doPost` & `validateSession`):** Backend cấp và kiểm tra `sessionToken` (lưu CacheService 8 giờ) cho mọi thao tác qua API.
+- **Bảo mật (`verifyLogin`):** Bổ sung cơ chế chống Brute-force, khóa tài khoản tạm thời 15 phút nếu nhập sai mật khẩu 5 lần liên tiếp.
+- **Bảo mật:** Chuyển `PASSWORD_PEPPER` sang `PropertiesService` để không lộ chuỗi bí mật trong mã nguồn công khai. Dữ liệu trả về giao diện thay vì chứa mã băm mật khẩu `pass` thì chỉ trả về biến `hasPassword` (boolean).
+- **Ghi Log (Audit):** Tự động ghi lại nhật ký (log) vào sheet `AuditLog` với các thao tác nhạy cảm (Xóa tài khoản, Xóa bệnh nhân, Import hàng loạt bệnh nhân).
+- **Tối ưu hóa (Backend):** Caching hàm `buildBaseDb()` bằng CacheService (hết hạn sau 6 giờ hoặc tự reset khi có thay đổi dữ liệu cấu hình), giảm tải đáng kể số lần gọi Google Sheets API.
+- **Tối ưu hóa (Thuật toán Xếp lịch):** Tối ưu hóa bộ nhớ bằng cách thay thế `JSON.parse(JSON.stringify(patients))` đắt đỏ bằng hàm `clonePatients()` chỉ clone nông các mảng động cần thiết, tăng tốc độ vòng lặp mô phỏng luyện kim (Simulated Annealing).
+- **Bug Fix (Frontend):** Sửa lỗi hệ thống không hiển thị cảnh báo, tự động bật popup khi phiên làm việc hết hạn (Session Timeout) và kích hoạt hàm `doLogout()` đẩy người dùng ra màn hình đăng nhập an toàn.
+- **Bug Fix (Frontend):** Sửa lỗi bảng danh sách bệnh nhân bị giật và xóa mất kết quả tìm kiếm sau khi ấn nút "Lưu" (do quá trình cập nhật Optimistic UI và quá trình fetch nền tải lại toàn bộ bảng). Khắc phục bằng cách tích hợp tự động gọi lại `filterPatientTable()` tại cuối vòng đời `renderPatientsTable()`.
