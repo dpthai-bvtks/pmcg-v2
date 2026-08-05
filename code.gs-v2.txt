@@ -729,9 +729,26 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     const gioStart = t2m(row[5] || row.GIODIENRA), gioEnd = t2m(row[6] || row.GIOKETTHUC);
     const nvChinh = row[7] || row["NV CHÍNH"], nvPhu = row[8] || row["NV PHỤ"];
     const may = row[9] || row.MAY, phong = row[3] || row.PHONG, giuong = row[10] || row.GIUONG;
+    
+    const tenThuThuat = String(row[4] || row.DICHVU || "").trim().toLowerCase();
+    const info = thuThuatInfo[tenThuThuat] || ["Thủ công", 15, 5, "PHCN", 1, 0, [], 5];
+    const tgNhanVien = info[2];
+    const staffEnd = Math.min(gioStart + tgNhanVien, gioEnd);
+    const hasTeardown = (gioEnd - gioStart) > tgNhanVien;
+    const tearStart = hasTeardown ? gioEnd : null;
+    const tearEnd   = hasTeardown ? gioEnd + 1 : null;
+
     const pushAndMerge = (timeline, key, slot) => { if (!timeline[key]) return; timeline[key].push(slot); timeline[key] = mergeTimeline(timeline[key]); };
-    if (nvChinh && staffTimeline[nvChinh]) { pushAndMerge(staffTimeline, nvChinh, [gioStart, gioEnd]); staffCurrentRoom[nvChinh] = phong; }
-    if (nvPhu && staffTimeline[nvPhu]) pushAndMerge(staffTimeline, nvPhu, [gioStart, gioEnd]);
+    
+    if (nvChinh && staffTimeline[nvChinh]) { 
+      pushAndMerge(staffTimeline, nvChinh, [gioStart, staffEnd]); 
+      if (hasTeardown && tearStart !== null) pushAndMerge(staffTimeline, nvChinh, [tearStart, tearEnd]);
+      staffCurrentRoom[nvChinh] = phong; 
+    }
+    if (nvPhu && staffTimeline[nvPhu]) {
+      pushAndMerge(staffTimeline, nvPhu, [gioStart, staffEnd]);
+      if (hasTeardown && tearStart !== null) pushAndMerge(staffTimeline, nvPhu, [tearStart, tearEnd]);
+    }
     if (may && may !== "Thủ công" && machineTimeline[may]) pushAndMerge(machineTimeline, may, [gioStart, gioEnd]);
     if (phong && giuong && bedTracker[phong]?.[giuong]) pushAndMerge(bedTracker[phong], giuong, [gioStart, gioEnd]);
   });
