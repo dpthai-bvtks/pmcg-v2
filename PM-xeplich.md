@@ -1508,3 +1508,11 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
 - **Tối ưu hóa (Thuật toán Xếp lịch):** Tối ưu hóa bộ nhớ bằng cách thay thế `JSON.parse(JSON.stringify(patients))` đắt đỏ bằng hàm `clonePatients()` chỉ clone nông các mảng động cần thiết, tăng tốc độ vòng lặp mô phỏng luyện kim (Simulated Annealing).
 - **Bug Fix (Frontend):** Sửa lỗi hệ thống không hiển thị cảnh báo, tự động bật popup khi phiên làm việc hết hạn (Session Timeout) và kích hoạt hàm `doLogout()` đẩy người dùng ra màn hình đăng nhập an toàn.
 - **Bug Fix (Frontend):** Sửa lỗi bảng danh sách bệnh nhân bị giật và xóa mất kết quả tìm kiếm sau khi ấn nút "Lưu" (do quá trình cập nhật Optimistic UI và quá trình fetch nền tải lại toàn bộ bảng). Khắc phục bằng cách tích hợp tự động gọi lại `filterPatientTable()` tại cuối vòng đời `renderPatientsTable()`.
+
+### Phiên làm việc (Fixes):
+**Yêu cầu:** Sửa các lỗi UI/UX và logic xếp lịch do user báo cáo.
+**Giải pháp:**
+- **Bug Fix (Bảng lịch trình):** Chỉnh sửa hàm compareScheduleRows để cho phép các cột (như Tên BN, Phòng) được sắp xếp đúng thứ tự khi click vào tiêu đề, thay vì ghim cứng các bệnh nhân đã ra viện trên cùng (bệnh nhân ra viện giờ chỉ ghim khi không có sắp xếp tùy chỉnh).
+- **Bug Fix (Xếp lịch bổ sung):** Khắc phục lỗi hiển thị trùng lặp ca rớt trong UI khi chạy "Xếp bổ sung" nhiều lần (do mảng danh sách rớt bị cộng dồn thay vì ghi đè).
+- **Bug Fix (Lịch Thứ 7):** Sửa lỗi không hiện popup cảnh báo "chưa chọn ngày" khi xếp lịch T7 bằng cách dời logic kiểm tra chọn ngày lên trước các kiểm tra dữ liệu khác trong hàm xepLichSat().
+- **Bug Fix (Thuật toán xếp lịch):** Sửa lỗi đánh rớt sai khi Xếp bổ sung các thủ thuật có thời gian theo dõi (ví dụ: Thủy châm). Khắc phục lỗi đọc existingSched khóa cứng nhân sự toàn bộ thời gian thay vì chỉ khóa trong khoảng thời gian thao tác thực tế (	gNhanVien).
