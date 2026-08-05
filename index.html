@@ -9613,9 +9613,9 @@
 
                 let isDischargedA = !!a.__isDischarged;
                 let isDischargedB = !!b.__isDischarged;
-                if (isDischargedA !== isDischargedB) return isDischargedA ? -1 : 1;
-
                 const activeSort = window.scheduleSortState;
+
+                if (!activeSort && isDischargedA !== isDischargedB) return isDischargedA ? -1 : 1;
 
                 if (activeSort) {
 
