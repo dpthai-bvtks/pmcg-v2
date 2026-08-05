@@ -6,7 +6,9 @@ const SS = SpreadsheetApp.openById('1f6mnFdOMvGNTiIB0zKqPEV-WBpxY1R2F_99SRbcUc5g
 // ============================================================
 // SECURITY HARDENING CONFIG & API CONTROL
 // ============================================================
-const PASSWORD_PEPPER = "TIMES_BVTKS_2026_SECURE_SALT_PEPPER";
+function getPasswordPepper() {
+  return PropertiesService.getScriptProperties().getProperty('PASSWORD_PEPPER') || "TIMES_BVTKS_2026_SECURE_SALT_PEPPER";
+}
 
 const PUBLIC_ACTIONS = [
   'verifyLogin',
@@ -43,12 +45,43 @@ const ADMIN_ACTIONS = [
   'addBenhNhan', 'editBenhNhan', 'deleteBenhNhan',
   'bulkUpdatePatients',
   'saveAITrainingData', 'clearAITrainingData',
-  'saveMarqueeText', 'luuThongBaoDongChuChay',
+  'luuThongBaoDongChuChay',
   'getAccounts', 'saveAccount', 'deleteAccount',
   'saveSystemSettings'
 ];
 
 const ALL_ACTIONS = [...PUBLIC_ACTIONS, ...USER_ACTIONS, ...ADMIN_ACTIONS];
+
+function validateSession(token) {
+  if (!token || token === "no_session") return null;
+  const cache = CacheService.getScriptCache();
+  const sessionStr = cache.get('SESSION_' + token);
+  if (!sessionStr) return null;
+  try {
+    const session = JSON.parse(sessionStr);
+    cache.put('SESSION_' + token, sessionStr, 28800); // 8 hours
+    return session;
+  } catch (e) {
+    return null;
+  }
+}
+
+function invalidateSession(token) {
+  if (token && token !== "no_session") {
+    CacheService.getScriptCache().remove('SESSION_' + token);
+  }
+}
+
+function logAudit(username, action, argsStr) {
+  try {
+    const sheet = getSheetByName('AuditLog');
+    const timestamp = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
+    const argsTrimmed = argsStr.length > 500 ? argsStr.substring(0, 500) + '...' : argsStr;
+    sheet.appendRow([timestamp, username, action, argsTrimmed]);
+  } catch (e) {
+    Logger.log("Lỗi ghi AuditLog: " + e.message);
+  }
+}
 
 function doPost(e) {
   try {
@@ -57,18 +90,37 @@ function doPost(e) {
     if (e.parameter.args) {
       args = JSON.parse(e.parameter.args);
     }
+    const sessionId = e.parameter.sessionId;
     
     // 1. Kiểm tra Whitelist hành động
     if (!ALL_ACTIONS.includes(action)) {
       throw new Error("Hành động không hợp lệ: " + action);
     }
     
-    // 2. Thực thi hàm
+    // 2. Kiểm tra Authentication & Authorization
+    let session = null;
+    if (USER_ACTIONS.includes(action) || ADMIN_ACTIONS.includes(action)) {
+      session = validateSession(sessionId);
+      if (!session) {
+        throw new Error("Vui lòng đăng nhập lại (Phiên làm việc hết hạn hoặc không hợp lệ).");
+      }
+      if (ADMIN_ACTIONS.includes(action) && session.role !== 'Admin') {
+         throw new Error("Không có quyền thực hiện hành động này.");
+      }
+    }
+    
+    // 3. Thực thi hàm
     if (typeof this[action] !== 'function') {
       throw new Error("Hàm API không tồn tại: " + action);
     }
     
     const result = this[action].apply(this, args);
+    
+    // 4. Audit Log
+    if (['deleteBenhNhan', 'deleteAccount', 'bulkUpdatePatients', 'saveAccount'].includes(action)) {
+       logAudit(session ? session.username : 'Unknown', action, e.parameter.args || '');
+    }
+
     return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result }))
       .setMimeType(ContentService.MimeType.JSON);
       
@@ -322,6 +374,7 @@ function deleteBenhNhan(rowIndex, ten, namSinh) {
 // ============================================================
 // CORE UTILS
 // ============================================================
+// ⚠️ CẢNH BÁO: ĐỒNG BỘ VỚI t2m() trong index.html — sửa 1 bên PHẢI sửa bên kia!
 function t2m(thoiGian) {
   if (!thoiGian && thoiGian !== 0) return 0;
   if (thoiGian instanceof Date) {
@@ -412,6 +465,17 @@ function blockStaff(staffName, start, end, khoangCach, staffTimeline, staffSetup
 }
 
 function buildBaseDb() {
+  const cache = CacheService.getScriptCache();
+  const dataVersion = getDataVersion();
+  const cacheKey = 'BASE_DB_' + dataVersion;
+  const cachedDb = cache.get(cacheKey);
+  
+  if (cachedDb) {
+    try {
+      return JSON.parse(cachedDb);
+    } catch(e) {}
+  }
+
   const db = { machineTypes: {}, thuThuatInfo: {}, replacementMap: {}, roomStaff: {}, roomBeds: {}, rawStaff: [], rawPatients: [] };
 
   getAllData('DanhSachMay').forEach(r => {
@@ -448,14 +512,27 @@ function buildBaseDb() {
     db.roomStaff[r[1]] = [...new Set([...dsBacSi, ...dsKTV].filter(x => x).map(x => db.replacementMap[x] || x))];
   });
 
+  try {
+    const dbStr = JSON.stringify(db);
+    if (dbStr.length < 100000) cache.put(cacheKey, dbStr, 21600);
+  } catch(e) {}
+
   return db;
 }
 
 // ============================================================
 // GUIDED SIMULATED ANNEALING
 // ============================================================
+function clonePatients(patients) {
+  return patients.map(p => ({
+    ...p,
+    pending: p.pending ? [...p.pending] : [],
+    busy: p.busy ? p.busy.map(b => [b[0], b[1]]) : []
+  }));
+}
+
 function mutate(rawPatients, randFn, droppedNames) {
-  let patients = JSON.parse(JSON.stringify(rawPatients));
+  let patients = clonePatients(rawPatients);
   if (droppedNames && droppedNames.size > 0 && randFn() < 0.6) {
     const idx = patients.findIndex(p => droppedNames.has(p.name));
     if (idx > 0) { const [p] = patients.splice(idx, 1); patients.unshift(p); return patients; }
@@ -493,7 +570,7 @@ function mutate(rawPatients, randFn, droppedNames) {
 
 function runBestIteration(db, dateVal, existingSched = [], scenario = 1, crowdedOverride = -1) {
   let rand = createSeededRandom(42);
-  let currentPatients = JSON.parse(JSON.stringify(db.rawPatients));
+  let currentPatients = clonePatients(db.rawPatients);
   let current = _turbo_core_logic({ ...db, rawPatients: currentPatients }, dateVal, 0, existingSched, scenario, crowdedOverride);
   let best = current;
 
@@ -515,7 +592,7 @@ function runBestIteration(db, dateVal, existingSched = [], scenario = 1, crowded
   }
 
   for (let i = 0; i < 8; i++) {
-    const result = _turbo_core_logic({ ...db, rawPatients: JSON.parse(JSON.stringify(db.rawPatients)) }, dateVal, 100 + i, existingSched, scenario, crowdedOverride);
+    const result = _turbo_core_logic({ ...db, rawPatients: clonePatients(db.rawPatients) }, dateVal, 100 + i, existingSched, scenario, crowdedOverride);
     if (result.score < best.score) { best = result; }
   }
   return best;
@@ -1644,7 +1721,7 @@ function runSupplementalScheduling(ngayXep, scenario) {
 // ============================================================
 function hashPassword(pwd) {
   if (!pwd) return "";
-  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, pwd.trim() + PASSWORD_PEPPER, Utilities.Charset.UTF_8);
+  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, pwd.trim() + getPasswordPepper(), Utilities.Charset.UTF_8);
   return rawHash.map(b => (b < 0 ? b + 256 : b).toString(16).padStart(2, '0')).join('');
 }
 
@@ -1659,6 +1736,14 @@ function hashPasswordPlain(pwd) {
 }
 
 function verifyLogin(username, password) {
+  const cache = CacheService.getScriptCache();
+  const lockoutKey = 'LOCKOUT_' + username;
+  const attemptsKey = 'ATTEMPTS_' + username;
+  
+  if (cache.get(lockoutKey)) {
+    return { success: false, message: 'Tài khoản đang bị khóa tạm thời. Vui lòng thử lại sau 15 phút.' };
+  }
+
   const hashedNew = hashPassword(password);
   const hashedNoPepper = hashPasswordNoPepper(password);
   const hashedPlain = hashPasswordPlain(password);
@@ -1688,20 +1773,38 @@ function verifyLogin(username, password) {
   }
   
   if (matchedUser) {
+    cache.remove(attemptsKey);
     if (needMigration) {
       sheet.getRange(matchedUserRow, 3).setValue(hashedNew);
     }
+    
+    const sessionId = Utilities.getUuid();
+    const sessionData = {
+      role: matchedUser.role,
+      permissions: matchedUser.permissions,
+      username: matchedUser.username,
+      sessionId: sessionId
+    };
+    cache.put('SESSION_' + sessionId, JSON.stringify(sessionData), 28800); // 8 hours
     
     return {
       success: true,
       role: matchedUser.role,
       permissions: matchedUser.permissions,
       username: matchedUser.username,
-      sessionId: "no_session"
+      sessionId: sessionId
     };
   }
   
-  return { success: false, message: 'Sai tài khoản hoặc mật khẩu!' };
+  let attempts = parseInt(cache.get(attemptsKey) || '0', 10) + 1;
+  if (attempts >= 5) {
+    cache.put(lockoutKey, 'locked', 900); // 15 mins
+    cache.remove(attemptsKey);
+    return { success: false, message: 'Tài khoản đang bị khóa tạm thời do nhập sai nhiều lần. Vui lòng thử lại sau 15 phút.' };
+  } else {
+    cache.put(attemptsKey, String(attempts), 900); // 15 mins
+    return { success: false, message: 'Sai tài khoản hoặc mật khẩu! (Còn ' + (5 - attempts) + ' lần thử)' };
+  }
 }
 
 // ============================================================
@@ -1847,7 +1950,7 @@ function autoChotSo() {
      Logger.log("Bỏ qua vì hôm nay không phải T2-T6");
   }
 }
-function getAccounts() { return getAllData('TaiKhoan').map(r => ({ id: r[0], user: r[1], pass: r[2], role: r[3], perms: r[4] })); }
+function getAccounts() { return getAllData('TaiKhoan').map(r => ({ id: r[0], user: r[1], hasPassword: !!r[2], role: r[3], perms: r[4] })); }
 function deleteAccount(id) {
   const sheet = getSheetByName('TaiKhoan'), data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) { if (data[i][0].toString() === id.toString()) { sheet.deleteRow(i + 1); return 'Đã xóa!'; } }
