@@ -1540,6 +1540,7 @@ function bulkUpdatePatients(rows, replaceAll) {
     let lastId = sheet.getLastRow() > 1 ? parseInt(sheet.getRange(sheet.getLastRow(), 1).getValue()) || 0 : 0;
     const rowsToAppend = rows.map(r => [++lastId, r.ten, r.namSinh, r.ngayVao, r.gioVao, r.gioBan, r.gioRa, r.phong, r.thuThuat]);
     sheet.getRange(sheet.getLastRow() + 1, 1, rowsToAppend.length, 9).setValues(rowsToAppend);
+    bumpDataVersion();
     return replaceAll ? `Đã THAY THẾ toàn bộ bằng ${rowsToAppend.length} bệnh nhân mới!` : `Đã BỔ SUNG thêm ${rowsToAppend.length} bệnh nhân!`;
   } finally {
     lock.releaseLock();
@@ -1846,7 +1847,6 @@ function autoChotSo() {
      Logger.log("Bỏ qua vì hôm nay không phải T2-T6");
   }
 }
-// TaiKhoan API missing
 function getAccounts() { return getAllData('TaiKhoan').map(r => ({ id: r[0], user: r[1], pass: r[2], role: r[3], perms: r[4] })); }
 function deleteAccount(id) {
   const sheet = getSheetByName('TaiKhoan'), data = sheet.getDataRange().getValues();
