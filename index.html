@@ -6539,8 +6539,15 @@
                 })
                 .catch(error => {
                     console.error('Fetch Error:', error);
+                    if (window.isSessionExpiredAlertShown) return;
                     if (onError) onError(error.toString());
-                    else alert('Lỗi kết nối API: ' + error.toString());
+                    else {
+                        if (!window.isNetworkErrorAlertShown) {
+                            window.isNetworkErrorAlertShown = true;
+                            alert('Lỗi kết nối API: ' + error.toString());
+                            setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
+                        }
+                    }
                 })
                 .finally(() => {
                     if (isMutation) {
@@ -6767,7 +6774,8 @@
 
                     localStorage.setItem('meds_session_exp', (Date.now() + 28800000).toString());
 
-
+                    window.isSessionExpiredAlertShown = false;
+                    window.isNetworkErrorAlertShown = false;
 
                     document.getElementById('login-overlay').style.display = 'none';
 
@@ -12110,6 +12118,7 @@
             document.getElementById('login-overlay').style.display = 'flex';
             document.getElementById('user-menu-container').style.display = 'none';
             document.getElementById('login-user').focus();
+            if (typeof window.stopAutoSync === 'function') window.stopAutoSync();
         }
 
         function applyPermissions(role, permsStr) {
@@ -13834,6 +13843,13 @@
         let lastKnownVersion = null;
         let syncTimer = null;
         let isSyncing = false;
+        
+        window.stopAutoSync = function() {
+            if (syncTimer) {
+                clearInterval(syncTimer);
+                syncTimer = null;
+            }
+        };
 
         // Toast thông báo đồng bộ
         function showSyncToast(msg) {
