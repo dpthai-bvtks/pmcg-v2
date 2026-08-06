@@ -1366,7 +1366,7 @@ function getLichTrinh() {
 }
 
 // Marquee / Thông báo dòng chữ chạy — lưu trong PropertiesService
-function getMarqueeText() { return PropertiesService.getScriptProperties().getProperty('SYS_MARQUEE') || "PHẦN MỀM XẾP LỊCH THỦ THUẬT - KHOA YHCT & PHCN"; }
+function getMarqueeText() { return PropertiesService.getScriptProperties().getProperty('SYS_MARQUEE') || "PHẦN MỀM XẾP LỊCH THỦ THUẬT - KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG - BVTKS CS2. Mọi thông tin xin liên hệ admin qua sđt: 0392.283.473"; }
 function saveMarqueeText(text) { PropertiesService.getScriptProperties().setProperty('SYS_MARQUEE', text); return "Đã lưu!"; }
 
 // Thông báo dòng chữ chạy — lưu trong sheet AppState

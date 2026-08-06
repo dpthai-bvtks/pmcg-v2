@@ -7644,17 +7644,7 @@
 
             [loadMachines, loadRooms, loadScheduleList, loadProcedures, loadPatients, loadStaff].forEach(fn => fn());
 
-            google.script.run.withSuccessHandler(text => {
-
-                ['sys-marquee', 'admin-marquee-input'].forEach(id => {
-
-                    const el = document.getElementById(id);
-
-                    if (el) (id.includes('input') ? el.value = text : el.innerText = text);
-
-                });
-
-            }).getMarqueeText();
+            
 
         }
 
