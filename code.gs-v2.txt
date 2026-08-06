@@ -554,18 +554,20 @@ function mutate(rawPatients, randFn, droppedNames) {
   return patients;
 }
 
-function runBestIteration(db, dateVal, existingSched = [], scenario = 1, crowdedOverride = -1) {
+function runBestIteration(db, dateVal, existingSched = [], scenario = 1, crowdedOverride = -1, weights = { dropWeight: 10000, overtimeWeight: 2, imbalanceWeight: 0.1 }) {
   let rand = createSeededRandom(42);
   let currentPatients = clonePatients(db.rawPatients);
-  let current = _turbo_core_logic({ ...db, rawPatients: currentPatients }, dateVal, 0, existingSched, scenario, crowdedOverride);
+  let current = _turbo_core_logic({ ...db, rawPatients: currentPatients }, dateVal, 0, existingSched, scenario, crowdedOverride, weights);
   let best = current;
 
   let droppedNames = new Set(best.rot.map(r => r.bn));
-  let T = 10.0, T_min = 0.3, alpha = 0.88, noImprove = 0;
+  const T_initial = 10.0, T_min = 0.3, alpha = 0.88;
+  const REHEAT_TRIGGER = 12, REHEAT_FACTOR = 1.6, REHEAT_MAX_TIMES = 2;
+  let T = T_initial, noImprove = 0, reheatCount = 0;
 
   while (T > T_min && noImprove < 20) {
     const neighborPatients = mutate(currentPatients, rand, droppedNames);
-    const neighbor = _turbo_core_logic({ ...db, rawPatients: neighborPatients }, dateVal, 0, existingSched, scenario, crowdedOverride);
+    const neighbor = _turbo_core_logic({ ...db, rawPatients: neighborPatients }, dateVal, 0, existingSched, scenario, crowdedOverride, weights);
     const delta = neighbor.score - current.score;
     const accept = delta < 0 || (rand() < Math.exp(-delta / T));
     if (accept) {
@@ -574,11 +576,19 @@ function runBestIteration(db, dateVal, existingSched = [], scenario = 1, crowded
         best = current; droppedNames = new Set(best.rot.map(r => r.bn)); noImprove = 0;
       } else { noImprove++; }
     } else { noImprove++; }
-    T *= alpha;
+
+    // --- REHEAT: bị kẹt local optimum nhưng chưa hết lượt reheat cho phép ---
+    if (noImprove >= REHEAT_TRIGGER && reheatCount < REHEAT_MAX_TIMES) {
+      T = Math.min(T * REHEAT_FACTOR, T_initial); // không vượt quá nhiệt ban đầu
+      noImprove = 0;
+      reheatCount++;
+    } else {
+      T *= alpha;
+    }
   }
 
   for (let i = 0; i < 8; i++) {
-    const result = _turbo_core_logic({ ...db, rawPatients: clonePatients(db.rawPatients) }, dateVal, 100 + i, existingSched, scenario, crowdedOverride);
+    const result = _turbo_core_logic({ ...db, rawPatients: clonePatients(db.rawPatients) }, dateVal, 100 + i, existingSched, scenario, crowdedOverride, weights);
     if (result.score < best.score) { best = result; }
   }
   return best;
@@ -599,7 +609,7 @@ function writeScheduleToSheet(sched, rot = []) {
 // ============================================================
 // LÕI XẾP LỊCH TURBO
 // ============================================================
-function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 1, crowdedOverride = -1) {
+function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 1, crowdedOverride = -1, weights = { dropWeight: 10000, overtimeWeight: 2, imbalanceWeight: 0.1 }) {
   const rand = createSeededRandom(seedVal);
   const OVERTIME_ALLOWANCE = 5;
   const defaultShift = [[420, 690], [780, 1014]];
@@ -1158,7 +1168,7 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
   const loadValues = Object.values(staffLoad).map(v => v.used_mins);
   const avg = loadValues.reduce((a,b)=>a+b,0) / (loadValues.length || 1);
   const imbalance = loadValues.reduce((s,v) => s + Math.abs(v - avg), 0);
-  const scoreVal = finalDropList.length * 10000 + overtimeMins * 2 + imbalance * 0.1;
+  const scoreVal = finalDropList.length * weights.drop + overtimeMins * weights.overtime + imbalance * weights.imbalance;
 
   results.sort((a, b) => a["NV CHÍNH"] !== b["NV CHÍNH"] ? a["NV CHÍNH"].localeCompare(b["NV CHÍNH"]) : a.t_sort - b.t_sort);
   return { sched: results, rot: finalDropList, score: scoreVal, staff: staffLoad, proc: localProcCount, tl: staffTimeline, ca: staffShifts };
@@ -1221,7 +1231,8 @@ function runScheduling(ngayXep, strategyKey, skipProcsStr, crowdedOverride) {
     });
   });
 
-  const best = runBestIteration(db, ngayXep, [], scenario, crowdedOverride);
+  const weights = typeof getScoreWeights === 'function' ? getScoreWeights() : { drop: 10000, overtime: 2, imbalance: 0.1 };
+  const best = runBestIteration(db, ngayXep, [], scenario, crowdedOverride, weights);
   const finalDropList = (best ? best.rot : []).concat(forcedDrops).map(r => ({ ...r, ngay: r.ngay || ngayXep }));
   writeScheduleToSheet(best ? best.sched : [], finalDropList);
 
@@ -1283,7 +1294,8 @@ function runSaturdaySchedule(payload, dateVal) {
     });
   });
 
-  const best = runBestIteration(db, dateVal, [], 2);
+  const weights = typeof getScoreWeights === 'function' ? getScoreWeights() : { drop: 10000, overtime: 2, imbalance: 0.1 };
+  const best = runBestIteration(db, dateVal, [], 2, -1, weights);
   const decodeRoom = item => {
     if (item.PHONG === "PHONG_CHUNG_T7" && item.GIUONG?.includes("|")) {
       const parts = item.GIUONG.split("|"); return { realRoom: parts[0], realBed: parts[1] };
@@ -1731,7 +1743,8 @@ function runSupplementalScheduling(ngayXep, scenario) {
 
   if (db.rawPatients.length === 0) return { error: "Tất cả các thủ thuật đều đã được xếp!" };
 
-  const best = runBestIteration(db, ngayXep, currentSched, scenario);
+  const weights = typeof getScoreWeights === 'function' ? getScoreWeights() : { drop: 10000, overtime: 2, imbalance: 0.1 };
+  const best = runBestIteration(db, ngayXep, currentSched, scenario, -1, weights);
   const sheet = getSheetByName('LichTrinh');
   let newRows = [];
   if (best) {
@@ -1874,18 +1887,48 @@ function saveAccount(id, username, password, role, permissions) {
 // TÍNH NĂNG CHỐT SỔ TỰ ĐỘNG
 // ===========================================
 
+const DEFAULT_WEIGHTS = { dropWeight: 10000, overtimeWeight: 2, imbalanceWeight: 0.1 };
+
 function getSystemSettings() {
-  const time = PropertiesService.getScriptProperties().getProperty('CHOT_SO_TIME') || "16:00";
-  return { chotSoTime: time };
+  const props = PropertiesService.getScriptProperties();
+  const time = props.getProperty('CHOT_SO_TIME') || "16:00";
+  return {
+    chotSoTime: time,
+    dropWeight:      parseFloat(props.getProperty('SCORE_DROP_WEIGHT'))      || DEFAULT_WEIGHTS.dropWeight,
+    overtimeWeight:  parseFloat(props.getProperty('SCORE_OVERTIME_WEIGHT'))  || DEFAULT_WEIGHTS.overtimeWeight,
+    imbalanceWeight: parseFloat(props.getProperty('SCORE_IMBALANCE_WEIGHT'))|| DEFAULT_WEIGHTS.imbalanceWeight
+  };
 }
 
 function saveSystemSettings(settings) {
-  if (settings && settings.chotSoTime) {
-    PropertiesService.getScriptProperties().setProperty('CHOT_SO_TIME', settings.chotSoTime);
+  if (!settings) return "Không có dữ liệu hợp lệ.";
+  const props = PropertiesService.getScriptProperties();
+  let messages = [];
+
+  if (settings.chotSoTime) {
+    props.setProperty('CHOT_SO_TIME', settings.chotSoTime);
     caiDatTuDongChotSo();
-    return "Đã lưu cài đặt và cập nhật giờ chốt sổ tự động!";
+    messages.push("giờ chốt sổ");
   }
-  return "Không có dữ liệu hợp lệ.";
+  
+  ['dropWeight', 'overtimeWeight', 'imbalanceWeight'].forEach(key => {
+    const val = parseFloat(settings[key]);
+    if (!isNaN(val) && val >= 0) {
+      const propKey = 'SCORE_' + key.replace('Weight', '').toUpperCase() + '_WEIGHT';
+      props.setProperty(propKey, String(val)); // oops in js it's String(val)
+    }
+  });
+  
+  if (settings.dropWeight !== undefined || settings.overtimeWeight !== undefined || settings.imbalanceWeight !== undefined) {
+    messages.push("trọng số xếp lịch");
+  }
+
+  return messages.length > 0 ? "Đã lưu cài đặt: " + messages.join(', ') + "!" : "Không có dữ liệu hợp lệ.";
+}
+
+function getScoreWeights() {
+  const s = getSystemSettings();
+  return { drop: s.dropWeight, overtime: s.overtimeWeight, imbalance: s.imbalanceWeight };
 }
 
 function caiDatTuDongChotSo() {
