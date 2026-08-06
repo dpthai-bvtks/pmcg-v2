@@ -6525,8 +6525,11 @@
                         console.error('API Error:', result.error);
                         
                         if (result.error && result.error.includes("Phiên làm việc hết hạn hoặc không hợp lệ")) {
-                            alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
-                            if (typeof doLogout === 'function') doLogout();
+                            if (!window.isSessionExpiredAlertShown) {
+                                window.isSessionExpiredAlertShown = true;
+                                alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+                                if (typeof doLogout === 'function') doLogout();
+                            }
                             return;
                         }
                         
