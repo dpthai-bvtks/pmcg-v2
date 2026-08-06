@@ -1523,3 +1523,9 @@ Trước đó chỉ có ô thứ 2 (đến giờ) mới được gán sự kiệ
   - Tối ưu hóa 	ryScheduleOne: Đưa logic quét danh sách bệnh nhân chờ (patients.filter) ra khỏi vòng lặp ứng viên, tính trước bằng Set oomsWithWaiting giúp giảm thiểu phép tính lặp dư thừa.
   - Tối ưu hóa vòng lặp tính khả năng xếp keepTrying: Thay vì tính lại countFeasibleSlots cho hàng trăm ca eligible sau *mỗi lần xếp thành công 1 ca*, giờ chỉ tính 1 lần duy nhất ở mỗi mốc thời gian 	Now. Tốc độ tăng đột biến.
   - Tối ưu hóa "Cứu ca rớt": Sử dụng Hash Map esultsByStaff và esultsByPatient thay cho hàm quét mảng esults.filter bên trong 3 vòng lặp lồng nhau, giảm độ phức tạp từ (N^2)$ xuống (N)$.
+- **Tính năng Reheat (SA) & Trọng Số:** Áp dụng đề xuất từ tài liệu nâng cao:
+  - Bổ sung cơ chế Reheat (tăng nhiệt độ lại tối đa 2 lần khi kẹt ở local optimum 
+oImprove >= 12) vào hàm unBestIteration để tối ưu hóa không gian tìm kiếm, giảm rủi ro rớt ca ở các ngày đông bệnh nhân.
+  - Tách 3 trọng số hàm mục tiêu (dropWeight, overtimeWeight, imbalanceWeight) khỏi code cứng.
+  - Xây dựng giao diện nhập trọng số trong tab Cài đặt Hệ thống (Admin) ở index.html.
+  - Cập nhật hàm saveSystemSettings và getSystemSettings để lưu tham số vào PropertiesService kèm theo kiểm tra dữ liệu đầu vào.
