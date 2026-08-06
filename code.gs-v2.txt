@@ -258,30 +258,16 @@ function updateNameEverywhere(oldName, newName) {
   const nName = String(newName).trim();
   try {
     const sheetLT = getSheetByName('LichTrinh');
-    const dataLT = sheetLT.getDataRange().getValues();
-    let changedLT = false;
-    for (let i = 1; i < dataLT.length; i++) {
-      for (let j = 1; j < dataLT[i].length; j++) {
-        if (String(dataLT[i][j]).trim() === oName) {
-          dataLT[i][j] = nName;
-          changedLT = true;
-        }
-      }
+    if (sheetLT && sheetLT.getLastRow() > 1) {
+      sheetLT.getRange(2, 1, sheetLT.getLastRow() - 1, sheetLT.getLastColumn())
+             .createTextFinder(oName).matchEntireCell(true).replaceAllWith(nName);
     }
-    if (changedLT) sheetLT.getDataRange().setValues(dataLT);
     
     const sheetBN = getSheetByName('BenhNhan');
-    const dataBN = sheetBN.getDataRange().getValues();
-    let changedBN = false;
-    for (let i = 1; i < dataBN.length; i++) {
-      for (let j = 1; j < dataBN[i].length; j++) {
-        if (String(dataBN[i][j]).trim() === oName) {
-          dataBN[i][j] = nName;
-          changedBN = true;
-        }
-      }
+    if (sheetBN && sheetBN.getLastRow() > 1) {
+      sheetBN.getRange(2, 1, sheetBN.getLastRow() - 1, sheetBN.getLastColumn())
+             .createTextFinder(oName).matchEntireCell(true).replaceAllWith(nName);
     }
-    if (changedBN) sheetBN.getDataRange().setValues(dataBN);
   } catch (e) {
     Logger.log("Lỗi updateNameEverywhere: " + e.message);
   }
@@ -880,6 +866,17 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     }
     if (!selectedBed && bedTracker[targetRoom] && Object.keys(bedTracker[targetRoom]).length > 0) return false;
 
+    // PRE-CALCULATE rooms with waiting patients to optimize the inner loop
+    const roomsWithWaiting = new Set();
+    if (!isSupplemental) {
+      const threshold = scenario === 2 ? 1 : 0;
+      for (const _p of patients) {
+        if (_p.pending.length > threshold && _p.free_at <= tNow && !_p.busy.some(b => b[0] <= tNow && tNow < b[1])) {
+          roomsWithWaiting.add(_p.room);
+        }
+      }
+    }
+
     // Thử từng ứng viên chính
     for (const nvChinh of candidatesMain) {
       const isInMyRoom  = staffMyRooms[nvChinh].includes(targetRoom);
@@ -893,12 +890,8 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
           if (!isCrowdedDay && hasSkilledStaffInRoom) continue;
 
           // Nếu được phép sang giúp (ngày đông), áp dụng logic cũ: chỉ sang khi phòng mình rảnh
-          const threshold = scenario === 2 ? 1 : 0;
-          const benhNhanChoTrongPhong = patients.filter(_p =>
-            staffMyRooms[nvChinh].includes(_p.room) && _p.pending.length > threshold &&
-            !_p.busy.some(b => b[0] <= tNow && tNow < b[1]) && _p.free_at <= tNow
-          );
-          if (benhNhanChoTrongPhong.length > 0) continue;
+          const isMyRoomBusy = staffMyRooms[nvChinh].some(r => roomsWithWaiting.has(r));
+          if (isMyRoomBusy) continue;
         }
       }
 
@@ -999,11 +992,15 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     while (tNow <= endOfDay) {
       if (!patients.some(p => p.pending.length > 0)) break;
       let keepTrying = true;
+      let isFirstTryAtTNow = true;
       while (keepTrying) {
         keepTrying = false;
         const eligible = patients.filter(p => p.pending.length > 0 && p.free_at <= tNow && !p.busy.some(b => b[0] <= tNow && tNow < b[1]));
         if (eligible.length === 0) break;
-        eligible.forEach(p => { p._feasible = countFeasibleSlots(p, tNow); });
+        if (isFirstTryAtTNow) {
+          eligible.forEach(p => { p._feasible = countFeasibleSlots(p, tNow); });
+          isFirstTryAtTNow = false;
+        }
         eligible.sort((a, b) => {
           const base = sortPatientPriority(a, b); if (base !== 0) return base;
           if (a.has_yhct !== b.has_yhct) return a.has_yhct - b.has_yhct;
@@ -1102,6 +1099,19 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
   }));
 
   // Cứu ca rớt bằng cách hoán đổi vai trò Bác sĩ - KTV
+  // BUILD MAPS FOR FAST LOOKUP to avoid O(N) array scans inside nested loops
+  const resultsByStaff = new Map();
+  const resultsByPatient = new Map();
+  for (const r of results) {
+    const nv = r["NV CHÍNH"];
+    const bn = r.HOTEN;
+    if (!resultsByStaff.has(nv)) resultsByStaff.set(nv, []);
+    resultsByStaff.get(nv).push(r);
+    
+    if (!resultsByPatient.has(bn)) resultsByPatient.set(bn, []);
+    resultsByPatient.get(bn).push(r);
+  }
+
   const finalDropList = [];
   for (const rotItem of tempDropList) {
     let saved = false;
@@ -1112,11 +1122,11 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
 
     for (const bacSi of dsBacSi) {
       if (saved) break;
-      const caDePHCN = results.filter(r => r["NV CHÍNH"] === bacSi && (thuThuatInfo[(r.DICHVU || "").toLowerCase()] || ["", "", "", "PHCN"])[3] === "PHCN");
+      const caDePHCN = (resultsByStaff.get(bacSi) || []).filter(r => (thuThuatInfo[(r.DICHVU || "").toLowerCase()] || ["", "", "", "PHCN"])[3] === "PHCN");
       for (const caDe of caDePHCN) {
         const timeStart = t2m(caDe.GIODIENRA), timeEnd = t2m(caDe.GIOKETTHUC);
         if ((timeEnd - timeStart) < tgCanThiet) continue;
-        const bnBusy = results.filter(r => r.HOTEN === tenBN).some(r => is_overlap(timeStart, timeStart + tgCanThiet, t2m(r.GIODIENRA), t2m(r.GIOKETTHUC)));
+        const bnBusy = (resultsByPatient.get(tenBN) || []).some(r => is_overlap(timeStart, timeStart + tgCanThiet, t2m(r.GIODIENRA), t2m(r.GIOKETTHUC)));
         if (bnBusy) continue;
         // Bác sĩ đang làm caDe chắc chắn không bận việc gì khác lúc này (caDe sẽ được đổi sang KTV ở dưới)
         const bacSiBusy = false;
@@ -1128,7 +1138,12 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
           caDe["NV CHÍNH"] = ktvThayThe;
           if (!staffTimeline[ktvThayThe]) staffTimeline[ktvThayThe] = [];
           staffTimeline[ktvThayThe].push([timeStart, timeEnd]); staffTimeline[ktvThayThe] = mergeTimeline(staffTimeline[ktvThayThe]);
-          results.push({ NGAY: ngayXep, HOTEN: tenBN, NAMSINH: rotItem.ns || "", PHONG: phong, DICHVU: tenTT, GIODIENRA: m2t(timeStart), GIOKETTHUC: m2t(timeStart + tgCanThiet), "NV CHÍNH": bacSi, "NV PHỤ": "", MAY: "Thủ công", GIUONG: "", t_sort: timeStart, PRIO: false });
+          
+          const newRes = { NGAY: ngayXep, HOTEN: tenBN, NAMSINH: rotItem.ns || "", PHONG: phong, DICHVU: tenTT, GIODIENRA: m2t(timeStart), GIOKETTHUC: m2t(timeStart + tgCanThiet), "NV CHÍNH": bacSi, "NV PHỤ": "", MAY: "Thủ công", GIUONG: "", t_sort: timeStart, PRIO: false };
+          results.push(newRes);
+          if (!resultsByPatient.has(tenBN)) resultsByPatient.set(tenBN, []);
+          resultsByPatient.get(tenBN).push(newRes);
+
           if (!staffTimeline[bacSi]) staffTimeline[bacSi] = [];
           staffTimeline[bacSi].push([timeStart, timeStart + tgCanThiet]); staffTimeline[bacSi] = mergeTimeline(staffTimeline[bacSi]);
           saved = true; localProcCount[tenTT.toLowerCase()] = (localProcCount[tenTT.toLowerCase()] || 0) + 1; break;
