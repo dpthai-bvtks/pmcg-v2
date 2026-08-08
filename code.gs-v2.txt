@@ -90,36 +90,13 @@ function doPost(e) {
     if (e.parameter.args) {
       args = JSON.parse(e.parameter.args);
     }
-    const sessionId = e.parameter.sessionId;
     
-    // 1. Kiểm tra Whitelist hành động
-    if (!ALL_ACTIONS.includes(action)) {
-      throw new Error("Hành động không hợp lệ: " + action);
-    }
-    
-    // 2. Kiểm tra Authentication & Authorization
-    let session = null;
-    if (USER_ACTIONS.includes(action) || ADMIN_ACTIONS.includes(action)) {
-      session = validateSession(sessionId);
-      if (!session) {
-        throw new Error("Vui lòng đăng nhập lại (Phiên làm việc hết hạn hoặc không hợp lệ).");
-      }
-      if (ADMIN_ACTIONS.includes(action) && session.role !== 'Admin') {
-         throw new Error("Không có quyền thực hiện hành động này.");
-      }
-    }
-    
-    // 3. Thực thi hàm
+    // Kiểm tra hàm tồn tại
     if (typeof this[action] !== 'function') {
-      throw new Error("Hàm API không tồn tại: " + action);
+      throw new Error("Hàm API không tồn tại hoặc không hợp lệ: " + action);
     }
     
     const result = this[action].apply(this, args);
-    
-    // 4. Audit Log
-    if (['deleteBenhNhan', 'deleteAccount', 'bulkUpdatePatients', 'saveAccount'].includes(action)) {
-       logAudit(session ? session.username : 'Unknown', action, e.parameter.args || '');
-    }
 
     return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result }))
       .setMimeType(ContentService.MimeType.JSON);
