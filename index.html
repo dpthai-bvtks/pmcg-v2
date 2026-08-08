@@ -6538,6 +6538,7 @@
                                 alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
                                 if (typeof doLogout === 'function') doLogout();
                             }
+                            if (onError) onError(result.error);
                             return;
                         }
                         
