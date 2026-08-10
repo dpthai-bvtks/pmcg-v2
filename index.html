@@ -2069,9 +2069,17 @@
 
             align-items: center;
 
-            margin-bottom: 8px;
+            margin-bottom: 4px;
 
         }
+
+        .sidebar-form .form-group input,
+        .sidebar-form .form-group select,
+        .sidebar-form .form-group textarea {
+            padding: 4px 8px;
+            min-height: 28px;
+        }
+
 
 
 
@@ -4613,7 +4621,8 @@
 
                     <div class="split-layout">
 
-                        <div class="sidebar-form">
+                        <div class="sidebar-form" style="display: flex; flex-direction: column; overflow: hidden !important; height: calc(100vh - 210px); max-height: none !important; padding-bottom: 0;">
+                            <div style="flex: 1; overflow-y: auto; padding-right: 5px; padding-bottom: 15px;">
 
                             <div class="form-group">
 
@@ -4709,6 +4718,9 @@
                                 </div>
 
                             </div>
+                            
+                            </div> <!-- End of scrollable body -->
+                            <div style="flex-shrink: 0; background: #f1f2f6; padding: 15px; margin: 0 -15px 0 -15px; border-top: 1px solid #dcdde1; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); border-radius: 0 0 8px 8px; position: relative; z-index: 10;">
 
                             <div class="button-group">
 
@@ -4719,6 +4731,8 @@
                                     style="display:none; flex:1">Hủy</button>
 
                             </div>
+
+                            </div> <!-- End of sticky footer -->
 
                         </div>
 
@@ -4772,7 +4786,8 @@
 
                     <div class="split-layout">
 
-                        <div class="sidebar-form">
+                        <div class="sidebar-form" style="display: flex; flex-direction: column; overflow: hidden !important; height: calc(100vh - 210px); max-height: none !important; padding-bottom: 0;">
+                            <div style="flex: 1; overflow-y: auto; padding-right: 5px; padding-bottom: 15px;">
 
                             <div class="form-group"><label>Tên phòng:</label><input type="text" id="room-name"
                                     placeholder="Tên Phòng"></div>
@@ -4826,6 +4841,9 @@
                                 </div>
 
                             </div>
+                            
+                            </div> <!-- End of scrollable body -->
+                            <div style="flex-shrink: 0; background: #f1f2f6; padding: 15px; margin: 0 -15px 0 -15px; border-top: 1px solid #dcdde1; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); border-radius: 0 0 8px 8px; position: relative; z-index: 10;">
 
                             <div class="button-group">
 
@@ -4836,6 +4854,8 @@
                                     style="display:none; flex:1">Hủy</button>
 
                             </div>
+
+                            </div> <!-- End of sticky footer -->
 
                         </div>
 
