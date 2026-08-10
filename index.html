@@ -8536,7 +8536,7 @@
 
         function renderPatientsTable() {
             renderPatientsTable_Original();
-            if (typeof filterPatientTable === 'function') filterPatientTable();
+            // filterPatientTable được gọi 1 lần duy nhất ở cuối renderPatientsTable_Original
         }
 
         function renderPatientsTable_Original() {
@@ -8571,7 +8571,7 @@
 
                 tbody.innerHTML = dataCache.pat.map((item, i) => {
 
-                    const idx = dataCache.pat.indexOf(item);
+                    const idx = item.index !== undefined ? item.index : i;
 
                     const patName = String(item.ten || '').toUpperCase().trim();
 
@@ -8607,7 +8607,7 @@
 
                     }
 
-                    return `<tr class="editable-row" onclick="editPatient(${idx})" style="${item.gioRa ? 'background:#f8d7da;opacity:0.8;' : ''}" title="Bấm sửa (Phím Delete để xóa)">
+                    return `<tr class="editable-row" data-pat-index="${idx}" onclick="editPatient(parseInt(this.dataset.patIndex))" style="${item.gioRa ? 'background:#f8d7da;opacity:0.8;' : ''}" title="Bấm sửa (Phím Delete để xóa)">
 
                 <td>${i + 1}</td>
 
@@ -8621,7 +8621,7 @@
 
                 <td style="font-size:11px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(item.thuThuat)}"><strong>${escapeHtml(getShortSkills(item.thuThuat))}</strong></td>
 
-                <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deletePatient(${idx})">Xóa</button></td>
+                <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deletePatient(parseInt(this.closest('tr').dataset.patIndex))">Xóa</button></td>
 
             </tr>`;
 
@@ -8633,6 +8633,7 @@
 
             if (typeof renderLeavePat === 'function') renderLeavePat();
 
+            // Áp dụng lại bộ lọc hiện tại nếu đang lọc (gọi 1 lần duy nhất ở đây)
             if (typeof filterPatientTable === 'function') filterPatientTable();
 
         }
@@ -8713,10 +8714,14 @@
                 if (window.hideGlobalLoading) window.hideGlobalLoading();
                 if (btnSave) { btnSave.disabled = false; btnSave.innerText = 'Lưu'; }
 
-                // Đồng bộ ngầm chạy sau để cập nhật chuẩn xác index thực tế từ server
-                if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
-                loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
-                if (typeof loadDashboard === 'function') loadDashboard();
+                // Trì hoãn 500ms trước khi đồng bộ lại từ server để tránh render nhiều lần liên tiếp
+                setTimeout(() => {
+                    if (window.dataCacheTime) window.dataCacheTime['pat'] = 0;
+                    loadEntity('getBenhNhan', 'pat', () => {
+                        renderPatientsTable();
+                        if (typeof loadDashboard === 'function') loadDashboard();
+                    }, [], true);
+                }, 500);
             };
             const onError = (e) => {
                 window._savePatientLock = false;
