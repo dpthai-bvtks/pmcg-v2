@@ -5663,6 +5663,9 @@
 
                                 <button class="btn-success" onclick="timBacSiRanh()">Tìm Bác Sĩ</button>
 
+                                <input type="text" id="filter-doc-name" placeholder="🔍 Lọc tên bác sĩ..." oninput="filterDoctorTable()"
+                                    style="width:150px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px; margin-left: 10px;">
+
                             </div>
 
                             <div class="utils-table-scroll"
@@ -10809,7 +10812,25 @@
 
 
 
+        function filterDoctorTable() {
+            var input = document.getElementById("filter-doc-name").value.toLowerCase();
+            var tbody = document.getElementById("free-doc-list");
+            var trs = tbody.getElementsByTagName("tr");
+            for (var i = 0; i < trs.length; i++) {
+                var td = trs[i].getElementsByTagName("td")[0];
+                if (td) {
+                    var txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLowerCase().indexOf(input) > -1) {
+                        trs[i].style.display = "";
+                    } else {
+                        trs[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
         function timBacSiRanh() {
+            if (document.getElementById('filter-doc-name')) document.getElementById('filter-doc-name').value = '';
 
             // Bắt buộc chọn ngày (Phương án B)
             const searchDate = document.getElementById('utils-search-date')?.value || '';
