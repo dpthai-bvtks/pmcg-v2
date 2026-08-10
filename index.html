@@ -5663,8 +5663,10 @@
 
                                 <button class="btn-success" onclick="timBacSiRanh()">Tìm Bác Sĩ</button>
 
-                                <input type="text" id="filter-doc-name" placeholder="🔍 Lọc tên bác sĩ..." oninput="filterDoctorTable()"
+                                <select id="filter-doc-name" onchange="filterDoctorTable()"
                                     style="width:150px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px; margin-left: 10px;">
+                                    <option value="">🔍 Lọc tên bác sĩ...</option>
+                                </select>
 
                             </div>
 
@@ -10830,7 +10832,9 @@
         }
 
         function timBacSiRanh() {
-            if (document.getElementById('filter-doc-name')) document.getElementById('filter-doc-name').value = '';
+            if (document.getElementById('filter-doc-name')) {
+                document.getElementById('filter-doc-name').innerHTML = '<option value="">🔍 Lọc tên bác sĩ...</option>';
+            }
 
             // Bắt buộc chọn ngày (Phương án B)
             const searchDate = document.getElementById('utils-search-date')?.value || '';
@@ -10989,11 +10993,23 @@
 
             });
 
-            if (!found) tbody.innerHTML = `<tr> <td colspan="3" align="center" style="color:#c0392b; font-weight:bold;">Không có Nhân sự
-
+            if (!found) {
+                tbody.innerHTML = `<tr> <td colspan="3" align="center" style="color:#c0392b; font-weight:bold;">Không có Nhân sự
                                 rảnh lúc này</td>
-
                         </tr>`;
+            }
+
+            const filterSelect = document.getElementById('filter-doc-name');
+            if (filterSelect && found) {
+                const uniqueDocs = [...new Set(Array.from(tbody.getElementsByTagName('tr')).map(tr => {
+                    const cell = tr.getElementsByTagName("td")[0];
+                    return cell ? cell.textContent.replace('👨‍⚕️', '').trim() : null;
+                }).filter(Boolean))];
+                filterSelect.innerHTML = '<option value="">🔍 Lọc tên bác sĩ...</option>';
+                uniqueDocs.forEach(docName => {
+                    filterSelect.innerHTML += `<option value="${docName}">${docName}</option>`;
+                });
+            }
         }
 
         function timMayRanh() {
