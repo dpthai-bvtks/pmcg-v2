@@ -1529,3 +1529,26 @@ oImprove >= 12) vào hàm unBestIteration để tối ưu hóa không gian tìm
   - Tách 3 trọng số hàm mục tiêu (dropWeight, overtimeWeight, imbalanceWeight) khỏi code cứng.
   - Xây dựng giao diện nhập trọng số trong tab Cài đặt Hệ thống (Admin) ở index.html.
   - Cập nhật hàm saveSystemSettings và getSystemSettings để lưu tham số vào PropertiesService kèm theo kiểm tra dữ liệu đầu vào.
+
+---
+
+## Phiên Làm Việc - 06-08/08/2026
+
+### Yêu Cầu & Giải Pháp
+
+- **Bug Fix - Lỗi font chữ & Race Condition dòng chữ chạy (06/08):** Ô nhập dòng chữ chạy bị reset mỗi khi tải trang. Nguyên nhân là 2 hàm `getMarqueeText()` và `layThongBaoDongChuChay()` chạy song song, hàm nào trả về sau sẽ ghi đè. Khắc phục: Xóa cuộc gọi thừa `getMarqueeText()` trong `index.html`, chỉ giữ `layThongBaoDongChuChay()` làm nguồn dữ liệu duy nhất. Cập nhật chuỗi mặc định trong `code.gs-v2.txt` thành câu chuẩn: `"PHẦN MỀM XẾP LỊCH THỦ THUẬT - KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG - BVTKS CS2. Mọi thông tin xin liên hệ admin qua sđt: 0392.283.473"`.
+
+- **Bug Fix - Bảng tab bị kẹt "Đang tải..." (08/08):** Khi phiên đăng nhập hết hạn, các API trả về lỗi "Phiên làm việc hết hạn". Code cũ xử lý lỗi này bằng cách chỉ hiện thông báo rồi `return`, nhưng quên gọi `onError()` callback → tiến trình tải bảng bị treo vĩnh viễn. Khắc phục: Bổ sung `if (onError) onError(result.error)` trước `return` trong khối xử lý lỗi phiên.
+
+- **Tính năng - Bỏ hết hạn phiên đăng nhập (08/08):** Người dùng yêu cầu không bị bắt đăng nhập lại sau 8 tiếng. Khắc phục: (1) Bỏ toàn bộ kiểm tra `validateSession()` trong `doPost()` ở `code.gs-v2.txt` — server không còn yêu cầu token. (2) Bỏ lưu `meds_session_exp` và `isSessionExpiredAlertShown` trong `index.html`. (3) Bỏ gọi `checkSession()` lúc khởi động. (4) Bỏ gửi `sessionId` theo mỗi request API. Kết quả: Session lưu vĩnh cửu trong localStorage cho đến khi người dùng bấm Đăng xuất.
+
+---
+
+## Phiên Làm Việc - 10/08/2026
+
+### Yêu Cầu & Giải Pháp
+
+- **Bug Fix - Nhảy nhầm phòng khi chỉnh sửa bệnh nhân lúc đang lọc:** Khi bảng bệnh nhân đang được lọc (một số hàng ẩn), bấm vào một hàng để sửa đôi khi load sai bệnh nhân (nhầm phòng). Nguyên nhân: Code dùng `dataCache.pat.indexOf(item)` để lấy index, nhưng có thể trả về sai khi danh sách có tên trùng nhau, hoặc `i` (vị trí hiển thị) bị nhầm với `idx` (vị trí trong cache). Khắc phục: Đổi sang dùng `data-pat-index` attribute trên thẻ `<tr>` và đọc lại qua `this.dataset.patIndex` — đảm bảo index đúng tuyệt đối dù đang lọc. Đổi `indexOf(item)` → `item.index` (field được gán chính xác từ server).
+
+- **Bug Fix - Bảng bệnh nhân bị load lại nhiều lần sau khi sửa/xóa:** Mỗi lần save bệnh nhân, bảng bị re-render 3-4 lần liên tiếp. Nguyên nhân: (1) `renderPatientsTable()` gọi `filterPatientTable()` ở wrapper layer, đồng thời `renderPatientsTable_Original()` cũng gọi `filterPatientTable()` ở cuối → 2 lần filter mỗi render. (2) `onDone` callback sau khi save gọi `loadEntity` + `loadDashboard` ngay lập tức trong khi optimistic UI đã render rồi. Khắc phục: Xóa cuộc gọi thừa trong wrapper; thêm `setTimeout 500ms` trong `onDone` để trì hoãn sync từ server, gom các render thành 1 lần duy nhất.
+
