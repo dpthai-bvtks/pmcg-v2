@@ -5827,6 +5827,10 @@
                                         <label style="font-size:13px; font-weight:bold; color:#2c3e50; display:block; margin-bottom:10px;">⏰ Giờ chốt sổ tự động (Hàng ngày):</label>
                                         <input type="time" id="admin-chotso-time" style="width:100%; padding:10px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:14px; margin-bottom: 10px;">
                                         
+                                        <label style="font-size:13px; font-weight:bold; color:#2c3e50; display:block; margin-bottom:5px; margin-top:10px;">Thời gian lố tối đa cho YHCT (phút)</label>
+                                        <input type="number" id="admin-yhct-overtime" min="0" step="1" placeholder="10" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:14px; margin-bottom: 5px;">
+                                        <small style="display:block; margin-bottom:10px; color:#7f8c8d; font-size:11px;">Cho phép YHCT kết thúc muộn vào giờ nghỉ (mặc định: 10)</small>
+
                                         <label style="font-size:13px; font-weight:bold; color:#2c3e50; display:block; margin-bottom:5px; margin-top:10px;">Phạt mỗi ca bị rớt lịch</label>
                                         <input type="number" id="admin-weight-drop" min="0" step="1" placeholder="10000" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; outline:none; font-size:14px; margin-bottom: 5px;">
                                         <small style="display:block; margin-bottom:10px; color:#7f8c8d; font-size:11px;">Càng cao càng ưu tiên KHÔNG để rớt ca (mặc định: 10000)</small>
@@ -12562,6 +12566,7 @@
         // ============================================================
         function luuCaiDatChotSo(btn) {
             const timeVal = document.getElementById("admin-chotso-time").value;
+            const yhctOvertimeVal = document.getElementById("admin-yhct-overtime").value;
             const dropW = document.getElementById("admin-weight-drop").value;
             const overtimeW = document.getElementById("admin-weight-overtime").value;
             const imbalanceW = document.getElementById("admin-weight-imbalance").value;
@@ -12582,6 +12587,7 @@
                 alert("Lỗi: " + err);
             }).saveSystemSettings({ 
                 chotSoTime: timeVal,
+                yhctOvertime: yhctOvertimeVal,
                 dropWeight: dropW,
                 overtimeWeight: overtimeW,
                 imbalanceWeight: imbalanceW
@@ -12592,6 +12598,7 @@
             google.script.run.withSuccessHandler(function (res) {
                 if (res) {
                     if (res.chotSoTime) document.getElementById("admin-chotso-time").value = res.chotSoTime;
+                    if (res.yhctOvertime !== undefined) document.getElementById("admin-yhct-overtime").value = res.yhctOvertime;
                     if (res.dropWeight !== undefined) document.getElementById("admin-weight-drop").value = res.dropWeight;
                     if (res.overtimeWeight !== undefined) document.getElementById("admin-weight-overtime").value = res.overtimeWeight;
                     if (res.imbalanceWeight !== undefined) document.getElementById("admin-weight-imbalance").value = res.imbalanceWeight;

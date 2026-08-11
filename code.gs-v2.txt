@@ -803,7 +803,7 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     const tearEnd   = hasTeardown ? (tNow + tgMay + 1) : null;
 
     const isYHCT = info[3] === "YHCT";
-    const allowedOvertimeAtEnd = isYHCT ? 10 : OVERTIME_ALLOWANCE;
+    const allowedOvertimeAtEnd = isYHCT ? (weights.yhctOvertime !== undefined ? weights.yhctOvertime : 10) : OVERTIME_ALLOWANCE;
 
     if (gioKetThuc > (endOfDay + allowedOvertimeAtEnd)) return false;
     if (patient.leave !== 9999 && gioKetThuc > patient.leave) return false;
@@ -819,7 +819,8 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
         return staffTimeline[tenNV].some(slot => {
           const isEndOfDay = slot[1] === 1440;
           const isLunch = slot[1] - slot[0] >= 60 && !isEndOfDay;
-          const allowedOvertime = isYHCT ? 10 : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
+          const yhctLimit = weights.yhctOvertime !== undefined ? weights.yhctOvertime : 10;
+          const allowedOvertime = isYHCT ? yhctLimit : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
           const allowedEnd = (isLunch || isEndOfDay) ? slot[0] + allowedOvertime : slot[0];
           
           if (slotStart >= slot[1]) return false;
@@ -1887,11 +1888,13 @@ const DEFAULT_WEIGHTS = { dropWeight: 10000, overtimeWeight: 2, imbalanceWeight:
 function getSystemSettings() {
   const props = PropertiesService.getScriptProperties();
   const time = props.getProperty('CHOT_SO_TIME') || "16:00";
+  const yhctStr = props.getProperty('YHCT_OVERTIME');
   return {
     chotSoTime: time,
     dropWeight:      parseFloat(props.getProperty('SCORE_DROP_WEIGHT'))      || DEFAULT_WEIGHTS.dropWeight,
     overtimeWeight:  parseFloat(props.getProperty('SCORE_OVERTIME_WEIGHT'))  || DEFAULT_WEIGHTS.overtimeWeight,
-    imbalanceWeight: parseFloat(props.getProperty('SCORE_IMBALANCE_WEIGHT'))|| DEFAULT_WEIGHTS.imbalanceWeight
+    imbalanceWeight: parseFloat(props.getProperty('SCORE_IMBALANCE_WEIGHT'))|| DEFAULT_WEIGHTS.imbalanceWeight,
+    yhctOvertime:    yhctStr !== null ? parseInt(yhctStr) : 10
   };
 }
 
@@ -1904,6 +1907,12 @@ function saveSystemSettings(settings) {
     props.setProperty('CHOT_SO_TIME', settings.chotSoTime);
     caiDatTuDongChotSo();
     messages.push("giờ chốt sổ");
+  }
+
+  if (settings.yhctOvertime !== undefined) {
+    const val = parseInt(settings.yhctOvertime);
+    if (!isNaN(val) && val >= 0) props.setProperty('YHCT_OVERTIME', String(val));
+    messages.push("thời gian YHCT");
   }
   
   ['dropWeight', 'overtimeWeight', 'imbalanceWeight'].forEach(key => {
@@ -1923,7 +1932,7 @@ function saveSystemSettings(settings) {
 
 function getScoreWeights() {
   const s = getSystemSettings();
-  return { drop: s.dropWeight, overtime: s.overtimeWeight, imbalance: s.imbalanceWeight };
+  return { drop: s.dropWeight, overtime: s.overtimeWeight, imbalance: s.imbalanceWeight, yhctOvertime: s.yhctOvertime };
 }
 
 function caiDatTuDongChotSo() {
