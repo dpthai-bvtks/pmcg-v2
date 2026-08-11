@@ -655,17 +655,17 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
       });
     }
 
-    // Rào chắn thời gian ngoài ca làm (có cộng OVERTIME)
+    // Rào chắn thời gian ngoài ca làm
     if (staffShifts[tenNhanVien].length > 0) {
       const [caS1, caE1] = staffShifts[tenNhanVien][0];
       if (staffShifts[tenNhanVien].length > 1) {
         const [caS2, caE2] = staffShifts[tenNhanVien][1];
-        staffTimeline[tenNhanVien].push([0, caS1], [caE1, caS2], [caE2 + OVERTIME_ALLOWANCE, 1440]);
+        staffTimeline[tenNhanVien].push([0, caS1], [caE1, caS2], [caE2, 1440]);
       } else {
-        staffTimeline[tenNhanVien].push([0, caS1], [caE1 + OVERTIME_ALLOWANCE, 1440]);
+        staffTimeline[tenNhanVien].push([0, caS1], [caE1, 1440]);
       }
     } else {
-      staffTimeline[tenNhanVien].push([0, startOfDay], [endOfDay + OVERTIME_ALLOWANCE, 1440]);
+      staffTimeline[tenNhanVien].push([0, startOfDay], [endOfDay, 1440]);
     }
 
     const tongPhutLamViec = staffShifts[tenNhanVien].reduce((acc, ca) => acc + ca[1] - ca[0], 0);
@@ -802,7 +802,10 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     const tearStart = hasTeardown ? (tNow + tgMay) : null;
     const tearEnd   = hasTeardown ? (tNow + tgMay + 1) : null;
 
-    if (gioKetThuc > (endOfDay + OVERTIME_ALLOWANCE)) return false;
+    const isYHCT = info[3] === "YHCT";
+    const allowedOvertimeAtEnd = isYHCT ? 10 : OVERTIME_ALLOWANCE;
+
+    if (gioKetThuc > (endOfDay + allowedOvertimeAtEnd)) return false;
     if (patient.leave !== 9999 && gioKetThuc > patient.leave) return false;
     if (patient.busy.some(b => is_overlap(tNow, gioKetThuc, b[0], b[1]))) return false;
 
@@ -811,8 +814,23 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     const isSupplemental = existingSched && existingSched.length > 0;
     (staffBySkill[tenThuThuat.toLowerCase()] || []).forEach(tenNV => {
       if (tNow < (staffSetupReady[tenNV] || 0)) return;
-      if (staffTimeline[tenNV].some(slot => is_overlap(tNow, tNow + tgNhanVien + 1, slot[0], slot[1]))) return;
-      if (hasTeardown && staffTimeline[tenNV].some(slot => is_overlap(tearStart, tearEnd, slot[0], slot[1]))) return;
+      
+      const checkSlot = (slotStart, slotEnd) => {
+        return staffTimeline[tenNV].some(slot => {
+          const isEndOfDay = slot[1] === 1440;
+          const isLunch = slot[1] - slot[0] >= 60 && !isEndOfDay;
+          const allowedOvertime = isYHCT ? 10 : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
+          const allowedEnd = (isLunch || isEndOfDay) ? slot[0] + allowedOvertime : slot[0];
+          
+          if (slotStart >= slot[1]) return false;
+          if ((slotEnd - 1) <= allowedEnd && slotStart <= slot[0]) return false;
+          
+          return is_overlap(slotStart, slotEnd, slot[0], slot[1]);
+        });
+      };
+
+      if (checkSlot(tNow, tNow + tgNhanVien + 1)) return;
+      if (hasTeardown && checkSlot(tearStart, tearEnd)) return;
       
       // KTV được phân công phòng cố định sẽ không đi hỗ trợ phòng khác (nhưng KTV tự do thì vẫn được)
       // Ngoại lệ: Nếu đang chạy Xếp bổ sung (isSupplemental = true), cho phép đi hỗ trợ chéo để vét ca rớt
