@@ -12584,7 +12584,7 @@
             google.script.run.withSuccessHandler(function (res) {
                 btn.innerText = oldText;
                 btn.disabled = false;
-                showCustomAlert("Cài đặt", res, "success", "#2ecc71");
+                showCustomAlert("Cài đặt", res, "✅", "#2ecc71");
             }).withFailureHandler(function (err) {
                 btn.innerText = oldText;
                 btn.disabled = false;
