@@ -107,8 +107,29 @@ function doPost(e) {
   }
 }
 
-// Hàm doGet này có thể giữ lại nếu bạn vẫn muốn vào trang tĩnh cũ thông qua link Google
+// doGet hỗ trợ cả API fallback (khi browser chặn redirect của POST)
 function doGet(e) {
+  // Nếu có tham số 'action' → đây là API call fallback từ frontend
+  if (e && e.parameter && e.parameter.action) {
+    try {
+      const action = e.parameter.action;
+      let args = [];
+      if (e.parameter.args) args = JSON.parse(e.parameter.args);
+      
+      if (typeof this[action] !== 'function') {
+        throw new Error("Hàm API không tồn tại: " + action);
+      }
+      
+      const result = this[action].apply(this, args);
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch (error) {
+      return ContentService.createTextOutput(JSON.stringify({ status: "error", error: error.message }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  // Ngược lại: phục vụ trang HTML tĩnh như trước
   const pages = {
     hdsd:   ['hdsd',    'Hướng dẫn sử dụng - YHCT PHCN'],
     tracuu: ['TraCuu',  'Tra cứu Văn bản Y tế - BHXH']
