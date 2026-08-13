@@ -101,7 +101,7 @@ function doPost(e) {
     if (e.parameter.useIframe === 'true') {
       const callbackId = e.parameter.callbackId || '';
       const responsePayload = JSON.stringify({ callbackId: callbackId, status: "success", data: result });
-      return HtmlService.createHtmlOutput("<script>window.parent.postMessage(" + responsePayload + ", '*');</script>");
+      return HtmlService.createHtmlOutput("<script>window.top.postMessage(" + responsePayload + ", '*');</script>");
     }
 
     return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result }))
@@ -111,7 +111,7 @@ function doPost(e) {
     if (e.parameter && e.parameter.useIframe === 'true') {
       const callbackId = e.parameter.callbackId || '';
       const responsePayload = JSON.stringify({ callbackId: callbackId, status: "error", error: error.message });
-      return HtmlService.createHtmlOutput("<script>window.parent.postMessage(" + responsePayload + ", '*');</script>");
+      return HtmlService.createHtmlOutput("<script>window.top.postMessage(" + responsePayload + ", '*');</script>");
     }
 
     return ContentService.createTextOutput(JSON.stringify({ status: "error", error: error.message }))
