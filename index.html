@@ -6541,95 +6541,55 @@
             }
         }
 
-        const pendingApiRequests = {};
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.callbackId && pendingApiRequests[event.data.callbackId]) {
-                const req = pendingApiRequests[event.data.callbackId];
-                delete pendingApiRequests[event.data.callbackId];
-                
-                if (req.iframe && req.iframe.parentNode) {
-                    req.iframe.parentNode.removeChild(req.iframe);
-                }
-
-                try {
-                    if (event.data.status === 'success') {
-                        if (req.onSuccess) req.onSuccess(event.data.data);
-                    } else {
-                        if (req.onError) req.onError(event.data.error);
-                        else alert('Lỗi: ' + event.data.error);
-                    }
-                } finally {
-                    if (req.isMutation) {
-                        mutationCount--;
-                        checkMutationLoading();
-                    }
-                    if (req.onComplete) req.onComplete();
-                }
-            }
-        });
 
         function doFetchRequest(functionName, args, onSuccess, onError, isMutation, onComplete) {
-            const callbackId = 'req_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-            
-            pendingApiRequests[callbackId] = {
-                onSuccess: onSuccess,
-                onError: onError,
-                isMutation: isMutation,
-                onComplete: onComplete
-            };
-            
-            const iframe = document.createElement('iframe');
-            iframe.name = callbackId;
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
-            
-            pendingApiRequests[callbackId].iframe = iframe;
-            
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = API_URL;
-            form.target = callbackId;
-            form.style.display = 'none';
-            
-            const addField = (name, value) => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = name;
-                input.value = value;
-                form.appendChild(input);
-            };
-            
-            addField('action', functionName);
-            addField('args', JSON.stringify(args));
-            addField('useIframe', 'true');
-            addField('callbackId', callbackId);
-            
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
-            
-            setTimeout(() => {
-                if (pendingApiRequests[callbackId]) {
-                    const req = pendingApiRequests[callbackId];
-                    delete pendingApiRequests[callbackId];
-                    if (req.iframe && req.iframe.parentNode) req.iframe.parentNode.removeChild(req.iframe);
-                    
-                    const errorMsg = "Timeout kết nối máy chủ (45s).";
-                    if (req.onError) req.onError(errorMsg);
+            const body = new URLSearchParams({ action: functionName, args: JSON.stringify(args) });
+
+            fetch(API_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                body: body
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const ct = response.headers.get('content-type') || '';
+                    if (!ct.includes('application/json') && !ct.includes('text/plain')) {
+                        // GAS trả về HTML (redirect bị chặn bởi Tracking Prevention) — thử lại bằng GET
+                        return fetch(API_URL + '?' + body.toString(), { redirect: 'follow' })
+                            .then(r => {
+                                if (!r.ok) throw new Error('HTTP ' + r.status);
+                                return r.json();
+                            });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result && result.status === 'success') {
+                        if (onSuccess) onSuccess(result.data);
+                    } else {
+                        const errMsg = (result && result.error) ? result.error : 'Lỗi không xác định';
+                        if (onError) onError(errMsg);
+                        else alert('Lỗi: ' + errMsg);
+                    }
+                })
+                .catch(error => {
+                    console.warn('Fetch Error:', error);
+                    if (onError) onError(error.toString());
                     else {
                         if (!window.isNetworkErrorAlertShown) {
                             window.isNetworkErrorAlertShown = true;
-                            alert('Lỗi kết nối API: ' + errorMsg);
+                            alert('Lỗi kết nối API: ' + error.toString());
                             setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
                         }
                     }
-                    if (req.isMutation) {
+                })
+                .finally(() => {
+                    if (isMutation) {
                         mutationCount--;
                         checkMutationLoading();
                     }
-                    if (req.onComplete) req.onComplete();
-                }
-            }, 45000);
+                    if (onComplete) onComplete();
+                });
         }
 
         function processApiQueue() {
