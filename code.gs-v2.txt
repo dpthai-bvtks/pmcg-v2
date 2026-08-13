@@ -818,14 +818,18 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
       
       const checkSlot = (slotStart, slotEnd) => {
         return staffTimeline[tenNV].some(slot => {
+          if (slotStart >= slot[1]) return false;
+
           const isEndOfDay = slot[1] === 1440;
           const isLunch = slot[1] - slot[0] >= 60 && !isEndOfDay;
-          const yhctLimit = isEndOfDay ? yhctEndLimit : (weights.yhctLunch !== undefined ? weights.yhctLunch : 10);
-          const allowedOvertime = isYHCT ? yhctLimit : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
-          const allowedEnd = (isLunch || isEndOfDay) ? slot[0] + allowedOvertime : slot[0];
           
-          if (slotStart >= slot[1]) return false;
-          if ((slotEnd - 1) <= allowedEnd && slotStart <= slot[0]) return false;
+          if (isLunch || isEndOfDay) {
+            const yhctLimit = isEndOfDay ? yhctEndLimit : (weights.yhctLunch !== undefined ? weights.yhctLunch : 10);
+            const allowedOvertime = isYHCT ? yhctLimit : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
+            const allowedEnd = slot[0] + allowedOvertime;
+            
+            if ((slotEnd - 1) <= allowedEnd && slotStart <= slot[0]) return false;
+          }
           
           return is_overlap(slotStart, slotEnd, slot[0], slot[1]);
         });
