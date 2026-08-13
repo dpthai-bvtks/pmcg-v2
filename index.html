@@ -6541,45 +6541,95 @@
             }
         }
 
-        function doFetchRequest(functionName, args, onSuccess, onError, isMutation, onComplete) {
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    action: functionName,
-                    args: JSON.stringify(args)
-                })
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-                    return response.json();
-                })
-                .then(result => {
-                    if (result.status === 'success') {
-                        if (onSuccess) onSuccess(result.data);
+        const pendingApiRequests = {};
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.callbackId && pendingApiRequests[event.data.callbackId]) {
+                const req = pendingApiRequests[event.data.callbackId];
+                delete pendingApiRequests[event.data.callbackId];
+                
+                if (req.iframe && req.iframe.parentNode) {
+                    req.iframe.parentNode.removeChild(req.iframe);
+                }
+
+                try {
+                    if (event.data.status === 'success') {
+                        if (req.onSuccess) req.onSuccess(event.data.data);
                     } else {
-                        if (onError) onError(result.error);
-                        else alert('Lỗi: ' + result.error);
+                        if (req.onError) req.onError(event.data.error);
+                        else alert('Lỗi: ' + event.data.error);
                     }
-                })
-                .catch(error => {
-                    console.error('Fetch Error:', error);
-                    if (onError) onError(error.toString());
-                    else {
-                        if (!window.isNetworkErrorAlertShown) {
-                            window.isNetworkErrorAlertShown = true;
-                            alert('Lỗi kết nối API: ' + error.toString());
-                            setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
-                        }
-                    }
-                })
-                .finally(() => {
-                    if (isMutation) {
+                } finally {
+                    if (req.isMutation) {
                         mutationCount--;
                         checkMutationLoading();
                     }
-                    if (onComplete) onComplete();
-                });
+                    if (req.onComplete) req.onComplete();
+                }
+            }
+        });
+
+        function doFetchRequest(functionName, args, onSuccess, onError, isMutation, onComplete) {
+            const callbackId = 'req_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+            
+            pendingApiRequests[callbackId] = {
+                onSuccess: onSuccess,
+                onError: onError,
+                isMutation: isMutation,
+                onComplete: onComplete
+            };
+            
+            const iframe = document.createElement('iframe');
+            iframe.name = callbackId;
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            
+            pendingApiRequests[callbackId].iframe = iframe;
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = API_URL;
+            form.target = callbackId;
+            form.style.display = 'none';
+            
+            const addField = (name, value) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            };
+            
+            addField('action', functionName);
+            addField('args', JSON.stringify(args));
+            addField('useIframe', 'true');
+            addField('callbackId', callbackId);
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            setTimeout(() => {
+                if (pendingApiRequests[callbackId]) {
+                    const req = pendingApiRequests[callbackId];
+                    delete pendingApiRequests[callbackId];
+                    if (req.iframe && req.iframe.parentNode) req.iframe.parentNode.removeChild(req.iframe);
+                    
+                    const errorMsg = "Timeout kết nối máy chủ (45s).";
+                    if (req.onError) req.onError(errorMsg);
+                    else {
+                        if (!window.isNetworkErrorAlertShown) {
+                            window.isNetworkErrorAlertShown = true;
+                            alert('Lỗi kết nối API: ' + errorMsg);
+                            setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
+                        }
+                    }
+                    if (req.isMutation) {
+                        mutationCount--;
+                        checkMutationLoading();
+                    }
+                    if (req.onComplete) req.onComplete();
+                }
+            }, 45000);
         }
 
         function processApiQueue() {
