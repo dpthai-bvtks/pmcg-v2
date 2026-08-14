@@ -13377,8 +13377,16 @@
                 const thuThuat = (r[4] || '').trim();
                 const role = staffRoleMap[nvChinh.toLowerCase()] || '';
 
-                // Bác sĩ nếu vaiTro có chứa chữ bác sĩ
-                if (role.includes('bác sĩ')) staffLoadBS[nvChinh] = (staffLoadBS[nvChinh] || 0) + 1;
+                // Bác sĩ nếu vaiTro có chứa chữ bác sĩ, hoặc tên có chữ BS (fallback cho lịch cũ)
+                let isDoctor = false;
+                if (role) {
+                    isDoctor = role.includes('bác sĩ') || role.includes('bs');
+                } else {
+                    const lowerName = nvChinh.toLowerCase();
+                    isDoctor = lowerName.startsWith('bs') || lowerName.includes('bác sĩ');
+                }
+
+                if (isDoctor) staffLoadBS[nvChinh] = (staffLoadBS[nvChinh] || 0) + 1;
                 else staffLoadKTV[nvChinh] = (staffLoadKTV[nvChinh] || 0) + 1;
 
                 const cat = procCategoryMap[thuThuat.toLowerCase()] || 'PHCN';
