@@ -1,11 +1,20 @@
-# Project Rules for AI Assistants
+# 🤖 Project Rules for AI Assistants
 
-1. **Auto-Backup & Version Control**: Sau mỗi lần hoàn thành một yêu cầu thay đổi hoặc chỉnh sửa code, bắt buộc phải thực hiện các lệnh Git để đẩy (push) code mới nhất lên nhánh `main` của repository Github: `https://github.com/dpthai-bvtks/pmcg-v2`. Việc đẩy code phải bao gồm:
-   - Cập nhật `index.html` (frontend)
-   - Cập nhật `code.gs` (backend apps script)
-   - (Nếu có) Cập nhật bất kỳ file `.js`, `.css`, hoặc tài liệu liên quan.
+*Đây là bộ quy tắc bắt buộc áp dụng cho mọi tương tác của AI trong tương lai đối với project này.*
 
-2. **Chat Log Archiving**: Sau mỗi phiên làm việc, bắt buộc phải lưu tóm tắt cuộc trò chuyện (bao gồm yêu cầu của user, nguyên nhân lỗi và giải pháp đã thực hiện) vào cuối file `PM-xeplich.md`.
-3. **Cleanup**: Sau khi hoàn thành yêu cầu, bắt buộc phải xóa các file tạm dùng để test cú pháp trong quá trình debug.
+## 1. 🧪 Kiểm tra trước khi đẩy code (Test Before Push)
+**Tuyệt đối không push code mù.** 
+Trước khi đẩy code lên Github, AI phải tự rà soát cú pháp, logic và các rủi ro tiềm ẩn để đảm bảo không phát sinh lỗi vặt. Tránh tình trạng push code bị lỗi khiến quá trình sửa chữa trở nên phức tạp, dây chuyền và mất thời gian của người dùng.
 
-*Đây là bộ quy tắc bắt buộc áp dụng cho mọi tương tác trong tương lai đối với project này.*
+## 2. 🔄 Sao lưu & Quản lý phiên bản (Version Control)
+Ngay sau khi hoàn tất một yêu cầu chỉnh sửa và đã chắc chắn code hoạt động tốt, **bắt buộc** thực hiện lệnh Git để push code mới nhất lên nhánh `main` của repository (`https://github.com/dpthai-bvtks/pmcg-v2`).
+- **Phạm vi:** Cập nhật toàn bộ các file đã sửa như `index.html` (frontend), `code.gs-v2.txt` (backend Apps Script), và tài liệu liên quan.
+- **Commit:** Viết commit message rõ ràng, ngắn gọn và mô tả đúng chức năng vừa làm (sử dụng tiền tố `feat:`, `fix:`, `refactor:`, ...).
+
+## 3. 📝 Nhật ký công việc (Chat Log Archiving)
+Sau mỗi phiên làm việc hoặc khi giải quyết xong một vấn đề lớn, **bắt buộc** phải ghi tóm tắt vào cuối file `PM-xeplich.md`.
+- **Nội dung:** Ghi rõ yêu cầu của người dùng là gì, phân tích nguyên nhân lỗi (nếu có), và giải pháp cụ thể đã thực hiện.
+- **Mục đích:** Giúp các AI ở phiên làm việc sau (hoặc sau khi bị reset) có thể đọc và hiểu ngay ngữ cảnh dự án mà không cần hỏi lại.
+
+## 4. 🧹 Dọn dẹp thư mục (Cleanup)
+- Sau khi hoàn thành yêu cầu, **bắt buộc** phải xóa bỏ mọi file script tạm thời, file test hoặc file rác được AI tạo ra trong quá trình debug. Giữ cho thư mục làm việc của dự án luôn sạch sẽ và nguyên trạng.
