@@ -1570,3 +1570,17 @@ oImprove >= 12) vào hàm unBestIteration để tối ưu hóa không gian tìm
 - **Bug Fix - Lỗi mất khoảng nghỉ 1 phút giữa các ca (13/08):** Khắc phục lỗi phát sinh từ tính năng "Linh hoạt giờ YHCT". Tính năng này vô tình bỏ qua việc kiểm tra khoảng nghỉ 1 phút bắt buộc (khoảng cách buffer) giữa thời điểm kết thúc ca trước và bắt đầu ca sau đối với tất cả các ca. Lỗi này khiến các ca làm việc của nhân viên bị xếp nối tiếp sát nhau liên tục không có thời gian nghỉ. Đã sửa lại code để tính năng lố giờ chỉ áp dụng đúng khi nhân viên bước vào giờ nghỉ Trưa hoặc Chiều, các trường hợp khác vẫn tuân thủ nghiêm ngặt khoảng cách 1 phút.
 
 - **Bug Fix - Lỗi CORS do Tracking Prevention (13/08):** Sửa lỗi người dùng bị chặn kết nối API (CORS) trên trình duyệt Safari hoặc Edge do tính năng "Chặn theo dõi" (Tracking Prevention) chặn các truy vấn `fetch` POST bị redirect qua `script.googleusercontent.com`. Giải pháp: Thay thế hàm `doFetchRequest` bằng phương pháp tạo ẩn thẻ `iframe` và form `POST` để tải payload, sau đó `code.gs-v2.txt` trả về mã HTML để giao tiếp với website qua `window.top.postMessage`. (Lưu ý: Phải dùng `window.top` vì `window.parent` sẽ bị kẹt lại ở lớp iframe sandbox trung gian của Google). Phương pháp này hoạt động trơn tru xuyên qua các bộ lọc Tracking Prevention mà không yêu cầu người dùng phải tự tắt tính năng bảo mật trên trình duyệt của họ.
+
+### Phiên làm việc ngày 13-14/08/2026
+**Yêu cầu:** Sửa lại triệt để lỗi "Timeout kết nối máy chủ 45s" do Tracking Prevention chặn toàn bộ phương thức POST iframe/fetch redirect. Nâng cấp hiển thị Dashboard. Đánh giá lại và viết lại file RULES.md.
+**Giải pháp:**
+- **Bug Fix (API / Tracking Prevention):** 
+  - Phương pháp iframe + postMessage thất bại do Google bọc `HtmlService` vào một lớp iframe sandbox nữa làm chặn `window.top.postMessage` (Cross-origin).
+  - Đã loại bỏ iframe, quay về dùng `fetch()` POST chuẩn với `redirect: 'follow'`.
+  - **Fallback JSONP siêu việt:** Do trình duyệt vẫn có thể chặn cứng lệnh `fetch` khi nó bị Google redirect, hệ thống đã được cài đặt thêm lưới an toàn: Nếu `fetch` POST thất bại do CORS/Tracking Prevention, nó sẽ tự động kích hoạt truy vấn JSONP thông qua thẻ `<script src="...">`. Vì trình duyệt không bao giờ chặn redirect đối với thẻ script, kết nối sẽ được khôi phục ngay lập tức mà không cần người dùng thao tác. `doGet` ở backend cũng được viết lại để trả về chuẩn callback của JSONP.
+- **Tính năng mới (Dashboard chia đôi):** 
+  - Cấu trúc lại giao diện **Tải trọng nhân viên**: Chia tách danh sách thành 2 bảng song song `Bác sĩ` và `Kỹ thuật viên`.
+  - Cấu trúc lại giao diện **Phân bố thủ thuật**: Chia tách danh sách thành 2 bảng song song `Hệ YHCT` và `Hệ PHCN`.
+  - Sửa lỗi căn lề thanh trạng thái của Dashboard để tên luôn được thẳng hàng (Dùng `text-align: left` và `text-overflow: ellipsis`).
+- **Bug Fix (Phân loại thủ thuật):** Sửa lỗi hiển thị sai hệ (điện châm/thủy châm bị gán nhầm vào PHCN). Nguyên nhân do thuật toán dùng nhầm biến `p.phanLoai` (chỉ định kỹ thuật nội bộ) thay vì dùng đúng cột `p.he`.
+- **Docs Update:** Viết lại toàn bộ nội dung file `RULES.md` bằng tiếng Việt dễ hiểu, phân chia rõ ràng các mục (Test trước khi push, Quản lý code bằng Git, Lưu vết lịch sử PM-xeplich.md và Dọn dẹp file tạm). Mọi hướng dẫn dành cho AI đã trở nên chi tiết và có mục đích rõ ràng hơn.
