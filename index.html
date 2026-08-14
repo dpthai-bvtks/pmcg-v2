@@ -8231,6 +8231,27 @@
 
         function renderStaffTable() {
             renderStaffTable_Original();
+            
+            // Populate the "Tìm bác sĩ rảnh" filter dropdown
+            const filterSelect = document.getElementById('filter-doc-name');
+            if (filterSelect && dataCache.staff) {
+                const currentVal = filterSelect.value;
+                const docs = dataCache.staff.filter(s => {
+                    const vt = String(s.vaiTro).toLowerCase();
+                    return (vt.includes('bác sĩ') || vt.includes('ktv') || vt.includes('kỹ thuật viên')) && s.trangThai !== 'Nghỉ cả ngày';
+                }).map(s => s.ten.trim());
+                
+                const uniqueDocs = [...new Set(docs)].sort();
+                filterSelect.innerHTML = '<option value="">🔍 Lọc tên bác sĩ...</option>';
+                uniqueDocs.forEach(docName => {
+                    filterSelect.innerHTML += `<option value="${docName}">${docName}</option>`;
+                });
+                
+                if (currentVal && uniqueDocs.includes(currentVal)) {
+                    filterSelect.value = currentVal;
+                }
+            }
+
             setTimeout(() => { }, 50);
         }
 
@@ -10906,7 +10927,6 @@
             let previousSelection = "";
             if (document.getElementById('filter-doc-name')) {
                 previousSelection = document.getElementById('filter-doc-name').value;
-                document.getElementById('filter-doc-name').innerHTML = '<option value="">🔍 Lọc tên bác sĩ...</option>';
             }
 
             // Bắt buộc chọn ngày (Phương án B)
@@ -11073,19 +11093,11 @@
             }
 
             const filterSelect = document.getElementById('filter-doc-name');
-            if (filterSelect && found) {
-                const uniqueDocs = [...new Set(Array.from(tbody.getElementsByTagName('tr')).map(tr => {
-                    const cell = tr.getElementsByTagName("td")[0];
-                    return cell ? cell.textContent.replace('👨‍⚕️', '').trim() : null;
-                }).filter(Boolean))];
-                filterSelect.innerHTML = '<option value="">🔍 Lọc tên bác sĩ...</option>';
-                uniqueDocs.forEach(docName => {
-                    filterSelect.innerHTML += `<option value="${docName}">${docName}</option>`;
-                });
-                if (previousSelection && uniqueDocs.includes(previousSelection)) {
+            if (filterSelect) {
+                if (previousSelection) {
                     filterSelect.value = previousSelection;
-                    filterDoctorTable();
                 }
+                filterDoctorTable();
             }
         }
 
