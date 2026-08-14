@@ -10903,7 +10903,9 @@
         }
 
         function timBacSiRanh() {
+            let previousSelection = "";
             if (document.getElementById('filter-doc-name')) {
+                previousSelection = document.getElementById('filter-doc-name').value;
                 document.getElementById('filter-doc-name').innerHTML = '<option value="">🔍 Lọc tên bác sĩ...</option>';
             }
 
@@ -11080,6 +11082,10 @@
                 uniqueDocs.forEach(docName => {
                     filterSelect.innerHTML += `<option value="${docName}">${docName}</option>`;
                 });
+                if (previousSelection && uniqueDocs.includes(previousSelection)) {
+                    filterSelect.value = previousSelection;
+                    filterDoctorTable();
+                }
             }
         }
 
