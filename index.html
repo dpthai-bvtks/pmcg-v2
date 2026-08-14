@@ -13363,11 +13363,11 @@
             const valid = data.filter(r => r[4] && r[7]);
 
             // Build lookups from dataCache
-            const staffRoleMap = {};   // ten -> vaiTro
-            (dataCache.staff || []).forEach(s => { if (s.ten) staffRoleMap[s.ten.trim()] = (s.vaiTro || '').trim(); });
+            const staffRoleMap = {};   // ten(lower) -> vaiTro(lower)
+            (dataCache.staff || []).forEach(s => { if (s.ten) staffRoleMap[s.ten.trim().toLowerCase()] = String(s.vaiTro || '').trim().toLowerCase(); });
 
-            const procCategoryMap = {}; // ten -> he (YHCT/PHCN)
-            (dataCache.proc || []).forEach(p => { if (p.ten) procCategoryMap[p.ten.trim().toLowerCase()] = (p.he || 'PHCN').trim(); });
+            const procCategoryMap = {}; // ten(lower) -> he(upper)
+            (dataCache.proc || []).forEach(p => { if (p.ten) procCategoryMap[p.ten.trim().toLowerCase()] = String(p.he || 'PHCN').trim().toUpperCase(); });
 
             const staffLoadBS = {}, staffLoadKTV = {};
             const procCountYHCT = {}, procCountPHCN = {};
@@ -13375,9 +13375,10 @@
             valid.forEach(r => {
                 const nvChinh = (r[7] || '').trim();
                 const thuThuat = (r[4] || '').trim();
-                const role = staffRoleMap[nvChinh] || '';
+                const role = staffRoleMap[nvChinh.toLowerCase()] || '';
 
-                if (role === 'Bác sĩ') staffLoadBS[nvChinh] = (staffLoadBS[nvChinh] || 0) + 1;
+                // Bác sĩ nếu vaiTro có chứa chữ bác sĩ
+                if (role.includes('bác sĩ')) staffLoadBS[nvChinh] = (staffLoadBS[nvChinh] || 0) + 1;
                 else staffLoadKTV[nvChinh] = (staffLoadKTV[nvChinh] || 0) + 1;
 
                 const cat = procCategoryMap[thuThuat.toLowerCase()] || 'PHCN';
