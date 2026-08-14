@@ -121,10 +121,21 @@ function doGet(e) {
       }
       
       const result = this[action].apply(this, args);
-      return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result }))
+      const jsonStr = JSON.stringify({ status: "success", data: result });
+      
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + '(' + jsonStr + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(jsonStr)
         .setMimeType(ContentService.MimeType.JSON);
     } catch (error) {
-      return ContentService.createTextOutput(JSON.stringify({ status: "error", error: error.message }))
+      const errStr = JSON.stringify({ status: "error", error: error.message });
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + '(' + errStr + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(errStr)
         .setMimeType(ContentService.MimeType.JSON);
     }
   }

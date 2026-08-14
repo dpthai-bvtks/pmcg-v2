@@ -6565,51 +6565,77 @@
         function doFetchRequest(functionName, args, onSuccess, onError, isMutation, onComplete) {
             const body = new URLSearchParams({ action: functionName, args: JSON.stringify(args) });
 
+            const handleResult = (result) => {
+                if (result && result.status === 'success') {
+                    if (onSuccess) onSuccess(result.data);
+                } else {
+                    const errMsg = (result && result.error) ? result.error : 'Lỗi không xác định';
+                    if (onError) onError(errMsg);
+                    else alert('Lỗi: ' + errMsg);
+                }
+            };
+
+            const handleError = (error) => {
+                console.warn('Fetch Error:', error);
+                if (onError) onError(error.toString());
+                else {
+                    if (!window.isNetworkErrorAlertShown) {
+                        window.isNetworkErrorAlertShown = true;
+                        alert('Lỗi kết nối API: ' + error.toString());
+                        setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
+                    }
+                }
+            };
+
+            const runFinally = () => {
+                if (isMutation) {
+                    mutationCount--;
+                    checkMutationLoading();
+                }
+                if (onComplete) onComplete();
+            };
+
             fetch(API_URL, {
                 method: 'POST',
                 redirect: 'follow',
                 body: body
             })
-                .then(response => {
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    const ct = response.headers.get('content-type') || '';
-                    if (!ct.includes('application/json') && !ct.includes('text/plain')) {
-                        // GAS trả về HTML (redirect bị chặn bởi Tracking Prevention) — thử lại bằng GET
-                        return fetch(API_URL + '?' + body.toString(), { redirect: 'follow' })
-                            .then(r => {
-                                if (!r.ok) throw new Error('HTTP ' + r.status);
-                                return r.json();
-                            });
-                    }
-                    return response.json();
-                })
-                .then(result => {
-                    if (result && result.status === 'success') {
-                        if (onSuccess) onSuccess(result.data);
-                    } else {
-                        const errMsg = (result && result.error) ? result.error : 'Lỗi không xác định';
-                        if (onError) onError(errMsg);
-                        else alert('Lỗi: ' + errMsg);
-                    }
-                })
-                .catch(error => {
-                    console.warn('Fetch Error:', error);
-                    if (onError) onError(error.toString());
-                    else {
-                        if (!window.isNetworkErrorAlertShown) {
-                            window.isNetworkErrorAlertShown = true;
-                            alert('Lỗi kết nối API: ' + error.toString());
-                            setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
-                        }
-                    }
-                })
-                .finally(() => {
-                    if (isMutation) {
-                        mutationCount--;
-                        checkMutationLoading();
-                    }
-                    if (onComplete) onComplete();
-                });
+            .then(response => {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const ct = response.headers.get('content-type') || '';
+                if (!ct.includes('application/json') && !ct.includes('text/plain')) {
+                    throw new Error('BlockedByTrackingPrevention');
+                }
+                return response.json();
+            })
+            .then(result => {
+                handleResult(result);
+                runFinally();
+            })
+            .catch(error => {
+                console.warn('POST failed, attempting JSONP fallback...', error);
+                
+                const callbackName = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                const script = document.createElement('script');
+                body.append('callback', callbackName);
+                script.src = API_URL + '?' + body.toString();
+                
+                window[callbackName] = function(result) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    handleResult(result);
+                    runFinally();
+                };
+                
+                script.onerror = function() {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    handleError("Lỗi mạng hoặc JSONP bị chặn (Tracking Prevention Strict).");
+                    runFinally();
+                };
+                
+                document.body.appendChild(script);
+            });
         }
 
         function processApiQueue() {
