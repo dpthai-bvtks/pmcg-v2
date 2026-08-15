@@ -1607,3 +1607,10 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 2. **Nâng cấp Bảng Kiểm Tra (Đếm thủ thuật):** Tích hợp logic quét toàn bộ file Excel HIS, tính tổng số lượng thủ thuật theo Hệ (Loại 2, 3, Khác) cho từng nhân viên và hiển thị vào bảng đếm thủ thuật. Fix lỗi 	echNorm is not defined.
 3. **Dọn dẹp UI:** Xóa các text thừa và căn giữa nút chọn file.
 
+
+### Phiên làm việc (Cập nhật Chấm Công & Thống Kê)
+- Đã sửa lỗi showLoading bằng cách sử dụng window.showGlobalLoading.
+- Đã tích hợp giao diện HTML/CSS và JS cho Tab Chấm Công và Tab Thống Kê Tổng Hợp từ phần mềm cũ sang index.html.
+- Đã thêm các nút vào sidebar trong nhóm Báo Cáo.
+- Đã thêm các placeholder (alert) cho chức năng xuất file Excel.
+- Đã đẩy code mới nhất lên branch main.

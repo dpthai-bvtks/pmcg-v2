@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // DATABASE UTILS
 // ============================================================
 const SS = SpreadsheetApp.openById('1f6mnFdOMvGNTiIB0zKqPEV-WBpxY1R2F_99SRbcUc5g');
@@ -2123,3 +2123,16 @@ function getEmployees() { return getFileContent('employees.json'); }
 function saveEmployees(data) { saveFileContent('employees.json', data); return true; }
 function getErrorConfig() { return getFileContent('error_config.json'); }
 function saveErrorConfig(data) { saveFileContent('error_config.json', data); return true; }
+
+// HÀM KIỂM TRA QUYỀN DRIVE - CHẠY THỦ CÔNG MỘT LẦN ĐỂ CẤP QUYỀN
+function testDriveAccess() {
+  try {
+    const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
+    Logger.log('OK - Folder: ' + folder.getName());
+    return 'OK: ' + folder.getName();
+  } catch(e) {
+    Logger.log('LOI: ' + e.message);
+    throw e;
+  }
+}
+
