@@ -4143,9 +4143,11 @@
                 <button class="nav-tab" data-tab="tab-kiemtra"><span class="icon">✅</span><span class="text">Kiểm Tra
                         Lỗi</span></button>
 
-
-
-
+                <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); width: 100%;">
+                    <button class="nav-tab" id="lock-toggle-btn" onclick="toggleAdminLock()" style="background: transparent;">
+                        <span class="icon" id="lock-icon">🔒</span><span class="text" id="lock-text">Đang Khóa</span>
+                    </button>
+                </div>
 
             </div>
 
@@ -8036,6 +8038,7 @@
         }
 
         function saveMachine() {
+            if (!requireAdminPassword(() => saveMachine())) return;
 
             const t = document.getElementById('machine-type').value.trim();
 
@@ -8086,6 +8089,7 @@
         }
 
         function deleteMachine(i) {
+            if (!requireAdminPassword(() => deleteMachine(i))) return;
 
             showCustomConfirm("Xác nhận xóa máy", "Bác sĩ có chắc chắn muốn xóa máy này?", function () {
 
@@ -8209,6 +8213,7 @@
         }
 
         function saveProcedure() {
+            if (!requireAdminPassword(() => saveProcedure())) return;
 
             const ten = document.getElementById('proc-name').value, vt = document.getElementById('proc-short').value;
 
@@ -8265,6 +8270,7 @@
         }
 
         function deleteProcedure(i) {
+            if (!requireAdminPassword(() => deleteProcedure(i))) return;
 
             showCustomConfirm("Xác nhận xóa thủ thuật", "Bác sĩ có chắc chắn muốn xóa thủ thuật này không?", function () {
 
@@ -8407,6 +8413,7 @@
         }
 
         function saveStaff() {
+            if (!requireAdminPassword(() => saveStaff())) return;
 
             const ten = document.getElementById('staff-name').value;
 
@@ -8485,6 +8492,7 @@
         }
 
         function deleteStaff(i) {
+            if (!requireAdminPassword(() => deleteStaff(i))) return;
 
             showCustomConfirm("Xác nhận xóa nhân sự", "Bác sĩ có chắc chắn muốn xóa nhân sự này không?", function () {
 
@@ -8573,6 +8581,7 @@
         }
 
         function saveRoom() {
+            if (!requireAdminPassword(() => saveRoom())) return;
 
             const ten = document.getElementById('room-name').value;
 
@@ -8693,6 +8702,7 @@
         }
 
         function deleteRoom(i) {
+            if (!requireAdminPassword(() => deleteRoom(i))) return;
 
             showCustomConfirm("Xác nhận xóa phòng", "Bác sĩ có chắc chắn muốn xóa phòng này không?", function () {
 
@@ -14503,6 +14513,80 @@
     })();
     </script>
 
+    <!-- PASSWORD MODAL -->
+    <div id="password-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="max-width: 350px; width: 90%; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;">
+            <h3 style="margin-top: 0; color: #2c3e50; font-size: 18px;">🔒 Yêu cầu Mật khẩu</h3>
+            <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 20px;">Bạn cần nhập mật khẩu để thao tác Thêm/Sửa/Xóa dữ liệu danh mục.</p>
+            <input type="password" id="admin-password-input" placeholder="Nhập mật khẩu..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; font-size: 16px; box-sizing: border-box;" onkeypress="if(event.key === 'Enter') submitAdminPassword()">
+            <div id="password-error" style="color: #e74c3c; font-size: 13px; margin-bottom: 15px; display: none;">Mật khẩu không đúng!</div>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <button onclick="closePasswordModal()" style="padding: 8px 20px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1;">Hủy</button>
+                <button onclick="submitAdminPassword()" style="padding: 8px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1;">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isAppUnlocked = sessionStorage.getItem('isAppUnlocked') === 'true';
+        let pendingAdminAction = null;
+
+        function toggleAdminLock() {
+            isAppUnlocked = !isAppUnlocked;
+            sessionStorage.setItem('isAppUnlocked', isAppUnlocked);
+            updateLockIcon();
+        }
+
+        function updateLockIcon() {
+            const icon = document.getElementById('lock-icon');
+            const text = document.getElementById('lock-text');
+            if (icon && text) {
+                if (isAppUnlocked) {
+                    icon.innerText = '🔓';
+                    text.innerText = 'Đã Mở';
+                } else {
+                    icon.innerText = '🔒';
+                    text.innerText = 'Đang Khóa';
+                }
+            }
+        }
+
+        function requireAdminPassword(callback) {
+            if (isAppUnlocked) {
+                return true;
+            } else {
+                pendingAdminAction = callback;
+                document.getElementById('password-modal').style.display = 'flex';
+                document.getElementById('admin-password-input').value = '';
+                document.getElementById('password-error').style.display = 'none';
+                setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
+                return false;
+            }
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').style.display = 'none';
+            pendingAdminAction = null;
+        }
+
+        function submitAdminPassword() {
+            const input = document.getElementById('admin-password-input').value;
+            if (input === 'admin@123') {
+                isAppUnlocked = true;
+                sessionStorage.setItem('isAppUnlocked', 'true');
+                updateLockIcon();
+                closePasswordModal();
+                if (pendingAdminAction) {
+                    pendingAdminAction();
+                    pendingAdminAction = null;
+                }
+            } else {
+                document.getElementById('password-error').style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateLockIcon);
+    </script>
 </body>
 
 
