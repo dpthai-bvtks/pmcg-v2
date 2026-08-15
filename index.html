@@ -4670,7 +4670,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Quyền thủ thuật:</label><select id="staff-quyen">
-                                    <option value="Cả hai">Cả hai</option>
+                                    <option value="Cả hai">YHCT+PHỤC HỒI CHỨC NĂNG</option>
                                     <option value="YHCT">YHCT</option>
                                     <option value="PHCN">PHCN</option>
                                 </select>
@@ -7205,7 +7205,7 @@
                 else phcnStr = staffPHCN.map(p => p.vietTat || p.ten).join(', ');
             }
 
-            if (yhctStr === 'YHCT' && phcnStr === 'PHCN') return 'Cả hai hệ';
+            if (yhctStr === 'YHCT' && phcnStr === 'PHCN') return 'YHCT+PHỤC HỒI CHỨC NĂNG';
             const res = [];
             if (yhctStr) res.push(yhctStr);
             if (phcnStr) res.push(phcnStr);
@@ -8381,7 +8381,7 @@
             <td><span style="color:${item.trangThai === 'Đi làm' ? '#28a745' : '#dc3545'}; font-weight:600">${item.trangThai}</span></td>
             <td>${item.thoiGianLam}</td>
             <td style="font-size:11px; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><strong>${kyNangHienThi}</strong></td>
-            <td style="font-size:11px;"><strong>${item.quyen || ''}</strong></td>
+            <td style="font-size:11px;"><strong>${(!item.quyen || item.quyen === 'Cả hai') ? 'YHCT+PHỤC HỒI CHỨC NĂNG' : item.quyen}</strong></td>
             <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteStaff(${idx})">Xóa</button></td>
         </tr>`;
 
