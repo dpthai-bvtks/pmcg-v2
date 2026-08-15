@@ -14156,11 +14156,11 @@
 
                     if (!procInfo) continue;
 
-                    if (counts[techNorm]) {
+                    if (counts[tech]) {
                         const type = String(procInfo.phanLoai || '').toLowerCase();
-                        if (type.includes('loại 2')) counts[techNorm].l2++;
-                        else if (type.includes('loại 3')) counts[techNorm].l3++;
-                        else counts[techNorm].other++;
+                        if (type.includes('loại 2')) counts[tech].l2++;
+                        else if (type.includes('loại 3')) counts[tech].l3++;
+                        else counts[tech].other++;
                     }
 
                     if (!checkPermissionJS(tech, procInfo)) {
