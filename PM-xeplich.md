@@ -1627,3 +1627,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã thiết kế lại giao diện bảng Nhân sự chấm công theo phong cách thanh lịch, hiện đại (nút Sửa/Xóa tinh tế, badge kỹ năng PHCN/YHCT/Cả hai bo tròn mềm mại).
 - Đã bổ sung Bảng Ký Hiệu Chấm Công đúng 100% theo ảnh người dùng gửi.
 - Đã chuẩn hóa xử lý dữ liệu các tháng cũ (chuyển đổi tự động định dạng cũ sang mới không gây lỗi).
+
+- Đã sửa lỗi tiêu đề 2 tầng ở Bảng Chấm Công (ghim sticky tầng 1 ở top 0, tầng 2 thứ trong tuần ở top động ngay dưới tầng 1, không bị che khuất khi cuộn xuống).
