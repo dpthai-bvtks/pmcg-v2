@@ -251,11 +251,11 @@ function editThuThuat(rowIndex, ten, vietTat, he, phanLoai, may, tgThucHien, tgT
 function deleteThuThuat(rowIndex) { deleteRow('ThuThuat', rowIndex); bumpDataVersion(); }
 
 // CRUD Nhân Sự
-function getNhanSu() { return getAllData('NhanSu').map(r => ({ id: r[0], ten: r[1], vaiTro: r[2], trangThai: r[3], thoiGianLam: r[4], kyNang: r[5], gioBan: r[6], nguoiThayThe: r[7] })); }
-function addNhanSu(ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe) { appendRow('NhanSu', [getSheetByName('NhanSu').getLastRow(), ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe]); bumpDataVersion(); }
-function editNhanSu(rowIndex, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe) {
+function getNhanSu() { return getAllData('NhanSu').map(r => ({ id: r[0], ten: r[1], vaiTro: r[2], trangThai: r[3], thoiGianLam: r[4], kyNang: r[5], gioBan: r[6], nguoiThayThe: r[7], quyen: r[8], tenHis: r[9] })); }
+function addNhanSu(ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe, quyen, tenHis) { appendRow('NhanSu', [getSheetByName('NhanSu').getLastRow(), ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe, quyen, tenHis]); bumpDataVersion(); }
+function editNhanSu(rowIndex, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe, quyen, tenHis) {
   const tenCu = getSheetByName('NhanSu').getRange(rowIndex + 2, 2).getValue();
-  updateRow('NhanSu', rowIndex, [rowIndex + 1, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe]);
+  updateRow('NhanSu', rowIndex, [rowIndex + 1, ten, vaiTro, trangThai, thoiGianLam, kyNang, gioBan, nguoiThayThe, quyen, tenHis]);
   updateNameEverywhere(tenCu, ten);
   bumpDataVersion();
 }

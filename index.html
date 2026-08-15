@@ -4662,17 +4662,21 @@
                             </div>
 
                             <div class="form-group">
-
                                 <label>Vai trò:</label><select id="staff-role">
-
                                     <option value="Bác sĩ">Bác sĩ</option>
-
                                     <option value="Kỹ thuật viên">Kỹ thuật viên</option>
-
                                     <option value="Điều dưỡng">Điều dưỡng</option>
-
                                 </select>
-
+                            </div>
+                            <div class="form-group">
+                                <label>Quyền thủ thuật:</label><select id="staff-quyen">
+                                    <option value="Cả hai">Cả hai</option>
+                                    <option value="YHCT">YHCT</option>
+                                    <option value="PHCN">PHCN</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tên HIS:</label><input type="text" id="staff-ten-his" placeholder="Tên HIS (phẩy)">
                             </div>
 
                             <div class="form-group"><label>Ca Sáng:</label>
@@ -4773,20 +4777,15 @@
                                         <th>Trạng Thái</th>
 
                                         <th>Ca Làm</th>
-
+                                        <th>Quyền</th>
+                                        <th>Tên HIS</th>
                                         <th>Kỹ Năng</th>
-
                                         <th>Thao Tác</th>
-
                                     </tr>
-
                                 </thead>
-
                                 <tbody id="staff-list">
-
                                     <tr>
-
-                                        <td colspan="7" align="center">Đang tải...</td>
+                                        <td colspan="9" align="center">Đang tải...</td>
 
                                     </tr>
 
@@ -5621,19 +5620,56 @@
 
                 </div>
 
-                <div class="tab-content" id="tab-kiemtra" style="padding: 0;">
-
-                    <!-- Ẩn sidebar (260px) bên trái của trang Vercel -->
-
-                    <div style="position: relative; overflow: hidden; width: 100%; height: 100%; flex: 1;">
-
-                        <iframe src="https://quanlykhoa-yhct.vercel.app/#tab-kiemtra"
-                            style="position: absolute; top: 0; left: -260px; width: calc(100% + 260px); height: 100%; border: none;">
-
-                        </iframe>
-
+                <div class="tab-content" id="tab-kiemtra" style="padding: 15px;">
+                    <div class="utils-compact-header" style="display:flex; align-items:center; gap:16px; justify-content:space-between; margin-bottom:15px; background:#ecf0f1; color:#2c3e50; padding:10px 14px; border-radius:5px; border:1px solid #bdc3c7;">
+                        <div style="font-weight:bold; font-size:16px; white-space:nowrap;">✅ KIỂM TRA LỖI HIS</div>
+                        <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
+                            <label style="font-weight:bold; font-size:13px; color:#2c3e50; white-space:nowrap;">📁 Tải file HIS (Lich_YLenh):</label>
+                            <input type="file" id="error-file-input" accept=".xlsx, .xls" style="font-size:13px; font-weight:bold; color:#2c3e50; outline:none; cursor:pointer; background: white; padding: 3px; border-radius: 4px; border: 1px solid #bdc3c7;">
+                        </div>
                     </div>
 
+                    <div class="split-layout utils-split-layout" style="height: calc(100% - 60px);">
+                        <div style="flex: 1; border: 1px solid #e74c3c; border-radius: 8px; background: #fdf2e9; padding: 15px; display:flex; flex-direction:column; margin-right: 10px;">
+                            <h4 style="margin: 0 0 10px 0; color: #c0392b; font-size: 15px;">🚨 LỖI TRÙNG GIỜ</h4>
+                            <div class="utils-table-scroll" style="flex: 1; border: 1px solid #e74c3c; border-radius: 6px; background: white; overflow-y: auto;">
+                                <table class="data-table" id="table-error-time" style="margin:0; font-size: 13px; width: 100%;">
+                                    <thead style="position:sticky; top:0; z-index:5;">
+                                        <tr style="background:#fadbd8; color:#c0392b;">
+                                            <th style="width: 5%;">STT</th>
+                                            <th style="width: 15%;">TTV</th>
+                                            <th style="width: 30%;">Ca 1 (Bị đè)</th>
+                                            <th style="width: 30%;">Ca 2 (Gây đè)</th>
+                                            <th style="width: 20%;">Lý do</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="error-time-body">
+                                        <tr><td colspan="5" style="text-align:center;">Chưa tải dữ liệu</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1; border: 1px solid #e67e22; border-radius: 8px; background: #fef5e7; padding: 15px; display:flex; flex-direction:column;">
+                            <h4 style="margin: 0 0 10px 0; color: #d35400; font-size: 15px;">⚠️ LỖI SAI QUY TRÌNH / PHÂN QUYỀN</h4>
+                            <div class="utils-table-scroll" style="flex: 1; border: 1px solid #e67e22; border-radius: 6px; background: white; overflow-y: auto;">
+                                <table class="data-table" id="table-error-other" style="margin:0; font-size: 13px; width: 100%;">
+                                    <thead style="position:sticky; top:0; z-index:5;">
+                                        <tr style="background:#fdebd0; color:#d35400;">
+                                            <th style="width: 5%;">STT</th>
+                                            <th style="width: 15%;">TTV</th>
+                                            <th style="width: 35%;">Bệnh nhân & TT</th>
+                                            <th style="width: 20%;">Thời gian</th>
+                                            <th style="width: 25%;">Lý do</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="error-other-body">
+                                        <tr><td colspan="5" style="text-align:center;">Chưa tải dữ liệu</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -7864,7 +7900,7 @@
 
                 proc: () => { document.getElementById('btn-save-proc').innerText = "Thêm"; document.getElementById('btn-cancel-proc').style.display = "none"; document.getElementById('proc-system').value = 'YHCT'; document.getElementById('proc-category').value = 'Chưa phân loại'; document.getElementById('proc-machine').value = 'Thủ công'; },
 
-                staff: () => { document.getElementById('btn-save-staff').innerText = "Thêm"; document.getElementById('btn-cancel-staff').style.display = "none"; },
+                staff: () => { document.getElementById('btn-save-staff').innerText = "Thêm"; document.getElementById('btn-cancel-staff').style.display = "none"; document.getElementById('staff-quyen').value = 'Cả hai'; document.getElementById('staff-role').value = 'Bác sĩ'; document.getElementById('staff-status').value = 'Đi làm'; },
 
                 room: () => { document.getElementById('btn-save-room').innerText = "Thêm"; document.getElementById('btn-cancel-room').style.display = "none"; },
 
@@ -8299,7 +8335,7 @@
 
             if (!tbody) return;
 
-            if (!dataCache.staff.length) { tbody.innerHTML = renderEmptyRow(7, 'Chưa có dữ liệu nhân sự'); return; }
+            if (!dataCache.staff.length) { tbody.innerHTML = renderEmptyRow(9, 'Chưa có dữ liệu nhân sự'); return; }
 
             tbody.innerHTML = dataCache.staff.map((item, i) => {
 
@@ -8312,13 +8348,11 @@
             <td>${i + 1}</td><td><strong>${item.ten}</strong></td><td>${item.vaiTro}</td>
 
             <td><span style="color:${item.trangThai === 'Đi làm' ? '#28a745' : '#dc3545'}; font-weight:600">${item.trangThai}</span></td>
-
             <td>${item.thoiGianLam}</td>
-
+            <td style="font-size:11px;"><strong>${item.quyen || ''}</strong></td>
+            <td style="font-size:11px; max-width:100px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.tenHis || ''}">${item.tenHis || ''}</td>
             <td style="font-size:11px; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><strong>${kyNangHienThi}</strong></td>
-
             <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteStaff(${idx})">Xóa</button></td>
-
         </tr>`;
 
             }).join('');
@@ -8339,13 +8373,16 @@
 
             const thayThe = document.getElementById('staff-replace').value;
 
+            const quyen = document.getElementById('staff-quyen').value;
+            const tenHis = document.getElementById('staff-ten-his').value;
+
             const gioBan = editIndex.staff > -1 ? (dataCache.staff[editIndex.staff]?.gioBan || '') : '';
 
             const kyNang = Array.from(document.querySelectorAll('.skill-checkbox:checked')).map(cb => cb.value).join(', ');
 
             if (!ten) return alert("Nhập tên!");
 
-            const obj = { ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe };
+            const obj = { ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe, quyen, tenHis };
 
             if (editIndex.staff > -1) {
                 const oldItem = dataCache.staff[editIndex.staff];
@@ -8353,10 +8390,10 @@
                 obj.sheetIndex = sheetIdx;
                 obj.index = editIndex.staff;
                 dataCache.staff[editIndex.staff] = obj;
-                google.script.run.editNhanSu(sheetIdx, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe);
+                google.script.run.editNhanSu(sheetIdx, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe, quyen, tenHis);
             } else {
                 dataCache.staff.push(obj);
-                google.script.run.addNhanSu(ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe);
+                google.script.run.addNhanSu(ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe, quyen, tenHis);
             }
 
             cancelEdit('staff'); renderStaffTable();
@@ -8374,6 +8411,9 @@
             document.getElementById('staff-role').value = item.vaiTro;
 
             document.getElementById('staff-status').value = item.trangThai;
+
+            document.getElementById('staff-quyen').value = item.quyen || 'Cả hai';
+            document.getElementById('staff-ten-his').value = item.tenHis || '';
 
             document.getElementById('staff-busy').value = item.gioBan;
 
@@ -13849,6 +13889,278 @@
                     }
                 }
             });
+        });
+
+        // ============================================================
+        // ✅ KIỂM TRA LỖI HIS
+        // ============================================================
+
+        function initErrorChecker() {
+            const fileInput = document.getElementById('error-file-input');
+            if (!fileInput) return;
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const timeTbody = document.getElementById('error-time-body');
+                const otherTbody = document.getElementById('error-other-body');
+                timeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang xử lý...</td></tr>';
+                otherTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang xử lý...</td></tr>';
+
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    try {
+                        const data = new Uint8Array(ev.target.result);
+                        const workbook = XLSX.read(data, { type: 'array', cellDates: false });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const dataRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", range: 11, defval: "" });
+                        processErrorChecking(dataRows);
+                    } catch (err) {
+                        console.error(err);
+                        alert("Lỗi khi đọc file. Vui lòng kiểm tra lại cấu trúc form.");
+                        timeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chưa tải dữ liệu</td></tr>';
+                        otherTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chưa tải dữ liệu</td></tr>';
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function normalizeTextJS(text) {
+            if (!text || typeof text !== 'string') return '';
+            return text.normalize('NFC').trim().toLowerCase();
+        }
+
+        function getShortNameJS(fullName) {
+            const lowerName = normalizeTextJS(fullName);
+            if (!lowerName) return '';
+            
+            for (const s of dataCache.staff) {
+                const tenHIS = String(s.tenHis || '').toLowerCase();
+                if (!tenHIS) continue;
+                const keys = tenHIS.split(',').map(k => k.trim()).filter(k => k);
+                for (const k of keys) {
+                    if (lowerName.includes(k)) return s.ten;
+                }
+            }
+            return String(fullName).trim();
+        }
+
+        function mapProcedureJS(procStr) {
+            const procStrLower = normalizeTextJS(procStr);
+            for (const p of dataCache.proc) {
+                const ten = String(p.ten || '').toLowerCase();
+                const vietTat = String(p.vietTat || '').toLowerCase();
+                if (ten && procStrLower.includes(ten)) return p;
+                if (vietTat && procStrLower === vietTat) return p;
+            }
+            return null;
+        }
+
+        function checkPermissionJS(techName, procInfo) {
+            const staff = dataCache.staff.find(s => s.ten === techName);
+            if (!staff) return true;
+            if (!procInfo) return true;
+            
+            const staffQuyen = staff.quyen || 'Cả hai';
+            if (staffQuyen === 'Cả hai') return true;
+            
+            const procSystem = procInfo.he || 'PHCN';
+            return staffQuyen === procSystem;
+        }
+
+        function convertExcelDateToJSDate(serial) {
+            if (!serial) return null;
+            if (typeof serial === 'string') {
+                const s = serial.trim();
+                const match1 = s.match(/^(\d{1,2}):(\d{1,2})\s+(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                if (match1) return new Date(parseInt(match1[5]), parseInt(match1[4]) - 1, parseInt(match1[3]), parseInt(match1[1]), parseInt(match1[2]), 0, 0);
+                const match2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2})/);
+                if (match2) return new Date(parseInt(match2[3]), parseInt(match2[2]) - 1, parseInt(match2[1]), parseInt(match2[4]), parseInt(match2[5]), 0, 0);
+                const dateObj = new Date(s);
+                if (!isNaN(dateObj.getTime())) return dateObj;
+                const parts = s.match(/(\d+):(\d+)/);
+                if (parts) {
+                     const d = new Date(1900, 0, 1);
+                     d.setHours(parseInt(parts[1]), parseInt(parts[2]), 0, 0);
+                     return d;
+                }
+                return null;
+            }
+            if (serial instanceof Date) return serial;
+            const utc_days = Math.floor(serial - 25569);
+            const utc_value = utc_days * 86400; 
+            const date_info = new Date(utc_value * 1000);
+            const fractional_day = serial - Math.floor(serial) + 0.0000001;
+            let total_seconds = Math.floor(86400 * fractional_day);
+            const seconds = total_seconds % 60;
+            total_seconds -= seconds;
+            const hours = Math.floor(total_seconds / (60 * 60));
+            const minutes = Math.floor(total_seconds / 60) % 60;
+            date_info.setHours(hours, minutes, seconds, 0);
+            return date_info;
+        }
+
+        function formatDate(date) {
+            if (!date || isNaN(date.getTime())) return '';
+            const h = String(date.getHours()).padStart(2, '0');
+            const m = String(date.getMinutes()).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const mo = String(date.getMonth() + 1).padStart(2, '0');
+            return `${h}:${m} (${d}/${mo})`;
+        }
+
+        function addOtherRow(tbody, stt, tech, patientAndProc, time, reason) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${stt}</td><td><strong>${tech}</strong></td><td>${patientAndProc}</td><td>${time}</td><td><span style="color:#d35400; font-weight:bold;">${reason}</span></td>`;
+            tbody.appendChild(tr);
+        }
+
+        function addTimeRow(tbody, stt, tech, ca1Str, ca2Str, reason) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${stt}</td><td><strong>${tech}</strong></td><td>${ca1Str}</td><td>${ca2Str}</td><td><span style="color:#c0392b; font-weight:bold;">${reason}</span></td>`;
+            tbody.appendChild(tr);
+        }
+
+        function processErrorChecking(dataRows) {
+            const timeTbody = document.getElementById('error-time-body');
+            const otherTbody = document.getElementById('error-other-body');
+            timeTbody.innerHTML = '';
+            otherTbody.innerHTML = '';
+
+            let sttTime = 1;
+            let sttOther = 1;
+
+            const grouped = {};
+            const validStaffNames = dataCache.staff.map(s => s.ten);
+
+            for (let row of dataRows) {
+                if (!row['AH'] || !row['L']) continue;
+                
+                let start = convertExcelDateToJSDate(row['AH']);
+                let end = convertExcelDateToJSDate(row['L']);
+                if (!start || isNaN(start.getTime()) || !end || isNaN(end.getTime())) continue;
+
+                let techRaw = String(row['AT'] || '').trim();
+                let techNorm = getShortNameJS(techRaw);
+                if (!techNorm) continue;
+                
+                if (!grouped[techNorm]) grouped[techNorm] = [];
+                
+                grouped[techNorm].push({
+                    raw: row,
+                    patientName: String(row['C'] || 'Không rõ'),
+                    procName: String(row['AE'] || ''),
+                    procMethod: String(row['AG'] || ''),
+                    ptttStatus: String(row['AF'] || ''),
+                    anesName: String(row['AS'] || ''),
+                    techRaw: techRaw,
+                    start: start,
+                    end: end
+                });
+            }
+
+            for (const [tech, groupRows] of Object.entries(grouped)) {
+                groupRows.sort((a, b) => a.start - b.start);
+                const fastRows = [];
+
+                for (const row of groupRows) {
+                    const procInfo = mapProcedureJS(row.procName);
+                    const timeAStr = `${formatDate(row.start)} -> ${formatDate(row.end)}`;
+                    
+                    if (!validStaffNames.includes(tech)) {
+                        addOtherRow(otherTbody, sttOther++, row.techRaw, `${row.patientName}<br/>${row.procName}`, timeAStr, "Sai tên nhân viên (Không có trong CSDL)");
+                    }
+                    
+                    const status = String(row.ptttStatus).trim().toLowerCase();
+                    if (status !== "chủ động" && status !== "nan" && status !== "") {
+                        addOtherRow(otherTbody, sttOther++, tech, `${row.patientName}<br/>${row.procName}`, timeAStr, `Sai Tình hình PTTT: '${row.ptttStatus}' (Phải là Chủ động)`);
+                    }
+                    
+                    const anes = String(row.anesName).trim().toLowerCase();
+                    if (anes !== "khác" && anes !== "nan" && anes !== "") {
+                        addOtherRow(otherTbody, sttOther++, tech, `${row.patientName}<br/>${row.procName}`, timeAStr, `Sai Vô cảm: '${row.anesName}' (Bắt buộc Khác)`);
+                    }
+
+                    if (normalizeTextJS(row.procName) !== normalizeTextJS(row.procMethod)) {
+                        addOtherRow(otherTbody, sttOther++, tech, `${row.patientName}<br/>${row.procName}`, timeAStr, `Sai PP tiến hành: '${row.procMethod}' (Phải giống tên thủ thuật)`);
+                    }
+
+                    if (!procInfo) continue;
+
+                    if (!checkPermissionJS(tech, procInfo)) {
+                        addOtherRow(otherTbody, sttOther++, tech, `${row.patientName}<br/>${procInfo.ten}`, timeAStr, "Làm thủ thuật ngoài phạm vi phân quyền");
+                    }
+                    
+                    const tth_mins = parseInt(procInfo.tgThucHien) || 0;
+                    const ttg_mins = parseInt(procInfo.tgThuThuat) || 0;
+                    const execEnd = new Date(row.start.getTime() + tth_mins * 60000);
+                    
+                    fastRows.push({
+                        raw: row,
+                        info: procInfo,
+                        start: row.start,
+                        end: row.end,
+                        execEnd: execEnd,
+                        isCont: tth_mins === ttg_mins
+                    });
+                }
+
+                const n = fastRows.length;
+                for (let i = 0; i < n; i++) {
+                    const A = fastRows[i];
+                    const timeAStr = `${formatDate(A.start)} -> ${formatDate(A.end)}`;
+                    for (let j = i + 1; j < n; j++) {
+                        const B = fastRows[j];
+                        if (B.start.getTime() > A.end.getTime()) break;
+                        
+                        let errorReason = "";
+                        const aTc = A.info.ten === 'Thủy châm';
+                        const bTc = B.info.ten === 'Thủy châm';
+                        
+                        const inExec = (s, pt, e) => (pt <= s && s < e);
+                        const overlap = (s1, e1, s2, e2) => (Math.max(s1, s2) < Math.min(e1, e2));
+                        
+                        const bStart = B.start.getTime();
+                        const bEnd = B.end.getTime();
+                        const aStart = A.start.getTime();
+                        const aEnd = A.end.getTime();
+                        const aExecEnd = A.execEnd.getTime();
+                        const bExecEnd = B.execEnd.getTime();
+
+                        if (bStart === aStart) {
+                            errorReason = "Trùng giờ bắt đầu";
+                        } else if (bStart < aEnd) {
+                            if (A.isCont) {
+                                errorReason = `Lấn giờ (A làm liên tục ${A.info.tgThucHien}p)`;
+                            } else if (B.isCont) {
+                                if (inExec(bStart, aEnd, bExecEnd)) errorReason = `B đè lên A (B làm liên tục ${B.info.tgThucHien}p)`;
+                            } else {
+                                if (bStart < aExecEnd) errorReason = `B bắt đầu khi A chưa xong Thực Hiện (${A.info.tgThucHien}p)`;
+                                else if (aTc || bTc) {
+                                    if (overlap(aEnd - 2 * 60000, aEnd, bStart, bExecEnd)) errorReason = `Rút kim A bị trùng lúc B đang Thực Hiện`;
+                                }
+                            }
+                        }
+
+                        if (errorReason) {
+                            const timeBStr = `${formatDate(B.start)} -> ${formatDate(B.end)}`;
+                            const ca1Info = `${A.patientName}<br/>${A.info.ten}<br/>${timeAStr}`;
+                            const ca2Info = `${B.patientName}<br/>${B.info.ten}<br/>${timeBStr}`;
+                            addTimeRow(timeTbody, sttTime++, tech, ca1Info, ca2Info, errorReason);
+                        }
+                    }
+                }
+            }
+
+            if (timeTbody.children.length === 0) timeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có lỗi trùng giờ! 🎉</td></tr>';
+            if (otherTbody.children.length === 0) otherTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có lỗi phân quyền/quy trình! 🎉</td></tr>';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initErrorChecker();
         });
 
     </script>
