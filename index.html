@@ -5619,8 +5619,11 @@
                     <div class="utils-compact-header" style="display:flex; align-items:center; gap:16px; justify-content:space-between; margin-bottom:15px; background:#ecf0f1; color:#2c3e50; padding:10px 14px; border-radius:5px; border:1px solid #bdc3c7;">
                         <div style="font-weight:bold; font-size:16px; white-space:nowrap;">✅ KIỂM TRA LỖI HIS</div>
                         <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                            <label style="font-weight:bold; font-size:13px; color:#2c3e50; white-space:nowrap;">📁 Tải file HIS (Lich_YLenh):</label>
-                            <input type="file" id="error-file-input" accept=".xlsx, .xls" style="font-size:13px; font-weight:bold; color:#2c3e50; outline:none; cursor:pointer; background: white; padding: 3px; border-radius: 4px; border: 1px solid #bdc3c7;">
+                            <label class="btn btn-sm" style="margin: 0; background-color: #27ae60; color: #fff; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <i class="fas fa-upload"></i> Chọn File Tải Lên...
+                                <input type="file" id="error-file-input" accept=".xlsx, .xls" style="display: none;">
+                            </label>
+                            <span id="error-file-name" style="font-size: 13px; color: #555; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">Chưa chọn file (Lich_YLenh)</span>
                         </div>
                     </div>
 
@@ -13895,7 +13898,12 @@
             
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if (!file) return;
+                const fileNameSpan = document.getElementById('error-file-name');
+                if (!file) {
+                    if (fileNameSpan) fileNameSpan.innerText = 'Chưa chọn file (Lich_YLenh)';
+                    return;
+                }
+                if (fileNameSpan) fileNameSpan.innerText = file.name;
 
                 const timeTbody = document.getElementById('error-time-body');
                 const otherTbody = document.getElementById('error-other-body');
@@ -13909,7 +13917,17 @@
                         const workbook = XLSX.read(data, { type: 'array', cellDates: false });
                         const firstSheetName = workbook.SheetNames[0];
                         const worksheet = workbook.Sheets[firstSheetName];
-                        const dataRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", range: 11, defval: "" });
+                        
+                        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+                        let headerRowIndex = 0;
+                        for (let i = 0; i < Math.min(rawData.length, 50); i++) {
+                            const row = rawData[i];
+                            if (row.includes("STT") || row.includes("NAME") || row.includes("MABN")) {
+                                headerRowIndex = i;
+                                break;
+                            }
+                        }
+                        const dataRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", range: headerRowIndex, defval: "" });
                         processErrorChecking(dataRows);
                     } catch (err) {
                         console.error(err);
@@ -14088,12 +14106,13 @@
                         addOtherRow(otherTbody, sttOther++, tech, `${row.patientName}<br/>${procInfo.ten}`, timeAStr, "Làm thủ thuật ngoài phạm vi phân quyền");
                     }
                     
-                    const tth_mins = parseInt(procInfo.tgThucHien) || 0;
-                    const ttg_mins = parseInt(procInfo.tgThuThuat) || 0;
+                    const tth_mins = parseInt(procInfo.thoiGianThucHien) || 0;
+                    const ttg_mins = parseInt(procInfo.thoiGianThuThuat) || 0;
                     const execEnd = new Date(row.start.getTime() + tth_mins * 60000);
                     
                     fastRows.push({
                         raw: row,
+                        patientName: row.patientName,
                         info: procInfo,
                         start: row.start,
                         end: row.end,
@@ -14128,11 +14147,11 @@
                             errorReason = "Trùng giờ bắt đầu";
                         } else if (bStart < aEnd) {
                             if (A.isCont) {
-                                errorReason = `Lấn giờ (A làm liên tục ${A.info.tgThucHien}p)`;
+                                errorReason = `Lấn giờ (A làm liên tục ${A.info.thoiGianThucHien}p)`;
                             } else if (B.isCont) {
-                                if (inExec(bStart, aEnd, bExecEnd)) errorReason = `B đè lên A (B làm liên tục ${B.info.tgThucHien}p)`;
+                                if (inExec(bStart, aEnd, bExecEnd)) errorReason = `B đè lên A (B làm liên tục ${B.info.thoiGianThucHien}p)`;
                             } else {
-                                if (bStart < aExecEnd) errorReason = `B bắt đầu khi A chưa xong Thực Hiện (${A.info.tgThucHien}p)`;
+                                if (bStart < aExecEnd) errorReason = `B bắt đầu khi A chưa xong Thực Hiện (${A.info.thoiGianThucHien}p)`;
                                 else if (aTc || bTc) {
                                     if (overlap(aEnd - 2 * 60000, aEnd, bStart, bExecEnd)) errorReason = `Rút kim A bị trùng lúc B đang Thực Hiện`;
                                 }
