@@ -790,58 +790,35 @@
 
 
         #tab-schedule.active,
-
         #tab-stats.active,
-
-        #tab-chamcong.active,
-
-        #tab-thongke.active,
         #tab-sat.active,
-
+        #tab-chamcong.active,
+        #tab-thongke.active,
         #tab-utils.active,
-
         #tab-kiemtra.active {
-
             display: flex;
-
             flex-direction: column;
-
-            overflow-y: auto;
-
-            overflow-x: hidden;
-
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
         }
-
-
 
         /* Ẩn footer ở tất cả các tab trừ tab Trang Chủ */
-
         body:not(:has(#tab-home.active)) .main-footer {
-
             display: none !important;
-
         }
 
-
-
-        /* Ép tab xếp lịch và thứ 7 chiếm đúng phần nội dung còn lại, không để tab-scroll-content cuộn ngoài */
-
+        /* Ép các tab chiếm đúng phần nội dung còn lại, không để tab-scroll-content cuộn ngoài */
         .tab-scroll-content:has(#tab-schedule.active),
-
         .tab-scroll-content:has(#tab-sat.active),
-
+        .tab-scroll-content:has(#tab-chamcong.active),
+        .tab-scroll-content:has(#tab-thongke.active),
         .tab-scroll-content:has(#tab-utils.active),
-
         .tab-scroll-content:has(#tab-kiemtra.active) {
-
             overflow: hidden !important;
-
             display: flex;
-
             flex-direction: column;
-
             padding-bottom: 0 !important;
-
         }
 
 
@@ -4202,6 +4179,29 @@
             box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
             background: #eff6ff;
         }
+
+        /* Thanh cuộn ngang to, rõ ràng và mượt mà */
+        #table-chamcong-container {
+            scrollbar-width: auto;
+            scrollbar-color: #94a3b8 #f1f5f9;
+        }
+        #table-chamcong-container::-webkit-scrollbar {
+            height: 12px !important;
+            width: 12px !important;
+            display: block !important;
+        }
+        #table-chamcong-container::-webkit-scrollbar-track {
+            background: #f1f5f9 !important;
+            border-radius: 6px;
+        }
+        #table-chamcong-container::-webkit-scrollbar-thumb {
+            background: #94a3b8 !important;
+            border-radius: 6px;
+            border: 2px solid #f1f5f9;
+        }
+        #table-chamcong-container::-webkit-scrollbar-thumb:hover {
+            background: #64748b !important;
+        }
     </style>
     <!-- Chart.js for Thống Kê -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -6298,29 +6298,31 @@
                 </div>
                 <!-- TAB: CHẤM CÔNG (CHUẨN GIAO DIỆN PM CŨ) -->
                 <div class="tab-content" id="tab-chamcong">
-                    <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 20px 24px; margin-bottom: 20px; display: flex; flex-direction: column;">
+                    <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 16px 20px; display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box;">
                         
-                        <h1 style="text-align: center; color: #2563eb; font-weight: 700; font-size: 28px; margin: 4px 0 16px 0; letter-spacing: 0.5px; text-transform: uppercase;">BẢNG CHẤM CÔNG</h1>
-                        
-                        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-                            <span style="font-weight: 700; color: #2563eb; font-size: 15px;">Thời gian:</span>
-                            <span style="color: #64748b; font-size: 14px; margin-left: 6px;">Tháng</span>
-                            <input type="number" id="chamcong-month-picker" min="1" max="12" value="8" 
-                                   style="width: 60px; height: 36px; text-align: center; font-weight: 700; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 15px; outline: none; background: #fff;">
-                            <span style="color: #64748b; font-size: 14px; margin-left: 10px;">Năm</span>
-                            <input type="number" id="chamcong-year-picker" min="2020" max="2050" value="2026" 
-                                   style="width: 85px; height: 36px; text-align: center; font-weight: 700; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 15px; outline: none; background: #fff;">
-                            <button onclick="loadChamCongData()" 
-                                    style="margin-left: 8px; padding: 0 16px; border-radius: 8px; font-weight: 600; font-size: 14px; height: 36px; display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #fff; border: none; cursor: pointer; transition: all 0.2s;">
-                                <i class='bx bx-search'></i> Xem
-                            </button>
-                            <button onclick="exportChamCongExcel()" 
-                                    style="margin-left: 6px; padding: 0 16px; border-radius: 8px; font-weight: 600; font-size: 14px; height: 36px; display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.2s;">
-                                <i class='bx bx-download'></i> Xuất Bảng Chấm Công
-                            </button>
+                        <div style="flex-shrink: 0;">
+                            <h1 style="text-align: center; color: #2563eb; font-weight: 700; font-size: 26px; margin: 0 0 12px 0; letter-spacing: 0.5px; text-transform: uppercase;">BẢNG CHẤM CÔNG</h1>
+                            
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+                                <span style="font-weight: 700; color: #2563eb; font-size: 15px;">Thời gian:</span>
+                                <span style="color: #64748b; font-size: 14px; margin-left: 6px;">Tháng</span>
+                                <input type="number" id="chamcong-month-picker" min="1" max="12" value="8" 
+                                       style="width: 60px; height: 36px; text-align: center; font-weight: 700; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 15px; outline: none; background: #fff;">
+                                <span style="color: #64748b; font-size: 14px; margin-left: 10px;">Năm</span>
+                                <input type="number" id="chamcong-year-picker" min="2020" max="2050" value="2026" 
+                                       style="width: 85px; height: 36px; text-align: center; font-weight: 700; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 15px; outline: none; background: #fff;">
+                                <button onclick="loadChamCongData()" 
+                                        style="margin-left: 8px; padding: 0 16px; border-radius: 8px; font-weight: 600; font-size: 14px; height: 36px; display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #fff; border: none; cursor: pointer; transition: all 0.2s;">
+                                    <i class='bx bx-search'></i> Xem
+                                </button>
+                                <button onclick="exportChamCongExcel()" 
+                                        style="margin-left: 6px; padding: 0 16px; border-radius: 8px; font-weight: 600; font-size: 14px; height: 36px; display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.2s;">
+                                    <i class='bx bx-download'></i> Xuất Bảng Chấm Công
+                                </button>
+                            </div>
                         </div>
 
-                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: auto; max-height: calc(100vh - 240px); background: #ffffff;" id="table-chamcong-container">
+                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: auto; flex: 1; min-height: 0; background: #ffffff;" id="table-chamcong-container">
                             <table class="data-table" id="table-chamcong" style="width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap;">
                                 <thead id="chamcong-thead">
                                 </thead>
@@ -15428,47 +15430,156 @@
         // ==========================================
         // TAB THỐNG KÊ TỔNG HỢP (TỪ PM CŨ)
         // ==========================================
+        let thongKeMode = 'current';
         let thongKeData = {};
+        let thongKeQuarterData = { chamcong: {}, thuthuat: {} };
         let tempThuThuatData = null;
 
         function loadThongKeData() {
-            const mode = document.getElementById('thongke-mode').value;
-            const my = getChamCongMonthYear();
+            const modeSelect = document.getElementById('thongke-mode');
+            const mode = modeSelect ? modeSelect.value : 'current';
+            thongKeMode = mode;
             
-            window.showGlobalLoading("Đang tải dữ liệu thống kê...");
-            
+            const ensureEmployees = (callback) => {
+                if (adminChamCongEmployees.length === 0) {
+                    google.script.run.withSuccessHandler(empRes => {
+                        if (empRes && empRes.status === 'success') {
+                            if (Array.isArray(empRes.data)) adminChamCongEmployees = empRes.data;
+                            else if (empRes.data.employees) adminChamCongEmployees = empRes.data.employees;
+                            else adminChamCongEmployees = Object.keys(empRes.data);
+                        } else if (Array.isArray(empRes)) {
+                            adminChamCongEmployees = empRes;
+                        }
+                        if (callback) callback();
+                    }).withFailureHandler(() => {
+                        if (callback) callback();
+                    }).getEmployees();
+                } else {
+                    if (callback) callback();
+                }
+            };
+
             if (mode === 'current') {
-                google.script.run.withSuccessHandler(res => {
-                    if (res && res.status === 'success' && res.data) {
-                        thongKeData = res.data;
-                    } else {
-                        thongKeData = {};
-                    }
-                    
-                    if (adminChamCongEmployees.length === 0) {
-                        google.script.run.withSuccessHandler(empRes => {
-                            window.hideGlobalLoading();
-                            if (empRes && empRes.status === 'success') {
-                                if (Array.isArray(empRes.data)) adminChamCongEmployees = empRes.data;
-                                else if (empRes.data.employees) adminChamCongEmployees = empRes.data.employees;
-                                else adminChamCongEmployees = Object.keys(empRes.data);
-                            }
-                            renderThongKeTable();
-                        }).withFailureHandler(() => { window.hideGlobalLoading(); renderThongKeTable(); }).getEmployees();
-                    } else {
+                const my = getChamCongMonthYear();
+                window.showGlobalLoading("Đang tải dữ liệu thống kê tháng " + my + "...");
+                google.script.run.withSuccessHandler(resCC => {
+                    if (resCC && resCC.status === 'success' && resCC.data) chamCongData = resCC.data;
+                    else if (resCC && typeof resCC === 'object' && !resCC.status) chamCongData = resCC;
+                    else chamCongData = {};
+
+                    google.script.run.withSuccessHandler(resTT => {
                         window.hideGlobalLoading();
-                        renderThongKeTable();
-                    }
+                        if (resTT && resTT.status === 'success' && resTT.data) thongKeData = resTT.data;
+                        else if (resTT && typeof resTT === 'object' && !resTT.status) thongKeData = resTT;
+                        else thongKeData = {};
+
+                        ensureEmployees(() => renderThongKeTable());
+                    }).withFailureHandler(err => {
+                        window.hideGlobalLoading();
+                        console.error(err);
+                        thongKeData = {};
+                        ensureEmployees(() => renderThongKeTable());
+                    }).getThongKeThuThuat(my);
                 }).withFailureHandler(err => {
                     window.hideGlobalLoading();
                     console.error(err);
-                }).getThongKeThuThuat(my);
+                    ensureEmployees(() => renderThongKeTable());
+                }).getChamCong(my);
+            } else if (mode === 'custom') {
+                const startVal = document.getElementById('custom-start-date').value;
+                const endVal = document.getElementById('custom-end-date').value;
+                if (!startVal || !endVal) {
+                    alert("Vui lòng chọn đầy đủ thời gian Từ và Đến!");
+                    return;
+                }
+                const [startY, startM] = startVal.split('-').map(Number);
+                const [endY, endM] = endVal.split('-').map(Number);
+                if (startY * 12 + startM > endY * 12 + endM) {
+                    alert("Thời gian bắt đầu không được lớn hơn thời gian kết thúc!");
+                    return;
+                }
+                let months = [];
+                let curr = new Date(startY, startM - 1, 1);
+                const end = new Date(endY, endM - 1, 1);
+                while (curr <= end) {
+                    const y = curr.getFullYear();
+                    const m = String(curr.getMonth() + 1).padStart(2, '0');
+                    months.push(`${y}-${m}`);
+                    curr.setMonth(curr.getMonth() + 1);
+                }
+                fetchMultiMonthsData(months, `khoảng thời gian từ ${startVal} đến ${endVal}`);
             } else {
-                window.hideGlobalLoading();
-                thongKeData = {};
-                renderThongKeTable();
-                alert("Tính năng thống kê theo quý/tùy chọn đang được cập nhật!");
+                // Quý (q1, q2, q3, q4)
+                const year = document.getElementById('chamcong-year-picker').value || '2026';
+                let months = [];
+                let qName = '';
+                if (mode === 'q1') { months = [`${year}-01`, `${year}-02`, `${year}-03`]; qName = 'Quý I (' + year + ')'; }
+                else if (mode === 'q2') { months = [`${year}-04`, `${year}-05`, `${year}-06`]; qName = 'Quý II (' + year + ')'; }
+                else if (mode === 'q3') { months = [`${year}-07`, `${year}-08`, `${year}-09`]; qName = 'Quý III (' + year + ')'; }
+                else if (mode === 'q4') { months = [`${year}-10`, `${year}-11`, `${year}-12`]; qName = 'Quý IV (' + year + ')'; }
+                fetchMultiMonthsData(months, qName);
             }
+        }
+
+        function fetchMultiMonthsData(months, label) {
+            window.showGlobalLoading("Đang tổng hợp dữ liệu " + label + "...");
+            google.script.run.withSuccessHandler(res => {
+                window.hideGlobalLoading();
+                let mergedChamCong = {};
+                let mergedThuThuat = {};
+
+                if (res && res.status === 'success' && res.data) {
+                    months.forEach(my => {
+                        const mData = res.data[my] || {};
+                        const cc = mData.chamcong || {};
+                        const tt = mData.thuthuat || {};
+
+                        // Gộp chấm công
+                        Object.keys(cc).forEach(emp => {
+                            if (!mergedChamCong[emp]) mergedChamCong[emp] = 0;
+                            let rawCong = 0;
+                            Object.keys(cc[emp]).forEach(key => {
+                                if (key !== 'heSo') {
+                                    rawCong += calcDayValue(cc[emp][key]);
+                                }
+                            });
+                            const heSo = cc[emp].heSo !== undefined ? parseFloat(cc[emp].heSo) : 1.0;
+                            mergedChamCong[emp] += Math.round((rawCong * heSo) * 100) / 100;
+                        });
+
+                        // Gộp thủ thuật
+                        Object.keys(tt).forEach(emp => {
+                            if (!mergedThuThuat[emp]) mergedThuThuat[emp] = { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+                            mergedThuThuat[emp].loai1 += (tt[emp].loai1 || 0);
+                            mergedThuThuat[emp].loai2 += (tt[emp].loai2 || 0);
+                            mergedThuThuat[emp].loai3 += (tt[emp].loai3 || 0);
+                            mergedThuThuat[emp].khac += (tt[emp].khac || 0);
+                        });
+                    });
+                }
+
+                thongKeQuarterData.chamcong = mergedChamCong;
+                thongKeQuarterData.thuthuat = mergedThuThuat;
+
+                if (adminChamCongEmployees.length === 0) {
+                    google.script.run.withSuccessHandler(empRes => {
+                        if (empRes && empRes.status === 'success') {
+                            if (Array.isArray(empRes.data)) adminChamCongEmployees = empRes.data;
+                            else if (empRes.data.employees) adminChamCongEmployees = empRes.data.employees;
+                            else adminChamCongEmployees = Object.keys(empRes.data);
+                        } else if (Array.isArray(empRes)) {
+                            adminChamCongEmployees = empRes;
+                        }
+                        renderThongKeTable();
+                    }).withFailureHandler(() => renderThongKeTable()).getEmployees();
+                } else {
+                    renderThongKeTable();
+                }
+            }).withFailureHandler(err => {
+                window.hideGlobalLoading();
+                console.error(err);
+                alert("Lỗi khi tải dữ liệu tổng hợp: " + err);
+            }).getMultipleMonthsData(months);
         }
 
         function renderThongKeTable() {
@@ -15476,18 +15587,26 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             
+            const isQ = (thongKeMode !== 'current');
+            const sourceChamCong = isQ ? thongKeQuarterData.chamcong : null;
+            const sourceThuThuat = isQ ? thongKeQuarterData.thuthuat : thongKeData;
+
             adminChamCongEmployees.forEach(emp => {
                 const tr = document.createElement('tr');
-                const t = thongKeData[emp] || { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
                 
                 let tongCong = 0;
-                if (chamCongData[emp]) {
-                    const daysInMonth = new Date(getChamCongMonthYear().split('-')[0], getChamCongMonthYear().split('-')[1], 0).getDate();
-                    for (let d = 1; d <= daysInMonth; d++) {
-                        tongCong += calcDayValue(chamCongData[emp][d] || '');
+                if (isQ) {
+                    tongCong = (sourceChamCong && sourceChamCong[emp] !== undefined) ? Math.round(sourceChamCong[emp] * 100) / 100 : 0;
+                } else {
+                    if (chamCongData[emp]) {
+                        const daysInMonth = new Date(getChamCongMonthYear().split('-')[0], getChamCongMonthYear().split('-')[1], 0).getDate();
+                        for (let d = 1; d <= daysInMonth; d++) {
+                            tongCong += calcDayValue(chamCongData[emp][d] || '');
+                        }
+                        const heSo = chamCongData[emp].heSo !== undefined ? parseFloat(chamCongData[emp].heSo) : 1.0;
+                        tongCong = Math.round((tongCong * heSo) * 100) / 100;
                     }
-                    const heSo = chamCongData[emp].heSo !== undefined ? parseFloat(chamCongData[emp].heSo) : 1.0;
-                    tongCong = Math.round((tongCong * heSo) * 100) / 100;
                 }
 
                 const totalThuThuat = (t.loai1 || 0) + (t.loai2 || 0) + (t.loai3 || 0) + (t.khac || 0);
@@ -15640,6 +15759,10 @@
                 document.getElementById('custom-range-picker-container').style.display = 'none';
                 loadThongKeData();
             }
+        });
+
+        document.getElementById('btn-custom-range-search').addEventListener('click', () => {
+            loadThongKeData();
         });
 
         document.getElementById('btn-export-excel').addEventListener('click', () => {

@@ -2141,6 +2141,34 @@ function saveEmployees(data) { saveFileContent('employees.json', data); return t
 function getErrorConfig() { return getFileContent('error_config.json'); }
 function saveErrorConfig(data) { saveFileContent('error_config.json', data); return true; }
 
+function getAllData(monthYear) {
+  return {
+    status: 'success',
+    data: {
+      chamcong: getChamCong(monthYear),
+      thuthuat: getThongKeThuThuat(monthYear)
+    }
+  };
+}
+
+function getMultipleMonthsData(monthYears) {
+  try {
+    const result = {};
+    if (Array.isArray(monthYears)) {
+      monthYears.forEach(my => {
+        result[my] = {
+          chamcong: getChamCong(my),
+          thuthuat: getThongKeThuThuat(my)
+        };
+      });
+    }
+    return { status: 'success', data: result };
+  } catch (e) {
+    Logger.log('Lỗi getMultipleMonthsData: ' + e.message);
+    return { status: 'error', message: e.message };
+  }
+}
+
 // HÀM CẤP TOÀN BỘ QUYỀN GOOGLE DRIVE (Chạy hàm này 1 lần trên trình soạn thảo Google Apps Script để cấp đủ quyền Đọc/Ghi)
 function capQuyenGoogleDrive() {
   const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
