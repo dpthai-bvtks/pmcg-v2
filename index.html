@@ -14103,14 +14103,22 @@
             const validStaffNames = dataCache.staff.map(s => s.ten);
 
             for (let row of dataRows) {
+                let techRaw = String(row['AT'] || '').trim();
+                let techNorm = getShortNameJS(techRaw);
+
+                if (techNorm && counts[techNorm]) {
+                    const loai = String(row['AN'] || '').toLowerCase();
+                    if (loai.includes('2')) counts[techNorm].l2++;
+                    else if (loai.includes('3')) counts[techNorm].l3++;
+                    else counts[techNorm].other++;
+                }
+
                 if (!row['AH'] || !row['L']) continue;
                 
                 let start = convertExcelDateToJSDate(row['AH']);
                 let end = convertExcelDateToJSDate(row['L']);
                 if (!start || isNaN(start.getTime()) || !end || isNaN(end.getTime())) continue;
 
-                let techRaw = String(row['AT'] || '').trim();
-                let techNorm = getShortNameJS(techRaw);
                 if (!techNorm) continue;
                 
                 if (!grouped[techNorm]) grouped[techNorm] = [];
@@ -14155,13 +14163,6 @@
                     }
 
                     if (!procInfo) continue;
-
-                    if (counts[tech]) {
-                        const type = String(procInfo.phanLoai || '').toLowerCase();
-                        if (type.includes('loại 2')) counts[tech].l2++;
-                        else if (type.includes('loại 3')) counts[tech].l3++;
-                        else counts[tech].other++;
-                    }
 
                     if (!checkPermissionJS(tech, procInfo)) {
                         addOtherRow(otherTbody, sttOther++, tech, `${row.patientName}<br/>${procInfo.ten}`, timeAStr, "Làm thủ thuật ngoài phạm vi phân quyền");
