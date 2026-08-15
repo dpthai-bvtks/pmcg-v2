@@ -1622,3 +1622,8 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã đẩy code mới nhất lên branch main.
 
 - Đã sửa triệt để lỗi cú pháp Uncaught SyntaxError ở dòng 15344 do đoạn code cũ bị lặp.
+
+- Đã sửa lỗi bị che người cuối cùng ở danh sách nhân sự chấm công (thêm padding-bottom 80px).
+- Đã thiết kế lại giao diện bảng Nhân sự chấm công theo phong cách thanh lịch, hiện đại (nút Sửa/Xóa tinh tế, badge kỹ năng PHCN/YHCT/Cả hai bo tròn mềm mại).
+- Đã bổ sung Bảng Ký Hiệu Chấm Công đúng 100% theo ảnh người dùng gửi.
+- Đã chuẩn hóa xử lý dữ liệu các tháng cũ (chuyển đổi tự động định dạng cũ sang mới không gây lỗi).
