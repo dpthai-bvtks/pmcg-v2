@@ -5624,6 +5624,25 @@
                     </div>
 
                     <div class="split-layout utils-split-layout" style="height: calc(100% - 60px);">
+                        <div style="flex: 1; border: 1px solid #1a8f59; border-radius: 8px; background: #eafaf1; padding: 15px; display:flex; flex-direction:column; margin-right: 10px;">
+                            <h4 style="margin: 0 0 10px 0; color: #145e39; font-size: 15px;">📊 ĐẾM THỦ THUẬT</h4>
+                            <div class="utils-table-scroll" style="flex: 1; border: 1px solid #1a8f59; border-radius: 6px; background: white; overflow-y: auto;">
+                                <table class="data-table" id="table-count" style="margin:0; font-size: 13px; width: 100%;">
+                                    <thead style="position:sticky; top:0; z-index:5;">
+                                        <tr style="background:#cbead9; color:#145e39;">
+                                            <th style="width: 40%;">Tên Bác Sĩ / Kỹ Thuật Viên</th>
+                                            <th style="width: 20%;">Thủ thuật loại 2</th>
+                                            <th style="width: 20%;">Thủ thuật loại 3</th>
+                                            <th style="width: 20%;">Thủ thuật khác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="count-body">
+                                        <tr><td colspan="4" style="text-align:center;">Chưa tải dữ liệu</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <div style="flex: 1; border: 1px solid #e74c3c; border-radius: 8px; background: #fdf2e9; padding: 15px; display:flex; flex-direction:column; margin-right: 10px;">
                             <h4 style="margin: 0 0 10px 0; color: #c0392b; font-size: 15px;">🚨 LỖI TRÙNG GIỜ</h4>
                             <div class="utils-table-scroll" style="flex: 1; border: 1px solid #e74c3c; border-radius: 6px; background: white; overflow-y: auto;">
@@ -13933,6 +13952,8 @@
 
                 const timeTbody = document.getElementById('error-time-body');
                 const otherTbody = document.getElementById('error-other-body');
+                const countBody = document.getElementById('count-body');
+                if (countBody) countBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Đang xử lý...</td></tr>';
                 timeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang xử lý...</td></tr>';
                 otherTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang xử lý...</td></tr>';
 
@@ -14063,10 +14084,17 @@
         }
 
         function processErrorChecking(dataRows) {
+            const countBody = document.getElementById('count-body');
             const timeTbody = document.getElementById('error-time-body');
             const otherTbody = document.getElementById('error-other-body');
+            if (countBody) countBody.innerHTML = '';
             timeTbody.innerHTML = '';
             otherTbody.innerHTML = '';
+
+            const counts = {};
+            dataCache.staff.forEach(s => {
+                counts[s.ten] = { l2: 0, l3: 0, other: 0 };
+            });
 
             let sttTime = 1;
             let sttOther = 1;
@@ -14127,6 +14155,13 @@
                     }
 
                     if (!procInfo) continue;
+
+                    if (counts[techNorm]) {
+                        const type = String(procInfo.phanLoai || '').toLowerCase();
+                        if (type.includes('loại 2')) counts[techNorm].l2++;
+                        else if (type.includes('loại 3')) counts[techNorm].l3++;
+                        else counts[techNorm].other++;
+                    }
 
                     if (!checkPermissionJS(tech, procInfo)) {
                         addOtherRow(otherTbody, sttOther++, tech, `${row.patientName}<br/>${procInfo.ten}`, timeAStr, "Làm thủ thuật ngoài phạm vi phân quyền");
@@ -14196,6 +14231,30 @@
 
             if (timeTbody.children.length === 0) timeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có lỗi trùng giờ! 🎉</td></tr>';
             if (otherTbody.children.length === 0) otherTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có lỗi phân quyền/quy trình! 🎉</td></tr>';
+
+            if (countBody) {
+                let countHtml = '';
+                let t2 = 0, t3 = 0, to = 0;
+                dataCache.staff.forEach(s => {
+                    const c = counts[s.ten];
+                    if (!c) return;
+                    if (c.l2 === 0 && c.l3 === 0 && c.other === 0) return;
+                    t2 += c.l2; t3 += c.l3; to += c.other;
+                    countHtml += `<tr>
+                        <td><strong>${s.ten}</strong></td>
+                        <td style="text-align:center">${c.l2}</td>
+                        <td style="text-align:center">${c.l3}</td>
+                        <td style="text-align:center">${c.other}</td>
+                    </tr>`;
+                });
+                countHtml += `<tr style="font-weight:bold; background:#eafaf1;">
+                    <td>TỔNG CỘNG</td>
+                    <td style="text-align:center">${t2}</td>
+                    <td style="text-align:center">${t3}</td>
+                    <td style="text-align:center">${to}</td>
+                </tr>`;
+                countBody.innerHTML = countHtml || '<tr><td colspan="4" style="text-align:center;">Chưa có dữ liệu thủ thuật</td></tr>';
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
