@@ -7172,18 +7172,44 @@
 
         }
 
-        function getShortSkills(skillStr) {
-
+        function getShortSkills(skillStr, isStaff = false) {
             if (!skillStr) return '';
+            const arr = skillStr.split(',').map(sk => sk.trim().toLowerCase()).filter(sk => sk);
+            if (!arr.length) return '';
 
-            return skillStr.split(',').map(sk => {
+            if (!isStaff) {
+                return arr.map(sk => {
+                    let proc = dataCache.proc.find(p => p.ten.toLowerCase() === sk);
+                    return (proc && proc.vietTat) ? proc.vietTat : sk;
+                }).join(', ');
+            }
 
-                let proc = dataCache.proc.find(p => p.ten.toLowerCase() === sk.trim().toLowerCase());
+            const allYHCT = dataCache.proc.filter(p => p.he === 'YHCT');
+            const allPHCN = dataCache.proc.filter(p => p.he === 'PHCN');
+            const staffYHCT = allYHCT.filter(p => arr.includes(p.ten.toLowerCase()));
+            const staffPHCN = allPHCN.filter(p => arr.includes(p.ten.toLowerCase()));
+            const missingYHCT = allYHCT.filter(p => !arr.includes(p.ten.toLowerCase()));
+            const missingPHCN = allPHCN.filter(p => !arr.includes(p.ten.toLowerCase()));
 
-                return (proc && proc.vietTat) ? proc.vietTat : sk.trim();
+            let yhctStr = '';
+            if (staffYHCT.length > 0) {
+                if (missingYHCT.length === 0) yhctStr = 'YHCT';
+                else if (missingYHCT.length <= 4) yhctStr = 'YHCT - ' + missingYHCT.map(p => p.vietTat || p.ten).join(', ');
+                else yhctStr = staffYHCT.map(p => p.vietTat || p.ten).join(', ');
+            }
 
-            }).join(', ');
+            let phcnStr = '';
+            if (staffPHCN.length > 0) {
+                if (missingPHCN.length === 0) phcnStr = 'PHCN';
+                else if (missingPHCN.length <= 4) phcnStr = 'PHCN - ' + missingPHCN.map(p => p.vietTat || p.ten).join(', ');
+                else phcnStr = staffPHCN.map(p => p.vietTat || p.ten).join(', ');
+            }
 
+            if (yhctStr === 'YHCT' && phcnStr === 'PHCN') return 'Cả hai hệ';
+            const res = [];
+            if (yhctStr) res.push(yhctStr);
+            if (phcnStr) res.push(phcnStr);
+            return res.join('; ');
         }
 
 
@@ -8110,9 +8136,16 @@
 
         // ============================================================
 
-        function renderProcedureCheckboxes() {
+        function toggleAllSkills(checkbox, system) {
+            const container = document.getElementById(system === 'YHCT' ? 'staff-skills-yhct' : 'staff-skills-phcn');
+            if (container) {
+                container.querySelectorAll('.skill-checkbox').forEach(cb => cb.checked = checkbox.checked);
+            }
+        }
 
-            let sYhct = '<h4 class="yhct">💊 YHCT</h4>', sPhcn = '<h4 class="phcn">⚙️ PHCN</h4>';
+        function renderProcedureCheckboxes() {
+            let sYhct = '<h4 class="yhct">💊 YHCT <input type="checkbox" onchange="toggleAllSkills(this, \\'YHCT\\')" style="margin-left:8px; cursor:pointer; transform:scale(1.2);" title="Chọn tất cả YHCT"></h4>', 
+                sPhcn = '<h4 class="phcn">⚙️ PHCN <input type="checkbox" onchange="toggleAllSkills(this, \\'PHCN\\')" style="margin-left:8px; cursor:pointer; transform:scale(1.2);" title="Chọn tất cả PHCN"></h4>';
 
             let pYhct = '<h4 class="yhct">💊 YHCT</h4>', pPhcn = '<h4 class="phcn">⚙️ PHCN</h4>';
 
@@ -8339,7 +8372,7 @@
 
                 const idx = dataCache.staff.indexOf(item);
 
-                const kyNangHienThi = getShortSkills(item.kyNang);
+                const kyNangHienThi = getShortSkills(item.kyNang, true);
 
                 return `<tr class="editable-row" onclick="editStaff(${idx})" style="${item.trangThai !== 'Đi làm' ? 'opacity:0.5; background:#f9f9f9;' : ''}" title="Bấm sửa (Phím Delete để xóa)">
 
