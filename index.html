@@ -4069,21 +4069,33 @@
             border-right: 1px solid #e2e8f0;
             background-color: #ffffff;
         }
-        #table-chamcong th {
+        #table-chamcong thead th {
             background-color: #f8f9fc;
             font-weight: 600;
             font-size: 0.82rem;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             color: #64748b;
-            position: sticky;
-            top: 0;
+            position: sticky !important;
             z-index: 10;
+        }
+        #table-chamcong thead tr:first-child th {
+            top: 0 !important;
+            z-index: 20 !important;
+            height: 38px;
+        }
+        #table-chamcong thead tr:nth-child(2) th {
+            top: 38px !important;
+            z-index: 15 !important;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 500;
+            padding: 4px 6px;
         }
         #table-chamcong thead tr:first-child th:first-child,
         #table-chamcong tbody td:first-child {
-            position: sticky;
-            left: 0;
+            position: sticky !important;
+            left: 0 !important;
             z-index: 5;
             text-align: left;
             padding: 10px 16px;
@@ -4095,13 +4107,14 @@
             min-width: 180px;
         }
         #table-chamcong thead tr:first-child th:first-child {
-            z-index: 25;
+            top: 0 !important;
+            z-index: 35 !important;
             background-color: #f8f9fc;
         }
         #table-chamcong thead tr:first-child th:nth-child(2),
         #table-chamcong tbody td:nth-child(2) {
-            position: sticky;
-            left: 180px;
+            position: sticky !important;
+            left: 180px !important;
             z-index: 5;
             text-align: center;
             border-right: 1px solid #e2e8f0;
@@ -4109,13 +4122,14 @@
             width: 65px;
         }
         #table-chamcong thead tr:first-child th:nth-child(2) {
-            z-index: 25;
+            top: 0 !important;
+            z-index: 35 !important;
             background-color: #f8f9fc;
         }
         #table-chamcong thead tr:first-child th:last-child,
         #table-chamcong tbody td:last-child {
-            position: sticky;
-            right: 0;
+            position: sticky !important;
+            right: 0 !important;
             z-index: 5;
             text-align: center;
             border-left: 2px solid #cbd5e1;
@@ -4126,7 +4140,8 @@
             color: #2563eb;
         }
         #table-chamcong thead tr:first-child th:last-child {
-            z-index: 25;
+            top: 0 !important;
+            z-index: 35 !important;
             background-color: #f8f9fc;
             color: #64748b;
             font-size: 0.82rem;
@@ -15255,6 +15270,18 @@
             weekHtml += `</tr>`;
             
             thead.innerHTML = theadHtml + weekHtml;
+
+            // Tính chiều cao thực của hàng 1 và gán top động cho hàng 2 để sticky đúng vị trí khi cuộn
+            requestAnimationFrame(() => {
+                const firstRow = thead.querySelector('tr:first-child');
+                const secondRowThs = thead.querySelectorAll('tr:nth-child(2) th');
+                if (firstRow && secondRowThs.length > 0) {
+                    const row1Height = firstRow.offsetHeight || 38;
+                    secondRowThs.forEach(th => {
+                        th.style.setProperty('top', row1Height + 'px', 'important');
+                    });
+                }
+            });
 
             tbody.innerHTML = '';
             adminChamCongEmployees.forEach(emp => {
