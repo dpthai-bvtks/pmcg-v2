@@ -34,7 +34,12 @@ const USER_ACTIONS = [
   'runScheduling',
   'runSaturdaySchedule',
   'runSupplementalScheduling',
-  'chuyenNgayMoi'
+  'chuyenNgayMoi',
+  // Chấm công & Thống kê - đọc
+  'getChamCong',
+  'getThongKeThuThuat',
+  'getEmployees',
+  'getErrorConfig'
 ];
 
 const ADMIN_ACTIONS = [
@@ -47,7 +52,12 @@ const ADMIN_ACTIONS = [
   'saveAITrainingData', 'clearAITrainingData',
   'luuThongBaoDongChuChay',
   'getAccounts', 'saveAccount', 'deleteAccount',
-  'saveSystemSettings'
+  'saveSystemSettings',
+  // Chấm công & Thống kê (tích hợp từ PM cũ)
+  'getChamCong', 'saveChamCong',
+  'getThongKeThuThuat', 'saveThongKeThuThuat',
+  'getEmployees', 'saveEmployees',
+  'getErrorConfig', 'saveErrorConfig'
 ];
 
 const ALL_ACTIONS = [...PUBLIC_ACTIONS, ...USER_ACTIONS, ...ADMIN_ACTIONS];
