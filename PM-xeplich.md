@@ -1614,3 +1614,9 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã thêm các nút vào sidebar trong nhóm Báo Cáo.
 - Đã thêm các placeholder (alert) cho chức năng xuất file Excel.
 - Đã đẩy code mới nhất lên branch main.
+
+### Phiên làm việc (Khôi phục dữ liệu Google Drive & Chuẩn hóa giao diện Bảng Chấm Công)
+- Đã khôi phục hoàn toàn cơ chế đọc/ghi dữ liệu từ Google Drive (thư mục ID: 1jhj-8FO-94BFL8xKDW6vk4XmCmPEc6c4) cho chamcong, thuthuat, employees, error_config.
+- Đã thêm hàm capQuyenGoogleDrive() trong code.gs-v2.txt để cấp trọn gói quyền Đọc/Ghi Drive trong 1 lần chạy.
+- Đã thiết kế lại giao diện Bảng Chấm Công giống 100% phần mềm cũ (Tiêu đề, thanh chọn Tháng/Năm, cột sticky cố định Họ tên và Tổng công, hàng ngày nghỉ Chủ nhật màu vàng kèm chữ Nghỉ in nghiêng, ô nhập liệu bo tròn chuyên nghiệp).
+- Đã đẩy code mới nhất lên branch main.
