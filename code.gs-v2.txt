@@ -2094,33 +2094,41 @@ function deleteAccount(id) {
 }
 
 // ==========================================
-// TÍCH HỢP CHẤM CÔNG & THỐNG KÊ (TỪ PM CŨ)
-// Lưu trữ dữ liệu bằng SpreadsheetApp (không cần thêm OAuth scope)
+// TÍCH HỢP CHẤM CÔNG & THỐNG KÊ (DỮ LIỆU GOOGLE DRIVE)
 // ==========================================
+const OLD_DRIVE_FOLDER_ID = '1jhj-8FO-94BFL8xKDW6vk4XmCmPEc6c4';
 
 function getFileContent(fileName) {
   try {
-    const sheetName = '_data_' + fileName.replace('.json', '').replace(/[^a-zA-Z0-9_]/g, '_');
-    let sheet = SS.getSheetByName(sheetName);
-    if (!sheet) return {};
-    const val = sheet.getRange(1, 1).getValue();
-    if (!val) return {};
-    return JSON.parse(val);
+    const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
+    const files = folder.getFilesByName(fileName);
+    if (files.hasNext()) {
+      const file = files.next();
+      const content = file.getBlob().getDataAsString();
+      return JSON.parse(content);
+    }
+    return {};
   } catch (e) {
+    Logger.log('Lỗi đọc file ' + fileName + ': ' + e.message);
     return {};
   }
 }
 
 function saveFileContent(fileName, data) {
   try {
-    const sheetName = '_data_' + fileName.replace('.json', '').replace(/[^a-zA-Z0-9_]/g, '_');
-    let sheet = SS.getSheetByName(sheetName);
-    if (!sheet) {
-      sheet = SS.insertSheet(sheetName);
+    const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
+    const files = folder.getFilesByName(fileName);
+    const jsonString = JSON.stringify(data);
+    if (files.hasNext()) {
+      const file = files.next();
+      file.setContent(jsonString);
+    } else {
+      folder.createFile(fileName, jsonString, MimeType.PLAIN_TEXT);
     }
-    sheet.getRange(1, 1).setValue(JSON.stringify(data));
+    return true;
   } catch (e) {
-    throw new Error('Lỗi lưu dữ liệu: ' + e.message);
+    Logger.log('Lỗi ghi file ' + fileName + ': ' + e.message);
+    throw e;
   }
 }
 
@@ -2132,3 +2140,15 @@ function getEmployees() { return getFileContent('employees.json'); }
 function saveEmployees(data) { saveFileContent('employees.json', data); return true; }
 function getErrorConfig() { return getFileContent('error_config.json'); }
 function saveErrorConfig(data) { saveFileContent('error_config.json', data); return true; }
+
+// HÀM CẤP TOÀN BỘ QUYỀN GOOGLE DRIVE (Chạy hàm này 1 lần trên trình soạn thảo Google Apps Script để cấp đủ quyền Đọc/Ghi)
+function capQuyenGoogleDrive() {
+  const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
+  Logger.log('Đã kết nối thư mục: ' + folder.getName());
+  const testFile = folder.createFile('__test_permission__.txt', 'test', MimeType.PLAIN_TEXT);
+  testFile.setContent('test ok');
+  testFile.setTrashed(true);
+  Logger.log('✅ ĐÃ CẤP TOÀN BỘ QUYỀN GOOGLE DRIVE THÀNH CÔNG!');
+  return 'Cấp quyền Google Drive thành công!';
+}
+
