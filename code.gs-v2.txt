@@ -2095,33 +2095,32 @@ function deleteAccount(id) {
 
 // ==========================================
 // TÍCH HỢP CHẤM CÔNG & THỐNG KÊ (TỪ PM CŨ)
+// Lưu trữ dữ liệu bằng SpreadsheetApp (không cần thêm OAuth scope)
 // ==========================================
-const OLD_DRIVE_FOLDER_ID = '1jhj-8FO-94BFL8xKDW6vk4XmCmPEc6c4';
 
 function getFileContent(fileName) {
   try {
-    const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
-    const files = folder.getFilesByName(fileName);
-    if (files.hasNext()) {
-      const file = files.next();
-      const content = file.getBlob().getDataAsString();
-      return JSON.parse(content);
-    }
-    return {};
+    const sheetName = '_data_' + fileName.replace('.json', '').replace(/[^a-zA-Z0-9_]/g, '_');
+    let sheet = SS.getSheetByName(sheetName);
+    if (!sheet) return {};
+    const val = sheet.getRange(1, 1).getValue();
+    if (!val) return {};
+    return JSON.parse(val);
   } catch (e) {
     return {};
   }
 }
 
 function saveFileContent(fileName, data) {
-  const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
-  const files = folder.getFilesByName(fileName);
-  const jsonString = JSON.stringify(data);
-  if (files.hasNext()) {
-    const file = files.next();
-    file.setContent(jsonString);
-  } else {
-    folder.createFile(fileName, jsonString, MimeType.PLAIN_TEXT);
+  try {
+    const sheetName = '_data_' + fileName.replace('.json', '').replace(/[^a-zA-Z0-9_]/g, '_');
+    let sheet = SS.getSheetByName(sheetName);
+    if (!sheet) {
+      sheet = SS.insertSheet(sheetName);
+    }
+    sheet.getRange(1, 1).setValue(JSON.stringify(data));
+  } catch (e) {
+    throw new Error('Lỗi lưu dữ liệu: ' + e.message);
   }
 }
 
@@ -2133,16 +2132,3 @@ function getEmployees() { return getFileContent('employees.json'); }
 function saveEmployees(data) { saveFileContent('employees.json', data); return true; }
 function getErrorConfig() { return getFileContent('error_config.json'); }
 function saveErrorConfig(data) { saveFileContent('error_config.json', data); return true; }
-
-// HÀM KIỂM TRA QUYỀN DRIVE - CHẠY THỦ CÔNG MỘT LẦN ĐỂ CẤP QUYỀN
-function testDriveAccess() {
-  try {
-    const folder = DriveApp.getFolderById(OLD_DRIVE_FOLDER_ID);
-    Logger.log('OK - Folder: ' + folder.getName());
-    return 'OK: ' + folder.getName();
-  } catch(e) {
-    Logger.log('LOI: ' + e.message);
-    throw e;
-  }
-}
-

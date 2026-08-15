@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="vi">
 
@@ -793,6 +793,9 @@
 
         #tab-stats.active,
 
+        #tab-chamcong.active,
+
+        #tab-thongke.active,
         #tab-sat.active,
 
         #tab-utils.active,
@@ -6120,7 +6123,7 @@
                     </div>
                 </div>
                 <!-- TAB: CHẤM CÔNG (MỚI) -->
-                <div class="tab-content" id="tab-chamcong" style="display: flex; flex-direction: column;">
+                <div class="tab-content" id="tab-chamcong">
                     <div class="tab-header-title">📅 BẢNG CHẤM CÔNG & CÔNG TRỰC</div>
                     
                     <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
@@ -6157,7 +6160,7 @@
                 </div>
 
                 <!-- TAB: THỐNG KÊ (MỚI) -->
-                <div class="tab-content" id="tab-thongke" style="display: flex; flex-direction: column;">
+                <div class="tab-content" id="tab-thongke">
                     <div class="tab-header-title">📈 THỐNG KÊ TỔNG HỢP & XUẤT BÁO CÁO</div>
                     
                     <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: space-between;">
@@ -8205,7 +8208,7 @@
         }
 
         function saveMachine() {
-            if (!requireAdminPassword(() => saveMachine())) return;
+            
 
             const t = document.getElementById('machine-type').value.trim();
 
@@ -8256,7 +8259,7 @@
         }
 
         function deleteMachine(i) {
-            if (!requireAdminPassword(() => deleteMachine(i))) return;
+            
 
             showCustomConfirm("Xác nhận xóa máy", "Bác sĩ có chắc chắn muốn xóa máy này?", function () {
 
@@ -8380,7 +8383,7 @@
         }
 
         function saveProcedure() {
-            if (!requireAdminPassword(() => saveProcedure())) return;
+            
 
             const ten = document.getElementById('proc-name').value, vt = document.getElementById('proc-short').value;
 
@@ -8437,7 +8440,7 @@
         }
 
         function deleteProcedure(i) {
-            if (!requireAdminPassword(() => deleteProcedure(i))) return;
+            
 
             showCustomConfirm("Xác nhận xóa thủ thuật", "Bác sĩ có chắc chắn muốn xóa thủ thuật này không?", function () {
 
@@ -8580,7 +8583,7 @@
         }
 
         function saveStaff() {
-            if (!requireAdminPassword(() => saveStaff())) return;
+            
 
             const ten = document.getElementById('staff-name').value;
 
@@ -8659,7 +8662,7 @@
         }
 
         function deleteStaff(i) {
-            if (!requireAdminPassword(() => deleteStaff(i))) return;
+            
 
             showCustomConfirm("Xác nhận xóa nhân sự", "Bác sĩ có chắc chắn muốn xóa nhân sự này không?", function () {
 
@@ -8748,7 +8751,7 @@
         }
 
         function saveRoom() {
-            if (!requireAdminPassword(() => saveRoom())) return;
+            
 
             const ten = document.getElementById('room-name').value;
 
@@ -8869,7 +8872,7 @@
         }
 
         function deleteRoom(i) {
-            if (!requireAdminPassword(() => deleteRoom(i))) return;
+            
 
             showCustomConfirm("Xác nhận xóa phòng", "Bác sĩ có chắc chắn muốn xóa phòng này không?", function () {
 
