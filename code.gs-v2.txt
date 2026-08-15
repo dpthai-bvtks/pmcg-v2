@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // DATABASE UTILS
 // ============================================================
 const SS = SpreadsheetApp.openById('1f6mnFdOMvGNTiIB0zKqPEV-WBpxY1R2F_99SRbcUc5g');
@@ -2117,8 +2117,8 @@ function saveFileContent(fileName, data) {
 
 function getChamCong(monthYear) { return getFileContent('chamcong_' + monthYear + '.json'); }
 function saveChamCong(monthYear, data) { saveFileContent('chamcong_' + monthYear + '.json', data); return true; }
-function getThuThuat(monthYear) { return getFileContent('thuthuat_' + monthYear + '.json'); }
-function saveThuThuat(monthYear, data) { saveFileContent('thuthuat_' + monthYear + '.json', data); return true; }
+function getThongKeThuThuat(monthYear) { return getFileContent('thuthuat_' + monthYear + '.json'); }
+function saveThongKeThuThuat(monthYear, data) { saveFileContent('thuthuat_' + monthYear + '.json', data); return true; }
 function getEmployees() { return getFileContent('employees.json'); }
 function saveEmployees(data) { saveFileContent('employees.json', data); return true; }
 function getErrorConfig() { return getFileContent('error_config.json'); }

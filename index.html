@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="vi">
 
@@ -15199,7 +15199,7 @@
                 }).withFailureHandler(err => {
                     window.hideGlobalLoading();
                     console.error(err);
-                }).getThuThuat(my);
+                }).getThongKeThuThuat(my);
             } else {
                 window.hideGlobalLoading();
                 thongKeData = {};
@@ -15367,7 +15367,7 @@
                 window.hideGlobalLoading();
                 console.error(err);
                 alert("Lỗi khi lưu dữ liệu thủ thuật!");
-            }).saveThuThuat(my, thongKeData);
+            }).saveThongKeThuThuat(my, thongKeData);
         }
 
         document.getElementById('thongke-mode').addEventListener('change', (e) => {
