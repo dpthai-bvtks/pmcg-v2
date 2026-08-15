@@ -1629,3 +1629,6 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã chuẩn hóa xử lý dữ liệu các tháng cũ (chuyển đổi tự động định dạng cũ sang mới không gây lỗi).
 
 - Đã sửa lỗi tiêu đề 2 tầng ở Bảng Chấm Công (ghim sticky tầng 1 ở top 0, tầng 2 thứ trong tuần ở top động ngay dưới tầng 1, không bị che khuất khi cuộn xuống).
+
+- Đã hoàn thiện tính năng Thống kê theo Quý (Quý I, II, III, IV) và Tùy chọn khoảng thời gian (gộp và cộng dồn dữ liệu nhiều tháng từ Google Drive).
+- Đã sửa giao diện bảng chấm công: khung bảng tự động căn khít chiều cao màn hình, thanh cuộn ngang dày 12px luôn hiển thị nổi bật và dễ kéo để xem trọn vẹn 31 ngày.
