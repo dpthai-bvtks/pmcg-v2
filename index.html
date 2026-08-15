@@ -4145,6 +4145,10 @@
 
                 <button class="nav-tab" data-tab="tab-kiemtra"><span class="icon">✅</span><span class="text">Kiểm Tra
                         Lỗi</span></button>
+                        
+                <div class="group-title">📊 Báo Cáo</div>
+                <button class="nav-tab" data-tab="tab-chamcong"><span class="icon">📅</span><span class="text">Bảng Chấm Công</span></button>
+                <button class="nav-tab" data-tab="tab-thongke"><span class="icon">📈</span><span class="text">Thống Kê Tổng Hợp</span></button>
 
                 <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); width: 100%;">
                     <button class="nav-tab" id="lock-toggle-btn" onclick="toggleAdminLock()" style="background: transparent;">
@@ -6112,6 +6116,131 @@
                                 </div>
                             </div>
 
+                        </div>
+                    </div>
+                </div>
+                <!-- TAB: CHẤM CÔNG (MỚI) -->
+                <div class="tab-content" id="tab-chamcong" style="display: flex; flex-direction: column;">
+                    <div class="tab-header-title">📅 BẢNG CHẤM CÔNG & CÔNG TRỰC</div>
+                    
+                    <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <label style="font-weight: 600; color: var(--primary-color);">Thời gian:</label>
+                        <select id="chamcong-month-picker" class="input-field" style="width: 100px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="1">Tháng 1</option>
+                            <option value="2">Tháng 2</option>
+                            <option value="3">Tháng 3</option>
+                            <option value="4">Tháng 4</option>
+                            <option value="5">Tháng 5</option>
+                            <option value="6">Tháng 6</option>
+                            <option value="7">Tháng 7</option>
+                            <option value="8">Tháng 8</option>
+                            <option value="9">Tháng 9</option>
+                            <option value="10">Tháng 10</option>
+                            <option value="11">Tháng 11</option>
+                            <option value="12">Tháng 12</option>
+                        </select>
+                        <input type="number" id="chamcong-year-picker" class="input-field" style="width: 90px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" min="2020" max="2050" value="2024">
+                        <button class="btn btn-primary" onclick="loadChamCongData()"><i class='bx bx-search'></i> Xem</button>
+                        <button class="btn btn-success" onclick="exportChamCongExcel()"><i class='bx bxs-file-export'></i> Xuất Excel</button>
+                    </div>
+
+                    <div style="background: #fff; border: 1px solid #dcdde1; border-radius: 8px; overflow: hidden; flex: 1; display: flex; flex-direction: column;">
+                        <div style="overflow: auto; flex: 1; position: relative;" id="table-chamcong-container">
+                            <table class="data-table" id="table-chamcong" style="width: 100%; border-collapse: collapse; white-space: nowrap;">
+                                <thead id="chamcong-thead" style="position: sticky; top: 0; background: #f8f9fa; z-index: 2;">
+                                </thead>
+                                <tbody id="chamcong-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: THỐNG KÊ (MỚI) -->
+                <div class="tab-content" id="tab-thongke" style="display: flex; flex-direction: column;">
+                    <div class="tab-header-title">📈 THỐNG KÊ TỔNG HỢP & XUẤT BÁO CÁO</div>
+                    
+                    <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: space-between;">
+                        <div style="display:flex; align-items:center; gap:15px; flex-wrap: wrap;">
+                            <select id="thongke-mode" class="input-field" style="padding: 8px 12px; font-weight: 600; color: var(--primary-color); background-color: #f0f4ff; border-color: var(--primary-light); border-radius: 4px;">
+                                <option value="current">Theo tháng đang chọn (Chấm công)</option>
+                                <option value="q1">Quý I (Tháng 1 - 3)</option>
+                                <option value="q2">Quý II (Tháng 4 - 6)</option>
+                                <option value="q3">Quý III (Tháng 7 - 9)</option>
+                                <option value="q4">Quý IV (Tháng 10 - 12)</option>
+                                <option value="custom">Tùy chọn khoảng thời gian</option>
+                            </select>
+                            
+                            <div id="custom-range-picker-container" style="align-items: center; gap: 8px; display: none;">
+                                <span style="font-size: 0.9rem; color: #555; font-weight: 600;">Từ:</span>
+                                <input type="month" id="custom-start-date" class="input-field" style="padding: 6px 10px; width: 145px; border: 1px solid #ccc; border-radius: 4px;">
+                                <span style="font-size: 0.9rem; color: #555; font-weight: 600;">Đến:</span>
+                                <input type="month" id="custom-end-date" class="input-field" style="padding: 6px 10px; width: 145px; border: 1px solid #ccc; border-radius: 4px;">
+                                <button class="btn btn-primary" id="btn-custom-range-search" style="padding: 6px 15px;">Xem</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <input type="file" id="excel-file-input" accept=".xlsx, .xls" hidden>
+                            <button class="btn btn-success" onclick="document.getElementById('excel-file-input').click()">
+                                <i class='bx bx-upload'></i> Nạp File Thủ Thuật (HIS)
+                            </button>
+                            <button class="btn btn-primary" id="btn-export-excel">
+                                <i class='bx bx-export'></i> Xuất Excel (Báo Cáo)
+                            </button>
+                            <button class="btn btn-warning" id="btn-export-thuc-linh" style="background-color: #f39c12; border-color: #f39c12; color: #fff;">
+                                <i class='bx bx-calculator'></i> Xuất Thực Lĩnh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- BẢNG XEM TRƯỚC -->
+                    <div id="preview-section" style="display: none; margin-bottom: 15px; border: 2px dashed var(--primary-color); padding: 15px; border-radius: 8px; background-color: #f8faff;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="color: var(--primary-color); margin: 0;"><i class='bx bx-search-alt'></i> Xem Trước Dữ Liệu Vừa Tải</h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-secondary" onclick="document.getElementById('preview-section').style.display = 'none'; document.getElementById('main-thongke-container').style.display = 'flex';">Hủy bỏ</button>
+                                <button class="btn btn-success" id="btn-submit-thuthuat">
+                                    <i class='bx bx-cloud-upload'></i> Xác nhận lưu lên máy chủ
+                                </button>
+                            </div>
+                        </div>
+                        <div style="overflow: auto; max-height: 400px; border: 1px solid #ddd; border-radius: 4px;">
+                            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                                <thead style="position: sticky; top: 0; background: #f8f9fa;">
+                                    <tr>
+                                        <th style="padding: 10px; border-bottom: 2px solid #ddd;">Tên nhân viên</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 1</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 2</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 3</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Khác</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Tổng thủ thuật</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="preview-thuthuat-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- BẢNG CHÍNH THỨC -->
+                    <div id="main-thongke-container" style="background: #fff; border: 1px solid #dcdde1; border-radius: 8px; overflow: hidden; flex: 1; display: flex; flex-direction: column;">
+                        <div style="overflow: auto; flex: 1;">
+                            <table class="data-table" id="table-thongke" style="width: 100%; border-collapse: collapse;">
+                                <thead style="position: sticky; top: 0; background: #f8f9fa;">
+                                    <tr>
+                                        <th style="padding: 10px; border-bottom: 2px solid #ddd;">Tên nhân viên</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Tổng số công</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 1</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 2</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 3</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Khác</th>
+                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Tổng thủ thuật</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="thongke-body">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -14662,7 +14791,7 @@
         let editAdminEmployeeIndex = -1;
         
         function loadAdminChamCongData() {
-            showLoading(true);
+            window.showGlobalLoading("Đang tải dữ liệu...");
             google.script.run.withSuccessHandler(res => {
                 if(res && res.status === 'success' && res.data) {
                     if (Array.isArray(res.data)) {
@@ -14674,14 +14803,14 @@
                     }
                 }
                 google.script.run.withSuccessHandler(resConfig => {
-                    showLoading(false);
+                    window.hideGlobalLoading();
                     if(resConfig && resConfig.status === 'success' && resConfig.data) {
                         adminChamCongStaffConfig = resConfig.data.staff || {};
                     }
                     renderAdminChamCongTable();
                 }).getErrorConfig();
             }).withFailureHandler(err => {
-                showLoading(false);
+                window.hideGlobalLoading();
                 console.error(err);
             }).getEmployees();
         }
@@ -14791,10 +14920,10 @@
         }
 
         function saveAdminChamCongData() {
-            showLoading(true);
+            window.showGlobalLoading("Đang tải dữ liệu...");
             google.script.run.withSuccessHandler(() => {
                 google.script.run.withSuccessHandler(() => {
-                    showLoading(false);
+                    window.hideGlobalLoading();
                     renderAdminChamCongTable();
                     alert("Đã lưu danh sách nhân sự chấm công!");
                 }).saveErrorConfig({ staff: adminChamCongStaffConfig });
@@ -14809,6 +14938,483 @@
                 loadAdminChamCongData();
             }
         };
+
+        // ==========================================
+        // TAB CHẤM CÔNG (TỪ PM CŨ)
+        // ==========================================
+        let chamCongData = {};
+        let chamCongSaveTimeout = null;
+
+        function getChamCongMonthYear() {
+            const m = document.getElementById('chamcong-month-picker').value;
+            const y = document.getElementById('chamcong-year-picker').value;
+            return `${y}-${m.padStart(2, '0')}`;
+        }
+
+        function loadChamCongData() {
+            const my = getChamCongMonthYear();
+            window.showGlobalLoading("Đang tải dữ liệu chấm công...");
+            google.script.run.withSuccessHandler(res => {
+                if(res && res.status === 'success' && res.data) {
+                    chamCongData = res.data;
+                } else {
+                    chamCongData = {};
+                }
+                
+                // Cần load danh sách nhân viên trước khi render
+                if (adminChamCongEmployees.length === 0) {
+                    google.script.run.withSuccessHandler(empRes => {
+                        window.hideGlobalLoading();
+                        if (empRes && empRes.status === 'success') {
+                            if (Array.isArray(empRes.data)) {
+                                adminChamCongEmployees = empRes.data;
+                            } else if (empRes.data.employees) {
+                                adminChamCongEmployees = empRes.data.employees;
+                            } else {
+                                adminChamCongEmployees = Object.keys(empRes.data);
+                            }
+                        }
+                        renderChamCongTable();
+                    }).withFailureHandler(() => { window.hideGlobalLoading(); renderChamCongTable(); }).getEmployees();
+                } else {
+                    window.hideGlobalLoading();
+                    renderChamCongTable();
+                }
+            }).withFailureHandler(err => {
+                window.hideGlobalLoading();
+                console.error(err);
+                alert("Lỗi tải dữ liệu chấm công!");
+            }).getChamCong(my);
+        }
+
+        function isHoliday(y, m, d) {
+            const date = new Date(y, m - 1, d);
+            return date.getDay() === 0 || date.getDay() === 6; // T7, CN
+        }
+
+        function getWeekdayName(y, m, d) {
+            const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            return days[new Date(y, m - 1, d).getDay()];
+        }
+
+        function calcDayValue(val) {
+            if (!val) return 0;
+            if (val === 'ca-ngay' || val === 'X') return 1;
+            if (val === 'sang' || val === 'chieu' || val === 'S' || val === 'C') return 0.5;
+            let total = 0;
+            const parts = String(val).toUpperCase().split(/[\/\+\-\s,]+/);
+            parts.forEach(p => {
+                if (p === 'S' || p === 'C') total += 0.5;
+                else if (p === 'X') total += 1;
+            });
+            return total > 1 ? 1 : total;
+        }
+
+        function renderChamCongTable() {
+            const my = getChamCongMonthYear();
+            const [year, month] = my.split('-');
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            const thead = document.getElementById('chamcong-thead');
+            const tbody = document.getElementById('chamcong-body');
+
+            let theadHtml = `<tr><th rowspan="2" style="vertical-align: middle; padding: 10px; border-right: 1px solid #ddd;">Tên Nhân Viên</th><th rowspan="2" style="vertical-align: middle; text-align: center; border-right: 1px solid #ddd;">Hệ Số</th>`;
+            let weekHtml = `<tr>`;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isOff = isHoliday(year, month, d);
+                const bgClass = isOff ? 'background: #f8d7da; color: #721c24;' : 'background: #f8f9fa;';
+                theadHtml += `<th style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd; ${bgClass}">Ngày ${d}</th>`;
+                weekHtml += `<th style="text-align: center; padding: 4px; font-size: 0.8rem; font-weight: normal; ${bgClass}">${getWeekdayName(year, month, d)}</th>`;
+            }
+            
+            theadHtml += `<th rowspan="2" style="vertical-align: middle; text-align: center; padding: 10px; border-left: 1px solid #ddd;">Tổng Công</th></tr>`;
+            weekHtml += `</tr>`;
+            
+            thead.innerHTML = theadHtml + weekHtml;
+
+            tbody.innerHTML = '';
+            adminChamCongEmployees.forEach(emp => {
+                if (!chamCongData[emp]) chamCongData[emp] = {};
+                const tr = document.createElement('tr');
+                const heSo = (chamCongData[emp] && chamCongData[emp].heSo !== undefined) ? parseFloat(chamCongData[emp].heSo) : 1.0;
+                
+                let rowHtml = `<td style="padding: 8px; border-right: 1px solid #ddd; border-bottom: 1px solid #eee;"><strong>${emp}</strong></td>
+                               <td style="text-align: center; padding: 8px; border-right: 1px solid #ddd; border-bottom: 1px solid #eee;">
+                                 <input type="number" class="heso-input" data-emp="${emp}" value="${heSo}" min="0" max="1" step="0.1" style="width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 4px;">
+                               </td>`;
+
+                let tongCong = 0;
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const val = chamCongData[emp][d] || '';
+                    tongCong += calcDayValue(val);
+                    const isOff = isHoliday(year, month, d);
+                    const bgClass = isOff ? 'background: #fdf3f4;' : '';
+
+                    rowHtml += `
+                        <td style="text-align: center; vertical-align: middle; padding: 4px; border-right: 1px solid #eee; border-bottom: 1px solid #eee; ${bgClass}">
+                            <input type="text" class="cc-input-text" data-emp="${emp}" data-day="${d}" 
+                                   style="width: 100%; min-width: 45px; padding: 6px 4px; font-size: 0.9rem; border-radius: 4px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #2980b9; outline: none; text-transform: uppercase;"
+                                   value="${val}" placeholder="${isOff ? 'N' : ''}">
+                        </td>
+                    `;
+                }
+                const tongCongHeso = Math.round((tongCong * heSo) * 100) / 100;
+                rowHtml += `<td class="tong-cong-cell" data-emp-total="${emp}" style="text-align: center; padding: 8px; border-left: 1px solid #ddd; border-bottom: 1px solid #eee; font-size: 1.1rem; color: #e67e22; font-weight: bold;">${tongCongHeso}</td>`;
+                
+                tr.innerHTML = rowHtml;
+                tbody.appendChild(tr);
+            });
+
+            attachChamCongEvents(daysInMonth);
+        }
+
+        function attachChamCongEvents(daysInMonth) {
+            document.querySelectorAll('.cc-input-text').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const emp = e.target.getAttribute('data-emp');
+                    const day = e.target.getAttribute('data-day');
+                    const val = e.target.value.trim().toUpperCase();
+
+                    if (val) chamCongData[emp][day] = val;
+                    else delete chamCongData[emp][day];
+
+                    recalculateRowTotal(emp, daysInMonth);
+                    triggerAutoSaveChamCong();
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    let nextInput = null;
+                    const currentDay = parseInt(e.target.getAttribute('data-day'));
+                    const currentEmp = e.target.getAttribute('data-emp');
+                    const empIndex = adminChamCongEmployees.indexOf(currentEmp);
+
+                    if (e.key === 'ArrowUp' && empIndex > 0) {
+                        e.preventDefault();
+                        nextInput = document.querySelector(`.cc-input-text[data-emp="${adminChamCongEmployees[empIndex - 1]}"][data-day="${currentDay}"]`);
+                    } else if ((e.key === 'ArrowDown' || e.key === 'Enter') && empIndex < adminChamCongEmployees.length - 1) {
+                        e.preventDefault();
+                        nextInput = document.querySelector(`.cc-input-text[data-emp="${adminChamCongEmployees[empIndex + 1]}"][data-day="${currentDay}"]`);
+                    } else if (e.key === 'ArrowLeft' && currentDay > 1) {
+                        if (e.target.selectionStart === 0) {
+                            e.preventDefault();
+                            nextInput = document.querySelector(`.cc-input-text[data-emp="${currentEmp}"][data-day="${currentDay - 1}"]`);
+                        }
+                    } else if (e.key === 'ArrowRight' && currentDay < daysInMonth) {
+                        if (e.target.selectionEnd === e.target.value.length) {
+                            e.preventDefault();
+                            nextInput = document.querySelector(`.cc-input-text[data-emp="${currentEmp}"][data-day="${currentDay + 1}"]`);
+                        }
+                    }
+                    if (nextInput) {
+                        nextInput.focus();
+                        nextInput.select();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.heso-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const emp = e.target.getAttribute('data-emp');
+                    let val = parseFloat(e.target.value);
+                    if (isNaN(val) || val < 0) val = 1.0;
+                    if (val > 1) val = 1.0;
+                    
+                    e.target.value = val;
+                    if (!chamCongData[emp]) chamCongData[emp] = {};
+                    chamCongData[emp].heSo = val;
+                    
+                    recalculateRowTotal(emp, daysInMonth);
+                    triggerAutoSaveChamCong();
+                });
+            });
+        }
+
+        function recalculateRowTotal(emp, daysInMonth) {
+            let tongCong = 0;
+            const data = chamCongData[emp] || {};
+            for (let d = 1; d <= daysInMonth; d++) {
+                tongCong += calcDayValue(data[d]);
+            }
+            const heSo = data.heSo !== undefined ? parseFloat(data.heSo) : 1.0;
+            const totalHeso = Math.round((tongCong * heSo) * 100) / 100;
+            
+            const totalCell = document.querySelector(`.tong-cong-cell[data-emp-total="${emp}"]`);
+            if (totalCell) totalCell.innerText = totalHeso;
+        }
+
+        function triggerAutoSaveChamCong() {
+            if (chamCongSaveTimeout) clearTimeout(chamCongSaveTimeout);
+            chamCongSaveTimeout = setTimeout(() => {
+                const my = getChamCongMonthYear();
+                document.getElementById('chamcong-thead').style.opacity = '0.7';
+                google.script.run.withSuccessHandler(() => {
+                    document.getElementById('chamcong-thead').style.opacity = '1';
+                }).saveChamCong(my, chamCongData);
+            }, 1000);
+        }
+
+        // Tự động set tháng hiện tại khi load
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            document.getElementById('chamcong-month-picker').value = today.getMonth() + 1;
+            document.getElementById('chamcong-year-picker').value = today.getFullYear();
+        });
+
+        // ==========================================
+        // TAB THỐNG KÊ TỔNG HỢP (TỪ PM CŨ)
+        // ==========================================
+        let thongKeData = {};
+        let tempThuThuatData = null;
+
+        function loadThongKeData() {
+            const mode = document.getElementById('thongke-mode').value;
+            const my = getChamCongMonthYear();
+            
+            window.showGlobalLoading("Đang tải dữ liệu thống kê...");
+            
+            if (mode === 'current') {
+                google.script.run.withSuccessHandler(res => {
+                    if (res && res.status === 'success' && res.data) {
+                        thongKeData = res.data;
+                    } else {
+                        thongKeData = {};
+                    }
+                    
+                    if (adminChamCongEmployees.length === 0) {
+                        google.script.run.withSuccessHandler(empRes => {
+                            window.hideGlobalLoading();
+                            if (empRes && empRes.status === 'success') {
+                                if (Array.isArray(empRes.data)) adminChamCongEmployees = empRes.data;
+                                else if (empRes.data.employees) adminChamCongEmployees = empRes.data.employees;
+                                else adminChamCongEmployees = Object.keys(empRes.data);
+                            }
+                            renderThongKeTable();
+                        }).withFailureHandler(() => { window.hideGlobalLoading(); renderThongKeTable(); }).getEmployees();
+                    } else {
+                        window.hideGlobalLoading();
+                        renderThongKeTable();
+                    }
+                }).withFailureHandler(err => {
+                    window.hideGlobalLoading();
+                    console.error(err);
+                }).getThuThuat(my);
+            } else {
+                window.hideGlobalLoading();
+                thongKeData = {};
+                renderThongKeTable();
+                alert("Tính năng thống kê theo quý/tùy chọn đang được cập nhật!");
+            }
+        }
+
+        function renderThongKeTable() {
+            const tbody = document.getElementById('thongke-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
+            adminChamCongEmployees.forEach(emp => {
+                const tr = document.createElement('tr');
+                const t = thongKeData[emp] || { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+                
+                let tongCong = 0;
+                if (chamCongData[emp]) {
+                    const daysInMonth = new Date(getChamCongMonthYear().split('-')[0], getChamCongMonthYear().split('-')[1], 0).getDate();
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        tongCong += calcDayValue(chamCongData[emp][d] || '');
+                    }
+                    const heSo = chamCongData[emp].heSo !== undefined ? parseFloat(chamCongData[emp].heSo) : 1.0;
+                    tongCong = Math.round((tongCong * heSo) * 100) / 100;
+                }
+
+                const totalThuThuat = (t.loai1 || 0) + (t.loai2 || 0) + (t.loai3 || 0) + (t.khac || 0);
+
+                tr.innerHTML = `
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${emp}</strong></td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; color: #2980b9; font-weight: bold; font-size: 1.1rem;">${tongCong}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai1 || 0}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai2 || 0}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai3 || 0}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; color: #7f8c8d;">${t.khac || 0}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #27ae60;">${totalThuThuat}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Init Excel Uploader for Thống Kê
+        document.getElementById('excel-file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            window.showGlobalLoading("Đang đọc file Excel...");
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const dataRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", defval: "", blankrows: true });
+
+                    processThuThuatExcelData(dataRows);
+                } catch (err) {
+                    console.error(err);
+                    alert("Có lỗi khi đọc file Excel.");
+                } finally {
+                    window.hideGlobalLoading();
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            e.target.value = '';
+        });
+
+        function processThuThuatExcelData(dataRows) {
+            tempThuThuatData = {};
+            adminChamCongEmployees.forEach(emp => {
+                tempThuThuatData[emp] = { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+            });
+
+            for (let i = 0; i < dataRows.length; i++) {
+                const row = dataRows[i];
+                if (!row) continue;
+
+                const loaiTT = row['AN'];
+                let rawEmpName = row['AT'];
+
+                if (!rawEmpName) continue;
+                rawEmpName = String(rawEmpName).trim();
+                if (!rawEmpName) continue;
+                
+                const rawEmpNameNormalized = rawEmpName.normalize('NFC').toLowerCase();
+                if (rawEmpNameNormalized.includes('thủ thuật viên') || rawEmpNameNormalized.includes('tên nhân viên')) continue;
+
+                let matchedEmp = null;
+                for (const emp of adminChamCongEmployees) {
+                    const staff = adminChamCongStaffConfig[emp] || { keys: [emp.toLowerCase()] };
+                    if (staff.keys && staff.keys.includes(rawEmpNameNormalized)) {
+                        matchedEmp = emp;
+                        break;
+                    }
+                }
+                
+                if (!matchedEmp) continue;
+
+                if (loaiTT) {
+                    const strLoai = String(loaiTT).normalize('NFC').toLowerCase();
+                    if (strLoai.includes('loại 1')) {
+                        tempThuThuatData[matchedEmp].loai1++;
+                    } else if (strLoai.includes('loại 2')) {
+                        tempThuThuatData[matchedEmp].loai2++;
+                    } else if (strLoai.includes('loại 3')) {
+                        tempThuThuatData[matchedEmp].loai3++;
+                    } else {
+                        tempThuThuatData[matchedEmp].khac++;
+                    }
+                } else {
+                    tempThuThuatData[matchedEmp].khac++;
+                }
+            }
+
+            renderPreviewThuThuatTable();
+        }
+
+        function renderPreviewThuThuatTable() {
+            const tbody = document.getElementById('preview-thuthuat-body');
+            tbody.innerHTML = '';
+            
+            adminChamCongEmployees.forEach(emp => {
+                const t = tempThuThuatData[emp];
+                if (!t) return;
+                const totalThuThuat = t.loai1 + t.loai2 + t.loai3 + t.khac;
+                if (totalThuThuat === 0) return;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${emp}</strong></td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai1}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai2}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai3}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; color: #7f8c8d;">${t.khac}</td>
+                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #27ae60;">${totalThuThuat}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('main-thongke-container').style.display = 'none';
+            document.getElementById('preview-section').style.display = 'block';
+        }
+
+        document.getElementById('btn-submit-thuthuat').addEventListener('click', () => {
+            if (!tempThuThuatData) return;
+            thongKeData = tempThuThuatData;
+            tempThuThuatData = null;
+
+            document.getElementById('preview-section').style.display = 'none';
+            document.getElementById('main-thongke-container').style.display = 'flex';
+
+            renderThongKeTable();
+            saveThuThuatToServer();
+        });
+
+        function saveThuThuatToServer() {
+            const my = getChamCongMonthYear();
+            window.showGlobalLoading("Đang lưu dữ liệu thủ thuật...");
+            google.script.run.withSuccessHandler(() => {
+                window.hideGlobalLoading();
+                alert("Đã lưu dữ liệu thủ thuật lên máy chủ!");
+            }).withFailureHandler((err) => {
+                window.hideGlobalLoading();
+                console.error(err);
+                alert("Lỗi khi lưu dữ liệu thủ thuật!");
+            }).saveThuThuat(my, thongKeData);
+        }
+
+        document.getElementById('thongke-mode').addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                document.getElementById('custom-range-picker-container').style.display = 'flex';
+            } else {
+                document.getElementById('custom-range-picker-container').style.display = 'none';
+                loadThongKeData();
+            }
+        });
+
+        document.getElementById('btn-export-excel').addEventListener('click', () => {
+            alert("Tính năng Xuất Báo Cáo đang được cập nhật!");
+        });
+
+        document.getElementById('btn-export-thuc-linh').addEventListener('click', () => {
+            alert("Tính năng Xuất Thực Lĩnh đang được cập nhật!");
+        });
+
+        function exportChamCongExcel() {
+            alert("Tính năng Xuất Chấm Công đang được cập nhật!");
+        }
+
+        // Event for month/year change in Cham Cong
+        document.getElementById('chamcong-month-picker').addEventListener('change', () => {
+            loadChamCongData();
+            const mode = document.getElementById('thongke-mode').value;
+            if (mode === 'current') loadThongKeData();
+        });
+        document.getElementById('chamcong-year-picker').addEventListener('change', () => {
+            loadChamCongData();
+            const mode = document.getElementById('thongke-mode').value;
+            if (mode === 'current') loadThongKeData();
+        });
+
+        document.querySelectorAll('.nav-tab').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetTab = btn.getAttribute('data-tab');
+                if (targetTab === 'tab-chamcong') {
+                    if (adminChamCongEmployees.length === 0) loadAdminChamCongData();
+                    else loadChamCongData();
+                } else if (targetTab === 'tab-thongke') {
+                    if (adminChamCongEmployees.length === 0) loadAdminChamCongData();
+                    else loadThongKeData();
+                }
+            });
+        });
 
     </script>
 </body>
