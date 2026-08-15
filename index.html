@@ -5623,7 +5623,7 @@
                                 <i class="far fa-file-alt" style="font-size: 16px;"></i> Chọn File Kiểm Tra
                                 <input type="file" id="error-file-input" accept=".xlsx, .xls" style="display: none;">
                             </label>
-                            <span id="error-file-name" style="font-size: 13px; color: #555; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">Chưa chọn file (Lich_YLenh)</span>
+
                         </div>
                     </div>
 
@@ -13931,12 +13931,9 @@
             
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                const fileNameSpan = document.getElementById('error-file-name');
                 if (!file) {
-                    if (fileNameSpan) fileNameSpan.innerText = 'Chưa chọn file (Lich_YLenh)';
                     return;
                 }
-                if (fileNameSpan) fileNameSpan.innerText = file.name;
 
                 const timeTbody = document.getElementById('error-time-body');
                 const otherTbody = document.getElementById('error-other-body');
