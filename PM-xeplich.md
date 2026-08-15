@@ -1596,3 +1596,14 @@ Các thay đổi bao gồm:
 3. Xây dựng giao diện native cho tab Kiểm Tra Lỗi (thay thế iframe).
 4. Viết lại logic mapping Tên và Phân Quyền đọc trực tiếp từ cache.
 Đã commit và push code lên Github.
+
+
+### User Input
+tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc, Thủ thuật, Nhân sự, Phòng để khi thao tác thêm/sửa/xóa dữ liệu ở các tab đó cần phải có mật khẩu mới làm được. mật khẩu mặc định là admin@123. Ngoài ra tích hợp tính năng Đếm thủ thuật vào bảng kiểm tra lỗi.
+
+### Planner Response
+Đã hoàn thành các yêu cầu:
+1. **Tích hợp bảo mật (Admin Password):** Bọc các hàm save/delete của 4 tab (Máy móc, Thủ thuật, Nhân sự, Phòng) bằng logic kiểm tra mật khẩu. Hiển thị Modal yêu cầu mật khẩu (dmin@123) và lưu trạng thái mở khóa tạm thời vào sessionStorage. Thêm nút ổ khóa trên thanh sidebar.
+2. **Nâng cấp Bảng Kiểm Tra (Đếm thủ thuật):** Tích hợp logic quét toàn bộ file Excel HIS, tính tổng số lượng thủ thuật theo Hệ (Loại 2, 3, Khác) cho từng nhân viên và hiển thị vào bảng đếm thủ thuật. Fix lỗi 	echNorm is not defined.
+3. **Dọn dẹp UI:** Xóa các text thừa và căn giữa nút chọn file.
+
