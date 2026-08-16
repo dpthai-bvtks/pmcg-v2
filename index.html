@@ -622,28 +622,6 @@
 
 
 
-        .sidebar-footer {
-
-            flex-shrink: 0;
-
-            width: 100%;
-
-            padding: 6px 0;
-
-            border-top: 1px solid #e5e7eb;
-
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: center;
-
-            background: #f4f6f8;
-
-        }
-
-
-
         .group-title {
 
             display: none;
@@ -798,12 +776,6 @@
 
             }
 
-            .sidebar-footer {
-
-                padding: 4px 0;
-
-            }
-
         }
 
 
@@ -834,12 +806,6 @@
 
             }
 
-            .sidebar-footer {
-
-                padding: 3px 0;
-
-            }
-
         }
 
 
@@ -867,12 +833,6 @@
                 gap: 1px;
 
                 padding: 3px 0;
-
-            }
-
-            .sidebar-footer {
-
-                padding: 2px 0;
 
             }
 
@@ -4505,12 +4465,6 @@
                 <button class="nav-tab" data-tab="tab-chamcong"><span class="icon">📅</span><span class="text">Bảng Chấm Công</span></button>
                 <button class="nav-tab" data-tab="tab-thongke"><span class="icon">📈</span><span class="text">Thống Kê Tổng Hợp</span></button>
 
-            </div>
-
-            <div class="sidebar-footer">
-                <button class="nav-tab" id="lock-toggle-btn" onclick="toggleAdminLock()" style="background: transparent;">
-                    <span class="icon" id="lock-icon">🔒</span><span class="text" id="lock-text">Đang Khóa</span>
-                </button>
             </div>
 
         </aside>
@@ -14446,6 +14400,18 @@
 
                 }
 
+                if (targetTab === 'tab-chamcong') {
+
+                    if (typeof loadChamCongData === 'function') loadChamCongData();
+
+                }
+
+                if (targetTab === 'tab-thongke') {
+
+                    if (typeof loadThongKeData === 'function') loadThongKeData();
+
+                }
+
             }
 
         });
@@ -15068,79 +15034,11 @@
     })();
     </script>
 
-    <!-- PASSWORD MODAL -->
-    <div id="password-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
-        <div class="modal-content" style="max-width: 350px; width: 90%; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;">
-            <h3 style="margin-top: 0; color: #2c3e50; font-size: 18px;">🔒 Yêu cầu Mật khẩu</h3>
-            <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 20px;">Bạn cần nhập mật khẩu để thao tác Thêm/Sửa/Xóa dữ liệu danh mục.</p>
-            <input type="password" id="admin-password-input" placeholder="Nhập mật khẩu..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; font-size: 16px; box-sizing: border-box;" onkeypress="if(event.key === 'Enter') submitAdminPassword()">
-            <div id="password-error" style="color: #e74c3c; font-size: 13px; margin-bottom: 15px; display: none;">Mật khẩu không đúng!</div>
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-                <button onclick="closePasswordModal()" style="padding: 8px 20px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1;">Hủy</button>
-                <button onclick="submitAdminPassword()" style="padding: 8px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1;">Xác nhận</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        let isAppUnlocked = sessionStorage.getItem('isAppUnlocked') === 'true';
-        let pendingAdminAction = null;
-
-        function toggleAdminLock() {
-            isAppUnlocked = !isAppUnlocked;
-            sessionStorage.setItem('isAppUnlocked', isAppUnlocked);
-            updateLockIcon();
-        }
-
-        function updateLockIcon() {
-            const icon = document.getElementById('lock-icon');
-            const text = document.getElementById('lock-text');
-            if (icon && text) {
-                if (isAppUnlocked) {
-                    icon.innerText = '🔓';
-                    text.innerText = 'Đã Mở';
-                } else {
-                    icon.innerText = '🔒';
-                    text.innerText = 'Đang Khóa';
-                }
-            }
-        }
-
         function requireAdminPassword(callback) {
-            if (isAppUnlocked) {
-                return true;
-            } else {
-                pendingAdminAction = callback;
-                document.getElementById('password-modal').style.display = 'flex';
-                document.getElementById('admin-password-input').value = '';
-                document.getElementById('password-error').style.display = 'none';
-                setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
-                return false;
-            }
+            if (callback) callback();
+            return true;
         }
-
-        function closePasswordModal() {
-            document.getElementById('password-modal').style.display = 'none';
-            pendingAdminAction = null;
-        }
-
-        function submitAdminPassword() {
-            const input = document.getElementById('admin-password-input').value;
-            if (input === 'admin@123') {
-                isAppUnlocked = true;
-                sessionStorage.setItem('isAppUnlocked', 'true');
-                updateLockIcon();
-                closePasswordModal();
-                if (pendingAdminAction) {
-                    pendingAdminAction();
-                    pendingAdminAction = null;
-                }
-            } else {
-                document.getElementById('password-error').style.display = 'block';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', updateLockIcon);
     </script>
     
     <!-- MODAL QUẢN LÝ NHÂN SỰ CHẤM CÔNG -->
@@ -15732,42 +15630,67 @@
             }
         }
 
+        function fetchSingleMonthData(my) {
+            return new Promise((resolve) => {
+                let monthRes = { chamcong: {}, thuthuat: {} };
+                google.script.run.withSuccessHandler(resCC => {
+                    if (resCC && resCC.status === 'success' && resCC.data) monthRes.chamcong = resCC.data;
+                    else if (resCC && typeof resCC === 'object' && !resCC.status) monthRes.chamcong = resCC;
+                    
+                    google.script.run.withSuccessHandler(resTT => {
+                        if (resTT && resTT.status === 'success' && resTT.data) monthRes.thuthuat = resTT.data;
+                        else if (resTT && typeof resTT === 'object' && !resTT.status) monthRes.thuthuat = resTT;
+                        resolve({ month: my, data: monthRes });
+                    }).withFailureHandler(() => {
+                        resolve({ month: my, data: monthRes });
+                    }).getThongKeThuThuat(my);
+                }).withFailureHandler(() => {
+                    google.script.run.withSuccessHandler(resTT => {
+                        if (resTT && resTT.status === 'success' && resTT.data) monthRes.thuthuat = resTT.data;
+                        else if (resTT && typeof resTT === 'object' && !resTT.status) monthRes.thuthuat = resTT;
+                        resolve({ month: my, data: monthRes });
+                    }).withFailureHandler(() => {
+                        resolve({ month: my, data: monthRes });
+                    }).getThongKeThuThuat(my);
+                }).getChamCong(my);
+            });
+        }
+
         function fetchMultiMonthsData(months, label) {
             window.showGlobalLoading("Đang tổng hợp dữ liệu " + label + "...");
-            google.script.run.withSuccessHandler(res => {
+            
+            Promise.all(months.map(my => fetchSingleMonthData(my))).then(results => {
                 window.hideGlobalLoading();
                 let mergedChamCong = {};
                 let mergedThuThuat = {};
 
-                if (res && res.status === 'success' && res.data) {
-                    months.forEach(my => {
-                        const mData = res.data[my] || {};
-                        const cc = mData.chamcong || {};
-                        const tt = mData.thuthuat || {};
+                results.forEach(item => {
+                    const mData = item.data || {};
+                    const cc = mData.chamcong || {};
+                    const tt = mData.thuthuat || {};
 
-                        // Gộp chấm công
-                        Object.keys(cc).forEach(emp => {
-                            if (!mergedChamCong[emp]) mergedChamCong[emp] = 0;
-                            let rawCong = 0;
-                            Object.keys(cc[emp]).forEach(key => {
-                                if (key !== 'heSo') {
-                                    rawCong += calcDayValue(cc[emp][key]);
-                                }
-                            });
-                            const heSo = cc[emp].heSo !== undefined ? parseFloat(cc[emp].heSo) : 1.0;
-                            mergedChamCong[emp] += Math.round((rawCong * heSo) * 100) / 100;
+                    // Gộp chấm công
+                    Object.keys(cc).forEach(emp => {
+                        if (!mergedChamCong[emp]) mergedChamCong[emp] = 0;
+                        let rawCong = 0;
+                        Object.keys(cc[emp]).forEach(key => {
+                            if (key !== 'heSo') {
+                                rawCong += calcDayValue(cc[emp][key]);
+                            }
                         });
-
-                        // Gộp thủ thuật
-                        Object.keys(tt).forEach(emp => {
-                            if (!mergedThuThuat[emp]) mergedThuThuat[emp] = { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
-                            mergedThuThuat[emp].loai1 += (tt[emp].loai1 || 0);
-                            mergedThuThuat[emp].loai2 += (tt[emp].loai2 || 0);
-                            mergedThuThuat[emp].loai3 += (tt[emp].loai3 || 0);
-                            mergedThuThuat[emp].khac += (tt[emp].khac || 0);
-                        });
+                        const heSo = cc[emp].heSo !== undefined ? parseFloat(cc[emp].heSo) : 1.0;
+                        mergedChamCong[emp] += Math.round((rawCong * heSo) * 100) / 100;
                     });
-                }
+
+                    // Gộp thủ thuật
+                    Object.keys(tt).forEach(emp => {
+                        if (!mergedThuThuat[emp]) mergedThuThuat[emp] = { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+                        mergedThuThuat[emp].loai1 += (tt[emp].loai1 || 0);
+                        mergedThuThuat[emp].loai2 += (tt[emp].loai2 || 0);
+                        mergedThuThuat[emp].loai3 += (tt[emp].loai3 || 0);
+                        mergedThuThuat[emp].khac += (tt[emp].khac || 0);
+                    });
+                });
 
                 thongKeQuarterData.chamcong = mergedChamCong;
                 thongKeQuarterData.thuthuat = mergedThuThuat;
@@ -15786,11 +15709,11 @@
                 } else {
                     renderThongKeTable();
                 }
-            }).withFailureHandler(err => {
+            }).catch(err => {
                 window.hideGlobalLoading();
                 console.error(err);
                 alert("Lỗi khi tải dữ liệu tổng hợp: " + err);
-            }).getMultipleMonthsData(months);
+            });
         }
 
         function renderThongKeTable() {

@@ -39,7 +39,8 @@ const USER_ACTIONS = [
   'getChamCong',
   'getThongKeThuThuat',
   'getEmployees',
-  'getErrorConfig'
+  'getErrorConfig',
+  'getMultipleMonthsData'
 ];
 
 const ADMIN_ACTIONS = [
@@ -57,7 +58,8 @@ const ADMIN_ACTIONS = [
   'getChamCong', 'saveChamCong',
   'getThongKeThuThuat', 'saveThongKeThuThuat',
   'getEmployees', 'saveEmployees',
-  'getErrorConfig', 'saveErrorConfig'
+  'getErrorConfig', 'saveErrorConfig',
+  'getMultipleMonthsData'
 ];
 
 const ALL_ACTIONS = [...PUBLIC_ACTIONS, ...USER_ACTIONS, ...ADMIN_ACTIONS];

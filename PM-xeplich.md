@@ -1644,3 +1644,20 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   3. **Responsive co giãn thông minh theo chiều cao (Media Queries):** Bổ sung các mốc `@media (max-height: 850px)`, `@media (max-height: 750px)`, `@media (max-height: 650px)` tự động thu gọn kích thước icon và nút tab từ 46px -> 42px -> 38px -> 34px. Giúp toàn bộ 13 tab và nút Khóa tự động hiển thị vừa khít trên hầu hết các dòng máy tính và laptop mà không cần phải cuộn, hoặc chỉ cần cuộn rất nhẹ.
   4. **Tối ưu Tooltip khi cuộn:** Lắng nghe sự kiện cuộn trên menu thanh bên để tự động ẩn tooltip trôi, tránh hiện tượng chữ tooltip bị lệch vị trí.
   5. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.
+
+### Phiên làm việc (Gỡ bỏ nút Khóa thừa, tự động mở Bảng Chấm Công, sửa lỗi Thống Kê theo Quý / Tùy chọn)
+- **Yêu cầu:**
+  1. Gỡ bỏ hoàn toàn nút Khóa ở chân thanh bên (vì tính năng khóa trước đây đã bỏ).
+  2. Khi vào tab Bảng chấm công thì hiển thị ngay bảng công mà không cần người dùng phải bấm "Xem".
+  3. Sửa lỗi khi xem báo cáo theo quý / tùy chọn ở tab Thống kê báo lỗi "Hàm API không tồn tại hoặc không hợp lệ: getMultipleMonthsData".
+- **Nguyên nhân:**
+  1. Nút Khóa và modal mật khẩu cũ vẫn còn tồn tại trong thanh bên.
+  2. Tab Bảng chấm công trước đây chỉ tải dữ liệu khi có sự kiện click cụ thể, khi đổi hash router chưa kích hoạt tải tự động.
+  3. Hàm `getMultipleMonthsData` chưa được khai báo trong mảng `USER_ACTIONS` / `ADMIN_ACTIONS` của backend `code.gs-v2.txt`, đồng thời nếu backend trên Apps Script chưa deploy lại thì client gọi hàm này sẽ bị báo lỗi không tồn tại.
+- **Giải pháp:**
+  1. **Gỡ bỏ nút Khóa và modal mật khẩu:** Xóa hoàn toàn `.sidebar-footer`, nút `#lock-toggle-btn` và `#password-modal`. Giúp thanh bên gọn gàng và toàn bộ 13 tab hiển thị rộng rãi, chuẩn xác.
+  2. **Tự động tải & hiển thị Bảng Chấm Công:** Bổ sung `loadChamCongData()` vào router `handleHashChange` và click tab, tự động tải dữ liệu nhân sự + dữ liệu công tháng hiện tại từ Google Drive và vẽ bảng đầy đủ ngay lập tức.
+  3. **Khắc phục triệt để lỗi Thống Kê theo Quý / Tùy chọn:**
+     - Triển khai cơ chế tải song song `Promise.all` ở phía client gọi trực tiếp `getChamCong(tháng)` và `getThongKeThuThuat(tháng)` (các API đã sẵn sàng và hoạt động ổn định), sau đó tự động tổng hợp dữ liệu toàn bộ quý/khoảng thời gian. Nhờ đó chạy mượt mà ngay cả khi backend chưa re-deploy.
+     - Đồng thời bổ sung `getMultipleMonthsData` vào `USER_ACTIONS` và `ADMIN_ACTIONS` trong [code.gs-v2.txt](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/code.gs-v2.txt).
+  4. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.
