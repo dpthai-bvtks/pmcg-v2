@@ -1674,20 +1674,27 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
      - Khi mở bảng hoặc chuyển tháng, hệ thống tự động cuộn mượt mà đưa ngày hôm nay về nằm ngay sát cạnh cột Hệ số, các ngày trước đó được cuộn trôi vào dưới 2 cột cố định giúp người dùng lập tức nhìn thấy ngay ngày hôm nay và các ngày kế tiếp mà không cần phải cuộn tay tìm kiếm.
   3. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.
 
-### Phiên làm việc (Hoàn thiện 3 tính năng Xuất Excel: Bảng Chấm Công, Báo Cáo Thống Kê, Bảng Thực Lĩnh)
-- **Yêu cầu:** Tính năng xuất file bảng chấm công, xuất file báo cáo, xuất file thực lĩnh chưa hoạt động (trước đây chỉ hiện thông báo alert tạm thời).
-- **Giải pháp triển khai (sử dụng thư viện ExcelJS chạy trực tiếp trên trình duyệt):**
-  1. **Xuất file Bảng Chấm Công (`exportChamCongExcel`):**
-     - Tạo file `Bang_Cham_Cong_Thang_MM_YYYY.xlsx` chuyên nghiệp theo chuẩn y tế.
-     - Header 2 tầng: Dòng 1 ghi ngày 1..31, Dòng 2 ghi thứ trong tuần (T2..CN).
-     - Đầy đủ thông tin: STT, Họ và tên, Hệ số, toàn bộ các ngày chấm công trong tháng (tô màu vàng cho ngày Chủ nhật và hiển thị chữ 'Nghỉ'), Tổng công đã nhân hệ số.
-     - Có hàng Tổng cộng toàn khoa và 3 vị trí chữ ký ở cuối bảng: *Người lập biểu*, *Trưởng khoa*, *Giám đốc*.
-  2. **Xuất file Báo Cáo Thống Kê Thủ Thuật (`exportThongKeExcel`):**
-     - Tạo file `Bao_Cao_Thong_Ke_Thu_Thuat_{Thời_Gian}.xlsx` theo chế độ đang xem (Tháng hiện tại, Quý I/II/III/IV, hoặc Khoảng thời gian tùy chọn).
-     - Bao gồm các cột: STT, Họ và tên nhân viên, Tổng số công, Thủ thuật Loại 1, Loại 2, Loại 3, Khác, Tổng số thủ thuật.
-     - Tự động cộng tổng toàn khoa ở hàng cuối, kèm chữ ký *Người lập biểu* & *Trưởng khoa*.
-  3. **Xuất file Bảng Thực Lĩnh (`exportThucLinhExcel`):**
-     - Tạo file `Bang_Thuc_Linh_{Thời_Gian}.xlsx` phục vụ phân chia thù lao/tính lương thủ thuật.
-     - Đầy đủ 12 cột: STT, Họ và tên, Hệ số, Ngày công, TT Loại 1, TT Loại 2, TT Loại 3, TT Khác, Tổng TT, Điểm quy đổi, Tổng thực lĩnh, Cột Ký nhận.
-     - Định dạng màu hổ phách sang trọng, có hàng Tổng cộng và 4 vị trí chữ ký: *Người lập biểu*, *Kế toán*, *Trưởng khoa*, *Giám đốc*.
-  4. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.
+### Phiên làm việc (Cấu hình Đơn giá Thủ thuật & Đồng bộ Xuất Báo Cáo, Xuất Thực Lĩnh chuẩn phần mềm cũ)
+- **Yêu cầu:** Xem lại chức năng xuất báo cáo và xuất thực lĩnh ở phần mềm cũ (`D:\PM-DPT\PM-quanlykhoa`), thêm cấu hình đơn giá thủ thuật (VNĐ) theo ảnh giao diện và chỉnh lại phần mềm mới cho đúng 100%.
+- **Giải pháp triển khai:**
+  1. **Thêm Card "Cấu Hình Đơn Giá Thủ Thuật (VNĐ)":**
+     - Đặt tại 2 vị trí thuận tiện: Trong Tab Quản trị Nhân Sự & Cài Đặt và nút bật/tắt nhanh ngay trên thanh công cụ Tab Thống Kê.
+     - Chia 2 nhóm đơn giá đúng chuẩn:
+       - **Giá cũ (Trước 15/07/2026):** Loại 1 = `37.500đ`, Loại 2 = `19.500đ`, Loại 3 = `15.000đ`.
+       - **Giá mới (Từ 15/07/2026 trở đi):** Loại 1 = `75.000đ`, Loại 2 = `39.000đ`, Loại 3 = `30.000đ`.
+     - Nút **"Lưu Đơn Giá"** màu Cyan `#00bcd4` lưu trực tiếp vào `localStorage` (`med_price_old_l1..l3`, `med_price_l1..l3`) và đồng bộ 2 chiều tức thì.
+  2. **Nâng cấp Xử lý Nạp File Thủ Thuật (HIS):**
+     - Khi nạp file Excel HIS, hệ thống đọc cột `AH` / `Ngày giờ làm PTTT` để phân định chính xác số ca làm trước ngày 15/07/2026 (`loai1_old`, `loai2_old`, `loai3_old`) và từ 15/07/2026 trở đi (`loai1_new`, `loai2_new`, `loai3_new`).
+  3. **Xuất Báo Cáo (`exportThongKeExcel`) chuẩn file `mau-bang-tien.xlsx` cũ (Full 3 Sheet):**
+     - **Sheet 1 (`Bảng Tiền Chi Tiết`):** STT, Họ và tên, TT Loại 1 (SL), Thành tiền L1, TT Loại 2 (SL), Thành tiền L2, TT Loại 3 (SL), Thành tiền L3, Tổng tiền (VNĐ). Có hàng Tổng cộng toàn khoa, dòng đọc tiền bằng chữ chuẩn y tế, chữ ký Người lập biểu & Trưởng khoa.
+     - **Sheet 2 (`Tổng Hợp Loại TT`):** Bảng tổng kết số lượng và thành tiền theo từng loại thủ thuật (Loại 1, 2, 3) và Tổng cộng.
+     - **Sheet 3 (`Bảng Thanh Toán`):** Bảng thanh toán tiền thủ thuật từng nhân viên và cột Ký nhận.
+  4. **Xuất Thực Lĩnh (`exportThucLinhExcel`) chuẩn file `mau-thuc-linh.xlsx` cũ:**
+     - Công thức phân chia thù lao chuẩn:
+       - Trích **50%** tiền thủ thuật thực tế vào quỹ phân chia.
+       - Tính số tiền trên 1 ngày công: `moneyPerDay = Tổng quỹ 50% / Tổng ngày công hệ số cả khoa`.
+       - `Thực Lĩnh = moneyPerDay * Ngày công hệ số của nhân viên`.
+       - `Chênh lệch (Trả / Nhận) = Thực Lĩnh - Tiền TT (50%)`.
+     - Đầy đủ 7 cột: STT, Họ và tên, Tiền thủ thuật (50%), Ngày công (Hệ số), Thực lĩnh (VNĐ), Chênh lệch (Trả / Nhận), Ký nhận.
+     - Hàng Tổng cộng cân đối 100% quỹ (Chênh lệch = 0), dòng ghi đơn giá công, dòng đọc tiền bằng chữ và 4 chữ ký: *Người lập biểu*, *Kế toán*, *Trưởng khoa*, *Giám đốc*.
+  5. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi**) và đẩy code lên nhánh `main`.

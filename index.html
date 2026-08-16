@@ -6474,6 +6474,50 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                <!-- CẤU HÌNH ĐƠN GIÁ THỦ THUẬT (VNĐ) CHUẨN ẢNH -->
+                                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px;">
+                                    <h4 style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                        <i class='bx bx-money' style="color: #0284c7; font-size: 22px;"></i> Cấu Hình Đơn Giá Thủ Thuật (VNĐ)
+                                    </h4>
+                                    
+                                    <div style="margin-bottom: 18px;">
+                                        <h5 style="margin: 0 0 10px 0; color: #334155; font-size: 14px; font-weight: 700;">Giá cũ (Trước 15/07/2026)</h5>
+                                        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 1</label>
+                                                <input type="number" id="price-old-l1" value="37500" class="input-price-sync" data-target="price-old-l1" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 2</label>
+                                                <input type="number" id="price-old-l2" value="19500" class="input-price-sync" data-target="price-old-l2" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 3</label>
+                                                <input type="number" id="price-old-l3" value="15000" class="input-price-sync" data-target="price-old-l3" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h5 style="margin: 0 0 10px 0; color: #334155; font-size: 14px; font-weight: 700;">Giá mới (Từ 15/07/2026 trở đi)</h5>
+                                        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 1</label>
+                                                <input type="number" id="price-l1" value="75000" class="input-price-sync" data-target="price-l1" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 2</label>
+                                                <input type="number" id="price-l2" value="39000" class="input-price-sync" data-target="price-l2" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 3</label>
+                                                <input type="number" id="price-l3" value="30000" class="input-price-sync" data-target="price-l3" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                            </div>
+                                            <button class="btn btn-success" id="btn-save-prices" onclick="saveProcedurePrices()" style="background: #00bcd4; border: none; padding: 0 24px; height: 38px; border-radius: 8px; font-weight: 600; font-size: 14px; color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,188,212,0.3); transition: all 0.2s;">
+                                                Lưu Đơn Giá
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- BẢNG KÝ HIỆU CHẤM CÔNG (CHUẨN PM CŨ THEO ẢNH) -->
@@ -6563,7 +6607,7 @@
                             </div>
                         </div>
                         
-                        <div style="display: flex; gap: 10px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <input type="file" id="excel-file-input" accept=".xlsx, .xls" hidden>
                             <button class="btn btn-success" onclick="document.getElementById('excel-file-input').click()">
                                 <i class='bx bx-upload'></i> Nạp File Thủ Thuật (HIS)
@@ -6574,6 +6618,58 @@
                             <button class="btn btn-warning" id="btn-export-thuc-linh" style="background-color: #f39c12; border-color: #f39c12; color: #fff;">
                                 <i class='bx bx-calculator'></i> Xuất Thực Lĩnh
                             </button>
+                            <button class="btn btn-secondary" id="btn-toggle-price-config" onclick="toggleThongKePriceConfig()" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+                                <i class='bx bx-cog'></i> Cấu Hình Đơn Giá
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CARD CẤU HÌNH ĐƠN GIÁ THỦ THUẬT (TRONG TAB THỐNG KÊ) -->
+                    <div id="thongke-price-config-card" style="display: none; background: #ffffff; border: 1px solid #bae6fd; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                <i class='bx bx-money' style="color: #0284c7; font-size: 22px;"></i> Cấu Hình Đơn Giá Thủ Thuật (VNĐ)
+                            </h4>
+                            <button onclick="toggleThongKePriceConfig()" style="background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b;">✕</button>
+                        </div>
+                        
+                        <div style="margin-bottom: 18px;">
+                            <h5 style="margin: 0 0 10px 0; color: #334155; font-size: 14px; font-weight: 700;">Giá cũ (Trước 15/07/2026)</h5>
+                            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 1</label>
+                                    <input type="number" id="tk-price-old-l1" value="37500" class="input-price-sync" data-target="price-old-l1" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 2</label>
+                                    <input type="number" id="tk-price-old-l2" value="19500" class="input-price-sync" data-target="price-old-l2" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 3</label>
+                                    <input type="number" id="tk-price-old-l3" value="15000" class="input-price-sync" data-target="price-old-l3" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h5 style="margin: 0 0 10px 0; color: #334155; font-size: 14px; font-weight: 700;">Giá mới (Từ 15/07/2026 trở đi)</h5>
+                            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 1</label>
+                                    <input type="number" id="tk-price-l1" value="75000" class="input-price-sync" data-target="price-l1" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 2</label>
+                                    <input type="number" id="tk-price-l2" value="39000" class="input-price-sync" data-target="price-l2" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 3</label>
+                                    <input type="number" id="tk-price-l3" value="30000" class="input-price-sync" data-target="price-l3" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
+                                </div>
+                                <button class="btn btn-success" onclick="saveProcedurePrices()" style="background: #00bcd4; border: none; padding: 0 24px; height: 38px; border-radius: 8px; font-weight: 600; font-size: 14px; color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,188,212,0.3); transition: all 0.2s;">
+                                    Lưu Đơn Giá
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -15865,8 +15961,15 @@
         function processThuThuatExcelData(dataRows) {
             tempThuThuatData = {};
             adminChamCongEmployees.forEach(emp => {
-                tempThuThuatData[emp] = { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+                tempThuThuatData[emp] = { 
+                    loai1: 0, loai2: 0, loai3: 0, khac: 0,
+                    loai1_old: 0, loai1_new: 0,
+                    loai2_old: 0, loai2_new: 0,
+                    loai3_old: 0, loai3_new: 0
+                };
             });
+
+            const changeDate = new Date(2026, 6, 15); // 15/07/2026
 
             for (let i = 0; i < dataRows.length; i++) {
                 const row = dataRows[i];
@@ -15895,12 +15998,51 @@
 
                 if (loaiTT) {
                     const strLoai = String(loaiTT).normalize('NFC').toLowerCase();
+                    let isNewPrice = true;
+                    let dateStr = row['AH'] || row['Ngày giờ làm PTTT'] || '';
+                    if (dateStr !== '') {
+                        if (typeof dateStr === 'number' || !isNaN(Number(dateStr))) {
+                            const excelDays = Number(dateStr);
+                            const jsDate = new Date(Math.round((excelDays - 25569) * 86400 * 1000));
+                            isNewPrice = jsDate >= changeDate;
+                        } else {
+                            const str = String(dateStr).trim();
+                            const match1 = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                            if (match1) {
+                                const day = parseInt(match1[1]);
+                                const month = parseInt(match1[2]);
+                                const year = parseInt(match1[3]);
+                                if (month > 12) {
+                                    const d = new Date(year, day - 1, month);
+                                    isNewPrice = d >= changeDate;
+                                } else {
+                                    const d = new Date(year, month - 1, day);
+                                    isNewPrice = d >= changeDate;
+                                }
+                            } else {
+                                const match2 = str.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+                                if (match2) {
+                                    const d = new Date(parseInt(match2[1]), parseInt(match2[2]) - 1, parseInt(match2[3]));
+                                    isNewPrice = d >= changeDate;
+                                } else {
+                                    const parsed = Date.parse(str);
+                                    if (!isNaN(parsed)) {
+                                        isNewPrice = new Date(parsed) >= changeDate;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (strLoai.includes('loại 1')) {
                         tempThuThuatData[matchedEmp].loai1++;
+                        if (isNewPrice) tempThuThuatData[matchedEmp].loai1_new++; else tempThuThuatData[matchedEmp].loai1_old++;
                     } else if (strLoai.includes('loại 2')) {
                         tempThuThuatData[matchedEmp].loai2++;
+                        if (isNewPrice) tempThuThuatData[matchedEmp].loai2_new++; else tempThuThuatData[matchedEmp].loai2_old++;
                     } else if (strLoai.includes('loại 3')) {
                         tempThuThuatData[matchedEmp].loai3++;
+                        if (isNewPrice) tempThuThuatData[matchedEmp].loai3_new++; else tempThuThuatData[matchedEmp].loai3_old++;
                     } else {
                         tempThuThuatData[matchedEmp].khac++;
                     }
@@ -15977,6 +16119,135 @@
         });
 
         // ==========================================
+        // CẤU HÌNH ĐƠN GIÁ THỦ THUẬT (VNĐ)
+        // ==========================================
+        function getProcedurePrices() {
+            return {
+                l1: parseInt(localStorage.getItem('med_price_l1')) || 75000,
+                l2: parseInt(localStorage.getItem('med_price_l2')) || 39000,
+                l3: parseInt(localStorage.getItem('med_price_l3')) || 30000,
+                l1_old: parseInt(localStorage.getItem('med_price_old_l1')) || 37500,
+                l2_old: parseInt(localStorage.getItem('med_price_old_l2')) || 19500,
+                l3_old: parseInt(localStorage.getItem('med_price_old_l3')) || 15000
+            };
+        }
+
+        function initPriceConfigUI() {
+            const p = getProcedurePrices();
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            };
+            setVal('price-old-l1', p.l1_old);
+            setVal('price-old-l2', p.l2_old);
+            setVal('price-old-l3', p.l3_old);
+            setVal('price-l1', p.l1);
+            setVal('price-l2', p.l2);
+            setVal('price-l3', p.l3);
+
+            setVal('tk-price-old-l1', p.l1_old);
+            setVal('tk-price-old-l2', p.l2_old);
+            setVal('tk-price-old-l3', p.l3_old);
+            setVal('tk-price-l1', p.l1);
+            setVal('tk-price-l2', p.l2);
+            setVal('tk-price-l3', p.l3);
+
+            // Gắn sự kiện đồng bộ 2 chiều giữa Tab Thống Kê và Tab Admin Cài Đặt
+            document.querySelectorAll('.input-price-sync').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const target = e.target.getAttribute('data-target');
+                    const val = e.target.value;
+                    document.querySelectorAll(`.input-price-sync[data-target="${target}"]`).forEach(other => {
+                        if (other !== e.target) other.value = val;
+                    });
+                });
+            });
+        }
+
+        function saveProcedurePrices() {
+            const getVal = (id, defaultVal) => {
+                const el = document.getElementById(id) || document.getElementById('tk-' + id);
+                return el ? parseInt(el.value) || defaultVal : defaultVal;
+            };
+
+            const l1_old = getVal('price-old-l1', 37500);
+            const l2_old = getVal('price-old-l2', 19500);
+            const l3_old = getVal('price-old-l3', 15000);
+            const l1 = getVal('price-l1', 75000);
+            const l2 = getVal('price-l2', 39000);
+            const l3 = getVal('price-l3', 30000);
+
+            localStorage.setItem('med_price_old_l1', l1_old);
+            localStorage.setItem('med_price_old_l2', l2_old);
+            localStorage.setItem('med_price_old_l3', l3_old);
+            localStorage.setItem('med_price_l1', l1);
+            localStorage.setItem('med_price_l2', l2);
+            localStorage.setItem('med_price_l3', l3);
+
+            initPriceConfigUI();
+            alert('Đã lưu cấu hình đơn giá thủ thuật thành công!');
+        }
+
+        function toggleThongKePriceConfig() {
+            const card = document.getElementById('thongke-price-config-card');
+            if (!card) return;
+            card.style.display = (card.style.display === 'none' || !card.style.display) ? 'block' : 'none';
+        }
+
+        // ==========================================
+        // ĐỌC TIỀN BẰNG CHỮ (CHUẨN VIỆT NAM)
+        // ==========================================
+        function readMoneyVietnamese(num) {
+            if (!num || num === 0) return "Không đồng chẵn.";
+            num = Math.round(num);
+            const units = ["", "nghìn", "triệu", "tỷ", "nghìn tỷ", "triệu tỷ"];
+            const textNumbers = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+
+            function readBlock(n, isFull) {
+                let text = "";
+                const c = Math.floor(n / 100);
+                const b = Math.floor((n % 100) / 10);
+                const a = n % 10;
+
+                if (isFull || c > 0) text += textNumbers[c] + " trăm ";
+                
+                if (b === 0) {
+                    if (a > 0 && (isFull || c > 0)) text += "lẻ ";
+                } else if (b === 1) {
+                    text += "mười ";
+                } else {
+                    text += textNumbers[b] + " mươi ";
+                }
+
+                if (a > 0) {
+                    if (b > 1 && a === 1) text += "mốt ";
+                    else if (b > 0 && a === 5) text += "lăm ";
+                    else text += textNumbers[a] + " ";
+                }
+                return text.trim();
+            }
+
+            let textStr = "";
+            let i = 0;
+            let pNum = num;
+            while (pNum > 0) {
+                let block = pNum % 1000;
+                let hasMore = Math.floor(pNum / 1000) > 0;
+                if (block > 0) {
+                    let str = readBlock(block, hasMore);
+                    textStr = str + " " + units[i] + " " + textStr;
+                } else if (hasMore && i === 3) {
+                    textStr = units[i] + " " + textStr;
+                }
+                pNum = Math.floor(pNum / 1000);
+                i++;
+            }
+
+            textStr = textStr.trim();
+            return textStr.charAt(0).toUpperCase() + textStr.slice(1) + " đồng chẵn.";
+        }
+
+        // ==========================================
         // XUẤT EXCEL: BẢNG CHẤM CÔNG, BÁO CÁO THỦ THUẬT, THỰC LĨNH
         // ==========================================
         function saveExcelBuffer(buffer, fileName) {
@@ -16000,21 +16271,65 @@
             const month = document.getElementById('chamcong-month-picker')?.value || '8';
             
             if (mode === 'current') {
-                return { label: `Tháng ${month} năm ${year}`, fileSuffix: `Thang_${month}_${year}` };
+                return { 
+                    label: `Tháng ${month} năm ${year}`, 
+                    titleStr: `THÁNG ${month} NĂM ${year}`,
+                    fileSuffix: `Thang_${month}_${year}`,
+                    year: parseInt(year),
+                    month: parseInt(month)
+                };
             } else if (mode === 'q1') {
-                return { label: `Quý I năm ${year} (Tháng 1 - 3)`, fileSuffix: `Quy_I_${year}` };
+                return { 
+                    label: `Quý I năm ${year} (Tháng 1 - 3)`, 
+                    titleStr: `QUÝ I NĂM ${year}`,
+                    fileSuffix: `Quy_I_${year}`,
+                    year: parseInt(year),
+                    month: 3
+                };
             } else if (mode === 'q2') {
-                return { label: `Quý II năm ${year} (Tháng 4 - 6)`, fileSuffix: `Quy_II_${year}` };
+                return { 
+                    label: `Quý II năm ${year} (Tháng 4 - 6)`, 
+                    titleStr: `QUÝ II NĂM ${year}`,
+                    fileSuffix: `Quy_II_${year}`,
+                    year: parseInt(year),
+                    month: 6
+                };
             } else if (mode === 'q3') {
-                return { label: `Quý III năm ${year} (Tháng 7 - 9)`, fileSuffix: `Quy_III_${year}` };
+                return { 
+                    label: `Quý III năm ${year} (Tháng 7 - 9)`, 
+                    titleStr: `QUÝ III NĂM ${year}`,
+                    fileSuffix: `Quy_III_${year}`,
+                    year: parseInt(year),
+                    month: 9
+                };
             } else if (mode === 'q4') {
-                return { label: `Quý IV năm ${year} (Tháng 10 - 12)`, fileSuffix: `Quy_IV_${year}` };
+                return { 
+                    label: `Quý IV năm ${year} (Tháng 10 - 12)`, 
+                    titleStr: `QUÝ IV NĂM ${year}`,
+                    fileSuffix: `Quy_IV_${year}`,
+                    year: parseInt(year),
+                    month: 12
+                };
             } else if (mode === 'custom') {
                 const startVal = document.getElementById('custom-start-date')?.value || `${year}-01`;
                 const endVal = document.getElementById('custom-end-date')?.value || `${year}-${String(month).padStart(2, '0')}`;
-                return { label: `Từ ${startVal} đến ${endVal}`, fileSuffix: `Tu_${startVal.replace('-', '_')}_Den_${endVal.replace('-', '_')}` };
+                const [startY, startM] = startVal.split('-');
+                const [endY, endM] = endVal.split('-');
+                return { 
+                    label: `Từ tháng ${startM}/${startY} đến tháng ${endM}/${endY}`, 
+                    titleStr: `TỪ THÁNG ${startM}/${startY} ĐẾN THÁNG ${endM}/${endY}`,
+                    fileSuffix: `Tu_${startM}_${startY}_Den_${endM}_${endY}`,
+                    year: parseInt(endY),
+                    month: parseInt(endM)
+                };
             }
-            return { label: `Tháng ${month} năm ${year}`, fileSuffix: `Thang_${month}_${year}` };
+            return { 
+                label: `Tháng ${month} năm ${year}`, 
+                titleStr: `THÁNG ${month} NĂM ${year}`,
+                fileSuffix: `Thang_${month}_${year}`,
+                year: parseInt(year),
+                month: parseInt(month)
+            };
         }
 
         function getEmpTotalCong(emp, isQuarter) {
@@ -16033,6 +16348,24 @@
                 }
                 const heSo = chamCongData[emp].heSo !== undefined ? parseFloat(chamCongData[emp].heSo) : 1.0;
                 return Math.round((sum * heSo) * 100) / 100;
+            }
+        }
+
+        function getEmpRawCong(emp, isQuarter) {
+            if (isQuarter) {
+                return (thongKeQuarterData.rawChamCong && thongKeQuarterData.rawChamCong[emp] !== undefined) 
+                    ? Math.round(thongKeQuarterData.rawChamCong[emp] * 100) / 100 
+                    : getEmpTotalCong(emp, isQuarter);
+            } else {
+                if (!chamCongData[emp]) return 0;
+                const my = getChamCongMonthYear();
+                const [year, month] = my.split('-');
+                const daysInMonth = new Date(year, month, 0).getDate();
+                let sum = 0;
+                for (let d = 1; d <= daysInMonth; d++) {
+                    sum += calcDayValue(chamCongData[emp][d] || '');
+                }
+                return Math.round(sum * 100) / 100;
             }
         }
 
@@ -16223,7 +16556,7 @@
 
             // Phần ký tên (Signatures)
             const sigRow = totalRowIdx + 2;
-            ws.getCell(sigRow, Math.max(1, totalCols - 5)).value = `..., ngày ... tháng ${month} năm ${year}`;
+            ws.getCell(sigRow, Math.max(1, totalCols - 5)).value = `Mạo Khê, ngày ... tháng ${month} năm ${year}`;
             ws.getCell(sigRow, Math.max(1, totalCols - 5)).font = { name: 'Times New Roman', size: 11, italic: true };
 
             const sigTitleRow = sigRow + 1;
@@ -16265,7 +16598,7 @@
             });
         }
 
-        // 2. Xuất file Báo Cáo Thống Kê Thủ Thuật
+        // 2. Xuất file Báo Cáo Thống Kê Thủ Thuật (Chuẩn 3 Sheet Phần Mềm Cũ)
         function exportThongKeExcel() {
             if (typeof ExcelJS === 'undefined') {
                 alert("Thư viện ExcelJS đang nạp, vui lòng thử lại sau giây lát!");
@@ -16279,40 +16612,40 @@
             const timeInfo = getThongKeTimeLabel();
             const isQ = (thongKeMode !== 'current');
             const sourceThuThuat = isQ ? thongKeQuarterData.thuthuat : thongKeData;
+            const prices = getProcedurePrices();
+
+            const isOldPeriod = (timeInfo.year < 2026 || (timeInfo.year === 2026 && timeInfo.month < 7));
 
             const workbook = new ExcelJS.Workbook();
             workbook.creator = 'T.I.M.E.S System - BVTKS CS2';
             workbook.created = new Date();
-            const ws = workbook.addWorksheet('Báo Cáo Thủ Thuật', {
-                views: [{ showGridLines: true }]
-            });
 
-            // Tiêu đề bệnh viện
-            ws.getCell('A1').value = 'BỆNH VIỆN THAN - KHOÁNG SẢN CS2';
-            ws.getCell('A1').font = { name: 'Times New Roman', size: 11, bold: true };
+            // ================= SHEET 1: BẢNG TỔNG HỢP CHI TIẾT =================
+            const ws1 = workbook.addWorksheet('Bảng Tiền Chi Tiết', { views: [{ showGridLines: true }] });
             
-            ws.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
-            ws.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
+            ws1.getCell('A1').value = 'BỆNH VIỆN THAN - KHOÁNG SẢN CS2';
+            ws1.getCell('A1').font = { name: 'Times New Roman', size: 11, bold: true };
+            
+            ws1.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
+            ws1.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
 
-            // Tiêu đề bảng
-            ws.mergeCells(4, 1, 4, 8);
-            const titleCell = ws.getCell(4, 1);
-            titleCell.value = 'BÁO CÁO THỐNG KÊ TỔNG HỢP THỦ THUẬT & CHẤM CÔNG';
-            titleCell.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FF1E40AF' } };
-            titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
-            ws.getRow(4).height = 26;
+            ws1.mergeCells('A4:I4');
+            const titleCell1 = ws1.getCell('A4');
+            titleCell1.value = `BẢNG TỔNG HỢP TIỀN THỦ THUẬT ${timeInfo.titleStr}`;
+            titleCell1.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FF1E40AF' } };
+            titleCell1.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getRow(4).height = 28;
 
-            ws.mergeCells(5, 1, 5, 8);
-            const subTitleCell = ws.getCell(5, 1);
-            subTitleCell.value = `(${timeInfo.label})`;
-            subTitleCell.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
-            subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.mergeCells('A5:I5');
+            const subTitleCell1 = ws1.getCell('A5');
+            subTitleCell1.value = `(${timeInfo.label})`;
+            subTitleCell1.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell1.alignment = { vertical: 'middle', horizontal: 'center' };
 
-            // Header cột (Row 7)
-            const headers = ['STT', 'HỌ VÀ TÊN NHÂN VIÊN', 'TỔNG SỐ CÔNG', 'THỦ THUẬT LOẠI 1', 'THỦ THUẬT LOẠI 2', 'THỦ THUẬT LOẠI 3', 'KHÁC', 'TỔNG THỦ THUẬT'];
-            ws.getRow(7).height = 26;
-            headers.forEach((h, i) => {
-                const cell = ws.getCell(7, i + 1);
+            const headers1 = ['STT', 'HỌ VÀ TÊN', 'TT LOẠI 1 (SL)', 'THÀNH TIỀN L1', 'TT LOẠI 2 (SL)', 'THÀNH TIỀN L2', 'TT LOẠI 3 (SL)', 'THÀNH TIỀN L3', 'TỔNG TIỀN (VNĐ)'];
+            ws1.getRow(7).height = 28;
+            headers1.forEach((h, i) => {
+                const cell = ws1.getCell(7, i + 1);
                 cell.value = h;
                 cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
@@ -16325,59 +16658,80 @@
                 };
             });
 
-            // Data rows (Row 8 trở đi)
-            let startRow = 8;
-            let sumCong = 0, sumL1 = 0, sumL2 = 0, sumL3 = 0, sumKhac = 0, sumTotalTT = 0;
+            let startRow1 = 8;
+            let sumL1 = 0, sumL2 = 0, sumL3 = 0;
+            let sumMoneyL1 = 0, sumMoneyL2 = 0, sumMoneyL3 = 0, sumTotalAll = 0;
 
             adminChamCongEmployees.forEach((emp, idx) => {
-                const r = startRow + idx;
-                ws.getRow(r).height = 22;
+                const r = startRow1 + idx;
+                ws1.getRow(r).height = 22;
 
-                const tongCong = getEmpTotalCong(emp, isQ);
-                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
-                const l1 = t.loai1 || 0;
-                const l2 = t.loai2 || 0;
-                const l3 = t.loai3 || 0;
-                const khac = t.khac || 0;
-                const totalTT = l1 + l2 + l3 + khac;
+                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : {};
+                let l1_old = t.loai1_old, l1_new = t.loai1_new;
+                if (l1_old === undefined && l1_new === undefined) {
+                    if (isOldPeriod) { l1_old = t.loai1 || 0; l1_new = 0; }
+                    else { l1_old = 0; l1_new = t.loai1 || 0; }
+                }
+                const l1_total = (t.loai1 || (l1_old + l1_new)) || 0;
+                const l1_money = (l1_old || 0) * prices.l1_old + (l1_new || 0) * prices.l1;
 
-                sumCong += tongCong;
-                sumL1 += l1;
-                sumL2 += l2;
-                sumL3 += l3;
-                sumKhac += khac;
-                sumTotalTT += totalTT;
+                let l2_old = t.loai2_old, l2_new = t.loai2_new;
+                if (l2_old === undefined && l2_new === undefined) {
+                    if (isOldPeriod) { l2_old = t.loai2 || 0; l2_new = 0; }
+                    else { l2_old = 0; l2_new = t.loai2 || 0; }
+                }
+                const l2_total = (t.loai2 || (l2_old + l2_new)) || 0;
+                const l2_money = (l2_old || 0) * prices.l2_old + (l2_new || 0) * prices.l2;
 
-                ws.getCell(r, 1).value = idx + 1;
-                ws.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+                let l3_old = t.loai3_old, l3_new = t.loai3_new;
+                if (l3_old === undefined && l3_new === undefined) {
+                    if (isOldPeriod) { l3_old = t.loai3 || 0; l3_new = 0; }
+                    else { l3_old = 0; l3_new = t.loai3 || 0; }
+                }
+                const l3_total = (t.loai3 || (l3_old + l3_new)) || 0;
+                const l3_money = (l3_old || 0) * prices.l3_old + (l3_new || 0) * prices.l3;
 
-                ws.getCell(r, 2).value = emp;
-                ws.getCell(r, 2).font = { name: 'Times New Roman', size: 11, bold: true };
-                ws.getCell(r, 2).alignment = { vertical: 'middle', horizontal: 'left' };
+                const rowMoney = l1_money + l2_money + l3_money;
 
-                ws.getCell(r, 3).value = tongCong;
-                ws.getCell(r, 3).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
-                ws.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'center' };
+                sumL1 += l1_total; sumL2 += l2_total; sumL3 += l3_total;
+                sumMoneyL1 += l1_money; sumMoneyL2 += l2_money; sumMoneyL3 += l3_money;
+                sumTotalAll += rowMoney;
 
-                ws.getCell(r, 4).value = l1;
-                ws.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws1.getCell(r, 1).value = idx + 1;
+                ws1.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                ws.getCell(r, 5).value = l2;
-                ws.getCell(r, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws1.getCell(r, 2).value = emp;
+                ws1.getCell(r, 2).font = { name: 'Times New Roman', size: 11, bold: true };
+                ws1.getCell(r, 2).alignment = { vertical: 'middle', horizontal: 'left' };
 
-                ws.getCell(r, 6).value = l3;
-                ws.getCell(r, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws1.getCell(r, 3).value = l1_total || '';
+                ws1.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                ws.getCell(r, 7).value = khac;
-                ws.getCell(r, 7).font = { name: 'Times New Roman', size: 10.5, color: { argb: 'FF64748B' } };
-                ws.getCell(r, 7).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws1.getCell(r, 4).value = l1_money || '';
+                ws1.getCell(r, 4).numFmt = '#,##0';
+                ws1.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'right' };
 
-                ws.getCell(r, 8).value = totalTT;
-                ws.getCell(r, 8).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF15803D' } };
-                ws.getCell(r, 8).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws1.getCell(r, 5).value = l2_total || '';
+                ws1.getCell(r, 5).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                for (let c = 1; c <= 8; c++) {
-                    ws.getCell(r, c).border = {
+                ws1.getCell(r, 6).value = l2_money || '';
+                ws1.getCell(r, 6).numFmt = '#,##0';
+                ws1.getCell(r, 6).alignment = { vertical: 'middle', horizontal: 'right' };
+
+                ws1.getCell(r, 7).value = l3_total || '';
+                ws1.getCell(r, 7).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws1.getCell(r, 8).value = l3_money || '';
+                ws1.getCell(r, 8).numFmt = '#,##0';
+                ws1.getCell(r, 8).alignment = { vertical: 'middle', horizontal: 'right' };
+
+                ws1.getCell(r, 9).value = rowMoney || '';
+                ws1.getCell(r, 9).numFmt = '#,##0';
+                ws1.getCell(r, 9).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF15803D' } };
+                ws1.getCell(r, 9).alignment = { vertical: 'middle', horizontal: 'right' };
+
+                for (let c = 1; c <= 9; c++) {
+                    ws1.getCell(r, c).border = {
                         top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
                         bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
                         left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
@@ -16386,40 +16740,48 @@
                 }
             });
 
-            // Hàng Tổng Cộng
-            const totalRow = startRow + adminChamCongEmployees.length;
-            ws.getRow(totalRow).height = 24;
-            ws.mergeCells(totalRow, 1, totalRow, 2);
-            ws.getCell(totalRow, 1).value = 'TỔNG CỘNG';
-            ws.getCell(totalRow, 1).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(totalRow, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+            // Tổng cộng Sheet 1
+            const totalRow1 = startRow1 + adminChamCongEmployees.length;
+            ws1.getRow(totalRow1).height = 24;
+            ws1.mergeCells(totalRow1, 1, totalRow1, 2);
+            ws1.getCell(totalRow1, 1).value = 'TỔNG CỘNG';
+            ws1.getCell(totalRow1, 1).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws1.getCell(totalRow1, 1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws.getCell(totalRow, 3).value = Math.round(sumCong * 100) / 100;
-            ws.getCell(totalRow, 3).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
-            ws.getCell(totalRow, 3).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getCell(totalRow1, 3).value = sumL1;
+            ws1.getCell(totalRow1, 3).font = { bold: true };
+            ws1.getCell(totalRow1, 3).alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws.getCell(totalRow, 4).value = sumL1;
-            ws.getCell(totalRow, 4).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(totalRow, 4).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getCell(totalRow1, 4).value = sumMoneyL1;
+            ws1.getCell(totalRow1, 4).numFmt = '#,##0';
+            ws1.getCell(totalRow1, 4).font = { bold: true };
+            ws1.getCell(totalRow1, 4).alignment = { vertical: 'middle', horizontal: 'right' };
 
-            ws.getCell(totalRow, 5).value = sumL2;
-            ws.getCell(totalRow, 5).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(totalRow, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getCell(totalRow1, 5).value = sumL2;
+            ws1.getCell(totalRow1, 5).font = { bold: true };
+            ws1.getCell(totalRow1, 5).alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws.getCell(totalRow, 6).value = sumL3;
-            ws.getCell(totalRow, 6).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(totalRow, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getCell(totalRow1, 6).value = sumMoneyL2;
+            ws1.getCell(totalRow1, 6).numFmt = '#,##0';
+            ws1.getCell(totalRow1, 6).font = { bold: true };
+            ws1.getCell(totalRow1, 6).alignment = { vertical: 'middle', horizontal: 'right' };
 
-            ws.getCell(totalRow, 7).value = sumKhac;
-            ws.getCell(totalRow, 7).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(totalRow, 7).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getCell(totalRow1, 7).value = sumL3;
+            ws1.getCell(totalRow1, 7).font = { bold: true };
+            ws1.getCell(totalRow1, 7).alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws.getCell(totalRow, 8).value = sumTotalTT;
-            ws.getCell(totalRow, 8).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
-            ws.getCell(totalRow, 8).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getCell(totalRow1, 8).value = sumMoneyL3;
+            ws1.getCell(totalRow1, 8).numFmt = '#,##0';
+            ws1.getCell(totalRow1, 8).font = { bold: true };
+            ws1.getCell(totalRow1, 8).alignment = { vertical: 'middle', horizontal: 'right' };
 
-            for (let c = 1; c <= 8; c++) {
-                const cell = ws.getCell(totalRow, c);
+            ws1.getCell(totalRow1, 9).value = sumTotalAll;
+            ws1.getCell(totalRow1, 9).numFmt = '#,##0';
+            ws1.getCell(totalRow1, 9).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
+            ws1.getCell(totalRow1, 9).alignment = { vertical: 'middle', horizontal: 'right' };
+
+            for (let c = 1; c <= 9; c++) {
+                const cell = ws1.getCell(totalRow1, c);
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
                 cell.border = {
                     top: { style: 'medium', color: { argb: 'FF94A3B8' } },
@@ -16429,47 +16791,278 @@
                 };
             }
 
-            // Chữ ký
-            const sigRow = totalRow + 2;
-            ws.getCell(sigRow, 6).value = '..., ngày ... tháng ... năm ...';
-            ws.getCell(sigRow, 6).font = { name: 'Times New Roman', size: 11, italic: true };
+            // Dòng đọc tiền bằng chữ Sheet 1
+            const readMoneyRow1 = totalRow1 + 1;
+            ws1.mergeCells(`A${readMoneyRow1}:I${readMoneyRow1}`);
+            const rmCell1 = ws1.getCell(`A${readMoneyRow1}`);
+            rmCell1.value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
+            rmCell1.font = { name: 'Times New Roman', size: 11, italic: true, bold: true, color: { argb: 'FF1E293B' } };
 
-            const sigTitleRow = sigRow + 1;
-            ws.getCell(sigTitleRow, 2).value = 'NGƯỜI LẬP BIỂU';
-            ws.getCell(sigTitleRow, 2).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(sigTitleRow, 2).alignment = { horizontal: 'center' };
+            // Chữ ký Sheet 1
+            const sigRow1 = readMoneyRow1 + 2;
+            ws1.getCell(sigRow1, 7).value = 'Mạo Khê, ngày ... tháng ... năm ...';
+            ws1.getCell(sigRow1, 7).font = { name: 'Times New Roman', size: 11, italic: true };
 
-            ws.getCell(sigTitleRow, 7).value = 'TRƯỞNG KHOA';
-            ws.getCell(sigTitleRow, 7).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(sigTitleRow, 7).alignment = { horizontal: 'center' };
+            const sigTitleRow1 = sigRow1 + 1;
+            ws1.getCell(sigTitleRow1, 2).value = 'NGƯỜI LẬP BIỂU';
+            ws1.getCell(sigTitleRow1, 2).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws1.getCell(sigTitleRow1, 2).alignment = { horizontal: 'center' };
 
-            const sigSubRow = sigTitleRow + 1;
-            [2, 7].forEach(col => {
-                const c = ws.getCell(sigSubRow, col);
+            ws1.getCell(sigTitleRow1, 8).value = 'TRƯỞNG KHOA';
+            ws1.getCell(sigTitleRow1, 8).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws1.getCell(sigTitleRow1, 8).alignment = { horizontal: 'center' };
+
+            [2, 8].forEach(col => {
+                const c = ws1.getCell(sigTitleRow1 + 1, col);
                 c.value = '(Ký, họ tên)';
                 c.font = { name: 'Times New Roman', size: 9.5, italic: true };
                 c.alignment = { horizontal: 'center' };
             });
 
-            // Set Column Widths
-            ws.getColumn(1).width = 6;
-            ws.getColumn(2).width = 26;
-            ws.getColumn(3).width = 16;
-            ws.getColumn(4).width = 19;
-            ws.getColumn(5).width = 19;
-            ws.getColumn(6).width = 19;
-            ws.getColumn(7).width = 14;
-            ws.getColumn(8).width = 20;
+            ws1.getColumn(1).width = 6;
+            ws1.getColumn(2).width = 25;
+            ws1.getColumn(3).width = 14;
+            ws1.getColumn(4).width = 16;
+            ws1.getColumn(5).width = 14;
+            ws1.getColumn(6).width = 16;
+            ws1.getColumn(7).width = 14;
+            ws1.getColumn(8).width = 16;
+            ws1.getColumn(9).width = 18;
+
+            // ================= SHEET 2: TỔNG HỢP CÁC LOẠI THỦ THUẬT =================
+            const ws2 = workbook.addWorksheet('Tổng Hợp Loại TT', { views: [{ showGridLines: true }] });
+            ws2.getCell('A1').value = 'BỆNH VIỆN THAN - KHOÁNG SẢN CS2';
+            ws2.getCell('A1').font = { name: 'Times New Roman', size: 11, bold: true };
+            ws2.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
+            ws2.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
+
+            ws2.mergeCells('A4:D4');
+            const titleCell2 = ws2.getCell('A4');
+            titleCell2.value = `BẢNG TỔNG HỢP CÁC LOẠI THỦ THUẬT ${timeInfo.titleStr}`;
+            titleCell2.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FF1E40AF' } };
+            titleCell2.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws2.mergeCells('A5:D5');
+            const subTitleCell2 = ws2.getCell('A5');
+            subTitleCell2.value = `(${timeInfo.label})`;
+            subTitleCell2.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell2.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            const headers2 = ['STT', 'LOẠI THỦ THUẬT', 'SỐ LƯỢNG', 'THÀNH TIỀN (VNĐ)'];
+            ws2.getRow(7).height = 28;
+            headers2.forEach((h, i) => {
+                const cell = ws2.getCell(7, i + 1);
+                cell.value = h;
+                cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+            });
+
+            const sheet2Data = [
+                { stt: 1, name: 'Thủ thuật Loại 1', qty: sumL1, money: sumMoneyL1 },
+                { stt: 2, name: 'Thủ thuật Loại 2', qty: sumL2, money: sumMoneyL2 },
+                { stt: 3, name: 'Thủ thuật Loại 3', qty: sumL3, money: sumMoneyL3 }
+            ];
+
+            sheet2Data.forEach((row, i) => {
+                const r = 8 + i;
+                ws2.getRow(r).height = 22;
+                ws2.getCell(r, 1).value = row.stt;
+                ws2.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws2.getCell(r, 2).value = row.name;
+                ws2.getCell(r, 2).font = { bold: true };
+                ws2.getCell(r, 2).alignment = { vertical: 'middle', horizontal: 'left' };
+
+                ws2.getCell(r, 3).value = row.qty;
+                ws2.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws2.getCell(r, 4).value = row.money;
+                ws2.getCell(r, 4).numFmt = '#,##0';
+                ws2.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'right' };
+
+                for (let c = 1; c <= 4; c++) {
+                    ws2.getCell(r, c).border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+                }
+            });
+
+            // Tổng cộng Sheet 2
+            ws2.getRow(11).height = 24;
+            ws2.mergeCells('A11:B11');
+            ws2.getCell('A11').value = 'TỔNG CỘNG';
+            ws2.getCell('A11').font = { bold: true };
+            ws2.getCell('A11').alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws2.getCell('C11').value = sumL1 + sumL2 + sumL3;
+            ws2.getCell('C11').font = { bold: true };
+            ws2.getCell('C11').alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws2.getCell('D11').value = sumTotalAll;
+            ws2.getCell('D11').numFmt = '#,##0';
+            ws2.getCell('D11').font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
+            ws2.getCell('D11').alignment = { vertical: 'middle', horizontal: 'right' };
+
+            for (let c = 1; c <= 4; c++) {
+                const cell = ws2.getCell(11, c);
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+                cell.border = { top: { style: 'medium' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
+            }
+
+            ws2.mergeCells('A12:D12');
+            ws2.getCell('A12').value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
+            ws2.getCell('A12').font = { name: 'Times New Roman', size: 11, italic: true, bold: true };
+
+            // Chữ ký Sheet 2
+            ws2.getCell('D14').value = 'Mạo Khê, ngày ... tháng ... năm ...';
+            ws2.getCell('D14').font = { name: 'Times New Roman', size: 11, italic: true };
+            ws2.getCell('B15').value = 'NGƯỜI LẬP BIỂU';
+            ws2.getCell('B15').font = { bold: true };
+            ws2.getCell('B15').alignment = { horizontal: 'center' };
+            ws2.getCell('D15').value = 'TRƯỞNG KHOA';
+            ws2.getCell('D15').font = { bold: true };
+            ws2.getCell('D15').alignment = { horizontal: 'center' };
+            ws2.getCell('B16').value = '(Ký, họ tên)';
+            ws2.getCell('B16').font = { italic: true, size: 9.5 };
+            ws2.getCell('B16').alignment = { horizontal: 'center' };
+            ws2.getCell('D16').value = '(Ký, họ tên)';
+            ws2.getCell('D16').font = { italic: true, size: 9.5 };
+            ws2.getCell('D16').alignment = { horizontal: 'center' };
+
+            ws2.getColumn(1).width = 6;
+            ws2.getColumn(2).width = 26;
+            ws2.getColumn(3).width = 16;
+            ws2.getColumn(4).width = 22;
+
+            // ================= SHEET 3: BẢNG THANH TOÁN TIỀN THỦ THUẬT =================
+            const ws3 = workbook.addWorksheet('Bảng Thanh Toán', { views: [{ showGridLines: true }] });
+            ws3.getCell('A1').value = 'BỆNH VIỆN THAN - KHOÁNG SẢN CS2';
+            ws3.getCell('A1').font = { name: 'Times New Roman', size: 11, bold: true };
+            ws3.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
+            ws3.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
+
+            ws3.mergeCells('A4:D4');
+            const titleCell3 = ws3.getCell('A4');
+            titleCell3.value = `BẢNG THANH TOÁN TIỀN THỦ THUẬT ${timeInfo.titleStr}`;
+            titleCell3.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FF1E40AF' } };
+            titleCell3.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws3.mergeCells('A5:D5');
+            const subTitleCell3 = ws3.getCell('A5');
+            subTitleCell3.value = `(${timeInfo.label})`;
+            subTitleCell3.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell3.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            const headers3 = ['STT', 'HỌ VÀ TÊN', 'SỐ TIỀN THỰC NHẬN (VNĐ)', 'KÝ NHẬN'];
+            ws3.getRow(7).height = 28;
+            headers3.forEach((h, i) => {
+                const cell = ws3.getCell(7, i + 1);
+                cell.value = h;
+                cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+            });
+
+            adminChamCongEmployees.forEach((emp, idx) => {
+                const r = 8 + idx;
+                ws3.getRow(r).height = 22;
+
+                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : {};
+                let l1_old = t.loai1_old, l1_new = t.loai1_new;
+                if (l1_old === undefined && l1_new === undefined) {
+                    if (isOldPeriod) { l1_old = t.loai1 || 0; l1_new = 0; }
+                    else { l1_old = 0; l1_new = t.loai1 || 0; }
+                }
+                const l1_money = (l1_old || 0) * prices.l1_old + (l1_new || 0) * prices.l1;
+
+                let l2_old = t.loai2_old, l2_new = t.loai2_new;
+                if (l2_old === undefined && l2_new === undefined) {
+                    if (isOldPeriod) { l2_old = t.loai2 || 0; l2_new = 0; }
+                    else { l2_old = 0; l2_new = t.loai2 || 0; }
+                }
+                const l2_money = (l2_old || 0) * prices.l2_old + (l2_new || 0) * prices.l2;
+
+                let l3_old = t.loai3_old, l3_new = t.loai3_new;
+                if (l3_old === undefined && l3_new === undefined) {
+                    if (isOldPeriod) { l3_old = t.loai3 || 0; l3_new = 0; }
+                    else { l3_old = 0; l3_new = t.loai3 || 0; }
+                }
+                const l3_money = (l3_old || 0) * prices.l3_old + (l3_new || 0) * prices.l3;
+                const rowMoney = l1_money + l2_money + l3_money;
+
+                ws3.getCell(r, 1).value = idx + 1;
+                ws3.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws3.getCell(r, 2).value = emp;
+                ws3.getCell(r, 2).font = { bold: true };
+                ws3.getCell(r, 2).alignment = { vertical: 'middle', horizontal: 'left' };
+
+                ws3.getCell(r, 3).value = rowMoney;
+                ws3.getCell(r, 3).numFmt = '#,##0';
+                ws3.getCell(r, 3).font = { bold: true, color: { argb: 'FF15803D' } };
+                ws3.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'right' };
+
+                ws3.getCell(r, 4).value = ''; // Ký nhận
+                ws3.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                for (let c = 1; c <= 4; c++) {
+                    ws3.getCell(r, c).border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+                }
+            });
+
+            const totalRow3 = 8 + adminChamCongEmployees.length;
+            ws3.getRow(totalRow3).height = 24;
+            ws3.mergeCells(`A${totalRow3}:B${totalRow3}`);
+            ws3.getCell(`A${totalRow3}`).value = 'TỔNG CỘNG';
+            ws3.getCell(`A${totalRow3}`).font = { bold: true };
+            ws3.getCell(`A${totalRow3}`).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws3.getCell(`C${totalRow3}`).value = sumTotalAll;
+            ws3.getCell(`C${totalRow3}`).numFmt = '#,##0';
+            ws3.getCell(`C${totalRow3}`).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
+            ws3.getCell(`C${totalRow3}`).alignment = { vertical: 'middle', horizontal: 'right' };
+
+            for (let c = 1; c <= 4; c++) {
+                const cell = ws3.getCell(totalRow3, c);
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+                cell.border = { top: { style: 'medium' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
+            }
+
+            ws3.mergeCells(`A${totalRow3 + 1}:D${totalRow3 + 1}`);
+            ws3.getCell(`A${totalRow3 + 1}`).value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
+            ws3.getCell(`A${totalRow3 + 1}`).font = { name: 'Times New Roman', size: 11, italic: true, bold: true };
+
+            // Chữ ký Sheet 3
+            ws3.getCell(totalRow3 + 3, 4).value = 'Mạo Khê, ngày ... tháng ... năm ...';
+            ws3.getCell(totalRow3 + 3, 4).font = { name: 'Times New Roman', size: 11, italic: true };
+            ws3.getCell(totalRow3 + 4, 2).value = 'NGƯỜI LẬP BIỂU';
+            ws3.getCell(totalRow3 + 4, 2).font = { bold: true };
+            ws3.getCell(totalRow3 + 4, 2).alignment = { horizontal: 'center' };
+            ws3.getCell(totalRow3 + 4, 4).value = 'TRƯỞNG KHOA';
+            ws3.getCell(totalRow3 + 4, 4).font = { bold: true };
+            ws3.getCell(totalRow3 + 4, 4).alignment = { horizontal: 'center' };
+            ws3.getCell(totalRow3 + 5, 2).value = '(Ký, họ tên)';
+            ws3.getCell(totalRow3 + 5, 2).font = { italic: true, size: 9.5 };
+            ws3.getCell(totalRow3 + 5, 2).alignment = { horizontal: 'center' };
+            ws3.getCell(totalRow3 + 5, 4).value = '(Ký, họ tên)';
+            ws3.getCell(totalRow3 + 5, 4).font = { italic: true, size: 9.5 };
+            ws3.getCell(totalRow3 + 5, 4).alignment = { horizontal: 'center' };
+
+            ws3.getColumn(1).width = 6;
+            ws3.getColumn(2).width = 26;
+            ws3.getColumn(3).width = 25;
+            ws3.getColumn(4).width = 18;
 
             workbook.xlsx.writeBuffer().then(buffer => {
-                saveExcelBuffer(buffer, `Bao_Cao_Thong_Ke_Thu_Thuat_${timeInfo.fileSuffix}.xlsx`);
+                saveExcelBuffer(buffer, `Bang_Tien_${timeInfo.fileSuffix}.xlsx`);
             }).catch(err => {
                 console.error("Lỗi xuất Excel:", err);
                 alert("Lỗi xuất file Excel: " + err.message);
             });
         }
 
-        // 3. Xuất file Thực Lĩnh
+        // 3. Xuất file Thực Lĩnh (Chuẩn PM Cũ: 50% Tiền Thủ Thuật Phân Chia Theo Ngày Công Hệ Số)
         function exportThucLinhExcel() {
             if (typeof ExcelJS === 'undefined') {
                 alert("Thư viện ExcelJS đang nạp, vui lòng thử lại sau giây lát!");
@@ -16483,6 +17076,8 @@
             const timeInfo = getThongKeTimeLabel();
             const isQ = (thongKeMode !== 'current');
             const sourceThuThuat = isQ ? thongKeQuarterData.thuthuat : thongKeData;
+            const prices = getProcedurePrices();
+            const isOldPeriod = (timeInfo.year < 2026 || (timeInfo.year === 2026 && timeInfo.month < 7));
 
             const workbook = new ExcelJS.Workbook();
             workbook.creator = 'T.I.M.E.S System - BVTKS CS2';
@@ -16499,27 +17094,27 @@
             ws.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
 
             // Tiêu đề bảng
-            ws.mergeCells(4, 1, 4, 12);
-            const titleCell = ws.getCell(4, 1);
-            titleCell.value = 'BẢNG TÍNH THỰC LĨNH THỦ THUẬT & PHÂN CHIA THÙ LAO';
+            ws.mergeCells('A4:G4');
+            const titleCell = ws.getCell('A4');
+            titleCell.value = `BẢNG TÍNH THỰC LĨNH TIỀN THỦ THUẬT ${timeInfo.titleStr}`;
             titleCell.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FFB45309' } };
             titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
-            ws.getRow(4).height = 26;
+            ws.getRow(4).height = 28;
 
-            ws.mergeCells(5, 1, 5, 12);
-            const subTitleCell = ws.getCell(5, 1);
+            ws.mergeCells('A5:G5');
+            const subTitleCell = ws.getCell('A5');
             subTitleCell.value = `(${timeInfo.label})`;
             subTitleCell.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
             subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
             // Header cột (Row 7)
-            const headers = ['STT', 'HỌ VÀ TÊN', 'HỆ SỐ', 'NGÀY CÔNG', 'TT LOẠI 1', 'TT LOẠI 2', 'TT LOẠI 3', 'TT KHÁC', 'TỔNG SỐ TT', 'ĐIỂM QUY ĐỔI', 'TỔNG THỰC LĨNH', 'KÝ NHẬN'];
+            const headers = ['STT', 'HỌ VÀ TÊN', 'TIỀN THỦ THUẬT (50%)', 'NGÀY CÔNG (HỆ SỐ)', 'THỰC LĨNH (VNĐ)', 'CHÊNH LỆCH (TRẢ / NHẬN)', 'KÝ NHẬN'];
             ws.getRow(7).height = 28;
             headers.forEach((h, i) => {
                 const cell = ws.getCell(7, i + 1);
                 cell.value = h;
-                cell.font = { name: 'Times New Roman', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD97706' } }; // Amber gradient
+                cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD97706' } };
                 cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
                 cell.border = {
                     top: { style: 'thin', color: { argb: 'FFB45309' } },
@@ -16529,76 +17124,99 @@
                 };
             });
 
-            // Data rows (Row 8 trở đi)
-            let startRow = 8;
-            let sumCong = 0, sumL1 = 0, sumL2 = 0, sumL3 = 0, sumKhac = 0, sumTotalTT = 0, sumDiem = 0, sumThucLinh = 0;
+            // Tính toán trước tổng tiền 50% và tổng ngày công
+            let sumMoney50 = 0;
+            let sumDaysHeso = 0;
+            const empCalculations = [];
 
-            adminChamCongEmployees.forEach((emp, idx) => {
+            adminChamCongEmployees.forEach(emp => {
+                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : {};
+                let l1_old = t.loai1_old, l1_new = t.loai1_new;
+                if (l1_old === undefined && l1_new === undefined) {
+                    if (isOldPeriod) { l1_old = t.loai1 || 0; l1_new = 0; }
+                    else { l1_old = 0; l1_new = t.loai1 || 0; }
+                }
+                const l1_money = (l1_old || 0) * prices.l1_old + (l1_new || 0) * prices.l1;
+
+                let l2_old = t.loai2_old, l2_new = t.loai2_new;
+                if (l2_old === undefined && l2_new === undefined) {
+                    if (isOldPeriod) { l2_old = t.loai2 || 0; l2_new = 0; }
+                    else { l2_old = 0; l2_new = t.loai2 || 0; }
+                }
+                const l2_money = (l2_old || 0) * prices.l2_old + (l2_new || 0) * prices.l2;
+
+                let l3_old = t.loai3_old, l3_new = t.loai3_new;
+                if (l3_old === undefined && l3_new === undefined) {
+                    if (isOldPeriod) { l3_old = t.loai3 || 0; l3_new = 0; }
+                    else { l3_old = 0; l3_new = t.loai3 || 0; }
+                }
+                const l3_money = (l3_old || 0) * prices.l3_old + (l3_new || 0) * prices.l3;
+
+                const fullMoney = l1_money + l2_money + l3_money;
+                const money50 = Math.round(fullMoney * 0.5);
+                const tongCongHeso = getEmpTotalCong(emp, isQ);
+
+                sumMoney50 += money50;
+                sumDaysHeso += tongCongHeso;
+
+                empCalculations.push({
+                    emp,
+                    money50,
+                    tongCongHeso
+                });
+            });
+
+            const moneyPerDay = sumDaysHeso > 0 ? (sumMoney50 / sumDaysHeso) : 0;
+
+            // Ghi dữ liệu từng nhân viên (Row 8 trở đi)
+            let startRow = 8;
+            let sumThucLinh = 0;
+            let sumTraNhan = 0;
+
+            empCalculations.forEach((item, idx) => {
                 const r = startRow + idx;
                 ws.getRow(r).height = 22;
 
-                const heSo = (chamCongData[emp] && chamCongData[emp].heSo !== undefined) ? parseFloat(chamCongData[emp].heSo) : 1.0;
-                const tongCong = getEmpTotalCong(emp, isQ);
-                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
-                const l1 = t.loai1 || 0;
-                const l2 = t.loai2 || 0;
-                const l3 = t.loai3 || 0;
-                const khac = t.khac || 0;
-                const totalTT = l1 + l2 + l3 + khac;
-                const diemQuyDoi = Math.round((l1 * 1.5 + l2 * 1.2 + l3 * 1.0 + khac * 0.8) * 10) / 10;
-                const thucLinh = Math.round((tongCong + diemQuyDoi) * 100) / 100;
+                const thucLinh = Math.round(moneyPerDay * item.tongCongHeso);
+                const traNhan = thucLinh - item.money50;
 
-                sumCong += tongCong;
-                sumL1 += l1;
-                sumL2 += l2;
-                sumL3 += l3;
-                sumKhac += khac;
-                sumTotalTT += totalTT;
-                sumDiem += diemQuyDoi;
                 sumThucLinh += thucLinh;
+                sumTraNhan += traNhan;
 
                 ws.getCell(r, 1).value = idx + 1;
                 ws.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                ws.getCell(r, 2).value = emp;
+                ws.getCell(r, 2).value = item.emp;
                 ws.getCell(r, 2).font = { name: 'Times New Roman', size: 11, bold: true };
                 ws.getCell(r, 2).alignment = { vertical: 'middle', horizontal: 'left' };
 
-                ws.getCell(r, 3).value = heSo;
-                ws.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws.getCell(r, 3).value = item.money50;
+                ws.getCell(r, 3).numFmt = '#,##0';
+                ws.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'right' };
 
-                ws.getCell(r, 4).value = tongCong;
+                ws.getCell(r, 4).value = item.tongCongHeso;
                 ws.getCell(r, 4).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
                 ws.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                ws.getCell(r, 5).value = l1;
-                ws.getCell(r, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws.getCell(r, 5).value = thucLinh;
+                ws.getCell(r, 5).numFmt = '#,##0';
+                ws.getCell(r, 5).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FFB45309' } };
+                ws.getCell(r, 5).alignment = { vertical: 'middle', horizontal: 'right' };
 
-                ws.getCell(r, 6).value = l2;
-                ws.getCell(r, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+                ws.getCell(r, 6).value = traNhan;
+                ws.getCell(r, 6).numFmt = '#,##0';
+                ws.getCell(r, 6).font = { 
+                    name: 'Times New Roman', 
+                    size: 11, 
+                    bold: true, 
+                    color: { argb: traNhan >= 0 ? 'FF15803D' : 'FFDC2626' } 
+                };
+                ws.getCell(r, 6).alignment = { vertical: 'middle', horizontal: 'right' };
 
-                ws.getCell(r, 7).value = l3;
+                ws.getCell(r, 7).value = ''; // Ký nhận
                 ws.getCell(r, 7).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                ws.getCell(r, 8).value = khac;
-                ws.getCell(r, 8).alignment = { vertical: 'middle', horizontal: 'center' };
-
-                ws.getCell(r, 9).value = totalTT;
-                ws.getCell(r, 9).font = { name: 'Times New Roman', size: 11, bold: true };
-                ws.getCell(r, 9).alignment = { vertical: 'middle', horizontal: 'center' };
-
-                ws.getCell(r, 10).value = diemQuyDoi;
-                ws.getCell(r, 10).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF0284C7' } };
-                ws.getCell(r, 10).alignment = { vertical: 'middle', horizontal: 'center' };
-
-                ws.getCell(r, 11).value = thucLinh;
-                ws.getCell(r, 11).font = { name: 'Times New Roman', size: 11.5, bold: true, color: { argb: 'FFB45309' } };
-                ws.getCell(r, 11).alignment = { vertical: 'middle', horizontal: 'center' };
-
-                ws.getCell(r, 12).value = ''; // Ký nhận
-                ws.getCell(r, 12).alignment = { vertical: 'middle', horizontal: 'center' };
-
-                for (let c = 1; c <= 12; c++) {
+                for (let c = 1; c <= 7; c++) {
                     ws.getCell(r, c).border = {
                         top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
                         bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
@@ -16609,42 +17227,33 @@
             });
 
             // Hàng Tổng Cộng
-            const totalRow = startRow + adminChamCongEmployees.length;
+            const totalRow = startRow + empCalculations.length;
             ws.getRow(totalRow).height = 24;
-            ws.mergeCells(totalRow, 1, totalRow, 3);
+            ws.mergeCells(totalRow, 1, totalRow, 2);
             ws.getCell(totalRow, 1).value = 'TỔNG CỘNG';
             ws.getCell(totalRow, 1).font = { name: 'Times New Roman', size: 11, bold: true };
             ws.getCell(totalRow, 1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws.getCell(totalRow, 4).value = Math.round(sumCong * 100) / 100;
+            ws.getCell(totalRow, 3).value = sumMoney50;
+            ws.getCell(totalRow, 3).numFmt = '#,##0';
+            ws.getCell(totalRow, 3).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 3).alignment = { vertical: 'middle', horizontal: 'right' };
+
+            ws.getCell(totalRow, 4).value = Math.round(sumDaysHeso * 100) / 100;
             ws.getCell(totalRow, 4).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
             ws.getCell(totalRow, 4).alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws.getCell(totalRow, 5).value = sumL1;
-            ws.getCell(totalRow, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws.getCell(totalRow, 5).value = sumThucLinh;
+            ws.getCell(totalRow, 5).numFmt = '#,##0';
+            ws.getCell(totalRow, 5).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FFB45309' } };
+            ws.getCell(totalRow, 5).alignment = { vertical: 'middle', horizontal: 'right' };
 
-            ws.getCell(totalRow, 6).value = sumL2;
-            ws.getCell(totalRow, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+            ws.getCell(totalRow, 6).value = sumTraNhan;
+            ws.getCell(totalRow, 6).numFmt = '#,##0';
+            ws.getCell(totalRow, 6).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 6).alignment = { vertical: 'middle', horizontal: 'right' };
 
-            ws.getCell(totalRow, 7).value = sumL3;
-            ws.getCell(totalRow, 7).alignment = { vertical: 'middle', horizontal: 'center' };
-
-            ws.getCell(totalRow, 8).value = sumKhac;
-            ws.getCell(totalRow, 8).alignment = { vertical: 'middle', horizontal: 'center' };
-
-            ws.getCell(totalRow, 9).value = sumTotalTT;
-            ws.getCell(totalRow, 9).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(totalRow, 9).alignment = { vertical: 'middle', horizontal: 'center' };
-
-            ws.getCell(totalRow, 10).value = Math.round(sumDiem * 10) / 10;
-            ws.getCell(totalRow, 10).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF0284C7' } };
-            ws.getCell(totalRow, 10).alignment = { vertical: 'middle', horizontal: 'center' };
-
-            ws.getCell(totalRow, 11).value = Math.round(sumThucLinh * 100) / 100;
-            ws.getCell(totalRow, 11).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FFB45309' } };
-            ws.getCell(totalRow, 11).alignment = { vertical: 'middle', horizontal: 'center' };
-
-            for (let c = 1; c <= 12; c++) {
+            for (let c = 1; c <= 7; c++) {
                 const cell = ws.getCell(totalRow, c);
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
                 cell.border = {
@@ -16655,30 +17264,44 @@
                 };
             }
 
-            // Chữ ký (Signatures)
-            const sigRow = totalRow + 2;
-            ws.getCell(sigRow, 9).value = '..., ngày ... tháng ... năm ...';
-            ws.getCell(sigRow, 9).font = { name: 'Times New Roman', size: 11, italic: true };
+            // Hàng Đơn Giá 1 Ngày Công
+            const priceRateRow = totalRow + 1;
+            ws.mergeCells(`A${priceRateRow}:G${priceRateRow}`);
+            const rateCell = ws.getCell(`A${priceRateRow}`);
+            rateCell.value = `* Đơn giá phân chia: 1 ngày công = ${Math.round(moneyPerDay).toLocaleString('vi-VN')} VNĐ (Tổng quỹ 50%: ${sumMoney50.toLocaleString('vi-VN')} đ / Tổng công: ${Math.round(sumDaysHeso * 100) / 100})`;
+            rateCell.font = { name: 'Times New Roman', size: 10.5, italic: true, color: { argb: 'FF1E293B' } };
+
+            // Dòng đọc tiền bằng chữ
+            const readMoneyRow = totalRow + 2;
+            ws.mergeCells(`A${readMoneyRow}:G${readMoneyRow}`);
+            const rmCell = ws.getCell(`A${readMoneyRow}`);
+            rmCell.value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumThucLinh)}`;
+            rmCell.font = { name: 'Times New Roman', size: 11, italic: true, bold: true, color: { argb: 'FF1E293B' } };
+
+            // Chữ ký (Signatures - 4 cột)
+            const sigRow = totalRow + 4;
+            ws.getCell(sigRow, 6).value = 'Mạo Khê, ngày ... tháng ... năm ...';
+            ws.getCell(sigRow, 6).font = { name: 'Times New Roman', size: 11, italic: true };
 
             const sigTitleRow = sigRow + 1;
             ws.getCell(sigTitleRow, 2).value = 'NGƯỜI LẬP BIỂU';
             ws.getCell(sigTitleRow, 2).font = { name: 'Times New Roman', size: 11, bold: true };
             ws.getCell(sigTitleRow, 2).alignment = { horizontal: 'center' };
 
-            ws.getCell(sigTitleRow, 5).value = 'KẾ TOÁN';
+            ws.getCell(sigTitleRow, 3).value = 'KẾ TOÁN';
+            ws.getCell(sigTitleRow, 3).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 3).alignment = { horizontal: 'center' };
+
+            ws.getCell(sigTitleRow, 5).value = 'TRƯỞNG KHOA';
             ws.getCell(sigTitleRow, 5).font = { name: 'Times New Roman', size: 11, bold: true };
             ws.getCell(sigTitleRow, 5).alignment = { horizontal: 'center' };
 
-            ws.getCell(sigTitleRow, 8).value = 'TRƯỞNG KHOA';
-            ws.getCell(sigTitleRow, 8).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(sigTitleRow, 8).alignment = { horizontal: 'center' };
-
-            ws.getCell(sigTitleRow, 11).value = 'GIÁM ĐỐC';
-            ws.getCell(sigTitleRow, 11).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws.getCell(sigTitleRow, 11).alignment = { horizontal: 'center' };
+            ws.getCell(sigTitleRow, 7).value = 'GIÁM ĐỐC';
+            ws.getCell(sigTitleRow, 7).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 7).alignment = { horizontal: 'center' };
 
             const sigSubRow = sigTitleRow + 1;
-            [2, 5, 8, 11].forEach(col => {
+            [2, 3, 5, 7].forEach(col => {
                 const c = ws.getCell(sigSubRow, col);
                 c.value = '(Ký, họ tên)';
                 c.font = { name: 'Times New Roman', size: 9.5, italic: true };
@@ -16688,16 +17311,11 @@
             // Set Column Widths
             ws.getColumn(1).width = 6;
             ws.getColumn(2).width = 25;
-            ws.getColumn(3).width = 9;
-            ws.getColumn(4).width = 14;
-            ws.getColumn(5).width = 13;
-            ws.getColumn(6).width = 13;
-            ws.getColumn(7).width = 13;
-            ws.getColumn(8).width = 11;
-            ws.getColumn(9).width = 14;
-            ws.getColumn(10).width = 15;
-            ws.getColumn(11).width = 17;
-            ws.getColumn(12).width = 14;
+            ws.getColumn(3).width = 22;
+            ws.getColumn(4).width = 18;
+            ws.getColumn(5).width = 20;
+            ws.getColumn(6).width = 22;
+            ws.getColumn(7).width = 16;
 
             workbook.xlsx.writeBuffer().then(buffer => {
                 saveExcelBuffer(buffer, `Bang_Thuc_Linh_${timeInfo.fileSuffix}.xlsx`);
@@ -16710,6 +17328,9 @@
         // Gắn sự kiện cho các nút xuất
         document.getElementById('btn-export-excel').addEventListener('click', exportThongKeExcel);
         document.getElementById('btn-export-thuc-linh').addEventListener('click', exportThucLinhExcel);
+
+        // Khởi tạo UI cấu hình đơn giá
+        initPriceConfigUI();
 
         // Event for month/year change in Cham Cong
         document.getElementById('chamcong-month-picker').addEventListener('change', () => {
