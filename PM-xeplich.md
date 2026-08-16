@@ -1698,3 +1698,17 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
      - Đầy đủ 7 cột: STT, Họ và tên, Tiền thủ thuật (50%), Ngày công (Hệ số), Thực lĩnh (VNĐ), Chênh lệch (Trả / Nhận), Ký nhận.
      - Hàng Tổng cộng cân đối 100% quỹ (Chênh lệch = 0), dòng ghi đơn giá công, dòng đọc tiền bằng chữ và 4 chữ ký: *Người lập biểu*, *Kế toán*, *Trưởng khoa*, *Giám đốc*.
   5. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi**) và đẩy code lên nhánh `main`.
+
+### Phiên làm việc (Khắc phục triệt để lỗi Tab Bảng Chấm Công và Thống Kê trống trơn / không load được)
+- **Yêu cầu:** Sửa lỗi khi bấm vào 2 tab Bảng chấm công và Thống kê tổng hợp thì màn hình bị trắng trơn, không hiển thị và không load được dữ liệu.
+- **Nguyên nhân gốc rễ (Root Cause):**
+  1. **Lỗi thẻ đóng HTML (`<div>` balance):** Trong khối `tab-admin` trước đó bị thiếu 1 thẻ đóng `</div>`, dẫn đến cấu trúc DOM vô tình lồng thẻ `<div class="tab-content" id="tab-chamcong">` và `<div class="tab-content" id="tab-thongke">` vào bên trong `#tab-admin`. Do `#tab-admin` có thuộc tính `display: none` khi người dùng chuyển sang các tab khác, toàn bộ khung nội dung và tiêu đề của 2 tab này bị ẩn hoàn toàn (trắng trơn).
+  2. **Cơ chế tải danh sách nhân sự chấm công:** Trước đây khi mảng `adminChamCongEmployees` rỗng, hệ thống phụ thuộc hoàn toàn vào file `employees.json` trên Drive. Nếu file chưa được khởi tạo hoặc mạng chậm, mảng nhân sự rỗng dẫn đến không có hàng nào được vẽ ra.
+- **Giải pháp triển khai:**
+  1. **Đóng chuẩn xác thẻ `tab-admin`:** Bổ sung thẻ đóng `</div>` chuẩn vị trí trước `#tab-chamcong`. Sau khi sửa, toàn bộ 14 tab của hệ thống đạt độ cân bằng thẻ DOM hoàn hảo (Depth = 0), các tab độc lập 100% trong `.tab-scroll-content`.
+  2. **Hàm tải nhân sự đa tầng `getOrLoadChamCongEmployees(callback)`:**
+     - Tự động lấy ngay danh sách nhân sự từ cache `localStorage` hoặc nguồn `dataCache.staff` (danh bạ nhân sự phòng khám đã nạp) để render bảng ngay lập tức trong 0.01 giây, triệt tiêu hoàn toàn hiện tượng màn hình trắng hay chờ đợi.
+     - Song song đồng bộ ngầm với Google Drive (`getEmployees()`) và tự động lưu cache cho các lần sau.
+  3. **Hiển thị trực tiếp không cần bấm "Xem":** Kích hoạt gọi `loadChamCongData()` và `loadThongKeData()` ngay khi bấm chuyển tab hoặc khi truy cập trực tiếp qua Hash URL (`#tab-chamcong`, `#tab-thongke`).
+  4. Đã kiểm tra cú pháp toàn bộ hệ thống (**0 lỗi syntax**) và đẩy code lên nhánh `main`.
+

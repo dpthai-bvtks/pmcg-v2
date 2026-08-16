@@ -6546,6 +6546,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
                 <!-- TAB: CHẤM CÔNG (CHUẨN GIAO DIỆN PM CŨ) -->
                 <div class="tab-content" id="tab-chamcong">
                     <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 16px 20px; display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box;">
@@ -8336,9 +8337,15 @@
                         }
 
                         if (targetTab === 'tab-stats' && typeof renderStats === 'function') {
-
                             renderStats(window.lastUnscheduledData);
+                        }
 
+                        if (targetTab === 'tab-chamcong' && typeof loadChamCongData === 'function') {
+                            loadChamCongData();
+                        }
+
+                        if (targetTab === 'tab-thongke' && typeof loadThongKeData === 'function') {
+                            loadThongKeData();
                         }
 
 
@@ -15220,6 +15227,68 @@
         let adminChamCongEmployees = []; 
         let adminChamCongStaffConfig = {};
         let editAdminEmployeeIndex = -1;
+
+        // Tự động nạp danh sách nhân sự từ cache khi khởi động
+        try {
+            const cachedEmp = JSON.parse(localStorage.getItem('med_chamcong_employees') || '[]');
+            if (Array.isArray(cachedEmp) && cachedEmp.length > 0) {
+                adminChamCongEmployees = cachedEmp;
+            }
+        } catch(e) {}
+
+        function getOrLoadChamCongEmployees(callback) {
+            if (adminChamCongEmployees && adminChamCongEmployees.length > 0) {
+                if (callback) callback(adminChamCongEmployees);
+                return;
+            }
+
+            // 1. Kiểm tra cache localStorage
+            try {
+                const cached = JSON.parse(localStorage.getItem('med_chamcong_employees') || '[]');
+                if (Array.isArray(cached) && cached.length > 0) {
+                    adminChamCongEmployees = cached;
+                }
+            } catch(e) {}
+
+            // 2. Kiểm tra dataCache.staff
+            if (adminChamCongEmployees.length === 0 && typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
+                adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
+            }
+
+            // Nếu đã có nhân sự (từ cache/dataCache), gọi callback ngay để vẽ bảng không bị trắng
+            if (adminChamCongEmployees.length > 0 && callback) {
+                callback(adminChamCongEmployees);
+            }
+
+            // 3. Tải từ Google Drive / Backend
+            google.script.run.withSuccessHandler(empRes => {
+                let list = [];
+                if (empRes && empRes.status === 'success' && empRes.data) {
+                    if (Array.isArray(empRes.data)) list = empRes.data;
+                    else if (empRes.data.employees) list = empRes.data.employees;
+                    else list = Object.keys(empRes.data);
+                } else if (Array.isArray(empRes) && empRes.length > 0) {
+                    list = empRes;
+                }
+
+                if (list.length > 0) {
+                    adminChamCongEmployees = list;
+                } else if (adminChamCongEmployees.length === 0 && typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
+                    adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
+                }
+
+                if (adminChamCongEmployees.length > 0) {
+                    try { localStorage.setItem('med_chamcong_employees', JSON.stringify(adminChamCongEmployees)); } catch(e){}
+                }
+                if (callback) callback(adminChamCongEmployees);
+            }).withFailureHandler(err => {
+                console.warn("getEmployees fallback:", err);
+                if (adminChamCongEmployees.length === 0 && typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
+                    adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
+                }
+                if (callback) callback(adminChamCongEmployees);
+            }).getEmployees();
+        }
         
         function loadAdminChamCongData() {
             window.showGlobalLoading("Đang tải danh sách nhân sự từ Google Drive...");
@@ -15235,6 +15304,9 @@
                 } else if (Array.isArray(res)) {
                     adminChamCongEmployees = res;
                 }
+                if (adminChamCongEmployees.length > 0) {
+                    try { localStorage.setItem('med_chamcong_employees', JSON.stringify(adminChamCongEmployees)); } catch(e){}
+                }
                 google.script.run.withSuccessHandler(resConfig => {
                     window.hideGlobalLoading();
                     if(resConfig && resConfig.status === 'success' && resConfig.data) {
@@ -15247,6 +15319,10 @@
             }).withFailureHandler(err => {
                 window.hideGlobalLoading();
                 console.error("Lỗi loadAdminChamCongData:", err);
+                if (adminChamCongEmployees.length === 0 && typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
+                    adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
+                }
+                renderAdminChamCongTable();
             }).getEmployees();
         }
 
@@ -15401,11 +15477,11 @@
 
         function loadChamCongData() {
             const my = getChamCongMonthYear();
-            window.showGlobalLoading("Đang tải dữ liệu chấm công từ Google Drive...");
             
-            const fetchChamCongDataOnly = () => {
+            getOrLoadChamCongEmployees(() => {
+                renderChamCongTable(); // Hiển thị ngay lập tức không để bảng trống trơn
+                
                 google.script.run.withSuccessHandler(res => {
-                    window.hideGlobalLoading();
                     if (res && res.status === 'success' && res.data) {
                         chamCongData = res.data;
                     } else if (res && typeof res === 'object' && !res.status) {
@@ -15415,34 +15491,10 @@
                     }
                     renderChamCongTable();
                 }).withFailureHandler(err => {
-                    window.hideGlobalLoading();
-                    console.error(err);
-                    alert("Lỗi khi tải dữ liệu chấm công từ Google Drive!");
+                    console.error("Lỗi khi tải chấm công:", err);
                     renderChamCongTable();
                 }).getChamCong(my);
-            };
-
-            if (adminChamCongEmployees.length === 0) {
-                google.script.run.withSuccessHandler(empRes => {
-                    if (empRes && empRes.status === 'success' && empRes.data) {
-                        if (Array.isArray(empRes.data)) {
-                            adminChamCongEmployees = empRes.data;
-                        } else if (empRes.data.employees) {
-                            adminChamCongEmployees = empRes.data.employees;
-                        } else {
-                            adminChamCongEmployees = Object.keys(empRes.data);
-                        }
-                    } else if (Array.isArray(empRes)) {
-                        adminChamCongEmployees = empRes;
-                    }
-                    fetchChamCongDataOnly();
-                }).withFailureHandler(err => {
-                    console.error("Lỗi getEmployees:", err);
-                    fetchChamCongDataOnly();
-                }).getEmployees();
-            } else {
-                fetchChamCongDataOnly();
-            }
+            });
         }
 
         function isHoliday(y, m, d) {
@@ -15722,85 +15774,66 @@
             const mode = modeSelect ? modeSelect.value : 'current';
             thongKeMode = mode;
             
-            const ensureEmployees = (callback) => {
-                if (adminChamCongEmployees.length === 0) {
-                    google.script.run.withSuccessHandler(empRes => {
-                        if (empRes && empRes.status === 'success') {
-                            if (Array.isArray(empRes.data)) adminChamCongEmployees = empRes.data;
-                            else if (empRes.data.employees) adminChamCongEmployees = empRes.data.employees;
-                            else adminChamCongEmployees = Object.keys(empRes.data);
-                        } else if (Array.isArray(empRes)) {
-                            adminChamCongEmployees = empRes;
-                        }
-                        if (callback) callback();
-                    }).withFailureHandler(() => {
-                        if (callback) callback();
-                    }).getEmployees();
-                } else {
-                    if (callback) callback();
-                }
-            };
+            getOrLoadChamCongEmployees(() => {
+                renderThongKeTable(); // Render table ngay lập tức với dữ liệu hiện có
 
-            if (mode === 'current') {
-                const my = getChamCongMonthYear();
-                window.showGlobalLoading("Đang tải dữ liệu thống kê tháng " + my + "...");
-                google.script.run.withSuccessHandler(resCC => {
-                    if (resCC && resCC.status === 'success' && resCC.data) chamCongData = resCC.data;
-                    else if (resCC && typeof resCC === 'object' && !resCC.status) chamCongData = resCC;
-                    else chamCongData = {};
+                if (mode === 'current') {
+                    const my = getChamCongMonthYear();
+                    google.script.run.withSuccessHandler(resCC => {
+                        if (resCC && resCC.status === 'success' && resCC.data) chamCongData = resCC.data;
+                        else if (resCC && typeof resCC === 'object' && !resCC.status) chamCongData = resCC;
+                        else chamCongData = {};
 
-                    google.script.run.withSuccessHandler(resTT => {
-                        window.hideGlobalLoading();
-                        if (resTT && resTT.status === 'success' && resTT.data) thongKeData = resTT.data;
-                        else if (resTT && typeof resTT === 'object' && !resTT.status) thongKeData = resTT;
-                        else thongKeData = {};
+                        google.script.run.withSuccessHandler(resTT => {
+                            if (resTT && resTT.status === 'success' && resTT.data) thongKeData = resTT.data;
+                            else if (resTT && typeof resTT === 'object' && !resTT.status) thongKeData = resTT;
+                            else thongKeData = {};
 
-                        ensureEmployees(() => renderThongKeTable());
+                            renderThongKeTable();
+                        }).withFailureHandler(err => {
+                            console.error(err);
+                            thongKeData = {};
+                            renderThongKeTable();
+                        }).getThongKeThuThuat(my);
                     }).withFailureHandler(err => {
-                        window.hideGlobalLoading();
                         console.error(err);
-                        thongKeData = {};
-                        ensureEmployees(() => renderThongKeTable());
-                    }).getThongKeThuThuat(my);
-                }).withFailureHandler(err => {
-                    window.hideGlobalLoading();
-                    console.error(err);
-                    ensureEmployees(() => renderThongKeTable());
-                }).getChamCong(my);
-            } else if (mode === 'custom') {
-                const startVal = document.getElementById('custom-start-date').value;
-                const endVal = document.getElementById('custom-end-date').value;
-                if (!startVal || !endVal) {
-                    alert("Vui lòng chọn đầy đủ thời gian Từ và Đến!");
-                    return;
+                        renderThongKeTable();
+                    }).getChamCong(my);
+                } else if (mode === 'custom') {
+                    const startVal = document.getElementById('custom-start-date').value;
+                    const endVal = document.getElementById('custom-end-date').value;
+                    if (!startVal || !endVal) {
+                        alert("Vui lòng chọn đầy đủ thời gian Từ và Đến!");
+                        return;
+                    }
+                    const [startY, startM] = startVal.split('-').map(Number);
+                    const [endY, endM] = endVal.split('-').map(Number);
+                    if (startY * 12 + startM > endY * 12 + endM) {
+                        alert("Thời gian bắt đầu không được lớn hơn thời gian kết thúc!");
+                        return;
+                    }
+                    let months = [];
+                    let curr = new Date(startY, startM - 1, 1);
+                    const end = new Date(endY, endM - 1, 1);
+                    while (curr <= end) {
+                        const y = curr.getFullYear();
+                        const m = String(curr.getMonth() + 1).padStart(2, '0');
+                        months.push(`${y}-${m}`);
+                        curr.setMonth(curr.getMonth() + 1);
+                    }
+                    fetchMultiMonthsData(months, `khoảng thời gian từ ${startVal} đến ${endVal}`);
+                } else {
+                    // Quý (q1, q2, q3, q4)
+                    const year = document.getElementById('chamcong-year-picker').value || '2026';
+                    let months = [];
+                    let qName = '';
+                    if (mode === 'q1') { months = [`${year}-01`, `${year}-02`, `${year}-03`]; qName = 'Quý I (' + year + ')'; }
+                    else if (mode === 'q2') { months = [`${year}-04`, `${year}-05`, `${year}-06`]; qName = 'Quý II (' + year + ')'; }
+                    else if (mode === 'q3') { months = [`${year}-07`, `${year}-08`, `${year}-09`]; qName = 'Quý III (' + year + ')'; }
+                    else if (mode === 'q4') { months = [`${year}-10`, `${year}-11`, `${year}-12`]; qName = 'Quý IV (' + year + ')'; }
+                    fetchMultiMonthsData(months, qName);
                 }
-                const [startY, startM] = startVal.split('-').map(Number);
-                const [endY, endM] = endVal.split('-').map(Number);
-                if (startY * 12 + startM > endY * 12 + endM) {
-                    alert("Thời gian bắt đầu không được lớn hơn thời gian kết thúc!");
-                    return;
-                }
-                let months = [];
-                let curr = new Date(startY, startM - 1, 1);
-                const end = new Date(endY, endM - 1, 1);
-                while (curr <= end) {
-                    const y = curr.getFullYear();
-                    const m = String(curr.getMonth() + 1).padStart(2, '0');
-                    months.push(`${y}-${m}`);
-                    curr.setMonth(curr.getMonth() + 1);
-                }
-                fetchMultiMonthsData(months, `khoảng thời gian từ ${startVal} đến ${endVal}`);
-            } else {
-                // Quý (q1, q2, q3, q4)
-                const year = document.getElementById('chamcong-year-picker').value || '2026';
-                let months = [];
-                let qName = '';
-                if (mode === 'q1') { months = [`${year}-01`, `${year}-02`, `${year}-03`]; qName = 'Quý I (' + year + ')'; }
-                else if (mode === 'q2') { months = [`${year}-04`, `${year}-05`, `${year}-06`]; qName = 'Quý II (' + year + ')'; }
-                else if (mode === 'q3') { months = [`${year}-07`, `${year}-08`, `${year}-09`]; qName = 'Quý III (' + year + ')'; }
-                else if (mode === 'q4') { months = [`${year}-10`, `${year}-11`, `${year}-12`]; qName = 'Quý IV (' + year + ')'; }
-                fetchMultiMonthsData(months, qName);
-            }
+            });
         }
 
         function fetchSingleMonthData(my) {
@@ -15868,20 +15901,9 @@
                 thongKeQuarterData.chamcong = mergedChamCong;
                 thongKeQuarterData.thuthuat = mergedThuThuat;
 
-                if (adminChamCongEmployees.length === 0) {
-                    google.script.run.withSuccessHandler(empRes => {
-                        if (empRes && empRes.status === 'success') {
-                            if (Array.isArray(empRes.data)) adminChamCongEmployees = empRes.data;
-                            else if (empRes.data.employees) adminChamCongEmployees = empRes.data.employees;
-                            else adminChamCongEmployees = Object.keys(empRes.data);
-                        } else if (Array.isArray(empRes)) {
-                            adminChamCongEmployees = empRes;
-                        }
-                        renderThongKeTable();
-                    }).withFailureHandler(() => renderThongKeTable()).getEmployees();
-                } else {
+                getOrLoadChamCongEmployees(() => {
                     renderThongKeTable();
-                }
+                });
             }).catch(err => {
                 window.hideGlobalLoading();
                 console.error(err);
@@ -17348,11 +17370,9 @@
             btn.addEventListener('click', (e) => {
                 const targetTab = btn.getAttribute('data-tab');
                 if (targetTab === 'tab-chamcong') {
-                    if (adminChamCongEmployees.length === 0) loadAdminChamCongData();
-                    else loadChamCongData();
+                    loadChamCongData();
                 } else if (targetTab === 'tab-thongke') {
-                    if (adminChamCongEmployees.length === 0) loadAdminChamCongData();
-                    else loadThongKeData();
+                    loadThongKeData();
                 }
             });
         });
