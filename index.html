@@ -960,14 +960,23 @@
         #tab-stats.active,
         #tab-sat.active,
         #tab-chamcong.active,
-        #tab-thongke.active,
         #tab-utils.active,
         #tab-kiemtra.active {
             display: flex;
             flex-direction: column;
             flex: 1;
+            height: 100%;
             min-height: 0;
             overflow: hidden;
+        }
+
+        #tab-thongke.active {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: 100%;
+            min-height: 0;
+            overflow-y: auto;
         }
 
         /* Ẩn footer ở tất cả các tab trừ tab Trang Chủ */
@@ -979,7 +988,6 @@
         .tab-scroll-content:has(#tab-schedule.active),
         .tab-scroll-content:has(#tab-sat.active),
         .tab-scroll-content:has(#tab-chamcong.active),
-        .tab-scroll-content:has(#tab-thongke.active),
         .tab-scroll-content:has(#tab-utils.active),
         .tab-scroll-content:has(#tab-kiemtra.active) {
             overflow: hidden !important;
@@ -991,21 +999,15 @@
 
 
         /* Tab fill toàn bộ chiều cao container cha */
-
         #tab-schedule.active,
-
         #tab-sat.active,
-
         #tab-utils.active,
-
-        #tab-kiemtra.active {
-
+        #tab-kiemtra.active,
+        #tab-chamcong.active,
+        #tab-thongke.active {
             flex: 1;
-
             height: 100%;
-
             min-height: 0;
-
         }
 
 
@@ -6346,7 +6348,9 @@
                                             <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
                                                     class="perm-cb" value="tab-busy"> ⏱ G.Bận</label>
                                             <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
-                                                    class="perm-cb" value="tab-stats"> 📊 T.Kê</label>
+                                                    class="perm-cb" value="tab-chamcong"> 📅 Chấm Công</label>
+                                            <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
+                                                    class="perm-cb" value="tab-thongke"> 📈 Thống Kê</label>
                                             <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
                                                     class="perm-cb" value="tab-utils"> 🛠 T.Ích</label>
                                             <label class="checkbox-item" style="margin-bottom:0;"><input type="checkbox"
@@ -15224,8 +15228,26 @@
         // ==========================================
         // QUẢN LÝ NHÂN SỰ CHẤM CÔNG (TỪ PM CŨ)
         // ==========================================
-        let adminChamCongEmployees = []; 
-        let adminChamCongStaffConfig = {};
+        const DEFAULT_CHAMCONG_STAFF = {
+            'KTV Lương': { keys: ['nguyễn thị xuân lương', 'ktv lương'], skills: 'PHCN', heSo: 1.0 },
+            'KTV Hà': { keys: ['nguyễn thị hà', 'ktv hà chip', 'ktv hà'], skills: 'PHCN', heSo: 1.0 },
+            'KTV Phan Hiền': { keys: ['phan thị thu hiền', 'ktv phan hiền'], skills: 'PHCN', heSo: 1.0 },
+            'KTV Lê Hiền': { keys: ['lê thị thu hiền', 'ktv lê hiền', 'ltv lê hiền'], skills: 'PHCN', heSo: 1.0 },
+            'KTV Khính': { keys: ['nguyễn văn khính', 'ktv khính'], skills: 'PHCN', heSo: 1.0 },
+            'ĐD Thuyến': { keys: ['phạm thị thuyến', 'đd thuyến', 'ktv thuyến'], skills: 'PHCN', heSo: 1.0 },
+            'ĐD Duyên': { keys: ['trần thị duyên', 'đd duyên', 'ktv duyên'], skills: 'PHCN', heSo: 1.0 },
+            'BS Đạt': { keys: ['hoàng đức đạt', 'bs đạt'], skills: 'Cả hai', heSo: 1.0 },
+            'BS Hoa': { keys: ['lê thị thu hoa', 'bs hoa'], skills: 'Cả hai', heSo: 1.0 },
+            'BS Thảo': { keys: ['nguyễn thị duyên thảo', 'bs thảo', 'bs thảo 2'], skills: 'Cả hai', heSo: 1.0 },
+            'BS Hằng': { keys: ['nguyễn thu hằng', 'bs hằng'], skills: 'Cả hai', heSo: 1.0 },
+            'BS Thái': { keys: ['đặng phong thái', 'bs thái'], skills: 'YHCT', heSo: 1.0 },
+            'BS Khuyến': { keys: ['phạm thạch khuyến', 'bs khuyến'], skills: 'YHCT', heSo: 1.0 }
+        };
+
+        const DEFAULT_CHAMCONG_EMPLOYEES = Object.keys(DEFAULT_CHAMCONG_STAFF);
+
+        let adminChamCongEmployees = [...DEFAULT_CHAMCONG_EMPLOYEES]; 
+        let adminChamCongStaffConfig = { ...DEFAULT_CHAMCONG_STAFF };
         let editAdminEmployeeIndex = -1;
 
         // Tự động nạp danh sách nhân sự từ cache khi khởi động
@@ -15234,33 +15256,25 @@
             if (Array.isArray(cachedEmp) && cachedEmp.length > 0) {
                 adminChamCongEmployees = cachedEmp;
             }
+            const cachedStaff = JSON.parse(localStorage.getItem('med_chamcong_staff_config') || '{}');
+            if (cachedStaff && Object.keys(cachedStaff).length > 0) {
+                adminChamCongStaffConfig = cachedStaff;
+            }
         } catch(e) {}
 
         function getOrLoadChamCongEmployees(callback) {
-            if (adminChamCongEmployees && adminChamCongEmployees.length > 0) {
-                if (callback) callback(adminChamCongEmployees);
-                return;
-            }
-
-            // 1. Kiểm tra cache localStorage
-            try {
-                const cached = JSON.parse(localStorage.getItem('med_chamcong_employees') || '[]');
-                if (Array.isArray(cached) && cached.length > 0) {
-                    adminChamCongEmployees = cached;
+            // 1. Kiểm tra cache / dataCache / default
+            if (adminChamCongEmployees.length === 0) {
+                if (typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
+                    adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
+                } else {
+                    adminChamCongEmployees = [...DEFAULT_CHAMCONG_EMPLOYEES];
                 }
-            } catch(e) {}
-
-            // 2. Kiểm tra dataCache.staff
-            if (adminChamCongEmployees.length === 0 && typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
-                adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
             }
 
-            // Nếu đã có nhân sự (từ cache/dataCache), gọi callback ngay để vẽ bảng không bị trắng
-            if (adminChamCongEmployees.length > 0 && callback) {
-                callback(adminChamCongEmployees);
-            }
+            if (callback) callback(adminChamCongEmployees);
 
-            // 3. Tải từ Google Drive / Backend
+            // 2. Tải đồng bộ ngầm từ Google Drive
             google.script.run.withSuccessHandler(empRes => {
                 let list = [];
                 if (empRes && empRes.status === 'success' && empRes.data) {
@@ -15273,20 +15287,11 @@
 
                 if (list.length > 0) {
                     adminChamCongEmployees = list;
-                } else if (adminChamCongEmployees.length === 0 && typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
-                    adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
-                }
-
-                if (adminChamCongEmployees.length > 0) {
                     try { localStorage.setItem('med_chamcong_employees', JSON.stringify(adminChamCongEmployees)); } catch(e){}
+                    if (callback) callback(adminChamCongEmployees);
                 }
-                if (callback) callback(adminChamCongEmployees);
             }).withFailureHandler(err => {
                 console.warn("getEmployees fallback:", err);
-                if (adminChamCongEmployees.length === 0 && typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
-                    adminChamCongEmployees = dataCache.staff.map(s => s.ten || s[1] || s[0]).filter(n => n && String(n).trim() !== '');
-                }
-                if (callback) callback(adminChamCongEmployees);
             }).getEmployees();
         }
         
@@ -15752,13 +15757,17 @@
             }, 1000);
         }
 
-        // Tự động set tháng hiện tại khi load
+        // Tự động set tháng hiện tại & render sẵn bảng khi load
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
             const monthEl = document.getElementById('chamcong-month-picker');
             const yearEl = document.getElementById('chamcong-year-picker');
             if (monthEl) monthEl.value = today.getMonth() + 1;
             if (yearEl) yearEl.value = today.getFullYear();
+
+            // Pre-render sẵn bảng Chấm Công và Thống Kê
+            try { renderChamCongTable(); } catch(e) { console.error(e); }
+            try { renderThongKeTable(); } catch(e) { console.error(e); }
         });
 
         // ==========================================

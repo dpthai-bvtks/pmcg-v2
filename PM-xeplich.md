@@ -1709,6 +1709,8 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   2. **Hàm tải nhân sự đa tầng `getOrLoadChamCongEmployees(callback)`:**
      - Tự động lấy ngay danh sách nhân sự từ cache `localStorage` hoặc nguồn `dataCache.staff` (danh bạ nhân sự phòng khám đã nạp) để render bảng ngay lập tức trong 0.01 giây, triệt tiêu hoàn toàn hiện tượng màn hình trắng hay chờ đợi.
      - Song song đồng bộ ngầm với Google Drive (`getEmployees()`) và tự động lưu cache cho các lần sau.
-  3. **Hiển thị trực tiếp không cần bấm "Xem":** Kích hoạt gọi `loadChamCongData()` và `loadThongKeData()` ngay khi bấm chuyển tab hoặc khi truy cập trực tiếp qua Hash URL (`#tab-chamcong`, `#tab-thongke`).
-  4. Đã kiểm tra cú pháp toàn bộ hệ thống (**0 lỗi syntax**) và đẩy code lên nhánh `main`.
+  3. **Hiển thị trực tiếp không cần bấm "Xem" & Pre-render DOM:** Kích hoạt gọi `loadChamCongData()` và `loadThongKeData()` ngay khi bấm chuyển tab hoặc khi truy cập trực tiếp qua Hash URL (`#tab-chamcong`, `#tab-thongke`). Tự động render sẵn cấu trúc bảng trong sự kiện `DOMContentLoaded` với bộ dữ liệu mặc định 13 nhân viên khoa YHCT-PHCN (`DEFAULT_CHAMCONG_STAFF`), bảo đảm mở tab ra là có bảng ngay 100%.
+  4. **Khắc phục CSS Height & Overflow:** Cập nhật CSS cho `#tab-chamcong.active` và `#tab-thongke.active` có `height: 100%; min-height: 0; flex: 1; overflow-y: auto;` để container không bị co lại chiều cao = 0 trên các trình duyệt. Bổ sung quyền hạn Chấm công và Thống kê vào bảng phân quyền tài khoản Admin.
+  5. Đã kiểm tra cú pháp toàn bộ hệ thống (**0 lỗi syntax**) và đẩy code lên nhánh `main`.
+
 
