@@ -1730,3 +1730,23 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   3. **Đồng bộ hóa ngày ký trên các file xuất khác:**
      - Cập nhật dòng ngày ký trên file `Bang_Cham_Cong_*.xlsx` và `Bang_Thuc_Linh_*.xlsx` tự động hiển thị ngày cuối cùng của tháng thay vì dấu `...`.
   4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi**) và đẩy code lên nhánh `main`.
+
+### Phiên làm việc (Bỏ chữ Tháng/Năm cạnh tiêu đề báo cáo, thêm cột Chức Danh trong Tab Admin và Sheet 3 Bảng Thanh Toán)
+- **Yêu cầu:** 
+  1. Bỏ phần chữ "Tháng... năm..." bên cạnh tiêu đề "BẢNG TỔNG HỢP TIỀN THỦ THUẬT" (và các tiêu đề tương tự) ở tất cả các sheet trong file xuất báo cáo vì đã có ô ngày tháng ở chân trang.
+  2. Bổ sung cột "Chức Danh" (Bác sĩ, KTV, Điều dưỡng, v.v.) vào Sheet 3 ("Bảng Thanh Toán") trong file Báo Cáo.
+  3. Bổ sung thêm 1 cột "Chức Danh" trong danh sách nhân viên của Tab Admin và form thêm/sửa nhân viên để cấu hình chức danh.
+- **Giải pháp triển khai:**
+  1. **Tab Quản trị Nhân sự (Admin):**
+     - Bổ sung cột "CHỨC DANH" trên bảng `#table-admin-employees` với badge phân loại màu sắc chuyên nghiệp (Bác sĩ: Xanh dương, KTV: Xanh lá, Điều dưỡng: Tím).
+     - Bổ sung trường chọn Chức Danh trong Modal thêm/sửa nhân sự (`#modal-admin-employee`) và lưu cấu hình vào `adminChamCongStaffConfig` trên Google Drive.
+     - Hàm `getEmployeeRole(empName)` tự động nhận diện thông minh (BS -> Bác sĩ, KTV -> KTV, ĐD -> Điều dưỡng) nếu chưa có cấu hình thủ công.
+  2. **Tiêu đề gọn gàng cho 3 Sheet Báo Cáo:**
+     - **Sheet 1:** Tiêu đề chuẩn `BẢNG TỔNG HỢP TIỀN THỦ THUẬT` (Bỏ tháng năm và dòng phụ).
+     - **Sheet 2:** Tiêu đề chuẩn `BẢNG TỔNG HỢP CÁC LOẠI THỦ THUẬT` (Bỏ tháng năm và dòng phụ).
+     - **Sheet 3:** Tiêu đề chuẩn `BẢNG THANH TOÁN TIỀN THỦ THUẬT` (Bỏ tháng năm và dòng phụ).
+  3. **Nâng cấp Sheet 3 (Bảng Thanh Toán) chuẩn 5 cột:**
+     - Cột: STT | HỌ VÀ TÊN | CHỨC DANH | SỐ TIỀN THỰC NHẬN (VNĐ) | KÝ NHẬN.
+     - Hiển thị chức danh chính xác của từng nhân sự, căn giữa và in đậm.
+     - Hàng Tổng cộng merge 3 cột (STT + Họ tên + Chức danh), dòng đọc tiền bằng chữ merge 5 cột và 3 chữ ký DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU cân đối tuyệt đối.
+  4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi syntax**) và đẩy code lên nhánh `main`.
