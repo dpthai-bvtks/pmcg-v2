@@ -16638,10 +16638,17 @@
             titleCell1.alignment = { vertical: 'middle', horizontal: 'center' };
             ws1.getRow(4).height = 28;
 
+            ws1.mergeCells('A5:I5');
+            const subTitleCell1 = ws1.getCell('A5');
+            subTitleCell1.value = `(${timeInfo.label})`;
+            subTitleCell1.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell1.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws1.getRow(5).height = 20;
+
             const headers1 = ['STT', 'HỌ VÀ TÊN', 'TT LOẠI 1 (SL)', 'THÀNH TIỀN L1', 'TT LOẠI 2 (SL)', 'THÀNH TIỀN L2', 'TT LOẠI 3 (SL)', 'THÀNH TIỀN L3', 'TỔNG TIỀN (VNĐ)'];
-            ws1.getRow(6).height = 28;
+            ws1.getRow(7).height = 28;
             headers1.forEach((h, i) => {
-                const cell = ws1.getCell(6, i + 1);
+                const cell = ws1.getCell(7, i + 1);
                 cell.value = h;
                 cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
@@ -16654,7 +16661,7 @@
                 };
             });
 
-            let startRow1 = 7;
+            let startRow1 = 8;
             let sumL1 = 0, sumL2 = 0, sumL3 = 0;
             let sumMoneyL1 = 0, sumMoneyL2 = 0, sumMoneyL3 = 0, sumTotalAll = 0;
 
@@ -16847,10 +16854,17 @@
             titleCell2.alignment = { vertical: 'middle', horizontal: 'center' };
             ws2.getRow(4).height = 28;
 
+            ws2.mergeCells('A5:D5');
+            const subTitleCell2 = ws2.getCell('A5');
+            subTitleCell2.value = `(${timeInfo.label})`;
+            subTitleCell2.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell2.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws2.getRow(5).height = 20;
+
             const headers2 = ['STT', 'LOẠI THỦ THUẬT', 'SỐ LƯỢNG', 'THÀNH TIỀN (VNĐ)'];
-            ws2.getRow(6).height = 28;
+            ws2.getRow(7).height = 28;
             headers2.forEach((h, i) => {
-                const cell = ws2.getCell(6, i + 1);
+                const cell = ws2.getCell(7, i + 1);
                 cell.value = h;
                 cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
@@ -16865,7 +16879,7 @@
             ];
 
             sheet2Data.forEach((row, i) => {
-                const r = 7 + i;
+                const r = 8 + i;
                 ws2.getRow(r).height = 22;
                 ws2.getCell(r, 1).value = row.stt;
                 ws2.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
@@ -16887,33 +16901,33 @@
             });
 
             // Tổng cộng Sheet 2
-            ws2.getRow(10).height = 24;
-            ws2.mergeCells('A10:B10');
-            ws2.getCell('A10').value = 'TỔNG CỘNG';
-            ws2.getCell('A10').font = { bold: true };
-            ws2.getCell('A10').alignment = { vertical: 'middle', horizontal: 'center' };
+            ws2.getRow(11).height = 24;
+            ws2.mergeCells('A11:B11');
+            ws2.getCell('A11').value = 'TỔNG CỘNG';
+            ws2.getCell('A11').font = { bold: true };
+            ws2.getCell('A11').alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws2.getCell('C10').value = sumL1 + sumL2 + sumL3;
-            ws2.getCell('C10').font = { bold: true };
-            ws2.getCell('C10').alignment = { vertical: 'middle', horizontal: 'center' };
+            ws2.getCell('C11').value = sumL1 + sumL2 + sumL3;
+            ws2.getCell('C11').font = { bold: true };
+            ws2.getCell('C11').alignment = { vertical: 'middle', horizontal: 'center' };
 
-            ws2.getCell('D10').value = sumTotalAll;
-            ws2.getCell('D10').numFmt = '#,##0';
-            ws2.getCell('D10').font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
-            ws2.getCell('D10').alignment = { vertical: 'middle', horizontal: 'right' };
+            ws2.getCell('D11').value = sumTotalAll;
+            ws2.getCell('D11').numFmt = '#,##0';
+            ws2.getCell('D11').font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
+            ws2.getCell('D11').alignment = { vertical: 'middle', horizontal: 'right' };
 
             for (let c = 1; c <= 4; c++) {
-                const cell = ws2.getCell(10, c);
+                const cell = ws2.getCell(11, c);
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
                 cell.border = { top: { style: 'medium' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
             }
 
-            ws2.mergeCells('A11:D11');
-            ws2.getCell('A11').value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
-            ws2.getCell('A11').font = { name: 'Times New Roman', size: 11, italic: true, bold: true };
+            ws2.mergeCells('A12:D12');
+            ws2.getCell('A12').value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
+            ws2.getCell('A12').font = { name: 'Times New Roman', size: 11, italic: true, bold: true };
 
-            // Chữ ký Sheet 2 (Chuẩn 3 cột DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU)
-            const sigDateRow2 = 13;
+            // Chữ ký Sheet 2 (Chuẩn 3 cột DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU, KHÔNG BỊ KHUẤT)
+            const sigDateRow2 = 14;
             ws2.mergeCells(`C${sigDateRow2}:D${sigDateRow2}`);
             const dateCell2 = ws2.getCell(`C${sigDateRow2}`);
             dateCell2.value = timeInfo.dateSignStr;
@@ -16923,13 +16937,13 @@
             const sigTitleRow2 = sigDateRow2 + 1;
             ws2.getRow(sigTitleRow2).height = 24;
 
+            ws2.mergeCells(sigTitleRow2, 1, sigTitleRow2, 2);
             const cDuyet2 = ws2.getCell(sigTitleRow2, 1);
             cDuyet2.value = 'DUYỆT LÃNH ĐẠO';
             cDuyet2.font = { name: 'Times New Roman', size: 11, bold: true };
             cDuyet2.alignment = { horizontal: 'center', vertical: 'middle' };
 
-            ws2.mergeCells(sigTitleRow2, 2, sigTitleRow2, 3);
-            const cPtKhoa2 = ws2.getCell(sigTitleRow2, 2);
+            const cPtKhoa2 = ws2.getCell(sigTitleRow2, 3);
             cPtKhoa2.value = 'PT KHOA';
             cPtKhoa2.font = { name: 'Times New Roman', size: 11, bold: true };
             cPtKhoa2.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -16940,9 +16954,9 @@
             cLapBieu2.alignment = { horizontal: 'center', vertical: 'middle' };
 
             ws2.getColumn(1).width = 6;
-            ws2.getColumn(2).width = 26;
+            ws2.getColumn(2).width = 28;
             ws2.getColumn(3).width = 16;
-            ws2.getColumn(4).width = 22;
+            ws2.getColumn(4).width = 24;
 
             // ================= SHEET 3: BẢNG THANH TOÁN TIỀN THỦ THUẬT =================
             const ws3 = workbook.addWorksheet('Bảng Thanh Toán', { views: [{ showGridLines: true }] });
@@ -16951,17 +16965,24 @@
             ws3.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
             ws3.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
 
-            ws3.mergeCells('A4:E4');
+            ws3.mergeCells('A4:D4');
             const titleCell3 = ws3.getCell('A4');
             titleCell3.value = 'BẢNG THANH TOÁN TIỀN THỦ THUẬT';
             titleCell3.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FF1E40AF' } };
             titleCell3.alignment = { vertical: 'middle', horizontal: 'center' };
             ws3.getRow(4).height = 28;
 
-            const headers3 = ['STT', 'HỌ VÀ TÊN', 'CHỨC DANH', 'SỐ TIỀN THỰC NHẬN (VNĐ)', 'KÝ NHẬN'];
-            ws3.getRow(6).height = 28;
+            ws3.mergeCells('A5:D5');
+            const subTitleCell3 = ws3.getCell('A5');
+            subTitleCell3.value = `(${timeInfo.label})`;
+            subTitleCell3.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell3.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws3.getRow(5).height = 20;
+
+            const headers3 = ['STT', 'HỌ VÀ TÊN', 'CHỨC DANH', 'SỐ TIỀN'];
+            ws3.getRow(7).height = 28;
             headers3.forEach((h, i) => {
-                const cell = ws3.getCell(6, i + 1);
+                const cell = ws3.getCell(7, i + 1);
                 cell.value = h;
                 cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
@@ -16970,7 +16991,7 @@
             });
 
             adminChamCongEmployees.forEach((emp, idx) => {
-                const r = 7 + idx;
+                const r = 8 + idx;
                 ws3.getRow(r).height = 22;
 
                 const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : {};
@@ -17012,15 +17033,12 @@
                 ws3.getCell(r, 4).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF15803D' } };
                 ws3.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'right' };
 
-                ws3.getCell(r, 5).value = ''; // Ký nhận
-                ws3.getCell(r, 5).alignment = { vertical: 'middle', horizontal: 'center' };
-
-                for (let c = 1; c <= 5; c++) {
+                for (let c = 1; c <= 4; c++) {
                     ws3.getCell(r, c).border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
                 }
             });
 
-            const totalRow3 = 7 + adminChamCongEmployees.length;
+            const totalRow3 = 8 + adminChamCongEmployees.length;
             ws3.getRow(totalRow3).height = 24;
             ws3.mergeCells(`A${totalRow3}:C${totalRow3}`);
             ws3.getCell(`A${totalRow3}`).value = 'TỔNG CỘNG';
@@ -17032,20 +17050,20 @@
             ws3.getCell(`D${totalRow3}`).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
             ws3.getCell(`D${totalRow3}`).alignment = { vertical: 'middle', horizontal: 'right' };
 
-            for (let c = 1; c <= 5; c++) {
+            for (let c = 1; c <= 4; c++) {
                 const cell = ws3.getCell(totalRow3, c);
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
                 cell.border = { top: { style: 'medium' }, bottom: { style: 'double' }, left: { style: 'thin' }, right: { style: 'thin' } };
             }
 
-            ws3.mergeCells(`A${totalRow3 + 1}:E${totalRow3 + 1}`);
+            ws3.mergeCells(`A${totalRow3 + 1}:D${totalRow3 + 1}`);
             ws3.getCell(`A${totalRow3 + 1}`).value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
             ws3.getCell(`A${totalRow3 + 1}`).font = { name: 'Times New Roman', size: 11, italic: true, bold: true };
 
-            // Chữ ký Sheet 3 (Chuẩn 3 cột DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU)
+            // Chữ ký Sheet 3 (Chuẩn 3 cột DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU, KHÔNG BỊ KHUẤT)
             const sigDateRow3 = totalRow3 + 3;
-            ws3.mergeCells(sigDateRow3, 4, sigDateRow3, 5);
-            const dateCell3 = ws3.getCell(sigDateRow3, 4);
+            ws3.mergeCells(sigDateRow3, 3, sigDateRow3, 4);
+            const dateCell3 = ws3.getCell(sigDateRow3, 3);
             dateCell3.value = timeInfo.dateSignStr;
             dateCell3.font = { name: 'Times New Roman', size: 11, italic: true };
             dateCell3.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -17064,17 +17082,15 @@
             cPtKhoa3.font = { name: 'Times New Roman', size: 11, bold: true };
             cPtKhoa3.alignment = { horizontal: 'center', vertical: 'middle' };
 
-            ws3.mergeCells(sigTitleRow3, 4, sigTitleRow3, 5);
             const cLapBieu3 = ws3.getCell(sigTitleRow3, 4);
             cLapBieu3.value = 'NGƯỜI LẬP BIỂU';
             cLapBieu3.font = { name: 'Times New Roman', size: 11, bold: true };
             cLapBieu3.alignment = { horizontal: 'center', vertical: 'middle' };
 
             ws3.getColumn(1).width = 6;
-            ws3.getColumn(2).width = 25;
-            ws3.getColumn(3).width = 15;
-            ws3.getColumn(4).width = 25;
-            ws3.getColumn(5).width = 18;
+            ws3.getColumn(2).width = 26;
+            ws3.getColumn(3).width = 18;
+            ws3.getColumn(4).width = 24;
 
             workbook.xlsx.writeBuffer().then(buffer => {
                 saveExcelBuffer(buffer, `Bang_Tien_${timeInfo.fileSuffix}.xlsx`);

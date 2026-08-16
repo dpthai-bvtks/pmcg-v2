@@ -1758,3 +1758,20 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   2. Loại bỏ card `#thongke-price-config-card` ("Cấu Hình Đơn Giá Thủ Thuật (VNĐ)") khỏi Tab Thống Kê.
   3. Tối ưu hóa lại hàm JavaScript `initPriceConfigUI()` và `saveProcedurePrices()`, loại bỏ hàm `toggleThongKePriceConfig()` và các liên kết thừa, tập trung quản lý đơn giá duy nhất tại Tab Quản Trị Admin.
   4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi syntax**) và đẩy code lên nhánh `main`.
+
+### Phiên làm việc (Phục hồi dòng phụ tháng năm, sửa khuất chữ ký Sheet 2, cấu hình 4 cột Sheet 3)
+- **Yêu cầu:** 
+  1. Phục hồi dòng chữ nhỏ "(Tháng ... năm ...)" ở dưới tiêu đề bảng của cả 3 sheet.
+  2. Khắc phục lỗi chữ ký "DUYỆT LÃNH ĐẠO" ở góc dưới Sheet 2 bị che khuất / co hẹp ("[ LÃN]").
+  3. Cấu hình lại Sheet 3 ("Bảng Thanh Toán"): Bỏ cột "Ký nhận", đổi tên cột thành "SỐ TIỀN" (chuẩn 4 cột: STT | HỌ VÀ TÊN | CHỨC DANH | SỐ TIỀN).
+- **Giải pháp triển khai:**
+  1. **Dòng phụ (Tháng ... năm ...):**
+     - Đặt tại Hàng 5 căn giữa, in nghiêng, màu xám thanh lịch #475569 ngay dưới Tiêu đề bảng Hàng 4 của tất cả các Sheet trong file Báo Cáo.
+  2. **Khắc phục chữ ký Sheet 2:**
+     - Merge cột A và B (độ rộng 6 + 28 = 34) cho khối "DUYỆT LÃNH ĐẠO", cột C (độ rộng 16) cho "PT KHOA", cột D (độ rộng 24) cho "NGƯỜI LẬP BIỂU" và ngày ký ở góc phải. Chữ ký hiển thị thoáng đãng, không bị cắt chữ.
+  3. **Sheet 3 (Bảng Thanh Toán) chuẩn 4 cột:**
+     - Tiêu đề cột: ['STT', 'HỌ VÀ TÊN', 'CHỨC DANH', 'SỐ TIỀN'] (bỏ cột Ký nhận và cụm từ "Thực nhận").
+     - Hàng Tổng cộng merge 3 cột A-C, Cột D hiển thị tổng số tiền.
+     - Dòng đọc tiền bằng chữ merge 4 cột A-D.
+     - 3 chữ ký căn đối: Merge A-B cho "DUYỆT LÃNH ĐẠO", C cho "PT KHOA", D cho "NGƯỜI LẬP BIỂU".
+  4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi syntax**) và đẩy code lên nhánh main.
