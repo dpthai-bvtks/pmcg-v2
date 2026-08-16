@@ -1714,3 +1714,19 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   5. Đã kiểm tra cú pháp toàn bộ hệ thống (**0 lỗi syntax**) và đẩy code lên nhánh `main`.
 
 
+
+### Phiên làm việc (Cập nhật chân trang ký tên và ngày tháng file Xuất Báo Cáo Thủ Thuật)
+- **Yêu cầu:** 
+  - Phía dưới bảng của tất cả các sheet trong file xuất báo cáo (`exportThongKeExcel`) bố trí đúng chuẩn 3 cột chức danh: `DUYỆT LÃNH ĐẠO`, `PT KHOA`, `NGƯỜI LẬP BIỂU`.
+  - Phần ngày tháng (`Mạo Khê, ngày ... tháng ... năm ...`) tự động tính chính xác theo ngày cuối cùng của tháng/kỳ được chọn (ví dụ: Tháng 8/2026 -> `Mạo Khê, ngày 31 tháng 08 năm 2026`).
+- **Giải pháp triển khai:**
+  1. **Tính ngày cuối tháng động (`getThongKeTimeLabel`):**
+     - Bổ sung logic tính toán `lastDay = new Date(endYear, endMonth, 0).getDate()` để lấy chính xác số ngày của tháng (kể cả năm nhuận hay kỳ Quý / Tùy chọn).
+     - Định dạng chuỗi ngày ký chuẩn y tế: `Mạo Khê, ngày ${lastDayStr} tháng ${endMonthStr} năm ${endYear}` (ví dụ: `Mạo Khê, ngày 31 tháng 08 năm 2026`).
+  2. **Cập nhật chân trang cho cả 3 Sheet trong file Báo Cáo (`exportThongKeExcel`):**
+     - **Sheet 1 (`Bảng Tiền Chi Tiết`):** Dòng ngày ký đặt tại góc phải (cột G-I). Dòng chức danh chia đều 3 khối in đậm, căn giữa: `DUYỆT LÃNH ĐẠO` (cột A-C), `PT KHOA` (cột D-F), `NGƯỜI LẬP BIỂU` (cột G-I).
+     - **Sheet 2 (`Tổng Hợp Loại TT`):** Dòng ngày ký đặt góc phải (cột C-D). Dòng chức danh gồm `DUYỆT LÃNH ĐẠO` (cột A), `PT KHOA` (cột B-C), `NGƯỜI LẬP BIỂU` (cột D).
+     - **Sheet 3 (`Bảng Thanh Toán`):** Dòng ngày ký đặt góc phải (cột C-D). Dòng chức danh gồm `DUYỆT LÃNH ĐẠO` (cột A), `PT KHOA` (cột B-C), `NGƯỜI LẬP BIỂU` (cột D).
+  3. **Đồng bộ hóa ngày ký trên các file xuất khác:**
+     - Cập nhật dòng ngày ký trên file `Bang_Cham_Cong_*.xlsx` và `Bang_Thuc_Linh_*.xlsx` tự động hiển thị ngày cuối cùng của tháng thay vì dấu `...`.
+  4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi**) và đẩy code lên nhánh `main`.

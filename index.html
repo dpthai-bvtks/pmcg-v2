@@ -16298,68 +16298,75 @@
 
         function getThongKeTimeLabel() {
             const mode = document.getElementById('thongke-mode')?.value || 'current';
-            const year = document.getElementById('chamcong-year-picker')?.value || '2026';
-            const month = document.getElementById('chamcong-month-picker')?.value || '8';
+            const year = parseInt(document.getElementById('chamcong-year-picker')?.value || '2026');
+            const month = parseInt(document.getElementById('chamcong-month-picker')?.value || '8');
             
+            let endYear = year;
+            let endMonth = month;
+            let titleStr = '';
+            let label = '';
+            let fileSuffix = '';
+
             if (mode === 'current') {
-                return { 
-                    label: `Tháng ${month} năm ${year}`, 
-                    titleStr: `THÁNG ${month} NĂM ${year}`,
-                    fileSuffix: `Thang_${month}_${year}`,
-                    year: parseInt(year),
-                    month: parseInt(month)
-                };
+                endYear = year;
+                endMonth = month;
+                const mStr = String(month).padStart(2, '0');
+                titleStr = `THÁNG ${mStr} NĂM ${year}`;
+                label = `Tháng ${mStr} năm ${year}`;
+                fileSuffix = `Thang_${mStr}_${year}`;
             } else if (mode === 'q1') {
-                return { 
-                    label: `Quý I năm ${year} (Tháng 1 - 3)`, 
-                    titleStr: `QUÝ I NĂM ${year}`,
-                    fileSuffix: `Quy_I_${year}`,
-                    year: parseInt(year),
-                    month: 3
-                };
+                endYear = year;
+                endMonth = 3;
+                titleStr = `QUÝ I NĂM ${year}`;
+                label = `Quý I năm ${year} (Tháng 1 - 3)`;
+                fileSuffix = `Quy_I_${year}`;
             } else if (mode === 'q2') {
-                return { 
-                    label: `Quý II năm ${year} (Tháng 4 - 6)`, 
-                    titleStr: `QUÝ II NĂM ${year}`,
-                    fileSuffix: `Quy_II_${year}`,
-                    year: parseInt(year),
-                    month: 6
-                };
+                endYear = year;
+                endMonth = 6;
+                titleStr = `QUÝ II NĂM ${year}`;
+                label = `Quý II năm ${year} (Tháng 4 - 6)`;
+                fileSuffix = `Quy_II_${year}`;
             } else if (mode === 'q3') {
-                return { 
-                    label: `Quý III năm ${year} (Tháng 7 - 9)`, 
-                    titleStr: `QUÝ III NĂM ${year}`,
-                    fileSuffix: `Quy_III_${year}`,
-                    year: parseInt(year),
-                    month: 9
-                };
+                endYear = year;
+                endMonth = 9;
+                titleStr = `QUÝ III NĂM ${year}`;
+                label = `Quý III năm ${year} (Tháng 7 - 9)`;
+                fileSuffix = `Quy_III_${year}`;
             } else if (mode === 'q4') {
-                return { 
-                    label: `Quý IV năm ${year} (Tháng 10 - 12)`, 
-                    titleStr: `QUÝ IV NĂM ${year}`,
-                    fileSuffix: `Quy_IV_${year}`,
-                    year: parseInt(year),
-                    month: 12
-                };
+                endYear = year;
+                endMonth = 12;
+                titleStr = `QUÝ IV NĂM ${year}`;
+                label = `Quý IV năm ${year} (Tháng 10 - 12)`;
+                fileSuffix = `Quy_IV_${year}`;
             } else if (mode === 'custom') {
                 const startVal = document.getElementById('custom-start-date')?.value || `${year}-01`;
                 const endVal = document.getElementById('custom-end-date')?.value || `${year}-${String(month).padStart(2, '0')}`;
-                const [startY, startM] = startVal.split('-');
-                const [endY, endM] = endVal.split('-');
-                return { 
-                    label: `Từ tháng ${startM}/${startY} đến tháng ${endM}/${endY}`, 
-                    titleStr: `TỪ THÁNG ${startM}/${startY} ĐẾN THÁNG ${endM}/${endY}`,
-                    fileSuffix: `Tu_${startM}_${startY}_Den_${endM}_${endY}`,
-                    year: parseInt(endY),
-                    month: parseInt(endM)
-                };
+                const [startY, startM] = startVal.split('-').map(Number);
+                const [endY, endM] = endVal.split('-').map(Number);
+                endYear = endY;
+                endMonth = endM;
+                const sMStr = String(startM).padStart(2, '0');
+                const eMStr = String(endM).padStart(2, '0');
+                titleStr = `TỪ THÁNG ${sMStr}/${startY} ĐẾN THÁNG ${eMStr}/${endY}`;
+                label = `Từ tháng ${sMStr}/${startY} đến tháng ${eMStr}/${endY}`;
+                fileSuffix = `Tu_${sMStr}_${startY}_Den_${eMStr}_${endY}`;
             }
-            return { 
-                label: `Tháng ${month} năm ${year}`, 
-                titleStr: `THÁNG ${month} NĂM ${year}`,
-                fileSuffix: `Thang_${month}_${year}`,
-                year: parseInt(year),
-                month: parseInt(month)
+
+            const lastDay = new Date(endYear, endMonth, 0).getDate();
+            const lastDayStr = String(lastDay).padStart(2, '0');
+            const endMonthStr = String(endMonth).padStart(2, '0');
+            const dateSignStr = `Mạo Khê, ngày ${lastDayStr} tháng ${endMonthStr} năm ${endYear}`;
+
+            return {
+                label,
+                titleStr,
+                fileSuffix,
+                year: endYear,
+                month: endMonth,
+                lastDay,
+                lastDayStr,
+                endMonthStr,
+                dateSignStr
             };
         }
 
@@ -16586,8 +16593,11 @@
             }
 
             // Phần ký tên (Signatures)
+            const lastDayCC = new Date(year, month, 0).getDate();
+            const lastDayCCStr = String(lastDayCC).padStart(2, '0');
+            const monthCCStr = String(month).padStart(2, '0');
             const sigRow = totalRowIdx + 2;
-            ws.getCell(sigRow, Math.max(1, totalCols - 5)).value = `Mạo Khê, ngày ... tháng ${month} năm ${year}`;
+            ws.getCell(sigRow, Math.max(1, totalCols - 5)).value = `Mạo Khê, ngày ${lastDayCCStr} tháng ${monthCCStr} năm ${year}`;
             ws.getCell(sigRow, Math.max(1, totalCols - 5)).font = { name: 'Times New Roman', size: 11, italic: true };
 
             const sigTitleRow = sigRow + 1;
@@ -16829,26 +16839,34 @@
             rmCell1.value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
             rmCell1.font = { name: 'Times New Roman', size: 11, italic: true, bold: true, color: { argb: 'FF1E293B' } };
 
-            // Chữ ký Sheet 1
-            const sigRow1 = readMoneyRow1 + 2;
-            ws1.getCell(sigRow1, 7).value = 'Mạo Khê, ngày ... tháng ... năm ...';
-            ws1.getCell(sigRow1, 7).font = { name: 'Times New Roman', size: 11, italic: true };
+            // Chữ ký Sheet 1 (Chuẩn 3 cột DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU)
+            const sigDateRow1 = readMoneyRow1 + 2;
+            ws1.mergeCells(sigDateRow1, 7, sigDateRow1, 9);
+            const dateCell1 = ws1.getCell(sigDateRow1, 7);
+            dateCell1.value = timeInfo.dateSignStr;
+            dateCell1.font = { name: 'Times New Roman', size: 11, italic: true };
+            dateCell1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-            const sigTitleRow1 = sigRow1 + 1;
-            ws1.getCell(sigTitleRow1, 2).value = 'NGƯỜI LẬP BIỂU';
-            ws1.getCell(sigTitleRow1, 2).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws1.getCell(sigTitleRow1, 2).alignment = { horizontal: 'center' };
+            const sigTitleRow1 = sigDateRow1 + 1;
+            ws1.getRow(sigTitleRow1).height = 24;
 
-            ws1.getCell(sigTitleRow1, 8).value = 'TRƯỞNG KHOA';
-            ws1.getCell(sigTitleRow1, 8).font = { name: 'Times New Roman', size: 11, bold: true };
-            ws1.getCell(sigTitleRow1, 8).alignment = { horizontal: 'center' };
+            ws1.mergeCells(sigTitleRow1, 1, sigTitleRow1, 3);
+            const cDuyet1 = ws1.getCell(sigTitleRow1, 1);
+            cDuyet1.value = 'DUYỆT LÃNH ĐẠO';
+            cDuyet1.font = { name: 'Times New Roman', size: 11, bold: true };
+            cDuyet1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-            [2, 8].forEach(col => {
-                const c = ws1.getCell(sigTitleRow1 + 1, col);
-                c.value = '(Ký, họ tên)';
-                c.font = { name: 'Times New Roman', size: 9.5, italic: true };
-                c.alignment = { horizontal: 'center' };
-            });
+            ws1.mergeCells(sigTitleRow1, 4, sigTitleRow1, 6);
+            const cPtKhoa1 = ws1.getCell(sigTitleRow1, 4);
+            cPtKhoa1.value = 'PT KHOA';
+            cPtKhoa1.font = { name: 'Times New Roman', size: 11, bold: true };
+            cPtKhoa1.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            ws1.mergeCells(sigTitleRow1, 7, sigTitleRow1, 9);
+            const cLapBieu1 = ws1.getCell(sigTitleRow1, 7);
+            cLapBieu1.value = 'NGƯỜI LẬP BIỂU';
+            cLapBieu1.font = { name: 'Times New Roman', size: 11, bold: true };
+            cLapBieu1.alignment = { horizontal: 'center', vertical: 'middle' };
 
             ws1.getColumn(1).width = 6;
             ws1.getColumn(2).width = 25;
@@ -16944,21 +16962,32 @@
             ws2.getCell('A12').value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
             ws2.getCell('A12').font = { name: 'Times New Roman', size: 11, italic: true, bold: true };
 
-            // Chữ ký Sheet 2
-            ws2.getCell('D14').value = 'Mạo Khê, ngày ... tháng ... năm ...';
-            ws2.getCell('D14').font = { name: 'Times New Roman', size: 11, italic: true };
-            ws2.getCell('B15').value = 'NGƯỜI LẬP BIỂU';
-            ws2.getCell('B15').font = { bold: true };
-            ws2.getCell('B15').alignment = { horizontal: 'center' };
-            ws2.getCell('D15').value = 'TRƯỞNG KHOA';
-            ws2.getCell('D15').font = { bold: true };
-            ws2.getCell('D15').alignment = { horizontal: 'center' };
-            ws2.getCell('B16').value = '(Ký, họ tên)';
-            ws2.getCell('B16').font = { italic: true, size: 9.5 };
-            ws2.getCell('B16').alignment = { horizontal: 'center' };
-            ws2.getCell('D16').value = '(Ký, họ tên)';
-            ws2.getCell('D16').font = { italic: true, size: 9.5 };
-            ws2.getCell('D16').alignment = { horizontal: 'center' };
+            // Chữ ký Sheet 2 (Chuẩn 3 cột DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU)
+            const sigDateRow2 = 14;
+            ws2.mergeCells(`C${sigDateRow2}:D${sigDateRow2}`);
+            const dateCell2 = ws2.getCell(`C${sigDateRow2}`);
+            dateCell2.value = timeInfo.dateSignStr;
+            dateCell2.font = { name: 'Times New Roman', size: 11, italic: true };
+            dateCell2.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const sigTitleRow2 = sigDateRow2 + 1;
+            ws2.getRow(sigTitleRow2).height = 24;
+
+            const cDuyet2 = ws2.getCell(sigTitleRow2, 1);
+            cDuyet2.value = 'DUYỆT LÃNH ĐẠO';
+            cDuyet2.font = { name: 'Times New Roman', size: 11, bold: true };
+            cDuyet2.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            ws2.mergeCells(sigTitleRow2, 2, sigTitleRow2, 3);
+            const cPtKhoa2 = ws2.getCell(sigTitleRow2, 2);
+            cPtKhoa2.value = 'PT KHOA';
+            cPtKhoa2.font = { name: 'Times New Roman', size: 11, bold: true };
+            cPtKhoa2.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const cLapBieu2 = ws2.getCell(sigTitleRow2, 4);
+            cLapBieu2.value = 'NGƯỜI LẬP BIỂU';
+            cLapBieu2.font = { name: 'Times New Roman', size: 11, bold: true };
+            cLapBieu2.alignment = { horizontal: 'center', vertical: 'middle' };
 
             ws2.getColumn(1).width = 6;
             ws2.getColumn(2).width = 26;
@@ -17064,21 +17093,32 @@
             ws3.getCell(`A${totalRow3 + 1}`).value = `Số tiền bằng chữ: ${readMoneyVietnamese(sumTotalAll)}`;
             ws3.getCell(`A${totalRow3 + 1}`).font = { name: 'Times New Roman', size: 11, italic: true, bold: true };
 
-            // Chữ ký Sheet 3
-            ws3.getCell(totalRow3 + 3, 4).value = 'Mạo Khê, ngày ... tháng ... năm ...';
-            ws3.getCell(totalRow3 + 3, 4).font = { name: 'Times New Roman', size: 11, italic: true };
-            ws3.getCell(totalRow3 + 4, 2).value = 'NGƯỜI LẬP BIỂU';
-            ws3.getCell(totalRow3 + 4, 2).font = { bold: true };
-            ws3.getCell(totalRow3 + 4, 2).alignment = { horizontal: 'center' };
-            ws3.getCell(totalRow3 + 4, 4).value = 'TRƯỞNG KHOA';
-            ws3.getCell(totalRow3 + 4, 4).font = { bold: true };
-            ws3.getCell(totalRow3 + 4, 4).alignment = { horizontal: 'center' };
-            ws3.getCell(totalRow3 + 5, 2).value = '(Ký, họ tên)';
-            ws3.getCell(totalRow3 + 5, 2).font = { italic: true, size: 9.5 };
-            ws3.getCell(totalRow3 + 5, 2).alignment = { horizontal: 'center' };
-            ws3.getCell(totalRow3 + 5, 4).value = '(Ký, họ tên)';
-            ws3.getCell(totalRow3 + 5, 4).font = { italic: true, size: 9.5 };
-            ws3.getCell(totalRow3 + 5, 4).alignment = { horizontal: 'center' };
+            // Chữ ký Sheet 3 (Chuẩn 3 cột DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU)
+            const sigDateRow3 = totalRow3 + 3;
+            ws3.mergeCells(sigDateRow3, 3, sigDateRow3, 4);
+            const dateCell3 = ws3.getCell(sigDateRow3, 3);
+            dateCell3.value = timeInfo.dateSignStr;
+            dateCell3.font = { name: 'Times New Roman', size: 11, italic: true };
+            dateCell3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const sigTitleRow3 = sigDateRow3 + 1;
+            ws3.getRow(sigTitleRow3).height = 24;
+
+            const cDuyet3 = ws3.getCell(sigTitleRow3, 1);
+            cDuyet3.value = 'DUYỆT LÃNH ĐẠO';
+            cDuyet3.font = { name: 'Times New Roman', size: 11, bold: true };
+            cDuyet3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            ws3.mergeCells(sigTitleRow3, 2, sigTitleRow3, 3);
+            const cPtKhoa3 = ws3.getCell(sigTitleRow3, 2);
+            cPtKhoa3.value = 'PT KHOA';
+            cPtKhoa3.font = { name: 'Times New Roman', size: 11, bold: true };
+            cPtKhoa3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            const cLapBieu3 = ws3.getCell(sigTitleRow3, 4);
+            cLapBieu3.value = 'NGƯỜI LẬP BIỂU';
+            cLapBieu3.font = { name: 'Times New Roman', size: 11, bold: true };
+            cLapBieu3.alignment = { horizontal: 'center', vertical: 'middle' };
 
             ws3.getColumn(1).width = 6;
             ws3.getColumn(2).width = 26;
@@ -17311,7 +17351,7 @@
 
             // Chữ ký (Signatures - 4 cột)
             const sigRow = totalRow + 4;
-            ws.getCell(sigRow, 6).value = 'Mạo Khê, ngày ... tháng ... năm ...';
+            ws.getCell(sigRow, 6).value = timeInfo.dateSignStr;
             ws.getCell(sigRow, 6).font = { name: 'Times New Roman', size: 11, italic: true };
 
             const sigTitleRow = sigRow + 1;
