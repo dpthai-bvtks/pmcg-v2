@@ -1659,5 +1659,17 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   2. **Tự động tải & hiển thị Bảng Chấm Công:** Bổ sung `loadChamCongData()` vào router `handleHashChange` và click tab, tự động tải dữ liệu nhân sự + dữ liệu công tháng hiện tại từ Google Drive và vẽ bảng đầy đủ ngay lập tức.
   3. **Khắc phục triệt để lỗi Thống Kê theo Quý / Tùy chọn:**
      - Triển khai cơ chế tải song song `Promise.all` ở phía client gọi trực tiếp `getChamCong(tháng)` và `getThongKeThuThuat(tháng)` (các API đã sẵn sàng và hoạt động ổn định), sau đó tự động tổng hợp dữ liệu toàn bộ quý/khoảng thời gian. Nhờ đó chạy mượt mà ngay cả khi backend chưa re-deploy.
-     - Đồng thời bổ sung `getMultipleMonthsData` vào `USER_ACTIONS` và `ADMIN_ACTIONS` trong [code.gs-v2.txt](file:///d:/PM-DPT/PM-xeplich/khung_pm/ban_web/v2-github/code.gs-v2.txt).
+     - Đồng thời bổ sung `getMultipleMonthsData` vào `USER_ACTIONS` và `ADMIN_ACTIONS` trong [code.gs-v2.txt](file:///d:/PM-DPT/PM-xeplich/khung_pm\ban_web\v2-github\code.gs-v2.txt).
   4. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.
+
+### Phiên làm việc (Tô màu nổi bật cột Ngày hiện tại & Tự động cuộn nằm ngay sát cột Hệ số trong Bảng Chấm Công)
+- **Yêu cầu:** Khi mở bảng chấm công thì cột ngày hiện tại (hôm nay) sẽ tự động hiển thị ngay sát cột Hệ số và được tô màu nổi bật để dễ nhận biết và nhập liệu nhanh.
+- **Giải pháp:**
+  1. **Tô màu nổi bật (Today Column Styling):**
+     - Tiêu đề cột hôm nay (`th.col-today`) thiết kế dải màu xanh hoàng gia gradient hiện đại `linear-gradient(180deg, #1e40af, #2563eb)`, gắn nhãn huy hiệu `HÔM NAY` màu vàng sáng nổi bật.
+     - Hàng thứ trong tuần tầng 2 chuyển sang màu xanh đậm tương phản `#1d4ed8`.
+     - Các ô nhập liệu của cột hôm nay (`td.col-today`) đổi nền sang màu xanh nhạt `#eff6ff` dịu mắt, viền xanh `#3b82f6` đậm nét và chữ xanh đậm `#1d4ed8`, giúp phân biệt rõ ràng 100% với các ngày khác.
+  2. **Tự động căn vị trí (Auto-Scroll to Align with Hệ số Column):**
+     - Tính toán chính xác vị trí cuộn ngang `scrollLeft = todayTh.offsetLeft - 245px` (với `245px` là độ rộng của 2 cột cố định bên trái: `Họ và Tên` 180px + `Hệ số` 65px).
+     - Khi mở bảng hoặc chuyển tháng, hệ thống tự động cuộn mượt mà đưa ngày hôm nay về nằm ngay sát cạnh cột Hệ số, các ngày trước đó được cuộn trôi vào dưới 2 cột cố định giúp người dùng lập tức nhìn thấy ngay ngày hôm nay và các ngày kế tiếp mà không cần phải cuộn tay tìm kiếm.
+  3. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.

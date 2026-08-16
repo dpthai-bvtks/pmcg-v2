@@ -4347,6 +4347,55 @@
             background: #eff6ff;
         }
 
+        /* === NỔI BẬT CỘT NGÀY HIỆN TẠI (TODAY COLUMN) === */
+        #table-chamcong th.col-today {
+            background: linear-gradient(180deg, #1e40af 0%, #2563eb 100%) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            border-left: 2px solid #3b82f6 !important;
+            border-right: 2px solid #3b82f6 !important;
+        }
+
+        #table-chamcong th.th-today-sub {
+            background: #1d4ed8 !important;
+            color: #eff6ff !important;
+            font-weight: 700 !important;
+            border-left: 2px solid #3b82f6 !important;
+            border-right: 2px solid #3b82f6 !important;
+            border-bottom: 2px solid #3b82f6 !important;
+        }
+
+        #table-chamcong th .today-tag {
+            display: inline-block;
+            font-size: 8.5px;
+            background: #fef08a;
+            color: #854d0e;
+            padding: 1px 4px;
+            border-radius: 4px;
+            margin-left: 3px;
+            letter-spacing: 0.3px;
+            font-weight: 800;
+            vertical-align: middle;
+        }
+
+        #table-chamcong td.col-today {
+            background-color: #eff6ff !important;
+            border-left: 2px solid #93c5fd !important;
+            border-right: 2px solid #93c5fd !important;
+        }
+
+        #table-chamcong td.col-today .cc-input-text {
+            border: 1.5px solid #3b82f6 !important;
+            background: #ffffff !important;
+            color: #1d4ed8 !important;
+            font-weight: 800 !important;
+            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.25);
+        }
+
+        #table-chamcong tbody tr:hover td.col-today {
+            background-color: #dbeafe !important;
+        }
+
         /* Thanh cuộn ngang to, rõ ràng và mượt mà */
         #table-chamcong-container {
             scrollbar-width: auto;
@@ -15365,6 +15414,12 @@
             const tbody = document.getElementById('chamcong-body');
             if (!thead || !tbody) return;
 
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            const currentDay = now.getDate();
+            const isCurrentMonthView = (parseInt(year) === currentYear && parseInt(month) === currentMonth);
+
             let theadHtml = `<tr>
                 <th rowspan="2" style="vertical-align: middle;">TÊN NHÂN VIÊN</th>
                 <th rowspan="2" style="vertical-align: middle;">HỆ SỐ</th>`;
@@ -15372,9 +15427,12 @@
 
             for (let d = 1; d <= daysInMonth; d++) {
                 const isOff = isHoliday(year, month, d);
+                const isToday = isCurrentMonthView && (d === currentDay);
                 const bgClass = isOff ? 'bg-holiday' : '';
-                theadHtml += `<th class="${bgClass}" style="min-width: 48px;">NGÀY ${d}</th>`;
-                weekHtml += `<th class="${bgClass}">${getWeekdayName(year, month, d)}</th>`;
+                const todayClass = isToday ? 'col-today' : '';
+                
+                theadHtml += `<th class="${bgClass} ${todayClass}" ${isToday ? 'id="chamcong-today-th"' : ''} style="min-width: ${isToday ? '58px' : '48px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
+                weekHtml += `<th class="${bgClass} ${isToday ? 'th-today-sub' : ''}">${getWeekdayName(year, month, d)}</th>`;
             }
             
             theadHtml += `<th rowspan="2" style="vertical-align: middle;">TỔNG CÔNG</th></tr>`;
@@ -15411,18 +15469,20 @@
                     const rawVal = chamCongData[emp][d] || '';
                     tongCong += calcDayValue(rawVal);
                     const isOff = isHoliday(year, month, d);
+                    const isToday = isCurrentMonthView && (d === currentDay);
                     const bgClass = isOff ? 'bg-holiday' : '';
+                    const todayClass = isToday ? 'col-today' : '';
                     const displayVal = formatDisplayValue(rawVal);
 
                     if (isOff && !displayVal) {
                         rowHtml += `
-                            <td class="${bgClass}" onclick="enableHolidayCell(this, '${emp}', ${d})">
+                            <td class="${bgClass} ${todayClass}" onclick="enableHolidayCell(this, '${emp}', ${d})">
                                 <div style="color: #a16207; font-style: italic; font-size: 13px; font-weight: 500; cursor: pointer; line-height: 32px; user-select: none;">Nghỉ</div>
                             </td>
                         `;
                     } else {
                         rowHtml += `
-                            <td class="${bgClass}">
+                            <td class="${bgClass} ${todayClass}">
                                 <input type="text" class="cc-input-text" data-emp="${emp}" data-day="${d}" 
                                        value="${displayVal}">
                             </td>
@@ -15437,6 +15497,23 @@
             });
 
             attachChamCongEvents(daysInMonth);
+
+            // Tự động cuộn đến cột ngày hôm nay nằm sát cột Hệ số (Sticky Left = 245px)
+            setTimeout(() => {
+                const container = document.getElementById('table-chamcong-container');
+                if (container) {
+                    if (isCurrentMonthView && currentDay >= 1 && currentDay <= daysInMonth) {
+                        const todayTh = document.getElementById('chamcong-today-th');
+                        if (todayTh) {
+                            const stickyOffset = 245; // 180px Họ tên + 65px Hệ số
+                            const targetLeft = Math.max(0, todayTh.offsetLeft - stickyOffset);
+                            container.scrollTo({ left: targetLeft, behavior: 'smooth' });
+                        }
+                    } else {
+                        container.scrollTo({ left: 0, behavior: 'smooth' });
+                    }
+                }
+            }, 100);
         }
 
         function attachChamCongEvents(daysInMonth) {
