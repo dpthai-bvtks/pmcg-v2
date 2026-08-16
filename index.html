@@ -540,7 +540,11 @@
 
             flex-direction: column;
 
-            overflow: visible !important;
+            height: 100%;
+
+            min-height: 0;
+
+            overflow: hidden;
 
             border-right: 1px solid #e5e7eb;
 
@@ -558,11 +562,15 @@
 
             flex: 1;
 
+            min-height: 0;
+
             width: 100%;
 
-            overflow: visible !important;
+            overflow-y: auto !important;
 
-            padding: 10px 0;
+            overflow-x: hidden !important;
+
+            padding: 8px 0;
 
             display: flex;
 
@@ -570,7 +578,67 @@
 
             align-items: center;
 
-            gap: 4px;
+            gap: 3px;
+
+            scrollbar-width: thin;
+
+            scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+
+        }
+
+
+
+        .sidebar-menu::-webkit-scrollbar {
+
+            width: 3px;
+
+        }
+
+
+
+        .sidebar-menu::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+
+
+        .sidebar-menu::-webkit-scrollbar-thumb {
+
+            background: rgba(0, 0, 0, 0.15);
+
+            border-radius: 3px;
+
+        }
+
+
+
+        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+
+            background: rgba(0, 0, 0, 0.3);
+
+        }
+
+
+
+        .sidebar-footer {
+
+            flex-shrink: 0;
+
+            width: 100%;
+
+            padding: 6px 0;
+
+            border-top: 1px solid #e5e7eb;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            background: #f4f6f8;
 
         }
 
@@ -586,15 +654,15 @@
 
         .sidebar button.nav-tab {
 
-            width: 48px;
+            width: 46px;
 
-            height: 48px;
+            height: 46px;
 
             border: 1px solid transparent;
 
             background: transparent;
 
-            border-radius: 12px;
+            border-radius: 10px;
 
             padding: 0;
 
@@ -610,7 +678,7 @@
 
             box-sizing: border-box;
 
-            transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+            transition: all 0.15s ease;
 
             flex-shrink: 0;
 
@@ -620,7 +688,7 @@
 
         .sidebar button.nav-tab .icon {
 
-            font-size: 22px;
+            font-size: 21px;
 
             display: flex;
 
@@ -629,6 +697,8 @@
             justify-content: center;
 
             pointer-events: none;
+
+            line-height: 1;
 
         }
 
@@ -648,27 +718,164 @@
 
             border-color: rgba(59, 130, 246, 0.2);
 
+            transform: scale(1.04);
+
+        }
+
+
+
+        .sidebar button.nav-tab:active {
+
+            transform: scale(0.96);
+
         }
 
 
 
         .sidebar button.nav-tab.active {
+
             background: white;
+
             color: #1e3d2b;
+
             border-color: rgba(30, 61, 43, 0.15);
-            box-shadow: 0 4px 12px rgba(30, 61, 43, 0.08);
+
+            box-shadow: 0 3px 10px rgba(30, 61, 43, 0.08);
+
             position: relative;
+
         }
 
+
+
         .sidebar button.nav-tab.active::after {
+
             content: '';
+
             position: absolute;
+
             left: 0;
-            top: 25%;
-            height: 50%;
+
+            top: 22%;
+
+            height: 56%;
+
             width: 3px;
+
             background: #1e3d2b;
+
             border-radius: 0 4px 4px 0;
+
+        }
+
+
+
+        /* Responsive sidebar heights for laptops and smaller screens */
+
+        @media (max-height: 850px) {
+
+            .sidebar button.nav-tab {
+
+                width: 42px;
+
+                height: 42px;
+
+                border-radius: 9px;
+
+            }
+
+            .sidebar button.nav-tab .icon {
+
+                font-size: 19px;
+
+            }
+
+            .sidebar-menu {
+
+                gap: 2px;
+
+                padding: 6px 0;
+
+            }
+
+            .sidebar-footer {
+
+                padding: 4px 0;
+
+            }
+
+        }
+
+
+
+        @media (max-height: 750px) {
+
+            .sidebar button.nav-tab {
+
+                width: 38px;
+
+                height: 38px;
+
+                border-radius: 8px;
+
+            }
+
+            .sidebar button.nav-tab .icon {
+
+                font-size: 17px;
+
+            }
+
+            .sidebar-menu {
+
+                gap: 2px;
+
+                padding: 4px 0;
+
+            }
+
+            .sidebar-footer {
+
+                padding: 3px 0;
+
+            }
+
+        }
+
+
+
+        @media (max-height: 650px) {
+
+            .sidebar button.nav-tab {
+
+                width: 34px;
+
+                height: 34px;
+
+                border-radius: 7px;
+
+            }
+
+            .sidebar button.nav-tab .icon {
+
+                font-size: 15px;
+
+            }
+
+            .sidebar-menu {
+
+                gap: 1px;
+
+                padding: 3px 0;
+
+            }
+
+            .sidebar-footer {
+
+                padding: 2px 0;
+
+            }
+
         }
 
 
@@ -4243,11 +4450,7 @@
 
         <aside class="sidebar">
 
-
-
-
-
-            <div class="sidebar-menu" id="nav-tabs" style="display: flex; flex-direction: column; height: 100%;">
+            <div class="sidebar-menu" id="nav-tabs">
 
                 <button class="nav-tab active" data-tab="tab-home"><span class="icon">🏠</span><span class="text">Trang
                         Chủ</span></button>
@@ -4302,12 +4505,12 @@
                 <button class="nav-tab" data-tab="tab-chamcong"><span class="icon">📅</span><span class="text">Bảng Chấm Công</span></button>
                 <button class="nav-tab" data-tab="tab-thongke"><span class="icon">📈</span><span class="text">Thống Kê Tổng Hợp</span></button>
 
-                <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); width: 100%;">
-                    <button class="nav-tab" id="lock-toggle-btn" onclick="toggleAdminLock()" style="background: transparent;">
-                        <span class="icon" id="lock-icon">🔒</span><span class="text" id="lock-text">Đang Khóa</span>
-                    </button>
-                </div>
+            </div>
 
+            <div class="sidebar-footer">
+                <button class="nav-tab" id="lock-toggle-btn" onclick="toggleAdminLock()" style="background: transparent;">
+                    <span class="icon" id="lock-icon">🔒</span><span class="text" id="lock-text">Đang Khóa</span>
+                </button>
             </div>
 
         </aside>
@@ -14740,6 +14943,14 @@
                     btn.addEventListener('mouseenter', () => showTooltip(btn));
                     btn.addEventListener('mouseleave', hideTooltip);
                 });
+
+                const menu = sidebar.querySelector('.sidebar-menu');
+                if (menu && !menu.dataset.scrollAttached) {
+                    menu.dataset.scrollAttached = '1';
+                    menu.addEventListener('scroll', () => {
+                        tooltip.style.opacity = '0';
+                    }, { passive: true });
+                }
             }
 
             // Run after DOM ready and also on any dynamic changes

@@ -1632,3 +1632,15 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 
 - Đã hoàn thiện tính năng Thống kê theo Quý (Quý I, II, III, IV) và Tùy chọn khoảng thời gian (gộp và cộng dồn dữ liệu nhiều tháng từ Google Drive).
 - Đã sửa giao diện bảng chấm công: khung bảng tự động căn khít chiều cao màn hình, thanh cuộn ngang dày 12px luôn hiển thị nổi bật và dễ kéo để xem trọn vẹn 31 ngày.
+
+### Phiên làm việc (Khắc phục lỗi thanh bên / Sidebar bị che khuất nút tab trên màn hình nhỏ & laptop)
+- **Yêu cầu:** Khung bên trái chứa các nút chọn tab khi chuyển sang máy tính hay laptop có màn hình nhỏ bị che mất một vài tab ở phía dưới.
+- **Nguyên nhân:**
+  1. Do số lượng tab tăng lên 13 tab + nút Khóa, chiều cao tổng vượt quá 740px trong khi `.container` có `overflow: hidden` và `.sidebar-menu` đặt `overflow: visible !important` (không có cơ chế cuộn).
+  2. Kích thước nút bấm và khoảng cách cố định (48px) khiến trên màn hình laptop có chiều cao hạn chế (768p hoặc tỉ lệ thu phóng 125%/150%), các tab cuối cùng (`Kiểm tra lỗi`, `Bảng chấm công`, `Thống kê`, nút Khóa) bị tràn ra ngoài và bị cắt mất.
+- **Giải pháp:**
+  1. **Bật thanh cuộn mượt mà & tinh tế cho Sidebar:** Cập nhật `.sidebar-menu` sang `overflow-y: auto !important` với thanh cuộn siêu mỏng 3px trong suốt sang trọng, giúp lăn chuột/trackpad cuộn mượt mà không bị vướng víu.
+  2. **Tách nút Khóa xuống chân thanh bên (Sticky Footer):** Chuyển nút Khóa vào `.sidebar-footer` nằm cố định ở đáy thanh bên, luôn luôn hiển thị trực quan và không bị trôi hay che khuất.
+  3. **Responsive co giãn thông minh theo chiều cao (Media Queries):** Bổ sung các mốc `@media (max-height: 850px)`, `@media (max-height: 750px)`, `@media (max-height: 650px)` tự động thu gọn kích thước icon và nút tab từ 46px -> 42px -> 38px -> 34px. Giúp toàn bộ 13 tab và nút Khóa tự động hiển thị vừa khít trên hầu hết các dòng máy tính và laptop mà không cần phải cuộn, hoặc chỉ cần cuộn rất nhẹ.
+  4. **Tối ưu Tooltip khi cuộn:** Lắng nghe sự kiện cuộn trên menu thanh bên để tự động ẩn tooltip trôi, tránh hiện tượng chữ tooltip bị lệch vị trí.
+  5. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.
