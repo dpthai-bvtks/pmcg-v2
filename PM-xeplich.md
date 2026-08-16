@@ -1775,3 +1775,17 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
      - Dòng đọc tiền bằng chữ merge 4 cột A-D.
      - 3 chữ ký căn đối: Merge A-B cho "DUYỆT LÃNH ĐẠO", C cho "PT KHOA", D cho "NGƯỜI LẬP BIỂU".
   4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi syntax**) và đẩy code lên nhánh main.
+
+### Phiên làm việc (Refactor & Tách Module hóa toàn diện mã nguồn index.html)
+- **Yêu cầu:** File `index.html` trước đó có dung lượng quá lớn (17,402 dòng code), cần thu gọn bớt vào mà không làm lỗi cú pháp, không làm sập web, bảo toàn 100% toàn bộ tính năng theo Phương án 1 (Module hóa).
+- **Giải pháp triển khai:**
+  1. **Tách Stylesheet (`css/style.css`):**
+     - Đưa toàn bộ 4,086 dòng CSS từ các thẻ `<style>` vào file `css/style.css` và liên kết qua `<link rel="stylesheet" href="css/style.css">`.
+  2. **Tách JavaScript Modules (`js/`):**
+     - `js/init.js`: Khởi tạo Theme (Dark/Light), cài đặt hệ thống ban đầu, cấu hình Cache.
+     - `js/app.js`: Nghiệp vụ xếp lịch trực, phân ca, đổi ca, kéo thả, chấm công, quản trị admin.
+     - `js/sync.js`: Đồng bộ thời gian thực (Realtime Sync 15s) với Google Drive & Apps Script, sidebar tooltip, hiệu ứng UI.
+     - `js/thongke.js`: Thống kê HIS, đọc file dữ liệu thủ thuật, cấu hình đơn giá, đọc tiền bằng chữ tiếng Việt và bộ máy xuất Excel 3 Sheet & Bảng Thực Lĩnh.
+  3. **Thu gọn `index.html`:**
+     - Giảm từ **17,402 dòng xuống còn 2,779 dòng** (giảm hơn 84% độ dài), giữ nguyên 100% các phần tử DOM, Modal, Schema SEO.
+  4. Đã kiểm tra cú pháp toàn bộ các file JS độc lập (**0 lỗi syntax**), bảo đảm hoạt động mượt mà và đẩy code lên nhánh `main`.
