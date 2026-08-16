@@ -1673,3 +1673,21 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
      - Tính toán chính xác vị trí cuộn ngang `scrollLeft = todayTh.offsetLeft - 245px` (với `245px` là độ rộng của 2 cột cố định bên trái: `Họ và Tên` 180px + `Hệ số` 65px).
      - Khi mở bảng hoặc chuyển tháng, hệ thống tự động cuộn mượt mà đưa ngày hôm nay về nằm ngay sát cạnh cột Hệ số, các ngày trước đó được cuộn trôi vào dưới 2 cột cố định giúp người dùng lập tức nhìn thấy ngay ngày hôm nay và các ngày kế tiếp mà không cần phải cuộn tay tìm kiếm.
   3. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.
+
+### Phiên làm việc (Hoàn thiện 3 tính năng Xuất Excel: Bảng Chấm Công, Báo Cáo Thống Kê, Bảng Thực Lĩnh)
+- **Yêu cầu:** Tính năng xuất file bảng chấm công, xuất file báo cáo, xuất file thực lĩnh chưa hoạt động (trước đây chỉ hiện thông báo alert tạm thời).
+- **Giải pháp triển khai (sử dụng thư viện ExcelJS chạy trực tiếp trên trình duyệt):**
+  1. **Xuất file Bảng Chấm Công (`exportChamCongExcel`):**
+     - Tạo file `Bang_Cham_Cong_Thang_MM_YYYY.xlsx` chuyên nghiệp theo chuẩn y tế.
+     - Header 2 tầng: Dòng 1 ghi ngày 1..31, Dòng 2 ghi thứ trong tuần (T2..CN).
+     - Đầy đủ thông tin: STT, Họ và tên, Hệ số, toàn bộ các ngày chấm công trong tháng (tô màu vàng cho ngày Chủ nhật và hiển thị chữ 'Nghỉ'), Tổng công đã nhân hệ số.
+     - Có hàng Tổng cộng toàn khoa và 3 vị trí chữ ký ở cuối bảng: *Người lập biểu*, *Trưởng khoa*, *Giám đốc*.
+  2. **Xuất file Báo Cáo Thống Kê Thủ Thuật (`exportThongKeExcel`):**
+     - Tạo file `Bao_Cao_Thong_Ke_Thu_Thuat_{Thời_Gian}.xlsx` theo chế độ đang xem (Tháng hiện tại, Quý I/II/III/IV, hoặc Khoảng thời gian tùy chọn).
+     - Bao gồm các cột: STT, Họ và tên nhân viên, Tổng số công, Thủ thuật Loại 1, Loại 2, Loại 3, Khác, Tổng số thủ thuật.
+     - Tự động cộng tổng toàn khoa ở hàng cuối, kèm chữ ký *Người lập biểu* & *Trưởng khoa*.
+  3. **Xuất file Bảng Thực Lĩnh (`exportThucLinhExcel`):**
+     - Tạo file `Bang_Thuc_Linh_{Thời_Gian}.xlsx` phục vụ phân chia thù lao/tính lương thủ thuật.
+     - Đầy đủ 12 cột: STT, Họ và tên, Hệ số, Ngày công, TT Loại 1, TT Loại 2, TT Loại 3, TT Khác, Tổng TT, Điểm quy đổi, Tổng thực lĩnh, Cột Ký nhận.
+     - Định dạng màu hổ phách sang trọng, có hàng Tổng cộng và 4 vị trí chữ ký: *Người lập biểu*, *Kế toán*, *Trưởng khoa*, *Giám đốc*.
+  4. Đã kiểm tra cú pháp toàn bộ hệ thống đạt 0 lỗi và đẩy code lên nhánh `main`.

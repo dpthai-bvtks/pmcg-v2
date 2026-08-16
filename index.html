@@ -15976,17 +15976,740 @@
             loadThongKeData();
         });
 
-        document.getElementById('btn-export-excel').addEventListener('click', () => {
-            alert("Tính năng Xuất Báo Cáo đang được cập nhật!");
-        });
-
-        document.getElementById('btn-export-thuc-linh').addEventListener('click', () => {
-            alert("Tính năng Xuất Thực Lĩnh đang được cập nhật!");
-        });
-
-        function exportChamCongExcel() {
-            alert("Tính năng Xuất Chấm Công đang được cập nhật!");
+        // ==========================================
+        // XUẤT EXCEL: BẢNG CHẤM CÔNG, BÁO CÁO THỦ THUẬT, THỰC LĨNH
+        // ==========================================
+        function saveExcelBuffer(buffer, fileName) {
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 300);
         }
+
+        function getThongKeTimeLabel() {
+            const mode = document.getElementById('thongke-mode')?.value || 'current';
+            const year = document.getElementById('chamcong-year-picker')?.value || '2026';
+            const month = document.getElementById('chamcong-month-picker')?.value || '8';
+            
+            if (mode === 'current') {
+                return { label: `Tháng ${month} năm ${year}`, fileSuffix: `Thang_${month}_${year}` };
+            } else if (mode === 'q1') {
+                return { label: `Quý I năm ${year} (Tháng 1 - 3)`, fileSuffix: `Quy_I_${year}` };
+            } else if (mode === 'q2') {
+                return { label: `Quý II năm ${year} (Tháng 4 - 6)`, fileSuffix: `Quy_II_${year}` };
+            } else if (mode === 'q3') {
+                return { label: `Quý III năm ${year} (Tháng 7 - 9)`, fileSuffix: `Quy_III_${year}` };
+            } else if (mode === 'q4') {
+                return { label: `Quý IV năm ${year} (Tháng 10 - 12)`, fileSuffix: `Quy_IV_${year}` };
+            } else if (mode === 'custom') {
+                const startVal = document.getElementById('custom-start-date')?.value || `${year}-01`;
+                const endVal = document.getElementById('custom-end-date')?.value || `${year}-${String(month).padStart(2, '0')}`;
+                return { label: `Từ ${startVal} đến ${endVal}`, fileSuffix: `Tu_${startVal.replace('-', '_')}_Den_${endVal.replace('-', '_')}` };
+            }
+            return { label: `Tháng ${month} năm ${year}`, fileSuffix: `Thang_${month}_${year}` };
+        }
+
+        function getEmpTotalCong(emp, isQuarter) {
+            if (isQuarter) {
+                return (thongKeQuarterData.chamcong && thongKeQuarterData.chamcong[emp] !== undefined) 
+                    ? Math.round(thongKeQuarterData.chamcong[emp] * 100) / 100 
+                    : 0;
+            } else {
+                if (!chamCongData[emp]) return 0;
+                const my = getChamCongMonthYear();
+                const [year, month] = my.split('-');
+                const daysInMonth = new Date(year, month, 0).getDate();
+                let sum = 0;
+                for (let d = 1; d <= daysInMonth; d++) {
+                    sum += calcDayValue(chamCongData[emp][d] || '');
+                }
+                const heSo = chamCongData[emp].heSo !== undefined ? parseFloat(chamCongData[emp].heSo) : 1.0;
+                return Math.round((sum * heSo) * 100) / 100;
+            }
+        }
+
+        // 1. Xuất file Bảng Chấm Công
+        function exportChamCongExcel() {
+            if (typeof ExcelJS === 'undefined') {
+                alert("Thư viện ExcelJS đang nạp, vui lòng thử lại sau giây lát!");
+                return;
+            }
+            if (adminChamCongEmployees.length === 0) {
+                alert("Chưa có danh sách nhân sự chấm công để xuất!");
+                return;
+            }
+
+            const my = getChamCongMonthYear();
+            const [year, month] = my.split('-');
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'T.I.M.E.S System - BVTKS CS2';
+            workbook.created = new Date();
+            const ws = workbook.addWorksheet(`Chấm Công T${month}.${year}`, {
+                views: [{ showGridLines: true }]
+            });
+
+            // Tiêu đề bệnh viện
+            ws.getCell('A1').value = 'BỆNH VIỆN THAN - KHOÁNG SẢN CS2';
+            ws.getCell('A1').font = { name: 'Times New Roman', size: 11, bold: true };
+            
+            ws.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
+            ws.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
+
+            // Tiêu đề bảng
+            const totalCols = daysInMonth + 4; // STT, Họ tên, Hệ số, 1..N, Tổng công
+            ws.mergeCells(4, 1, 4, totalCols);
+            const titleCell = ws.getCell(4, 1);
+            titleCell.value = `BẢNG CHẤM CÔNG THÁNG ${month} NĂM ${year}`;
+            titleCell.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FF1E40AF' } };
+            titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws.getRow(4).height = 28;
+
+            // Header 2 tầng (Row 6 & 7)
+            ws.mergeCells(6, 1, 7, 1); // STT
+            ws.getCell(6, 1).value = 'STT';
+
+            ws.mergeCells(6, 2, 7, 2); // HỌ VÀ TÊN
+            ws.getCell(6, 2).value = 'HỌ VÀ TÊN';
+
+            ws.mergeCells(6, 3, 7, 3); // HỆ SỐ
+            ws.getCell(6, 3).value = 'HỆ SỐ';
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const colIdx = 3 + d;
+                const isOff = isHoliday(year, month, d);
+                
+                const dayCell = ws.getCell(6, colIdx);
+                dayCell.value = `Ngày ${d}`;
+                
+                const weekCell = ws.getCell(7, colIdx);
+                weekCell.value = getWeekdayName(year, month, d);
+            }
+
+            ws.mergeCells(6, totalCols, 7, totalCols); // TỔNG CÔNG
+            ws.getCell(6, totalCols).value = 'TỔNG CÔNG';
+
+            // Định dạng chung cho Header
+            for (let r = 6; r <= 7; r++) {
+                ws.getRow(r).height = 22;
+                for (let c = 1; c <= totalCols; c++) {
+                    const cell = ws.getCell(r, c);
+                    cell.font = { name: 'Times New Roman', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+                    cell.border = {
+                        top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                        left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                        bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                        right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                    };
+                }
+            }
+
+            // Tô màu vàng cho các cột Chủ Nhật trong Header
+            for (let d = 1; d <= daysInMonth; d++) {
+                if (isHoliday(year, month, d)) {
+                    const colIdx = 3 + d;
+                    [6, 7].forEach(r => {
+                        const cell = ws.getCell(r, colIdx);
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF08A' } };
+                        cell.font = { name: 'Times New Roman', size: 10, bold: true, color: { argb: 'FF854D0E' } };
+                    });
+                }
+            }
+
+            // Ghi dữ liệu từng nhân sự (Row 8 trở đi)
+            let startDataRow = 8;
+            let sumTotalCong = 0;
+
+            adminChamCongEmployees.forEach((emp, idx) => {
+                const r = startDataRow + idx;
+                ws.getRow(r).height = 20;
+
+                const heSo = (chamCongData[emp] && chamCongData[emp].heSo !== undefined) ? parseFloat(chamCongData[emp].heSo) : 1.0;
+                let tongCong = 0;
+
+                // STT
+                const cSTT = ws.getCell(r, 1);
+                cSTT.value = idx + 1;
+                cSTT.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // Họ Tên
+                const cName = ws.getCell(r, 2);
+                cName.value = emp;
+                cName.font = { name: 'Times New Roman', size: 11, bold: true };
+                cName.alignment = { vertical: 'middle', horizontal: 'left' };
+
+                // Hệ số
+                const cHeSo = ws.getCell(r, 3);
+                cHeSo.value = heSo;
+                cHeSo.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // Ngày 1..N
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const colIdx = 3 + d;
+                    const rawVal = chamCongData[emp] ? (chamCongData[emp][d] || '') : '';
+                    tongCong += calcDayValue(rawVal);
+                    const isOff = isHoliday(year, month, d);
+                    const cell = ws.getCell(r, colIdx);
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                    const displayVal = formatDisplayValue(rawVal);
+                    if (isOff && !displayVal) {
+                        cell.value = 'Nghỉ';
+                        cell.font = { name: 'Times New Roman', size: 9.5, italic: true, color: { argb: 'FFA16207' } };
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } };
+                    } else {
+                        cell.value = displayVal;
+                        cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FF1E293B' } };
+                        if (isOff) {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } };
+                        }
+                    }
+                }
+
+                // Tổng công
+                const tongCongHeso = Math.round((tongCong * heSo) * 100) / 100;
+                sumTotalCong += tongCongHeso;
+
+                const cTotal = ws.getCell(r, totalCols);
+                cTotal.value = tongCongHeso;
+                cTotal.font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1E40AF' } };
+                cTotal.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // Viền cho cả dòng
+                for (let c = 1; c <= totalCols; c++) {
+                    ws.getCell(r, c).border = {
+                        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                    };
+                }
+            });
+
+            // Hàng Tổng Cộng
+            const totalRowIdx = startDataRow + adminChamCongEmployees.length;
+            ws.mergeCells(totalRowIdx, 1, totalRowIdx, 3);
+            const totLabel = ws.getCell(totalRowIdx, 1);
+            totLabel.value = 'TỔNG CỘNG TOÀN KHOA';
+            totLabel.font = { name: 'Times New Roman', size: 11, bold: true };
+            totLabel.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            const totVal = ws.getCell(totalRowIdx, totalCols);
+            totVal.value = Math.round(sumTotalCong * 100) / 100;
+            totVal.font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF1E40AF' } };
+            totVal.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            for (let c = 1; c <= totalCols; c++) {
+                const cell = ws.getCell(totalRowIdx, c);
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+                cell.border = {
+                    top: { style: 'medium', color: { argb: 'FF94A3B8' } },
+                    bottom: { style: 'double', color: { argb: 'FF94A3B8' } },
+                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                };
+            }
+
+            // Phần ký tên (Signatures)
+            const sigRow = totalRowIdx + 2;
+            ws.getCell(sigRow, Math.max(1, totalCols - 5)).value = `..., ngày ... tháng ${month} năm ${year}`;
+            ws.getCell(sigRow, Math.max(1, totalCols - 5)).font = { name: 'Times New Roman', size: 11, italic: true };
+
+            const sigTitleRow = sigRow + 1;
+            ws.getCell(sigTitleRow, 2).value = 'NGƯỜI LẬP BIỂU';
+            ws.getCell(sigTitleRow, 2).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 2).alignment = { horizontal: 'center' };
+
+            const midCol = Math.floor(totalCols / 2);
+            ws.getCell(sigTitleRow, midCol).value = 'TRƯỞNG KHOA';
+            ws.getCell(sigTitleRow, midCol).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, midCol).alignment = { horizontal: 'center' };
+
+            ws.getCell(sigTitleRow, totalCols - 1).value = 'GIÁM ĐỐC';
+            ws.getCell(sigTitleRow, totalCols - 1).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, totalCols - 1).alignment = { horizontal: 'center' };
+
+            const sigSubRow = sigTitleRow + 1;
+            [2, midCol, totalCols - 1].forEach(col => {
+                const c = ws.getCell(sigSubRow, col);
+                c.value = '(Ký, họ tên)';
+                c.font = { name: 'Times New Roman', size: 9.5, italic: true };
+                c.alignment = { horizontal: 'center' };
+            });
+
+            // Set column widths
+            ws.getColumn(1).width = 6;
+            ws.getColumn(2).width = 24;
+            ws.getColumn(3).width = 9;
+            for (let d = 1; d <= daysInMonth; d++) {
+                ws.getColumn(3 + d).width = 6.2;
+            }
+            ws.getColumn(totalCols).width = 14;
+
+            workbook.xlsx.writeBuffer().then(buffer => {
+                saveExcelBuffer(buffer, `Bang_Cham_Cong_Thang_${month}_${year}.xlsx`);
+            }).catch(err => {
+                console.error("Lỗi xuất Excel:", err);
+                alert("Lỗi xuất file Excel: " + err.message);
+            });
+        }
+
+        // 2. Xuất file Báo Cáo Thống Kê Thủ Thuật
+        function exportThongKeExcel() {
+            if (typeof ExcelJS === 'undefined') {
+                alert("Thư viện ExcelJS đang nạp, vui lòng thử lại sau giây lát!");
+                return;
+            }
+            if (adminChamCongEmployees.length === 0) {
+                alert("Chưa có danh sách nhân sự để xuất báo cáo!");
+                return;
+            }
+
+            const timeInfo = getThongKeTimeLabel();
+            const isQ = (thongKeMode !== 'current');
+            const sourceThuThuat = isQ ? thongKeQuarterData.thuthuat : thongKeData;
+
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'T.I.M.E.S System - BVTKS CS2';
+            workbook.created = new Date();
+            const ws = workbook.addWorksheet('Báo Cáo Thủ Thuật', {
+                views: [{ showGridLines: true }]
+            });
+
+            // Tiêu đề bệnh viện
+            ws.getCell('A1').value = 'BỆNH VIỆN THAN - KHOÁNG SẢN CS2';
+            ws.getCell('A1').font = { name: 'Times New Roman', size: 11, bold: true };
+            
+            ws.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
+            ws.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
+
+            // Tiêu đề bảng
+            ws.mergeCells(4, 1, 4, 8);
+            const titleCell = ws.getCell(4, 1);
+            titleCell.value = 'BÁO CÁO THỐNG KÊ TỔNG HỢP THỦ THUẬT & CHẤM CÔNG';
+            titleCell.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FF1E40AF' } };
+            titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws.getRow(4).height = 26;
+
+            ws.mergeCells(5, 1, 5, 8);
+            const subTitleCell = ws.getCell(5, 1);
+            subTitleCell.value = `(${timeInfo.label})`;
+            subTitleCell.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            // Header cột (Row 7)
+            const headers = ['STT', 'HỌ VÀ TÊN NHÂN VIÊN', 'TỔNG SỐ CÔNG', 'THỦ THUẬT LOẠI 1', 'THỦ THUẬT LOẠI 2', 'THỦ THUẬT LOẠI 3', 'KHÁC', 'TỔNG THỦ THUẬT'];
+            ws.getRow(7).height = 26;
+            headers.forEach((h, i) => {
+                const cell = ws.getCell(7, i + 1);
+                cell.value = h;
+                cell.font = { name: 'Times New Roman', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+                cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FF94A3B8' } },
+                    bottom: { style: 'thin', color: { argb: 'FF94A3B8' } },
+                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                };
+            });
+
+            // Data rows (Row 8 trở đi)
+            let startRow = 8;
+            let sumCong = 0, sumL1 = 0, sumL2 = 0, sumL3 = 0, sumKhac = 0, sumTotalTT = 0;
+
+            adminChamCongEmployees.forEach((emp, idx) => {
+                const r = startRow + idx;
+                ws.getRow(r).height = 22;
+
+                const tongCong = getEmpTotalCong(emp, isQ);
+                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+                const l1 = t.loai1 || 0;
+                const l2 = t.loai2 || 0;
+                const l3 = t.loai3 || 0;
+                const khac = t.khac || 0;
+                const totalTT = l1 + l2 + l3 + khac;
+
+                sumCong += tongCong;
+                sumL1 += l1;
+                sumL2 += l2;
+                sumL3 += l3;
+                sumKhac += khac;
+                sumTotalTT += totalTT;
+
+                ws.getCell(r, 1).value = idx + 1;
+                ws.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 2).value = emp;
+                ws.getCell(r, 2).font = { name: 'Times New Roman', size: 11, bold: true };
+                ws.getCell(r, 2).alignment = { vertical: 'middle', horizontal: 'left' };
+
+                ws.getCell(r, 3).value = tongCong;
+                ws.getCell(r, 3).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
+                ws.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 4).value = l1;
+                ws.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 5).value = l2;
+                ws.getCell(r, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 6).value = l3;
+                ws.getCell(r, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 7).value = khac;
+                ws.getCell(r, 7).font = { name: 'Times New Roman', size: 10.5, color: { argb: 'FF64748B' } };
+                ws.getCell(r, 7).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 8).value = totalTT;
+                ws.getCell(r, 8).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF15803D' } };
+                ws.getCell(r, 8).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                for (let c = 1; c <= 8; c++) {
+                    ws.getCell(r, c).border = {
+                        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                    };
+                }
+            });
+
+            // Hàng Tổng Cộng
+            const totalRow = startRow + adminChamCongEmployees.length;
+            ws.getRow(totalRow).height = 24;
+            ws.mergeCells(totalRow, 1, totalRow, 2);
+            ws.getCell(totalRow, 1).value = 'TỔNG CỘNG';
+            ws.getCell(totalRow, 1).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 3).value = Math.round(sumCong * 100) / 100;
+            ws.getCell(totalRow, 3).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
+            ws.getCell(totalRow, 3).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 4).value = sumL1;
+            ws.getCell(totalRow, 4).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 4).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 5).value = sumL2;
+            ws.getCell(totalRow, 5).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 6).value = sumL3;
+            ws.getCell(totalRow, 6).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 7).value = sumKhac;
+            ws.getCell(totalRow, 7).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 7).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 8).value = sumTotalTT;
+            ws.getCell(totalRow, 8).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FF15803D' } };
+            ws.getCell(totalRow, 8).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            for (let c = 1; c <= 8; c++) {
+                const cell = ws.getCell(totalRow, c);
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+                cell.border = {
+                    top: { style: 'medium', color: { argb: 'FF94A3B8' } },
+                    bottom: { style: 'double', color: { argb: 'FF94A3B8' } },
+                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                };
+            }
+
+            // Chữ ký
+            const sigRow = totalRow + 2;
+            ws.getCell(sigRow, 6).value = '..., ngày ... tháng ... năm ...';
+            ws.getCell(sigRow, 6).font = { name: 'Times New Roman', size: 11, italic: true };
+
+            const sigTitleRow = sigRow + 1;
+            ws.getCell(sigTitleRow, 2).value = 'NGƯỜI LẬP BIỂU';
+            ws.getCell(sigTitleRow, 2).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 2).alignment = { horizontal: 'center' };
+
+            ws.getCell(sigTitleRow, 7).value = 'TRƯỞNG KHOA';
+            ws.getCell(sigTitleRow, 7).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 7).alignment = { horizontal: 'center' };
+
+            const sigSubRow = sigTitleRow + 1;
+            [2, 7].forEach(col => {
+                const c = ws.getCell(sigSubRow, col);
+                c.value = '(Ký, họ tên)';
+                c.font = { name: 'Times New Roman', size: 9.5, italic: true };
+                c.alignment = { horizontal: 'center' };
+            });
+
+            // Set Column Widths
+            ws.getColumn(1).width = 6;
+            ws.getColumn(2).width = 26;
+            ws.getColumn(3).width = 16;
+            ws.getColumn(4).width = 19;
+            ws.getColumn(5).width = 19;
+            ws.getColumn(6).width = 19;
+            ws.getColumn(7).width = 14;
+            ws.getColumn(8).width = 20;
+
+            workbook.xlsx.writeBuffer().then(buffer => {
+                saveExcelBuffer(buffer, `Bao_Cao_Thong_Ke_Thu_Thuat_${timeInfo.fileSuffix}.xlsx`);
+            }).catch(err => {
+                console.error("Lỗi xuất Excel:", err);
+                alert("Lỗi xuất file Excel: " + err.message);
+            });
+        }
+
+        // 3. Xuất file Thực Lĩnh
+        function exportThucLinhExcel() {
+            if (typeof ExcelJS === 'undefined') {
+                alert("Thư viện ExcelJS đang nạp, vui lòng thử lại sau giây lát!");
+                return;
+            }
+            if (adminChamCongEmployees.length === 0) {
+                alert("Chưa có danh sách nhân sự để tính thực lĩnh!");
+                return;
+            }
+
+            const timeInfo = getThongKeTimeLabel();
+            const isQ = (thongKeMode !== 'current');
+            const sourceThuThuat = isQ ? thongKeQuarterData.thuthuat : thongKeData;
+
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'T.I.M.E.S System - BVTKS CS2';
+            workbook.created = new Date();
+            const ws = workbook.addWorksheet('Bảng Thực Lĩnh', {
+                views: [{ showGridLines: true }]
+            });
+
+            // Tiêu đề bệnh viện
+            ws.getCell('A1').value = 'BỆNH VIỆN THAN - KHOÁNG SẢN CS2';
+            ws.getCell('A1').font = { name: 'Times New Roman', size: 11, bold: true };
+            
+            ws.getCell('A2').value = 'KHOA Y HỌC CỔ TRUYỀN - PHỤC HỒI CHỨC NĂNG';
+            ws.getCell('A2').font = { name: 'Times New Roman', size: 11, bold: true, italic: true };
+
+            // Tiêu đề bảng
+            ws.mergeCells(4, 1, 4, 12);
+            const titleCell = ws.getCell(4, 1);
+            titleCell.value = 'BẢNG TÍNH THỰC LĨNH THỦ THUẬT & PHÂN CHIA THÙ LAO';
+            titleCell.font = { name: 'Times New Roman', size: 15, bold: true, color: { argb: 'FFB45309' } };
+            titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws.getRow(4).height = 26;
+
+            ws.mergeCells(5, 1, 5, 12);
+            const subTitleCell = ws.getCell(5, 1);
+            subTitleCell.value = `(${timeInfo.label})`;
+            subTitleCell.font = { name: 'Times New Roman', size: 11, italic: true, color: { argb: 'FF475569' } };
+            subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            // Header cột (Row 7)
+            const headers = ['STT', 'HỌ VÀ TÊN', 'HỆ SỐ', 'NGÀY CÔNG', 'TT LOẠI 1', 'TT LOẠI 2', 'TT LOẠI 3', 'TT KHÁC', 'TỔNG SỐ TT', 'ĐIỂM QUY ĐỔI', 'TỔNG THỰC LĨNH', 'KÝ NHẬN'];
+            ws.getRow(7).height = 28;
+            headers.forEach((h, i) => {
+                const cell = ws.getCell(7, i + 1);
+                cell.value = h;
+                cell.font = { name: 'Times New Roman', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD97706' } }; // Amber gradient
+                cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFB45309' } },
+                    bottom: { style: 'thin', color: { argb: 'FFB45309' } },
+                    left: { style: 'thin', color: { argb: 'FFFDE68A' } },
+                    right: { style: 'thin', color: { argb: 'FFFDE68A' } }
+                };
+            });
+
+            // Data rows (Row 8 trở đi)
+            let startRow = 8;
+            let sumCong = 0, sumL1 = 0, sumL2 = 0, sumL3 = 0, sumKhac = 0, sumTotalTT = 0, sumDiem = 0, sumThucLinh = 0;
+
+            adminChamCongEmployees.forEach((emp, idx) => {
+                const r = startRow + idx;
+                ws.getRow(r).height = 22;
+
+                const heSo = (chamCongData[emp] && chamCongData[emp].heSo !== undefined) ? parseFloat(chamCongData[emp].heSo) : 1.0;
+                const tongCong = getEmpTotalCong(emp, isQ);
+                const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
+                const l1 = t.loai1 || 0;
+                const l2 = t.loai2 || 0;
+                const l3 = t.loai3 || 0;
+                const khac = t.khac || 0;
+                const totalTT = l1 + l2 + l3 + khac;
+                const diemQuyDoi = Math.round((l1 * 1.5 + l2 * 1.2 + l3 * 1.0 + khac * 0.8) * 10) / 10;
+                const thucLinh = Math.round((tongCong + diemQuyDoi) * 100) / 100;
+
+                sumCong += tongCong;
+                sumL1 += l1;
+                sumL2 += l2;
+                sumL3 += l3;
+                sumKhac += khac;
+                sumTotalTT += totalTT;
+                sumDiem += diemQuyDoi;
+                sumThucLinh += thucLinh;
+
+                ws.getCell(r, 1).value = idx + 1;
+                ws.getCell(r, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 2).value = emp;
+                ws.getCell(r, 2).font = { name: 'Times New Roman', size: 11, bold: true };
+                ws.getCell(r, 2).alignment = { vertical: 'middle', horizontal: 'left' };
+
+                ws.getCell(r, 3).value = heSo;
+                ws.getCell(r, 3).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 4).value = tongCong;
+                ws.getCell(r, 4).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
+                ws.getCell(r, 4).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 5).value = l1;
+                ws.getCell(r, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 6).value = l2;
+                ws.getCell(r, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 7).value = l3;
+                ws.getCell(r, 7).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 8).value = khac;
+                ws.getCell(r, 8).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 9).value = totalTT;
+                ws.getCell(r, 9).font = { name: 'Times New Roman', size: 11, bold: true };
+                ws.getCell(r, 9).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 10).value = diemQuyDoi;
+                ws.getCell(r, 10).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF0284C7' } };
+                ws.getCell(r, 10).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 11).value = thucLinh;
+                ws.getCell(r, 11).font = { name: 'Times New Roman', size: 11.5, bold: true, color: { argb: 'FFB45309' } };
+                ws.getCell(r, 11).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.getCell(r, 12).value = ''; // Ký nhận
+                ws.getCell(r, 12).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                for (let c = 1; c <= 12; c++) {
+                    ws.getCell(r, c).border = {
+                        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                    };
+                }
+            });
+
+            // Hàng Tổng Cộng
+            const totalRow = startRow + adminChamCongEmployees.length;
+            ws.getRow(totalRow).height = 24;
+            ws.mergeCells(totalRow, 1, totalRow, 3);
+            ws.getCell(totalRow, 1).value = 'TỔNG CỘNG';
+            ws.getCell(totalRow, 1).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 4).value = Math.round(sumCong * 100) / 100;
+            ws.getCell(totalRow, 4).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF1D4ED8' } };
+            ws.getCell(totalRow, 4).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 5).value = sumL1;
+            ws.getCell(totalRow, 5).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 6).value = sumL2;
+            ws.getCell(totalRow, 6).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 7).value = sumL3;
+            ws.getCell(totalRow, 7).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 8).value = sumKhac;
+            ws.getCell(totalRow, 8).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 9).value = sumTotalTT;
+            ws.getCell(totalRow, 9).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(totalRow, 9).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 10).value = Math.round(sumDiem * 10) / 10;
+            ws.getCell(totalRow, 10).font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF0284C7' } };
+            ws.getCell(totalRow, 10).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            ws.getCell(totalRow, 11).value = Math.round(sumThucLinh * 100) / 100;
+            ws.getCell(totalRow, 11).font = { name: 'Times New Roman', size: 12, bold: true, color: { argb: 'FFB45309' } };
+            ws.getCell(totalRow, 11).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            for (let c = 1; c <= 12; c++) {
+                const cell = ws.getCell(totalRow, c);
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
+                cell.border = {
+                    top: { style: 'medium', color: { argb: 'FFD97706' } },
+                    bottom: { style: 'double', color: { argb: 'FFD97706' } },
+                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                };
+            }
+
+            // Chữ ký (Signatures)
+            const sigRow = totalRow + 2;
+            ws.getCell(sigRow, 9).value = '..., ngày ... tháng ... năm ...';
+            ws.getCell(sigRow, 9).font = { name: 'Times New Roman', size: 11, italic: true };
+
+            const sigTitleRow = sigRow + 1;
+            ws.getCell(sigTitleRow, 2).value = 'NGƯỜI LẬP BIỂU';
+            ws.getCell(sigTitleRow, 2).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 2).alignment = { horizontal: 'center' };
+
+            ws.getCell(sigTitleRow, 5).value = 'KẾ TOÁN';
+            ws.getCell(sigTitleRow, 5).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 5).alignment = { horizontal: 'center' };
+
+            ws.getCell(sigTitleRow, 8).value = 'TRƯỞNG KHOA';
+            ws.getCell(sigTitleRow, 8).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 8).alignment = { horizontal: 'center' };
+
+            ws.getCell(sigTitleRow, 11).value = 'GIÁM ĐỐC';
+            ws.getCell(sigTitleRow, 11).font = { name: 'Times New Roman', size: 11, bold: true };
+            ws.getCell(sigTitleRow, 11).alignment = { horizontal: 'center' };
+
+            const sigSubRow = sigTitleRow + 1;
+            [2, 5, 8, 11].forEach(col => {
+                const c = ws.getCell(sigSubRow, col);
+                c.value = '(Ký, họ tên)';
+                c.font = { name: 'Times New Roman', size: 9.5, italic: true };
+                c.alignment = { horizontal: 'center' };
+            });
+
+            // Set Column Widths
+            ws.getColumn(1).width = 6;
+            ws.getColumn(2).width = 25;
+            ws.getColumn(3).width = 9;
+            ws.getColumn(4).width = 14;
+            ws.getColumn(5).width = 13;
+            ws.getColumn(6).width = 13;
+            ws.getColumn(7).width = 13;
+            ws.getColumn(8).width = 11;
+            ws.getColumn(9).width = 14;
+            ws.getColumn(10).width = 15;
+            ws.getColumn(11).width = 17;
+            ws.getColumn(12).width = 14;
+
+            workbook.xlsx.writeBuffer().then(buffer => {
+                saveExcelBuffer(buffer, `Bang_Thuc_Linh_${timeInfo.fileSuffix}.xlsx`);
+            }).catch(err => {
+                console.error("Lỗi xuất Excel:", err);
+                alert("Lỗi xuất file Excel: " + err.message);
+            });
+        }
+
+        // Gắn sự kiện cho các nút xuất
+        document.getElementById('btn-export-excel').addEventListener('click', exportThongKeExcel);
+        document.getElementById('btn-export-thuc-linh').addEventListener('click', exportThucLinhExcel);
 
         // Event for month/year change in Cham Cong
         document.getElementById('chamcong-month-picker').addEventListener('change', () => {
