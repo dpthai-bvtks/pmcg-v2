@@ -1750,3 +1750,11 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
      - Hiển thị chức danh chính xác của từng nhân sự, căn giữa và in đậm.
      - Hàng Tổng cộng merge 3 cột (STT + Họ tên + Chức danh), dòng đọc tiền bằng chữ merge 5 cột và 3 chữ ký DUYỆT LÃNH ĐẠO - PT KHOA - NGƯỜI LẬP BIỂU cân đối tuyệt đối.
   4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi syntax**) và đẩy code lên nhánh `main`.
+
+### Phiên làm việc (Loại bỏ khối cấu hình đơn giá trùng lặp trong Tab Thống Kê)
+- **Yêu cầu:** Phần cấu hình đơn giá thủ thuật đã có đầy đủ, trực quan trong mục "Nhân Sự Chấm Công" của Tab Admin, vì vậy loại bỏ nút và khung cấu hình đơn giá thủ thuật trong Tab Thống Kê để giao diện gọn gàng, tránh dư thừa.
+- **Giải pháp triển khai:**
+  1. Loại bỏ nút bấm `#btn-toggle-price-config` ("Cấu Hình Đơn Giá") trong toolbar của Tab Thống Kê.
+  2. Loại bỏ card `#thongke-price-config-card` ("Cấu Hình Đơn Giá Thủ Thuật (VNĐ)") khỏi Tab Thống Kê.
+  3. Tối ưu hóa lại hàm JavaScript `initPriceConfigUI()` và `saveProcedurePrices()`, loại bỏ hàm `toggleThongKePriceConfig()` và các liên kết thừa, tập trung quản lý đơn giá duy nhất tại Tab Quản Trị Admin.
+  4. Đã kiểm tra cú pháp toàn bộ JavaScript (**0 lỗi syntax**) và đẩy code lên nhánh `main`.

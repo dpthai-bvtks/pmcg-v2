@@ -6624,58 +6624,6 @@
                             <button class="btn btn-warning" id="btn-export-thuc-linh" style="background-color: #f39c12; border-color: #f39c12; color: #fff;">
                                 <i class='bx bx-calculator'></i> Xuất Thực Lĩnh
                             </button>
-                            <button class="btn btn-secondary" id="btn-toggle-price-config" onclick="toggleThongKePriceConfig()" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
-                                <i class='bx bx-cog'></i> Cấu Hình Đơn Giá
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- CARD CẤU HÌNH ĐƠN GIÁ THỦ THUẬT (TRONG TAB THỐNG KÊ) -->
-                    <div id="thongke-price-config-card" style="display: none; background: #ffffff; border: 1px solid #bae6fd; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h4 style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                                <i class='bx bx-money' style="color: #0284c7; font-size: 22px;"></i> Cấu Hình Đơn Giá Thủ Thuật (VNĐ)
-                            </h4>
-                            <button onclick="toggleThongKePriceConfig()" style="background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b;">✕</button>
-                        </div>
-                        
-                        <div style="margin-bottom: 18px;">
-                            <h5 style="margin: 0 0 10px 0; color: #334155; font-size: 14px; font-weight: 700;">Giá cũ (Trước 15/07/2026)</h5>
-                            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 1</label>
-                                    <input type="number" id="tk-price-old-l1" value="37500" class="input-price-sync" data-target="price-old-l1" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 2</label>
-                                    <input type="number" id="tk-price-old-l2" value="19500" class="input-price-sync" data-target="price-old-l2" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 3</label>
-                                    <input type="number" id="tk-price-old-l3" value="15000" class="input-price-sync" data-target="price-old-l3" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h5 style="margin: 0 0 10px 0; color: #334155; font-size: 14px; font-weight: 700;">Giá mới (Từ 15/07/2026 trở đi)</h5>
-                            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 1</label>
-                                    <input type="number" id="tk-price-l1" value="75000" class="input-price-sync" data-target="price-l1" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 2</label>
-                                    <input type="number" id="tk-price-l2" value="39000" class="input-price-sync" data-target="price-l2" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-size: 14px; color: #64748b; font-weight: 500;">Loại 3</label>
-                                    <input type="number" id="tk-price-l3" value="30000" class="input-price-sync" data-target="price-l3" style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; text-align: center; font-size: 14px; outline: none; background: #fff;">
-                                </div>
-                                <button class="btn btn-success" onclick="saveProcedurePrices()" style="background: #00bcd4; border: none; padding: 0 24px; height: 38px; border-radius: 8px; font-weight: 600; font-size: 14px; color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,188,212,0.3); transition: all 0.2s;">
-                                    Lưu Đơn Giá
-                                </button>
-                            </div>
                         </div>
                     </div>
                     
@@ -16212,29 +16160,11 @@
             setVal('price-l1', p.l1);
             setVal('price-l2', p.l2);
             setVal('price-l3', p.l3);
-
-            setVal('tk-price-old-l1', p.l1_old);
-            setVal('tk-price-old-l2', p.l2_old);
-            setVal('tk-price-old-l3', p.l3_old);
-            setVal('tk-price-l1', p.l1);
-            setVal('tk-price-l2', p.l2);
-            setVal('tk-price-l3', p.l3);
-
-            // Gắn sự kiện đồng bộ 2 chiều giữa Tab Thống Kê và Tab Admin Cài Đặt
-            document.querySelectorAll('.input-price-sync').forEach(input => {
-                input.addEventListener('input', (e) => {
-                    const target = e.target.getAttribute('data-target');
-                    const val = e.target.value;
-                    document.querySelectorAll(`.input-price-sync[data-target="${target}"]`).forEach(other => {
-                        if (other !== e.target) other.value = val;
-                    });
-                });
-            });
         }
 
         function saveProcedurePrices() {
             const getVal = (id, defaultVal) => {
-                const el = document.getElementById(id) || document.getElementById('tk-' + id);
+                const el = document.getElementById(id);
                 return el ? parseInt(el.value) || defaultVal : defaultVal;
             };
 
@@ -16254,12 +16184,6 @@
 
             initPriceConfigUI();
             alert('Đã lưu cấu hình đơn giá thủ thuật thành công!');
-        }
-
-        function toggleThongKePriceConfig() {
-            const card = document.getElementById('thongke-price-config-card');
-            if (!card) return;
-            card.style.display = (card.style.display === 'none' || !card.style.display) ? 'block' : 'none';
         }
 
         // ==========================================
