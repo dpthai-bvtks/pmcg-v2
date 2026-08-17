@@ -455,7 +455,7 @@
 
             attachChamCongEvents(daysInMonth);
 
-            // Tự động cuộn đến cột ngày hôm nay nằm sát cột Hệ số (Sticky Left = 245px)
+            // Tự động cuộn đến cột ngày hôm nay nằm sát cột Hệ số (Sticky Left = 245px) và đặt con trỏ chuột vào ô đầu tiên
             setTimeout(() => {
                 const container = document.getElementById('table-chamcong-container');
                 if (container) {
@@ -465,6 +465,13 @@
                             const stickyOffset = 245; // 180px Họ tên + 65px Hệ số
                             const targetLeft = Math.max(0, todayTh.offsetLeft - stickyOffset);
                             container.scrollTo({ left: targetLeft, behavior: 'smooth' });
+                        }
+                        
+                        // Đặt con trỏ chuột (focus) vào ô đầu tiên của cột ngày hôm nay
+                        const firstTodayInput = tbody.querySelector(`.cc-input-text[data-day="${currentDay}"]`);
+                        if (firstTodayInput) {
+                            firstTodayInput.focus();
+                            firstTodayInput.select();
                         }
                     } else {
                         container.scrollTo({ left: 0, behavior: 'smooth' });
