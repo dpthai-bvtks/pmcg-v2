@@ -1798,3 +1798,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã sửa triệt để lỗi che/đè nội dung tên nhân viên khi cuộn ngang và hover chuột: Cố định ngữ cảnh xếp lớp (z-index isolation) cho các cột sticky (Tên NV, Hệ số, Tổng công) luôn có màu nền đặc biệt lập và nằm trên các ô cuộn bên dưới.
 
 - Đã sửa màu nền và màu chữ tiêu đề các cột ghim (TÊN NHÂN VIÊN, HỆ SỐ, TỔNG CÔNG) đồng bộ nền xanh y tế #275d38 với chữ in hoa màu trắng đậm nét #ffffff rõ ràng, tương phản cao và không còn bị mờ/trùng màu nền.
+
+- Đã điều chỉnh cơ chế cuộn tự động khi mở Bảng Chấm Công: Tự động cuộn đến vị trí hiển thị liên tiếp [Cột Hệ số] -> [Cột Ngày hôm trước] -> [Cột Ngày hiện tại], đồng thời đặt con trỏ chuột (focus) vào ô nhập liệu của cột ngày hiện tại.
