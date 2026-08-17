@@ -2244,84 +2244,85 @@
 
                 <!-- TAB: THỐNG KÊ (MỚI) -->
                 <div class="tab-content" id="tab-thongke">
-                    <div class="tab-header-title">📈 THỐNG KÊ TỔNG HỢP & XUẤT BÁO CÁO</div>
-                    
-                    <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: space-between;">
-                        <div style="display:flex; align-items:center; gap:15px; flex-wrap: wrap;">
-                            <select id="thongke-mode" class="input-field" style="padding: 8px 12px; font-weight: 600; color: var(--primary-color); background-color: #f0f4ff; border-color: var(--primary-light); border-radius: 4px;">
-                                <option value="current">Theo tháng đang chọn (Chấm công)</option>
-                                <option value="q1">Quý I (Tháng 1 - 3)</option>
-                                <option value="q2">Quý II (Tháng 4 - 6)</option>
-                                <option value="q3">Quý III (Tháng 7 - 9)</option>
-                                <option value="q4">Quý IV (Tháng 10 - 12)</option>
-                                <option value="custom">Tùy chọn khoảng thời gian</option>
-                            </select>
-                            
-                            <div id="custom-range-picker-container" style="align-items: center; gap: 8px; display: none;">
-                                <span style="font-size: 0.9rem; color: #555; font-weight: 600;">Từ:</span>
-                                <input type="month" id="custom-start-date" class="input-field" style="padding: 6px 10px; width: 145px; border: 1px solid #ccc; border-radius: 4px;">
-                                <span style="font-size: 0.9rem; color: #555; font-weight: 600;">Đến:</span>
-                                <input type="month" id="custom-end-date" class="input-field" style="padding: 6px 10px; width: 145px; border: 1px solid #ccc; border-radius: 4px;">
-                                <button class="btn btn-primary" id="btn-custom-range-search" style="padding: 6px 15px;">Xem</button>
-                            </div>
-                        </div>
+                    <div style="background: #ffffff; border-radius: 6px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 4px 8px; display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box;">
                         
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <input type="file" id="excel-file-input" accept=".xlsx, .xls" hidden>
-                            <button class="btn btn-success" onclick="document.getElementById('excel-file-input').click()">
-                                <i class='bx bx-upload'></i> Nạp File Thủ Thuật (HIS)
-                            </button>
-                            <button class="btn btn-primary" id="btn-export-excel">
-                                <i class='bx bx-export'></i> Xuất Excel (Báo Cáo)
-                            </button>
-                            <button class="btn btn-warning" id="btn-export-thuc-linh" style="background-color: #f39c12; border-color: #f39c12; color: #fff;">
-                                <i class='bx bx-calculator'></i> Xuất Thực Lĩnh
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- BẢNG XEM TRƯỚC -->
-                    <div id="preview-section" style="display: none; margin-bottom: 15px; border: 2px dashed var(--primary-color); padding: 15px; border-radius: 8px; background-color: #f8faff;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h4 style="color: var(--primary-color); margin: 0;"><i class='bx bx-search-alt'></i> Xem Trước Dữ Liệu Vừa Tải</h4>
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-secondary" onclick="document.getElementById('preview-section').style.display = 'none'; document.getElementById('main-thongke-container').style.display = 'flex';">Hủy bỏ</button>
-                                <button class="btn btn-success" id="btn-submit-thuthuat">
-                                    <i class='bx bx-cloud-upload'></i> Xác nhận lưu lên máy chủ
+                        <div style="flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1px solid #f1f5f9;">
+                            <h2 style="color: #2563eb; font-weight: 700; font-size: 15px; margin: 0; letter-spacing: 0.3px; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+                                <span>📈</span> THỐNG KÊ TỔNG HỢP & BÁO CÁO
+                            </h2>
+                            
+                            <div style="display:flex; align-items:center; gap:4px; flex-wrap: wrap;">
+                                <select id="thongke-mode" class="input-field" style="padding: 0 6px; height: 24px; font-weight: 600; font-size: 12px; color: #2563eb; background-color: #f0f4ff; border: 1px solid #cbd5e1; border-radius: 4px; outline: none;">
+                                    <option value="current">Tháng đang chọn (Chấm công)</option>
+                                    <option value="q1">Quý I (Tháng 1 - 3)</option>
+                                    <option value="q2">Quý II (Tháng 4 - 6)</option>
+                                    <option value="q3">Quý III (Tháng 7 - 9)</option>
+                                    <option value="q4">Quý IV (Tháng 10 - 12)</option>
+                                    <option value="custom">Tùy chọn khoảng thời gian</option>
+                                </select>
+                                
+                                <div id="custom-range-picker-container" style="align-items: center; gap: 4px; display: none;">
+                                    <span style="font-size: 12px; color: #555; font-weight: 600;">Từ:</span>
+                                    <input type="month" id="custom-start-date" class="input-field" style="padding: 0 4px; height: 24px; width: 115px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11.5px;">
+                                    <span style="font-size: 12px; color: #555; font-weight: 600;">Đến:</span>
+                                    <input type="month" id="custom-end-date" class="input-field" style="padding: 0 4px; height: 24px; width: 115px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11.5px;">
+                                    <button class="btn btn-primary" id="btn-custom-range-search" style="padding: 0 8px; height: 24px; font-size: 12px;">Xem</button>
+                                </div>
+
+                                <input type="file" id="excel-file-input" accept=".xlsx, .xls" hidden>
+                                <button class="btn btn-success" onclick="document.getElementById('excel-file-input').click()" style="padding: 0 8px; height: 24px; font-size: 12px; display: inline-flex; align-items: center; gap: 3px;">
+                                    <i class='bx bx-upload'></i> Nạp File HIS
+                                </button>
+                                <button class="btn btn-primary" id="btn-export-excel" style="padding: 0 8px; height: 24px; font-size: 12px; display: inline-flex; align-items: center; gap: 3px;">
+                                    <i class='bx bx-export'></i> Xuất Báo Cáo
+                                </button>
+                                <button class="btn btn-warning" id="btn-export-thuc-linh" style="padding: 0 8px; height: 24px; font-size: 12px; display: inline-flex; align-items: center; gap: 3px; background-color: #f39c12; border-color: #f39c12; color: #fff;">
+                                    <i class='bx bx-calculator'></i> Xuất Thực Lĩnh
                                 </button>
                             </div>
                         </div>
-                        <div style="overflow: auto; max-height: 400px; border: 1px solid #ddd; border-radius: 4px;">
-                            <table class="data-table" style="width: 100%; border-collapse: collapse;">
-                                <thead style="position: sticky; top: 0; background: #f8f9fa;">
-                                    <tr>
-                                        <th style="padding: 10px; border-bottom: 2px solid #ddd;">Tên nhân viên</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 1</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 2</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 3</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Khác</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Tổng thủ thuật</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="preview-thuthuat-body">
-                                </tbody>
-                            </table>
+                        
+                        <!-- BẢNG XEM TRƯỚC -->
+                        <div id="preview-section" style="display: none; margin-bottom: 4px; border: 1.5px dashed #2563eb; padding: 4px; border-radius: 6px; background-color: #f8faff;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                                <h4 style="color: #2563eb; margin: 0; font-size: 12px;"><i class='bx bx-search-alt'></i> Xem Trước Dữ Liệu Vừa Tải</h4>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary" onclick="document.getElementById('preview-section').style.display = 'none'; document.getElementById('main-thongke-container').style.display = 'flex';" style="padding: 0 8px; height: 22px; font-size: 11px;">Hủy bỏ</button>
+                                    <button class="btn btn-success" id="btn-submit-thuthuat" style="padding: 0 8px; height: 22px; font-size: 11px;">
+                                        <i class='bx bx-cloud-upload'></i> Lưu lên máy chủ
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="overflow: auto; max-height: 250px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                <table class="data-table" id="table-preview-thuthuat" style="width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap;">
+                                    <thead>
+                                        <tr>
+                                            <th>TÊN NHÂN VIÊN</th>
+                                            <th>THỦ THUẬT LOẠI 1</th>
+                                            <th>THỦ THUẬT LOẠI 2</th>
+                                            <th>THỦ THUẬT LOẠI 3</th>
+                                            <th>KHÁC</th>
+                                            <th>TỔNG THỦ THUẬT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="preview-thuthuat-body">
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- BẢNG CHÍNH THỨC -->
-                    <div id="main-thongke-container" style="background: #fff; border: 1px solid #dcdde1; border-radius: 8px; overflow: hidden; flex: 1; display: flex; flex-direction: column;">
-                        <div style="overflow: auto; flex: 1;">
-                            <table class="data-table" id="table-thongke" style="width: 100%; border-collapse: collapse;">
-                                <thead style="position: sticky; top: 0; background: #f8f9fa;">
+                        <!-- BẢNG CHÍNH THỨC -->
+                        <div id="main-thongke-container" style="border: 1px solid #e2e8f0; border-radius: 4px; overflow: auto; flex: 1; min-height: 0; background: #ffffff;">
+                            <table class="data-table" id="table-thongke" style="width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap;">
+                                <thead>
                                     <tr>
-                                        <th style="padding: 10px; border-bottom: 2px solid #ddd;">Tên nhân viên</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Tổng số công</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 1</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 2</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Thủ thuật loại 3</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Khác</th>
-                                        <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Tổng thủ thuật</th>
+                                        <th>TÊN NHÂN VIÊN</th>
+                                        <th>TỔNG SỐ CÔNG</th>
+                                        <th>THỦ THUẬT LOẠI 1</th>
+                                        <th>THỦ THUẬT LOẠI 2</th>
+                                        <th>THỦ THUẬT LOẠI 3</th>
+                                        <th>KHÁC</th>
+                                        <th>TỔNG THỦ THUẬT</th>
                                     </tr>
                                 </thead>
                                 <tbody id="thongke-body">

@@ -4135,24 +4135,112 @@
         }
 
         /* Thanh cuộn ngang to, rõ ràng và mượt mà */
-        #table-chamcong-container {
+        #table-chamcong-container, #main-thongke-container {
             scrollbar-width: auto;
             scrollbar-color: #94a3b8 #f1f5f9;
         }
-        #table-chamcong-container::-webkit-scrollbar {
+        #table-chamcong-container::-webkit-scrollbar,
+        #main-thongke-container::-webkit-scrollbar {
             height: 10px !important;
             width: 10px !important;
             display: block !important;
         }
-        #table-chamcong-container::-webkit-scrollbar-track {
-            background: #f1f5f9 !important;
-            border-radius: 5px;
-        }
-        #table-chamcong-container::-webkit-scrollbar-thumb {
+        #table-chamcong-container::-webkit-scrollbar-thumb,
+        #main-thongke-container::-webkit-scrollbar-thumb {
             background: #94a3b8 !important;
             border-radius: 6px;
             border: 2px solid #f1f5f9;
         }
         #table-chamcong-container::-webkit-scrollbar-thumb:hover {
             background: #64748b !important;
+        }
+        /* --- BẢNG THỐNG KÊ & PREVIEW ULTRA-COMPACT --- */
+        #table-thongke, #table-preview-thuthuat {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            white-space: nowrap;
+            font-size: 11.5px;
+        }
+        #table-thongke th, #table-thongke td,
+        #table-preview-thuthuat th, #table-preview-thuthuat td {
+            padding: 1px 6px !important;
+            text-align: center;
+            vertical-align: middle;
+            border-bottom: 1px solid #cbd5e1;
+            border-right: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            font-size: 11.5px;
+            height: 22px !important;
+            box-sizing: border-box;
+            line-height: 20px;
+        }
+        #table-thongke tbody tr,
+        #table-preview-thuthuat tbody tr {
+            height: 22px !important;
+        }
+        #table-thongke thead th,
+        #table-preview-thuthuat thead th {
+            background-color: #275d38 !important;
+            font-weight: 700 !important;
+            font-size: 11px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            color: #ffffff !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 20 !important;
+            padding: 0 6px !important;
+            margin: 0 !important;
+            height: 22px !important;
+            min-height: 22px !important;
+            max-height: 22px !important;
+            line-height: 22px !important;
+            box-shadow: none !important;
+            border-bottom: 1px solid #cbd5e1 !important;
+            border-right: 1px solid #cbd5e1 !important;
+        }
+        /* CỘT 1 CỐ ĐỊNH (TÊN NHÂN VIÊN) CHO BẢNG THỐNG KÊ */
+        #table-thongke thead th:first-child,
+        #table-preview-thuthuat thead th:first-child {
+            position: sticky !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 45 !important;
+            background-color: #275d38 !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 11.5px !important;
+            text-align: center;
+            border-right: 2px solid #cbd5e1 !important;
+        }
+        #table-thongke tbody td:first-child,
+        #table-preview-thuthuat tbody td:first-child {
+            position: sticky !important;
+            left: 0 !important;
+            z-index: 12 !important;
+            text-align: left;
+            padding: 0 8px !important;
+            font-weight: 600;
+            font-size: 12px !important;
+            color: #1e293b !important;
+            border-right: 2px solid #cbd5e1;
+            background-color: #ffffff !important;
+            width: 160px;
+            min-width: 160px;
+            max-width: 160px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 22px;
+        }
+        #table-thongke tbody tr:hover td,
+        #table-preview-thuthuat tbody tr:hover td {
+            background-color: #f1f5f9;
+        }
+        #table-thongke tbody tr:hover td:first-child,
+        #table-preview-thuthuat tbody tr:hover td:first-child {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            z-index: 15 !important;
         }

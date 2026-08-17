@@ -762,13 +762,13 @@
                 const totalThuThuat = (t.loai1 || 0) + (t.loai2 || 0) + (t.loai3 || 0) + (t.khac || 0);
 
                 tr.innerHTML = `
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${emp}</strong></td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; color: #2980b9; font-weight: bold; font-size: 1.1rem;">${tongCong}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai1 || 0}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai2 || 0}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai3 || 0}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; color: #7f8c8d;">${t.khac || 0}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #27ae60;">${totalThuThuat}</td>
+                    <td><strong>${emp}</strong></td>
+                    <td style="color: #2563eb; font-weight: 700;">${tongCong}</td>
+                    <td>${t.loai1 || 0}</td>
+                    <td>${t.loai2 || 0}</td>
+                    <td>${t.loai3 || 0}</td>
+                    <td style="color: #64748b;">${t.khac || 0}</td>
+                    <td style="font-weight: 800; color: #16a34a;">${totalThuThuat}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -909,12 +909,12 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${emp}</strong></td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai1}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai2}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">${t.loai3}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; color: #7f8c8d;">${t.khac}</td>
-                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #27ae60;">${totalThuThuat}</td>
+                    <td><strong>${emp}</strong></td>
+                    <td>${t.loai1}</td>
+                    <td>${t.loai2}</td>
+                    <td>${t.loai3}</td>
+                    <td style="color: #64748b;">${t.khac}</td>
+                    <td style="font-weight: 800; color: #16a34a;">${totalThuThuat}</td>
                 `;
                 tbody.appendChild(tr);
             });
