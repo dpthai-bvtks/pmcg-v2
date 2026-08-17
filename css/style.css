@@ -4408,3 +4408,13 @@ transition: box-shadow 0.3s;
             background: #64748b !important;
         }
 
+        /* ── 8. DASHBOARD MONTHLY CHARTS (TRANG CHỦ) ── */
+        .dashboard-monthly-charts {
+            margin-bottom: 25px;
+        }
+        @media (max-width: 960px) {
+            .dashboard-monthly-charts {
+                grid-template-columns: 1fr !important;
+            }
+        }
+

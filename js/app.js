@@ -6812,6 +6812,8 @@ window.showGlobalLoading = function (text) {
 
                     if (typeof renderDashboardPreview === 'function') renderDashboardPreview([...dayData, ...rotData]);
                     if (typeof renderCharts === 'function') renderCharts(dayData);
+                    if (typeof renderDashboardMonthlyCharts === 'function') renderDashboardMonthlyCharts(selectedDate);
+                    if (typeof renderDashboardMonthlyCharts === 'function') renderDashboardMonthlyCharts(selectedDate);
                 }).withFailureHandler(err => { console.error("Lỗi tải lịch:", err); }).getLichTrinh();
 
             } else {
@@ -6871,121 +6873,235 @@ window.showGlobalLoading = function (text) {
             }
         }
 
-        function renderDashboardPreview(data) {
-
-            if (!data) return;
-
-            homeFilteredData = data; // Lưu dữ liệu vào bộ nhớ riêng của Trang chủ
-
-
-
-            const el = document.getElementById('todaySchedulePreview');
-
-            if (!homeFilteredData.length) {
-
-                el.innerHTML = `<div style="padding:40px; text-align:center; color:#999;">📅 Chưa có lịch
-
-                                                    trình hôm nay</div>`; return;
-
+        function renderDashboardMonthlyCharts(dateStr) {
+            let targetDate = new Date();
+            if (dateStr) {
+                const parts = String(dateStr).split('-');
+                if (parts.length === 3) {
+                    targetDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                }
             }
+            const y = targetDate.getFullYear() || new Date().getFullYear();
+            const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const monthYear = `${y}-${m}`;
+            const subTitle = `(Tháng ${m}/${y})`;
 
+            const elSub1 = document.getElementById('dash-chart-workdays-subtitle');
+            if (elSub1) elSub1.innerText = subTitle;
+            const elSub2 = document.getElementById('dash-chart-procs-subtitle');
+            if (elSub2) elSub2.innerText = subTitle;
 
+            if (typeof Chart === 'undefined') return;
 
-            const headers = ["STT", "Tên Bệnh Nhân", "Phòng", "Thủ Thuật", "Bắt Đầu", "Kết Thúc", "NV Chính", "Máy"];
+            const drawValuePlugin = {
+                id: 'dashDrawValuePlugin',
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach((bar, index) => {
+                            const val = dataset.data[index];
+                            if (val !== undefined && val !== null && val > 0) {
+                                ctx.save();
+                                ctx.fillStyle = '#334155';
+                                ctx.font = 'bold 11px Inter, sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(String(val).replace('.', ','), bar.x, bar.y - 3);
+                                ctx.restore();
+                            }
+                        });
+                    });
+                }
+            };
 
-            el.innerHTML = `
+            const processCharts = (ccData, ttData) => {
+                const cc = ccData || {};
+                const tt = ttData || {};
+                const daysInMonth = new Date(y, parseInt(m, 10), 0).getDate();
 
-                                                <table class="table">
+                let empList = [];
+                if (typeof adminChamCongEmployees !== 'undefined' && Array.isArray(adminChamCongEmployees) && adminChamCongEmployees.length > 0) {
+                    empList = [...adminChamCongEmployees];
+                } else if (typeof dataCache !== 'undefined' && dataCache.staff && dataCache.staff.length > 0) {
+                    empList = dataCache.staff.map(s => s.ten).filter(Boolean);
+                } else {
+                    empList = Array.from(new Set([...Object.keys(cc), ...Object.keys(tt)])).filter(Boolean);
+                }
 
-                                                    <thead>
+                // 1. Dữ liệu ngày công
+                const workdaysArr = empList.map(emp => {
+                    let totalCong = 0;
+                    if (cc[emp]) {
+                        for (let d = 1; d <= daysInMonth; d++) {
+                            const raw = cc[emp][d] || '';
+                            if (typeof calcDayValue === 'function') totalCong += calcDayValue(raw);
+                            else if (typeof window.calcDayValue === 'function') totalCong += window.calcDayValue(raw);
+                            else if (raw === 'ca-ngay' || raw === 'X' || raw === 'x') totalCong += 1;
+                            else if (raw === 'sang' || raw === 'chieu' || raw === 'S' || raw === 'C') totalCong += 0.5;
+                        }
+                        const heSo = cc[emp].heSo !== undefined ? parseFloat(cc[emp].heSo) : 1.0;
+                        totalCong = Math.round((totalCong * heSo) * 100) / 100;
+                    }
+                    return { name: emp, val: totalCong };
+                }).filter(x => x.val > 0).sort((a, b) => b.val - a.val);
 
-                                                        <tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>
+                // 2. Dữ liệu thủ thuật
+                const procsArr = empList.map(emp => {
+                    let totalTT = 0;
+                    if (tt[emp]) {
+                        totalTT = (tt[emp].loai1 || 0) + (tt[emp].loai2 || 0) + (tt[emp].loai3 || 0) + (tt[emp].khac || 0);
+                    }
+                    return { name: emp, val: totalTT };
+                }).filter(x => x.val > 0).sort((a, b) => b.val - a.val);
 
-                                                    </thead>
+                // Biểu đồ 1: Ngày công
+                const canvas1 = document.getElementById('canvas-dash-workdays');
+                if (canvas1) {
+                    const ctx1 = canvas1.getContext('2d');
+                    if (window._dashWorkdaysChart) window._dashWorkdaysChart.destroy();
+                    const maxVal1 = workdaysArr.length ? Math.max(...workdaysArr.map(d => d.val)) : 10;
+                    window._dashWorkdaysChart = new Chart(ctx1, {
+                        type: 'bar',
+                        data: {
+                            labels: workdaysArr.map(d => d.name),
+                            datasets: [{
+                                label: 'Ngày công',
+                                data: workdaysArr.map(d => d.val),
+                                backgroundColor: '#38bdf8',
+                                borderColor: '#0284c7',
+                                borderWidth: 1,
+                                borderRadius: 3,
+                                barPercentage: 0.65,
+                                categoryPercentage: 0.8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            layout: { padding: { top: 20, bottom: 5 } },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    labels: {
+                                        boxWidth: 20,
+                                        boxHeight: 10,
+                                        font: { size: 12, weight: '600' },
+                                        color: '#334155'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => ` Ngày công: ${String(ctx.raw).replace('.', ',')}`
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        font: { size: 10.5, weight: '600' },
+                                        color: '#334155',
+                                        maxRotation: 45,
+                                        minRotation: 35
+                                    },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    suggestedMax: Math.ceil(maxVal1 * 1.15),
+                                    ticks: {
+                                        font: { size: 11 },
+                                        color: '#64748b',
+                                        stepSize: 2
+                                    },
+                                    grid: { color: '#f1f5f9' }
+                                }
+                            }
+                        },
+                        plugins: [drawValuePlugin]
+                    });
+                }
 
-                                                    <tbody>${homeFilteredData.map((r, i) => {
+                // Biểu đồ 2: Thủ thuật
+                const canvas2 = document.getElementById('canvas-dash-procs');
+                if (canvas2) {
+                    const ctx2 = canvas2.getContext('2d');
+                    if (window._dashProcsChart) window._dashProcsChart.destroy();
+                    const maxVal2 = procsArr.length ? Math.max(...procsArr.map(d => d.val)) : 50;
+                    window._dashProcsChart = new Chart(ctx2, {
+                        type: 'bar',
+                        data: {
+                            labels: procsArr.map(d => d.name),
+                            datasets: [{
+                                label: 'Thủ thuật',
+                                data: procsArr.map(d => d.val),
+                                backgroundColor: '#e11d48',
+                                borderColor: '#be123c',
+                                borderWidth: 1,
+                                borderRadius: 3,
+                                barPercentage: 0.65,
+                                categoryPercentage: 0.8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            layout: { padding: { top: 20, bottom: 5 } },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    labels: {
+                                        boxWidth: 20,
+                                        boxHeight: 10,
+                                        font: { size: 12, weight: '600' },
+                                        color: '#334155'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => ` Thủ thuật: ${ctx.raw}`
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        font: { size: 10.5, weight: '600' },
+                                        color: '#334155',
+                                        maxRotation: 45,
+                                        minRotation: 35
+                                    },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    suggestedMax: Math.ceil(maxVal2 * 1.15),
+                                    ticks: {
+                                        font: { size: 11 },
+                                        color: '#64748b'
+                                    },
+                                    grid: { color: '#f1f5f9' }
+                                }
+                            }
+                        },
+                        plugins: [drawValuePlugin]
+                    });
+                }
+            };
 
-                const isDropped = String(r[5] || '').includes('Rớt') ||
-
-                    String(r[5] || '') === '--';
-
-                return `
-
-                                                        <tr class="${isDropped ? 'row-dropped' : 'row-scheduled'}">
-
-                                                            <td>${i + 1}</td>
-
-                                                            <td><b>${r[1] || ''}</b></td>
-
-                                                            <td>${r[3] || ''}</td>
-
-                                                            <td>${r[4] || ''}</td>
-
-                                                            <td style="font-weight:bold;">${r[5] || ''}</td>
-
-                                                            <td style="font-weight:bold;">${r[6] || ''}</td>
-
-                                                            <td>${r[7] || ''}</td>
-
-                                                            <td>${r[9] || ''}</td>
-
-                                                        </tr>`;
-
-            }).join('')}
-
-                                                    </tbody>
-
-                                                </table>
-
-                                                `;
-
-
-
-            // Ẩn/xóa thanh phân trang bên ngoài nếu có
-
-            const outerPagination =
-
-                document.getElementById('home-pagination-container');
-
-            if (outerPagination) outerPagination.innerHTML = '';
-
-
-
-            // Gắn tính năng sắp xếp cho bảng mới tạo
-
-            if (typeof setupTableSorting === 'function') setupTableSorting(el);
-
-        }
-
-        function filterDashboardTable() {
-
-            try {
-
-                const keyword =
-
-                    document.getElementById("dashboard-search-input")?.value.toLowerCase().trim()
-
-                    || '';
-
-                const tbody = document.querySelector("#todaySchedulePreview tbody");
-
-                if (!tbody) return;
-
-                Array.from(tbody.getElementsByTagName("tr")).forEach(row => {
-
-                    const text = row.textContent.toLowerCase();
-
-                    row.style.display = (text.includes(keyword) ||
-
-                        xoaDau(text).includes(xoaDau(keyword))) ? "" : "none";
-
+            if (typeof window.fetchSingleMonthData === 'function') {
+                window.fetchSingleMonthData(monthYear).then(res => {
+                    const mData = res?.data || {};
+                    processCharts(mData.chamcong, mData.thuthuat);
                 });
-
-            } catch (e) { console.error("Lỗi lọc:", e); }
-
+            } else if (typeof chamCongData !== 'undefined' && typeof thongKeData !== 'undefined') {
+                processCharts(chamCongData, thongKeData);
+            }
         }
 
-        window.filterDashboardTable = filterDashboardTable;
+        window.renderDashboardMonthlyCharts = renderDashboardMonthlyCharts;
 
         function renderCharts(data) {
 

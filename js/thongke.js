@@ -681,7 +681,8 @@
                     }).getThongKeThuThuat(my);
                 }).getChamCong(my);
             });
-        }
+        window.calcDayValue = calcDayValue;
+        window.fetchSingleMonthData = fetchSingleMonthData;
 
         function fetchMultiMonthsData(months, label) {
             window.showGlobalLoading("Đang tổng hợp dữ liệu " + label + "...");

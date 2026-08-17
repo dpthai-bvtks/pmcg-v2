@@ -1824,3 +1824,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Sửa triệt để lỗi mất Tên HIS khi lưu nhân sự: Cập nhật hàm editNhanSu và addNhanSu trong code.gs-v2 và app.js bảo lưu toàn vẹn quyen và tenHis khi chỉnh sửa giờ bận, bổ sung cơ chế lưu đệm bền vững (localStorage) để Tên HIS không bao giờ bị mất khi tải lại trang.
 
 - Tối ưu giao diện bảng Nhân sự trong tab Admin: Thu gọn kích thước badge Chức danh và Hệ / Kỹ năng (padding 1px 7px, font 10.5px, height 18px), căn giữa cân đối, không còn bị tràn/chùm lên ô bảng.
+
+- Tích hợp 2 Biểu đồ Thống kê Tháng (Ngày công làm việc & Số lượng thủ thuật) vào Trang chủ Dashboard thay thế cho bảng lịch trình trùng lặp cũ: Tự động tổng hợp số liệu theo tháng/năm, hiển thị số liệu trực tiếp trên đỉnh cột và có dòng phụ đề tháng... năm... rõ ràng.
