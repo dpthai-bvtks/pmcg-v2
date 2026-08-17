@@ -639,6 +639,7 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
   const OVERTIME_ALLOWANCE = 5;
   const defaultShift = [[420, 690], [780, 1014]];
   let startOfDay = 420, endOfDay = 1014;
+  let isBackfill = false; // Cờ cho phép hỗ trợ chéo phòng khi đang Backfill/Drop Recovery
 
   // Máy dự trữ (kịch bản 3)
   const reservedMachines = new Set();
@@ -1162,6 +1163,7 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
   }));
 
   // Cứu ca rớt: Thử xếp trực tiếp vào khoảng rảnh/lố giờ hoặc hoán đổi vai trò Bác sĩ - KTV
+  isBackfill = true; // Mở khoá hỗ trợ chéo phòng cho toàn bộ giai đoạn cứu ca rớt
   const resultsByStaff = new Map();
   const resultsByPatient = new Map();
   for (const r of results) {
@@ -1184,7 +1186,7 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     const tgCanThiet = Math.max(infoRot[1], infoRot[2]);
     const allowedMaxEnd = endOfDay + (isYHCT ? yhctEndLimit : OVERTIME_ALLOWANCE);
 
-    // Bước 1: Thử xếp trực tiếp vào khoảng rảnh/lố giờ nhưng BẮT BUỘC sau giờ y lệnh/giờ vào của bệnh nhân
+    // Bước 1: Thử xếp bằng tryScheduleOne (isBackfill=true nên bỏ qua giới hạn phòng cố định)
     if (pat) {
       const minStart = Math.max(pat.arrive || startOfDay, startOfDay);
       const gapStarts = new Set();
@@ -1242,6 +1244,7 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
     }
     if (!saved) finalDropList.push(rotItem);
   }
+  isBackfill = false; // Đặt lại sau khi Drop Recovery hoàn tất
 
   // Tính toán điểm phạt (tăng ca và lệch tải nhân viên) làm chỉ số phụ (tie-breaker) cho hàm mục tiêu
   const overtimeMins = Object.values(staffLoad).reduce((s, v) => s + Math.max(0, v.used_mins - v.shift_mins), 0);
