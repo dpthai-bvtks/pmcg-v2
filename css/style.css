@@ -3854,8 +3854,8 @@
             padding: 2px 2px;
             text-align: center;
             vertical-align: middle;
-            border-bottom: 1px solid #e2e8f0;
-            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #cbd5e1;
+            border-right: 1px solid #cbd5e1;
             background-color: #ffffff;
             font-size: 12px;
             height: 28px;
@@ -3865,12 +3865,12 @@
             position: static;
         }
         #table-chamcong thead th {
-            background-color: #f8f9fc;
+            background-color: #275d38 !important;
             font-weight: 700;
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.2px;
-            color: #64748b;
+            color: #ffffff !important;
             position: sticky !important;
             z-index: 20;
             padding: 2px 2px;
@@ -3879,19 +3879,33 @@
             top: 0 !important;
             z-index: 30 !important;
             height: 24px;
+            background-color: #275d38 !important;
+            color: #ffffff !important;
         }
         #table-chamcong thead tr:nth-child(2) th {
             top: 24px !important;
             z-index: 25 !important;
             font-size: 0.72rem;
-            color: #94a3b8;
+            background-color: #1e462a !important;
+            color: #ffffff !important;
             font-weight: 600;
             padding: 1px 2px;
             height: 20px;
         }
 
         /* 1. CỘT 1 CỐ ĐỊNH (TÊN NHÂN VIÊN) */
-        #table-chamcong thead tr:first-child th:first-child,
+        #table-chamcong thead tr:first-child th:first-child {
+            position: sticky !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 45 !important;
+            background-color: #275d38 !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            text-align: center;
+            border-right: 2px solid #cbd5e1;
+        }
         #table-chamcong tbody td:first-child {
             position: sticky !important;
             left: 0 !important;
@@ -3900,7 +3914,7 @@
             padding: 2px 8px;
             font-weight: 700;
             font-size: 13px;
-            color: #1e293b;
+            color: #1e293b !important;
             border-right: 2px solid #cbd5e1;
             background-color: #ffffff !important;
             width: 150px;
@@ -3910,14 +3924,20 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        #table-chamcong thead tr:first-child th:first-child {
-            top: 0 !important;
-            z-index: 45 !important;
-            background-color: #f8f9fc !important;
-        }
 
         /* 2. CỘT 2 CỐ ĐỊNH (HỆ SỐ) */
-        #table-chamcong thead tr:first-child th:nth-child(2),
+        #table-chamcong thead tr:first-child th:nth-child(2) {
+            position: sticky !important;
+            top: 0 !important;
+            left: 150px !important;
+            z-index: 45 !important;
+            background-color: #275d38 !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            text-align: center;
+            border-right: 1.5px solid #cbd5e1;
+        }
         #table-chamcong tbody td:nth-child(2) {
             position: sticky !important;
             left: 150px !important;
@@ -3930,14 +3950,20 @@
             max-width: 46px;
             padding: 2px 2px;
         }
-        #table-chamcong thead tr:first-child th:nth-child(2) {
-            top: 0 !important;
-            z-index: 45 !important;
-            background-color: #f8f9fc !important;
-        }
 
         /* 3. CỘT CUỐI CỐ ĐỊNH (TỔNG CÔNG) */
-        #table-chamcong thead tr:first-child th:last-child,
+        #table-chamcong thead tr:first-child th:last-child {
+            position: sticky !important;
+            top: 0 !important;
+            right: 0 !important;
+            z-index: 45 !important;
+            background-color: #275d38 !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            text-align: center;
+            border-left: 2px solid #cbd5e1;
+        }
         #table-chamcong tbody td:last-child {
             position: sticky !important;
             right: 0 !important;
@@ -3949,25 +3975,19 @@
             min-width: 70px;
             max-width: 70px;
             font-size: 13px;
-            font-weight: 700;
-            color: #2563eb;
+            font-weight: 800;
+            color: #2563eb !important;
             padding: 2px 4px;
-        }
-        #table-chamcong thead tr:first-child th:last-child {
-            top: 0 !important;
-            z-index: 45 !important;
-            background-color: #f8f9fc !important;
-            color: #64748b;
-            font-size: 0.75rem;
         }
 
         /* NGÀY NGHỈ CHỦ NHẬT */
-        #table-chamcong thead th.bg-holiday,
+        #table-chamcong thead th.bg-holiday {
+            background-color: #fef08a !important;
+            color: #854d0e !important;
+            font-weight: 800 !important;
+        }
         #table-chamcong tbody td.bg-holiday {
             background-color: #fff9c4 !important;
-        }
-        #table-chamcong thead th.bg-holiday {
-            color: #854d0e !important;
         }
 
         /* HOVER HÀNG (GIỮ NGUYÊN NỀN ĐẶC CHO CỘT STICKY ĐỂ KHÔNG BỊ XUYÊN THẤU) */
