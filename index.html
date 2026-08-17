@@ -2206,32 +2206,32 @@
                 </div>
                 <!-- TAB: CHẤM CÔNG (CHUẨN GIAO DIỆN PM CŨ) -->
                 <div class="tab-content" id="tab-chamcong">
-                    <div style="background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.04); padding: 8px 12px; display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box;">
+                    <div style="background: #ffffff; border-radius: 6px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 4px 8px; display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box;">
                         
-                        <div style="flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9;">
-                            <h2 style="color: #2563eb; font-weight: 700; font-size: 18px; margin: 0; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                        <div style="flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1px solid #f1f5f9;">
+                            <h2 style="color: #2563eb; font-weight: 700; font-size: 15px; margin: 0; letter-spacing: 0.3px; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
                                 <span>📅</span> BẢNG CHẤM CÔNG
                             </h2>
                             
-                            <div style="display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                <span style="font-weight: 600; color: #475569; font-size: 13px;">Tháng</span>
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap;">
+                                <span style="font-weight: 600; color: #475569; font-size: 12px;">Tháng</span>
                                 <input type="number" id="chamcong-month-picker" min="1" max="12" value="8" 
-                                       style="width: 50px; height: 28px; text-align: center; font-weight: 700; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; outline: none; background: #fff;">
-                                <span style="color: #475569; font-size: 13px; margin-left: 4px;">Năm</span>
+                                       style="width: 44px; height: 24px; text-align: center; font-weight: 700; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 12px; outline: none; background: #fff; padding: 0;">
+                                <span style="color: #475569; font-size: 12px; margin-left: 2px;">Năm</span>
                                 <input type="number" id="chamcong-year-picker" min="2020" max="2050" value="2026" 
-                                       style="width: 70px; height: 28px; text-align: center; font-weight: 700; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; outline: none; background: #fff;">
+                                       style="width: 58px; height: 24px; text-align: center; font-weight: 700; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 12px; outline: none; background: #fff; padding: 0;">
                                 <button onclick="loadChamCongData()" 
-                                        style="margin-left: 6px; padding: 0 12px; border-radius: 6px; font-weight: 600; font-size: 13px; height: 28px; display: inline-flex; align-items: center; gap: 4px; background: #2563eb; color: #fff; border: none; cursor: pointer; transition: all 0.2s;">
+                                        style="margin-left: 4px; padding: 0 10px; border-radius: 4px; font-weight: 600; font-size: 12px; height: 24px; display: inline-flex; align-items: center; gap: 3px; background: #2563eb; color: #fff; border: none; cursor: pointer; transition: all 0.2s;">
                                     <i class='bx bx-search'></i> Xem
                                 </button>
                                 <button onclick="exportChamCongExcel()" 
-                                        style="margin-left: 6px; padding: 0 16px; border-radius: 8px; font-weight: 600; font-size: 14px; height: 36px; display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.2s;">
-                                    <i class='bx bx-download'></i> Xuất Bảng Chấm Công
+                                        style="margin-left: 3px; padding: 0 10px; border-radius: 4px; font-weight: 600; font-size: 12px; height: 24px; display: inline-flex; align-items: center; gap: 3px; background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.2s;">
+                                    <i class='bx bx-download'></i> Xuất Excel
                                 </button>
                             </div>
                         </div>
 
-                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: auto; flex: 1; min-height: 0; background: #ffffff;" id="table-chamcong-container">
+                        <div style="border: 1px solid #e2e8f0; border-radius: 4px; overflow: auto; flex: 1; min-height: 0; background: #ffffff;" id="table-chamcong-container">
                             <table class="data-table" id="table-chamcong" style="width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap;">
                                 <thead id="chamcong-thead">
                                 </thead>

@@ -3842,24 +3842,28 @@
             background: #e0e6ed !important;
         }
 
-        /* --- BẢNG CHẤM CÔNG CHUẨN GIAO DIỆN COMPACT & CHỐNG CHE TÊN --- */
+        /* --- BẢNG CHẤM CÔNG CHUẨN GIAO DIỆN ULTRA-COMPACT & CHỐNG CHE TÊN --- */
         #table-chamcong {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             white-space: nowrap;
-            font-size: 12px;
+            font-size: 11.5px;
         }
         #table-chamcong th, #table-chamcong td {
-            padding: 2px 2px;
+            padding: 1px 1px !important;
             text-align: center;
             vertical-align: middle;
             border-bottom: 1px solid #cbd5e1;
             border-right: 1px solid #cbd5e1;
             background-color: #ffffff;
-            font-size: 12px;
-            height: 28px;
+            font-size: 11.5px;
+            height: 22px !important;
             box-sizing: border-box;
+            line-height: 20px;
+        }
+        #table-chamcong tbody tr {
+            height: 22px !important;
         }
         #table-chamcong tbody td {
             position: static;
@@ -3867,30 +3871,32 @@
         #table-chamcong thead th {
             background-color: #275d38 !important;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
             letter-spacing: 0.2px;
             color: #ffffff !important;
             position: sticky !important;
             z-index: 20;
-            padding: 2px 2px;
+            padding: 1px 1px !important;
         }
         #table-chamcong thead tr:first-child th {
             top: 0 !important;
             z-index: 30 !important;
-            height: 24px;
+            height: 20px !important;
             background-color: #275d38 !important;
             color: #ffffff !important;
+            line-height: 1.1;
         }
         #table-chamcong thead tr:nth-child(2) th {
-            top: 24px !important;
+            top: 20px !important;
             z-index: 25 !important;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             background-color: #1e462a !important;
             color: #ffffff !important;
             font-weight: 600;
-            padding: 1px 2px;
-            height: 20px;
+            padding: 0 1px !important;
+            height: 18px !important;
+            line-height: 18px;
         }
 
         /* 1. CỘT 1 CỐ ĐỊNH (TÊN NHÂN VIÊN) */
@@ -3902,7 +3908,7 @@
             background-color: #275d38 !important;
             color: #ffffff !important;
             font-weight: 800 !important;
-            font-size: 13px !important;
+            font-size: 12px !important;
             text-align: center;
             border-right: 2px solid #cbd5e1;
         }
@@ -3911,44 +3917,45 @@
             left: 0 !important;
             z-index: 12 !important;
             text-align: left;
-            padding: 2px 8px;
-            font-weight: 700;
-            font-size: 13px;
+            padding: 0 6px !important;
+            font-weight: 600;
+            font-size: 12px !important;
             color: #1e293b !important;
             border-right: 2px solid #cbd5e1;
             background-color: #ffffff !important;
-            width: 150px;
-            min-width: 150px;
-            max-width: 150px;
+            width: 140px;
+            min-width: 140px;
+            max-width: 140px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 22px;
         }
 
         /* 2. CỘT 2 CỐ ĐỊNH (HỆ SỐ) */
         #table-chamcong thead tr:first-child th:nth-child(2) {
             position: sticky !important;
             top: 0 !important;
-            left: 150px !important;
+            left: 140px !important;
             z-index: 45 !important;
             background-color: #275d38 !important;
             color: #ffffff !important;
             font-weight: 800 !important;
-            font-size: 13px !important;
+            font-size: 12px !important;
             text-align: center;
             border-right: 1.5px solid #cbd5e1;
         }
         #table-chamcong tbody td:nth-child(2) {
             position: sticky !important;
-            left: 150px !important;
+            left: 140px !important;
             z-index: 12 !important;
             text-align: center;
             border-right: 1.5px solid #cbd5e1;
             background-color: #ffffff !important;
-            width: 46px;
-            min-width: 46px;
-            max-width: 46px;
-            padding: 2px 2px;
+            width: 40px;
+            min-width: 40px;
+            max-width: 40px;
+            padding: 0 !important;
         }
 
         /* 3. CỘT CUỐI CỐ ĐỊNH (TỔNG CÔNG) */
@@ -3960,7 +3967,7 @@
             background-color: #275d38 !important;
             color: #ffffff !important;
             font-weight: 800 !important;
-            font-size: 13px !important;
+            font-size: 12px !important;
             text-align: center;
             border-left: 2px solid #cbd5e1;
         }
@@ -3971,13 +3978,13 @@
             text-align: center;
             border-left: 2px solid #cbd5e1;
             background-color: #ffffff !important;
-            width: 70px;
-            min-width: 70px;
-            max-width: 70px;
-            font-size: 13px;
+            width: 65px;
+            min-width: 65px;
+            max-width: 65px;
+            font-size: 12px;
             font-weight: 800;
             color: #2563eb !important;
-            padding: 2px 4px;
+            padding: 0 2px !important;
         }
 
         /* NGÀY NGHỈ CHỦ NHẬT */
@@ -3998,50 +4005,59 @@
             background-color: #fff0b3 !important;
         }
         #table-chamcong tbody tr:hover td:first-child,
-        #table-chamcong tbody tr:hover td:nth-child(2),
+        #table-chamcong tbody tr:hover td:nth-child(2) {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            z-index: 15 !important;
+        }
         #table-chamcong tbody tr:hover td:last-child {
             background-color: #f1f5f9 !important;
+            color: #2563eb !important;
             z-index: 15 !important;
         }
 
-        /* Ô NHẬP LIỆU COMPACT */
+        /* Ô NHẬP LIỆU ULTRA-COMPACT */
         #table-chamcong .heso-input {
-            width: 38px;
-            height: 22px;
+            width: 32px !important;
+            height: 19px !important;
             text-align: center;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px !important;
             border: 1px solid #cbd5e1;
-            border-radius: 4px;
+            border-radius: 3px;
             background: #fff;
             color: #0f172a;
             outline: none;
-            padding: 0;
-            transition: all 0.2s;
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 19px !important;
+            transition: all 0.15s;
         }
         #table-chamcong .heso-input:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+            box-shadow: 0 0 0 1.5px rgba(37,99,235,0.2);
         }
         #table-chamcong .cc-input-text {
-            width: 32px;
-            height: 22px;
-            padding: 0;
+            width: 26px !important;
+            height: 19px !important;
+            padding: 0 !important;
+            margin: 0 !important;
             text-align: center;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px !important;
+            line-height: 19px !important;
             border: 1px solid #cbd5e1;
-            border-radius: 4px;
+            border-radius: 3px;
             background: #fff;
             color: #2563eb;
             outline: none;
             text-transform: uppercase;
-            transition: all 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
         #table-chamcong .cc-input-text:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+            box-shadow: 0 0 0 1.5px rgba(37,99,235,0.25);
             background: #eff6ff;
         }
 
@@ -4065,13 +4081,13 @@
 
         #table-chamcong th .today-tag {
             display: inline-block;
-            font-size: 7.5px;
+            font-size: 7px;
             background: #fef08a;
             color: #854d0e;
-            padding: 0px 3px;
-            border-radius: 3px;
-            margin-left: 2px;
-            letter-spacing: 0.2px;
+            padding: 0px 2px;
+            border-radius: 2px;
+            margin-left: 1px;
+            letter-spacing: 0.1px;
             font-weight: 800;
             vertical-align: middle;
         }
@@ -4100,13 +4116,13 @@
             scrollbar-color: #94a3b8 #f1f5f9;
         }
         #table-chamcong-container::-webkit-scrollbar {
-            height: 12px !important;
-            width: 12px !important;
+            height: 10px !important;
+            width: 10px !important;
             display: block !important;
         }
         #table-chamcong-container::-webkit-scrollbar-track {
             background: #f1f5f9 !important;
-            border-radius: 6px;
+            border-radius: 5px;
         }
         #table-chamcong-container::-webkit-scrollbar-thumb {
             background: #94a3b8 !important;

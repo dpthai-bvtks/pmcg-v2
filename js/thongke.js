@@ -388,7 +388,7 @@
                 const bgClass = isOff ? 'bg-holiday' : '';
                 const todayClass = isToday ? 'col-today' : '';
                 
-                theadHtml += `<th class="${bgClass} ${todayClass}" id="chamcong-day-${d}-th" ${isToday ? 'data-is-today="1"' : ''} style="min-width: ${isToday ? '46px' : '36px'}; width: ${isToday ? '46px' : '36px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
+                theadHtml += `<th class="${bgClass} ${todayClass}" id="chamcong-day-${d}-th" ${isToday ? 'data-is-today="1"' : ''} style="min-width: ${isToday ? '38px' : '30px'}; width: ${isToday ? '38px' : '30px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
                 weekHtml += `<th class="${bgClass} ${isToday ? 'th-today-sub' : ''}">${getWeekdayName(year, month, d)}</th>`;
             }
             
@@ -402,7 +402,7 @@
                 const firstRow = thead.querySelector('tr:first-child');
                 const secondRowThs = thead.querySelectorAll('tr:nth-child(2) th');
                 if (firstRow && secondRowThs.length > 0) {
-                    const row1Height = firstRow.offsetHeight || 24;
+                    const row1Height = firstRow.offsetHeight || 20;
                     secondRowThs.forEach(th => {
                         th.style.setProperty('top', row1Height + 'px', 'important');
                     });
@@ -434,7 +434,7 @@
                     if (isOff && !displayVal) {
                         rowHtml += `
                             <td class="${bgClass} ${todayClass}" onclick="enableHolidayCell(this, '${emp}', ${d})">
-                                <div style="color: #a16207; font-style: italic; font-size: 11px; font-weight: 600; cursor: pointer; line-height: 22px; user-select: none;">Nghỉ</div>
+                                <div style="color: #a16207; font-style: italic; font-size: 10px; font-weight: 600; cursor: pointer; line-height: 20px; user-select: none;">Nghỉ</div>
                             </td>
                         `;
                     } else {
@@ -463,7 +463,7 @@
                         const targetDay = (currentDay > 1) ? (currentDay - 1) : currentDay;
                         const targetTh = document.getElementById(`chamcong-day-${targetDay}-th`);
                         if (targetTh) {
-                            const stickyOffset = 196; // 150px Họ tên + 46px Hệ số
+                            const stickyOffset = 180; // 140px Họ tên + 40px Hệ số
                             const targetLeft = Math.max(0, targetTh.offsetLeft - stickyOffset);
                             container.scrollTo({ left: targetLeft, behavior: 'smooth' });
                         }
