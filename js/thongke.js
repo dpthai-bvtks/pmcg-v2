@@ -127,9 +127,9 @@
             tbody.innerHTML = '';
             adminChamCongEmployees.forEach((emp, index) => {
                 const tr = document.createElement('tr');
-                tr.style.borderBottom = '1px solid #f1f5f9';
+                tr.style.borderBottom = '1.5px solid #cbd5e1';
                 tr.style.transition = 'background-color 0.15s';
-                tr.onmouseenter = () => tr.style.backgroundColor = '#f8fafc';
+                tr.onmouseenter = () => tr.style.backgroundColor = '#f1f5f9';
                 tr.onmouseleave = () => tr.style.backgroundColor = '#ffffff';
 
                 const staff = adminChamCongStaffConfig[emp] || { keys: [emp.toLowerCase()], skills: 'PHCN' };
@@ -137,35 +137,35 @@
                 const skill = staff.skills || 'PHCN';
                 const role = getEmployeeRole(emp);
                 
-                let roleBadge = `<span style="background: #f8fafc; color: #475569; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0;">${role}</span>`;
+                let roleBadge = `<span style="background: #f8fafc; color: #475569; padding: 1px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; border: 1px solid #e2e8f0; display: inline-block; line-height: 15px;">${role}</span>`;
                 if (role === 'Bác sĩ') {
-                    roleBadge = `<span style="background: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid #bfdbfe;">Bác sĩ</span>`;
+                    roleBadge = `<span style="background: #eff6ff; color: #1d4ed8; padding: 1px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; border: 1px solid #bfdbfe; display: inline-block; line-height: 15px;">Bác sĩ</span>`;
                 } else if (role === 'KTV') {
-                    roleBadge = `<span style="background: #f0fdf4; color: #15803d; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid #bbf7d0;">KTV</span>`;
+                    roleBadge = `<span style="background: #f0fdf4; color: #15803d; padding: 1px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; border: 1px solid #bbf7d0; display: inline-block; line-height: 15px;">KTV</span>`;
                 } else if (role === 'Điều dưỡng') {
-                    roleBadge = `<span style="background: #faf5ff; color: #7e22ce; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid #e9d5ff;">Điều dưỡng</span>`;
+                    roleBadge = `<span style="background: #faf5ff; color: #7e22ce; padding: 1px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; border: 1px solid #e9d5ff; display: inline-block; line-height: 15px;">Điều dưỡng</span>`;
                 }
 
-                let skillBadge = `<span style="background: #eff6ff; color: #2563eb; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; border: 1px solid #bfdbfe;">PHCN</span>`;
+                let skillBadge = `<span style="background: #eff6ff; color: #2563eb; padding: 1px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 700; border: 1px solid #bfdbfe; display: inline-block; line-height: 15px;">PHCN</span>`;
                 if (skill === 'YHCT') {
-                    skillBadge = `<span style="background: #fef3c7; color: #d97706; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; border: 1px solid #fde68a;">YHCT</span>`;
+                    skillBadge = `<span style="background: #fef3c7; color: #d97706; padding: 1px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 700; border: 1px solid #fde68a; display: inline-block; line-height: 15px;">YHCT</span>`;
                 } else if (skill === 'Cả hai') {
-                    skillBadge = `<span style="background: #ecfdf5; color: #059669; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; border: 1px solid #a7f3d0;">Cả hai</span>`;
+                    skillBadge = `<span style="background: #ecfdf5; color: #059669; padding: 1px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 700; border: 1px solid #a7f3d0; display: inline-block; line-height: 15px;">Cả hai</span>`;
                 }
                 
                 tr.innerHTML = `
-                    <td style="color: #94a3b8; text-align: center; padding: 12px 10px; font-weight: 600;">${index + 1}</td>
-                    <td style="padding: 12px 16px; font-weight: 700; color: #1e293b; font-size: 14px;">${emp}</td>
-                    <td style="text-align: center; padding: 12px 10px;">${roleBadge}</td>
-                    <td style="padding: 12px 16px; font-size: 13px; color: #64748b;">${keysStr}</td>
-                    <td style="text-align: center; padding: 12px 16px;">${skillBadge}</td>
-                    <td style="padding: 12px 10px; text-align: center;">
-                        <div style="display: inline-flex; gap: 8px; justify-content: center;">
-                            <button style="padding: 5px 12px; font-size: 13px; font-weight: 600; border-radius: 6px; border: 1px solid #bfdbfe; background: #eff6ff; color: #2563eb; cursor: pointer; transition: all 0.2s;" onmouseenter="this.style.background='#dbeafe'" onmouseleave="this.style.background='#eff6ff'" onclick="openEditAdminEmployeeModal(${index})">
-                                <i class='bx bx-edit'></i> Sửa
+                    <td style="color: #64748b; text-align: center; font-weight: 600;">${index + 1}</td>
+                    <td style="font-weight: 700; color: #1e293b; font-size: 12px; text-align: left; padding: 1px 8px !important;">${emp}</td>
+                    <td style="text-align: center;">${roleBadge}</td>
+                    <td style="font-size: 11.5px; color: #64748b; text-align: left; padding: 1px 8px !important;">${keysStr}</td>
+                    <td style="text-align: center;">${skillBadge}</td>
+                    <td style="text-align: center;">
+                        <div style="display: inline-flex; gap: 4px; justify-content: center; align-items: center;">
+                            <button style="padding: 0 6px; font-size: 10.5px; font-weight: 600; height: 18px; line-height: 16px; border-radius: 3px; border: 1px solid #bfdbfe; background: #eff6ff; color: #2563eb; cursor: pointer; display: inline-flex; align-items: center; gap: 2px;" onclick="openEditAdminEmployeeModal(${index})">
+                                <i class='bx bx-edit' style="font-size: 11px;"></i> Sửa
                             </button>
-                            <button style="padding: 5px 12px; font-size: 13px; font-weight: 600; border-radius: 6px; border: 1px solid #fecaca; background: #fef2f2; color: #dc2626; cursor: pointer; transition: all 0.2s;" onmouseenter="this.style.background='#fee2e2'" onmouseleave="this.style.background='#fef2f2'" onclick="deleteAdminChamCongEmployee(${index})">
-                                <i class='bx bx-trash'></i> Xóa
+                            <button style="padding: 0 6px; font-size: 10.5px; font-weight: 600; height: 18px; line-height: 16px; border-radius: 3px; border: 1px solid #fecaca; background: #fef2f2; color: #dc2626; cursor: pointer; display: inline-flex; align-items: center; gap: 2px;" onclick="deleteAdminChamCongEmployee(${index})">
+                                <i class='bx bx-trash' style="font-size: 11px;"></i> Xóa
                             </button>
                         </div>
                     </td>

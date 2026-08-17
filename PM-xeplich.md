@@ -1822,3 +1822,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đặt ký hiệu ra viện (✔ RV) hiển thị nằm ngang ngay cạnh tên bệnh nhân trên cùng 1 hàng (bỏ ngắt dòng <br>), giúp giữ cho chiều cao hàng trong bảng lịch trình và bản in luôn nhỏ gọn và đồng đều.
 
 - Sửa triệt để lỗi mất Tên HIS khi lưu nhân sự: Cập nhật hàm editNhanSu và addNhanSu trong code.gs-v2 và app.js bảo lưu toàn vẹn quyen và tenHis khi chỉnh sửa giờ bận, bổ sung cơ chế lưu đệm bền vững (localStorage) để Tên HIS không bao giờ bị mất khi tải lại trang.
+
+- Tối ưu giao diện bảng Nhân sự trong tab Admin: Thu gọn kích thước badge Chức danh và Hệ / Kỹ năng (padding 1px 7px, font 10.5px, height 18px), căn giữa cân đối, không còn bị tràn/chùm lên ô bảng.
