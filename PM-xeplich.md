@@ -1814,3 +1814,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Nâng cấp độ rộng cột Tên Nhân Viên lên 200px (tab Thống kê) và 190px (tab Chấm công), bỏ cắt chữ text-overflow ellipsis, thêm phiên bản cache-busting v2.8 cho toàn bộ CSS & JS giúp trình duyệt tự động cập nhật ngay lập tức không bị lưu cache cũ.
 
 - Đồng bộ quy chuẩn Ultra-Compact cho toàn bộ các bảng trong tất cả các tab (Xếp lịch, Bệnh nhân, Danh mục máy móc, Thủ thuật, Nhân sự, Phòng, Giờ bận, Kiểm tra, Tiện ích, Quản trị, Thống kê lâm sàng): Chiều cao tiêu đề thead th giảm còn 22px, hàng dữ liệu tbody td giảm còn 20px, các nút thao tác siêu nhỏ gọn 18px.
+
+- Bổ sung cột STT (Số thứ tự) cho bảng Giờ bận Bệnh nhân và Giờ bận Nhân viên giúp dễ dàng theo dõi số lượng ca bận. Thiết lập đường kẻ ngang phân tách đậm nét (1.5px solid #cbd5e1) giữa các hàng trong toàn bộ các bảng giúp mắt dễ theo dõi từng dòng.
