@@ -1812,3 +1812,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Tăng độ rộng cột Tên Nhân Viên lên 175px (tab Thống kê) và 165px (tab Chấm công) giúp hiển thị đầy đủ trọn vẹn các họ tên dài 4 từ mà không bị cắt ngắn thành dấu ba chấm (...).
 
 - Nâng cấp độ rộng cột Tên Nhân Viên lên 200px (tab Thống kê) và 190px (tab Chấm công), bỏ cắt chữ text-overflow ellipsis, thêm phiên bản cache-busting v2.8 cho toàn bộ CSS & JS giúp trình duyệt tự động cập nhật ngay lập tức không bị lưu cache cũ.
+
+- Đồng bộ quy chuẩn Ultra-Compact cho toàn bộ các bảng trong tất cả các tab (Xếp lịch, Bệnh nhân, Danh mục máy móc, Thủ thuật, Nhân sự, Phòng, Giờ bận, Kiểm tra, Tiện ích, Quản trị, Thống kê lâm sàng): Chiều cao tiêu đề thead th giảm còn 22px, hàng dữ liệu tbody td giảm còn 20px, các nút thao tác siêu nhỏ gọn 18px.
