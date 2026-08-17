@@ -1828,3 +1828,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Tích hợp 2 Biểu đồ Thống kê Tháng (Ngày công làm việc & Số lượng thủ thuật) vào Trang chủ Dashboard thay thế cho bảng lịch trình trùng lặp cũ: Tự động tổng hợp số liệu theo tháng/năm, hiển thị số liệu trực tiếp trên đỉnh cột và có dòng phụ đề tháng... năm... rõ ràng.
 
 - Sửa lỗi cú pháp SyntaxError unclosed brace trong js/thongke.js khi export hàm fetchSingleMonthData (v3.6).
+
+- Cập nhật thông tin hệ thống footer: Phiên bản 2.5, Cập nhật lần cuối: 08/2026.
