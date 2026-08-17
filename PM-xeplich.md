@@ -1791,3 +1791,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   4. Đã kiểm tra cú pháp toàn bộ các file JS độc lập (**0 lỗi syntax**), bảo đảm hoạt động mượt mà và đẩy code lên nhánh `main`.
 
 - Đã sửa lỗi Uncaught TypeError 'Cannot set properties of null (setting textContent)' và 'Cannot read properties of null (reading style)' tại sync.js (bổ sung cơ chế getOrCreateTooltip an toàn, kiểm tra null trước khi gán thuộc tính, và chèn thẻ #sidebar-tooltip tĩnh vào index.html).
+
+- Đã bổ sung tính năng khi mở Tab Bảng Chấm Công: Tự động cuộn bảng ngang để cột ngày hôm nay hiển thị sát bên cạnh cột Hệ số, đồng thời tự động đặt con trỏ chuột (focus và select) vào ô nhập liệu đầu tiên của cột ngày hôm nay.
