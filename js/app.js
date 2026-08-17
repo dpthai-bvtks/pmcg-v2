@@ -4655,64 +4655,57 @@ window.showGlobalLoading = function (text) {
                     b[0] <= last[1] ? merged[merged.length - 1] = [last[0], Math.max(last[1], b[1])] : merged.push(b);
                 }); let
 
-                    shifts = []; if (doc.thoiGianLam) doc.thoiGianLam.split(',').forEach(sh => {
-                        const pts = sh.split('-');
-
-                        if (pts.length === 2) shifts.push([t2m(pts[0].trim()), t2m(pts[1].trim())]);
-                    });
-
+                    shifts = []; 
+                if (doc.thoiGianLam) doc.thoiGianLam.split(',').forEach(sh => {
+                    const pts = sh.split('-');
+                    if (pts.length === 2) shifts.push([t2m(pts[0].trim()), t2m(pts[1].trim())]);
+                });
                 if (!shifts.length) shifts = [[420, 690], [780, 1014]];
 
-                shifts.forEach(sh => {
+                const yhctEndVal = parseInt(document.getElementById("admin-yhct-end")?.value) || 10;
+                const yhctLunchVal = parseInt(document.getElementById("admin-yhct-lunch")?.value) || 10;
 
+                shifts.forEach((sh, sIdx) => {
+                    const extraMins = (sIdx === 0 && shifts.length > 1) ? yhctLunchVal : ((sIdx === shifts.length - 1) ? yhctEndVal : 0);
+                    const shEndExtended = sh[1] + extraMins;
                     let curr = sh[0];
 
                     for (const b of merged) {
-
-                        if (b[0] >= sh[1]) break;
+                        if (b[0] >= shEndExtended) break;
 
                         if (curr < b[0]) {
-                            const valid_start = Math.max(curr, t_vao); if (valid_start < b[0]) {
-                                const mins = b[0] -
-
-                                    valid_start; if (mins >= 1) {
-                                        tbody.innerHTML += `<tr>
-
-                        <td>👨‍⚕️ <b>${doc.ten}</b></td>
-
-                        <td>${m2t(valid_start)} - ${m2t(b[0] - 1)}</td>
-
-                        <td><strong style="color:#27ae60">${mins}</strong></td>
-
-                    </tr>`; found = true;
-                                    }
+                            const valid_start = Math.max(curr, t_vao); 
+                            if (valid_start < b[0]) {
+                                const mins = b[0] - valid_start; 
+                                if (mins >= 1) {
+                                    tbody.innerHTML += `<tr>
+                                        <td>👨‍⚕️ <b>${doc.ten}</b></td>
+                                        <td>${m2t(valid_start)} - ${m2t(b[0] - 1)}</td>
+                                        <td><strong style="color:#27ae60">${mins}</strong></td>
+                                    </tr>`; 
+                                    found = true;
+                                }
                             }
                         }
-
                         curr = Math.max(curr, b[1]);
-
                     }
 
-                    if (curr < sh[1]) {
-                        const valid_start = Math.max(curr, t_vao); if (valid_start < sh[1]) {
-                            const
-
-                            mins = sh[1] - valid_start; if (mins >= 1) {
+                    if (curr < shEndExtended) {
+                        const valid_start = Math.max(curr, t_vao); 
+                        if (valid_start < shEndExtended) {
+                            const mins = shEndExtended - valid_start; 
+                            if (mins >= 1) {
+                                const noteOvertime = extraMins > 0 ? ` <span style="font-size:11px; color:#e67e22; font-weight:normal;">(+${extraMins}p lố)</span>` : '';
                                 tbody.innerHTML += `<tr>
-
-                            <td>👨‍⚕️ <b>${doc.ten}</b></td>
-
-                            <td>${m2t(valid_start)} - ${m2t(sh[1] - 1)}</td>
-
-                            <td><strong style="color:#27ae60">${mins}</strong></td>
-
-                        </tr>`; found = true;
+                                    <td>👨‍⚕️ <b>${doc.ten}</b></td>
+                                    <td>${m2t(valid_start)} - ${m2t(shEndExtended - 1)}${noteOvertime}</td>
+                                    <td><strong style="color:#27ae60">${mins}</strong></td>
+                                </tr>`; 
+                                found = true;
                             }
                         }
                     }
-
                 });
-
             });
 
             if (!found) {

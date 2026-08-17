@@ -1830,3 +1830,8 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Sửa lỗi cú pháp SyntaxError unclosed brace trong js/thongke.js khi export hàm fetchSingleMonthData (v3.6).
 
 - Cập nhật thông tin hệ thống footer: Phiên bản 2.5, Cập nhật lần cuối: 08/2026.
+- Khắc phục triệt để lỗi rớt ca thủ thuật YHCT (như ca Thủy châm - Bệnh nhân NGUYỄN THỊ NÊN) ở cuối ca chiều khi đã cấu hình lố giờ YHCT (admin-yhct-end = 10 phút):
+  1. **Lỗi chặn cứng mốc kết thúc ngày trong Backfill Pass 2 (code.gs-v2.txt)**: Sửa điều kiện quét khoảng trống từ `<= endOfDay` (16:30) thành `<= allowedMaxEnd` (16:40 đối với YHCT), giúp thuật toán tận dụng trọn vẹn 10 phút lố giờ chiều cho các thủ thuật YHCT.
+  2. **Mở khóa hỗ trợ chéo phòng trong pha Backfill (`isBackfill = true`)**: Cho phép bác sĩ/nhân sự có kỹ năng sang hỗ trợ phòng khác khi phòng đó không xếp được và nhân sự đang rảnh rỗi (như BS Đạt rảnh từ 16:09), ngăn chặn tình trạng rớt ca do chia rào chắn phòng quá cứng nhắc.
+  3. **Nâng cấp cơ chế Cứu ca rớt (Drop Recovery)**: Bổ sung bước trực tiếp xếp các ca rớt còn lại vào khoảng thời gian rảnh / lố giờ chiều của Bác sĩ và KTV trước khi thực hiện bước hoán đổi vai trò.
+  4. **Nâng cấp công cụ Tìm Bác Sĩ Rảnh (js/app.js)**: Cập nhật hàm `timBacSiRanh()` tự động tính thêm thời gian lố giờ trưa và lố giờ chiều (`admin-yhct-end`), giúp hiển thị chính xác khung rảnh của BS Đạt là `16:09 - 16:39 (+10p lố)` với tổng thời lượng **31 phút**, đủ cho ca thủ thuật 25 phút.
