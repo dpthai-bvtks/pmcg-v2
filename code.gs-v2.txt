@@ -2207,7 +2207,7 @@ function saveEmployees(data) { saveFileContent('employees.json', data); return t
 function getErrorConfig() { return getFileContent('error_config.json'); }
 function saveErrorConfig(data) { saveFileContent('error_config.json', data); return true; }
 
-function getAllData(monthYear) {
+function getAllDriveData(monthYear) {
   return {
     status: 'success',
     data: {
