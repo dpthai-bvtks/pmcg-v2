@@ -3433,7 +3433,7 @@ window.showGlobalLoading = function (text) {
                 const reasonTitle = item.__dropped ? ` title="${item.reason || item.may || 'Không xếp được'}"` : '';
 
                 const isDischarged = !!item.__isDischarged;
-                const dischargeMark = isDischarged ? '<br><span style="color:#27ae60; font-size:11px; font-style:italic;">(✔ RV)</span>' : '';
+                const dischargeMark = isDischarged ? ' <span style="color:#27ae60; font-size:10.5px; font-style:italic; font-weight:700; white-space:nowrap; margin-left:4px;">(✔ RV)</span>' : '';
 
                 return `<tr class="${rowClass}"${reasonTitle}>
 
@@ -4002,7 +4002,7 @@ window.showGlobalLoading = function (text) {
             });
 
             const rows = printData.map((row, i) => {
-                const dischargeMark = row.__isDischarged ? '<br><span style="font-size:11px; font-style:italic;">(✔ RV)</span>' : '';
+                const dischargeMark = row.__isDischarged ? ' <span style="font-size:10.5px; font-style:italic; font-weight:700; white-space:nowrap; margin-left:4px; color:#27ae60;">(✔ RV)</span>' : '';
                 return `<tr class="${row.__dropped ? 'print-dropped' : ''}">
 
                 <td>${i + 1}</td>
