@@ -463,7 +463,7 @@
                         const targetDay = (currentDay > 1) ? (currentDay - 1) : currentDay;
                         const targetTh = document.getElementById(`chamcong-day-${targetDay}-th`);
                         if (targetTh) {
-                            const stickyOffset = 180; // 140px Họ tên + 40px Hệ số
+                            const stickyOffset = 171; // 135px Họ tên + 36px Hệ số
                             const targetLeft = Math.max(0, targetTh.offsetLeft - stickyOffset);
                             container.scrollTo({ left: targetLeft, behavior: 'smooth' });
                         }
