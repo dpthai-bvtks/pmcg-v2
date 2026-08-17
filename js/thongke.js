@@ -681,6 +681,7 @@
                     }).getThongKeThuThuat(my);
                 }).getChamCong(my);
             });
+        }
         window.calcDayValue = calcDayValue;
         window.fetchSingleMonthData = fetchSingleMonthData;
 

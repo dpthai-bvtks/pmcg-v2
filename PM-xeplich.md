@@ -1826,3 +1826,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Tối ưu giao diện bảng Nhân sự trong tab Admin: Thu gọn kích thước badge Chức danh và Hệ / Kỹ năng (padding 1px 7px, font 10.5px, height 18px), căn giữa cân đối, không còn bị tràn/chùm lên ô bảng.
 
 - Tích hợp 2 Biểu đồ Thống kê Tháng (Ngày công làm việc & Số lượng thủ thuật) vào Trang chủ Dashboard thay thế cho bảng lịch trình trùng lặp cũ: Tự động tổng hợp số liệu theo tháng/năm, hiển thị số liệu trực tiếp trên đỉnh cột và có dòng phụ đề tháng... năm... rõ ràng.
+
+- Sửa lỗi cú pháp SyntaxError unclosed brace trong js/thongke.js khi export hàm fetchSingleMonthData (v3.6).
