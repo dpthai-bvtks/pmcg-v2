@@ -1361,6 +1361,19 @@ window.showGlobalLoading = function (text) {
                         cleaned.forEach((item, idx) => {
                             item.index = idx;
                         });
+                        if (cacheKey === 'staff') {
+                            try {
+                                const localHisMap = JSON.parse(localStorage.getItem('staff_his_map') || '{}');
+                                cleaned.forEach(item => {
+                                    if (!item.tenHis && localHisMap[item.ten]) {
+                                        item.tenHis = localHisMap[item.ten];
+                                    } else if (item.tenHis) {
+                                        localHisMap[item.ten] = item.tenHis;
+                                    }
+                                });
+                                localStorage.setItem('staff_his_map', JSON.stringify(localHisMap));
+                            } catch (e) { }
+                        }
                         dataCache[cacheKey] = cleaned;
                     }
                     window.dataCacheTime = window.dataCacheTime || {};
@@ -1934,43 +1947,58 @@ window.showGlobalLoading = function (text) {
         }
 
         function saveStaff() {
-            
-
-            const ten = document.getElementById('staff-name').value;
-
+            const ten = document.getElementById('staff-name').value.trim();
             const vaiTro = document.getElementById('staff-role').value;
-
             const trangThai = document.getElementById('staff-status').value;
-
             const tgLam = `${document.getElementById('staff-ms').value}-${document.getElementById('staff-me').value}, ${document.getElementById('staff-as').value}-${document.getElementById('staff-ae').value}`;
-
             const thayThe = document.getElementById('staff-replace').value;
-
-            const quyen = document.getElementById('staff-quyen').value;
-            const tenHis = document.getElementById('staff-ten-his').value;
-
+            const quyen = document.getElementById('staff-quyen').value || 'Cả hai';
+            const tenHis = document.getElementById('staff-ten-his').value.trim();
             const gioBan = editIndex.staff > -1 ? (dataCache.staff[editIndex.staff]?.gioBan || '') : '';
-
             const kyNang = Array.from(document.querySelectorAll('.skill-checkbox:checked')).map(cb => cb.value).join(', ');
 
             if (!ten) return alert("Nhập tên!");
 
+            try {
+                const localHisMap = JSON.parse(localStorage.getItem('staff_his_map') || '{}');
+                localHisMap[ten] = tenHis;
+                localStorage.setItem('staff_his_map', JSON.stringify(localHisMap));
+            } catch (e) { }
+
             const obj = { ten, vaiTro, trangThai, thoiGianLam: tgLam, kyNang, gioBan, nguoiThayThe: thayThe, quyen, tenHis };
 
+            if (window.showGlobalLoading) window.showGlobalLoading("Đang lưu nhân sự...");
             if (editIndex.staff > -1) {
                 const oldItem = dataCache.staff[editIndex.staff];
                 const sheetIdx = oldItem.sheetIndex !== undefined ? oldItem.sheetIndex : editIndex.staff;
                 obj.sheetIndex = sheetIdx;
                 obj.index = editIndex.staff;
                 dataCache.staff[editIndex.staff] = obj;
-                google.script.run.editNhanSu(sheetIdx, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe, quyen, tenHis);
+                if (window.dataCacheTime) window.dataCacheTime['staff'] = Date.now();
+                google.script.run
+                    .withSuccessHandler(() => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    })
+                    .withFailureHandler((err) => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        alert("Lỗi lưu nhân sự: " + (err.message || err));
+                    })
+                    .editNhanSu(sheetIdx, ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe, quyen, tenHis);
             } else {
                 dataCache.staff.push(obj);
-                google.script.run.addNhanSu(ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe, quyen, tenHis);
+                if (window.dataCacheTime) window.dataCacheTime['staff'] = Date.now();
+                google.script.run
+                    .withSuccessHandler(() => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                    })
+                    .withFailureHandler((err) => {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
+                        alert("Lỗi thêm nhân sự: " + (err.message || err));
+                    })
+                    .addNhanSu(ten, vaiTro, trangThai, tgLam, kyNang, gioBan, thayThe, quyen, tenHis);
             }
 
             cancelEdit('staff'); renderStaffTable();
-
         }
 
         function editStaff(index) {
@@ -3060,7 +3088,7 @@ window.showGlobalLoading = function (text) {
                     if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
                     loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
                 })
-                .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe);
+                .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe || 'Không', s.quyen || 'Cả hai', s.tenHis || '');
         });
 
         function deleteSingleStaffBusy() {
@@ -3097,7 +3125,7 @@ window.showGlobalLoading = function (text) {
                         if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
                         loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
                     })
-                    .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe);
+                    .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, s.gioBan, s.nguoiThayThe || 'Không', s.quyen || 'Cả hai', s.tenHis || '');
             });
         }
 
@@ -3125,7 +3153,7 @@ window.showGlobalLoading = function (text) {
                     if (window.dataCacheTime) window.dataCacheTime['staff'] = 0;
                     loadEntity('getNhanSu', 'staff', renderStaffTable, [], true);
                 })
-                .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, '', s.nguoiThayThe);
+                .editNhanSu(sheetIdx, s.ten, s.vaiTro, s.trangThai, s.thoiGianLam, s.kyNang, '', s.nguoiThayThe || 'Không', s.quyen || 'Cả hai', s.tenHis || '');
         }
 
 
