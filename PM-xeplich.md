@@ -1818,3 +1818,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Bổ sung cột STT (Số thứ tự) cho bảng Giờ bận Bệnh nhân và Giờ bận Nhân viên giúp dễ dàng theo dõi số lượng ca bận. Thiết lập đường kẻ ngang phân tách đậm nét (1.5px solid #cbd5e1) giữa các hàng trong toàn bộ các bảng giúp mắt dễ theo dõi từng dòng.
 
 - Bổ sung cột STT (1, 2, 3...) cho bảng Giờ bận Nhân viên (#busy-staff-table). Riêng bảng Bệnh nhân (#patients-table) được nới rộng chiều cao hàng lên 32px, cỡ chữ 12.5px - 13px giúp hiển thị tên và thông tin bệnh nhân thoáng đãng, to rõ và dễ quan sát nhất.
+
+- Đặt ký hiệu ra viện (✔ RV) hiển thị nằm ngang ngay cạnh tên bệnh nhân trên cùng 1 hàng (bỏ ngắt dòng <br>), giúp giữ cho chiều cao hàng trong bảng lịch trình và bản in luôn nhỏ gọn và đồng đều.
