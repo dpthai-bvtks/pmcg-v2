@@ -1804,3 +1804,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã tối ưu hóa chế độ Ultra-Compact cho Bảng Chấm Công: Thu gọn chiều cao dòng xuống 22px, ô nhập liệu 19px, giảm padding vùng header giúp màn hình 27-inch hiển thị trọn vẹn 15-20 dòng nhân viên cùng lúc, và màn hình laptop nhỏ hiển thị 10-12 dòng thoải mái không bị tràn.
 
 - Đã giảm tối đa chiều cao của 2 hàng tiêu đề bảng chấm công: Chuyển sang hiển thị số ngày đơn trên 1 hàng (1, 2, ..., 31) kết hợp hàng thứ (T2..CN), triệt tiêu hoàn toàn khoảng đệm thừa giúp tổng chiều cao tiêu đề chỉ còn 34px (tiết kiệm hơn một nửa so với trước đó).
+
+- Đã đồng bộ giao diện Ultra-Compact cho tab Thống Kê Tổng Hợp & Báo Cáo: Tối ưu thanh điều khiển gọn gàng, giảm chiều cao các dòng dữ liệu xuống 22px, header xanh y tế #275d38 cố định, ghim cố định cột Tên nhân viên khi cuộn ngang và hỗ trợ xem trọn vẹn danh sách nhân viên.
