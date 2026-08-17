@@ -2961,7 +2961,7 @@ window.showGlobalLoading = function (text) {
 
             }
 
-            thead.innerHTML = '<tr>' + busyIndices.map(idx => `<th style="text-align:center; font-size:11px; text-transform:uppercase; padding:8px;">${dataCache.staff[idx].ten}</th>`).join('') + '</tr>';
+            thead.innerHTML = '<tr><th style="width: 40px; min-width: 40px; text-align: center;">STT</th>' + busyIndices.map(idx => `<th style="text-align:center; font-size:11px; text-transform:uppercase; padding:2px 6px;">${dataCache.staff[idx].ten}</th>`).join('') + '</tr>';
 
             const slotArrays = busyIndices.map(idx => dataCache.staff[idx].gioBan.split(',').map(x => x.trim()).filter(x => x));
 
@@ -2972,6 +2972,7 @@ window.showGlobalLoading = function (text) {
             for (let i = 0; i < maxSlots; i++) {
 
                 tbHtml += '<tr>';
+                tbHtml += `<td align="center" style="font-weight: 700; color: #475569; width: 40px; min-width: 40px;">${i + 1}</td>`;
 
                 busyIndices.forEach((origIdx, arrIdx) => {
 

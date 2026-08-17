@@ -2944,7 +2944,7 @@
 
 
         /* Thu gọn bảng ở tất cả tab → hiển thị nhiều dữ liệu hơn */
-        #schedule-table th, #patients-table th, #machines-table th, #procedures-table th, #staff-table th, #rooms-table th,
+        #schedule-table th, #machines-table th, #procedures-table th, #staff-table th, #rooms-table th,
         #busy-staff-table th, #busy-pat-table th, #leave-pat-table th, #table-count th, #table-error-time th, #table-error-other th,
         #hl-table th, #table-admin-employees th, #stats-unscheduled-table th, #stats-staff-table th {
             padding: 2px 5px !important;
@@ -2955,7 +2955,7 @@
             box-sizing: border-box !important;
         }
 
-        #schedule-table td, #patients-table td, #machines-table td, #procedures-table td, #staff-table td, #rooms-table td,
+        #schedule-table td, #machines-table td, #procedures-table td, #staff-table td, #rooms-table td,
         #busy-staff-table td, #busy-pat-table td, #leave-pat-table td, #table-count td, #table-error-time td, #table-error-other td,
         #hl-table td, #table-admin-employees td, #stats-unscheduled-table td, #stats-staff-table td {
             padding: 1px 5px !important;
@@ -3045,19 +3045,44 @@
 
 
         #patients-table {
-
             margin-top: 0 !important;
-
         }
 
-
-
+        /* ── RIÊNG BẢNG BỆNH NHÂN: DÒNG THOÁNG RỘNG, DỄ NHÌN ── */
         #patients-table thead th {
-
             top: 56px !important;
-
             z-index: 890 !important;
+            padding: 5px 8px !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            height: 30px !important;
+            min-height: 30px !important;
+            line-height: 20px !important;
+            box-sizing: border-box !important;
+        }
 
+        #patients-table tbody td {
+            padding: 5px 8px !important;
+            font-size: 12.5px !important;
+            height: 32px !important;
+            min-height: 32px !important;
+            line-height: 20px !important;
+            border-bottom: 1.5px solid #cbd5e1 !important;
+            border-right: 1px solid #f1f5f9 !important;
+            box-sizing: border-box !important;
+        }
+
+        #patients-table tbody td strong {
+            font-size: 13px !important;
+            color: #0f172a !important;
+        }
+
+        #patients-table tbody td button {
+            height: 22px !important;
+            line-height: 22px !important;
+            padding: 0 8px !important;
+            font-size: 11.5px !important;
+            margin: 0 !important;
         }
 
 
