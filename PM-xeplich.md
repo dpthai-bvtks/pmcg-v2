@@ -1800,3 +1800,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã sửa màu nền và màu chữ tiêu đề các cột ghim (TÊN NHÂN VIÊN, HỆ SỐ, TỔNG CÔNG) đồng bộ nền xanh y tế #275d38 với chữ in hoa màu trắng đậm nét #ffffff rõ ràng, tương phản cao và không còn bị mờ/trùng màu nền.
 
 - Đã điều chỉnh cơ chế cuộn tự động khi mở Bảng Chấm Công: Tự động cuộn đến vị trí hiển thị liên tiếp [Cột Hệ số] -> [Cột Ngày hôm trước] -> [Cột Ngày hiện tại], đồng thời đặt con trỏ chuột (focus) vào ô nhập liệu của cột ngày hiện tại.
+
+- Đã tối ưu hóa chế độ Ultra-Compact cho Bảng Chấm Công: Thu gọn chiều cao dòng xuống 22px, ô nhập liệu 19px, giảm padding vùng header giúp màn hình 27-inch hiển thị trọn vẹn 15-20 dòng nhân viên cùng lúc, và màn hình laptop nhỏ hiển thị 10-12 dòng thoải mái không bị tràn.
