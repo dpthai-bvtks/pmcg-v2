@@ -388,7 +388,7 @@
                 const bgClass = isOff ? 'bg-holiday' : '';
                 const todayClass = isToday ? 'col-today' : '';
                 
-                theadHtml += `<th class="${bgClass} ${todayClass}" id="chamcong-day-${d}-th" ${isToday ? 'data-is-today="1"' : ''} style="min-width: ${isToday ? '38px' : '30px'}; width: ${isToday ? '38px' : '30px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
+                theadHtml += `<th class="${bgClass} ${todayClass}" id="chamcong-day-${d}-th" ${isToday ? 'data-is-today="1"' : ''} style="min-width: ${isToday ? '30px' : '26px'}; width: ${isToday ? '30px' : '26px'};" title="${isToday ? 'Hôm nay (Ngày ' + d + ')' : 'Ngày ' + d}">${d}</th>`;
                 weekHtml += `<th class="${bgClass} ${isToday ? 'th-today-sub' : ''}">${getWeekdayName(year, month, d)}</th>`;
             }
             
@@ -402,7 +402,7 @@
                 const firstRow = thead.querySelector('tr:first-child');
                 const secondRowThs = thead.querySelectorAll('tr:nth-child(2) th');
                 if (firstRow && secondRowThs.length > 0) {
-                    const row1Height = firstRow.offsetHeight || 20;
+                    const row1Height = firstRow.offsetHeight || 18;
                     secondRowThs.forEach(th => {
                         th.style.setProperty('top', row1Height + 'px', 'important');
                     });
