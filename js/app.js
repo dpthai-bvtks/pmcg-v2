@@ -2649,33 +2649,21 @@ window.showGlobalLoading = function (text) {
         // ============================================================
 
         function renderBusyPat() {
-
             const tbody = document.getElementById('busy-pat-tbody');
-
             if (!tbody) return;
-
             let html = '';
-
+            let stt = 1;
             dataCache.pat.forEach(p => {
-
                 if (!p.gioBan) return;
-
                 p.gioBan.split(',').map(s => s.trim()).filter(s => s).forEach(slot => {
-
                     html += `<tr class="editable-row" onclick="editBusyPat('${p.ten}', '${slot}')">
-
-                <td><strong>${p.ten}</strong></td>
-
-                <td style="color:#d35400; font-weight:bold;">${formatSlotDisplay(slot)}</td>
-
-            </tr>`;
-
+                        <td align="center" style="font-weight: 600; color: #475569;">${stt++}</td>
+                        <td><strong>${p.ten}</strong></td>
+                        <td style="color:#d35400; font-weight:bold;">${formatSlotDisplay(slot)}</td>
+                    </tr>`;
                 });
-
             });
-
-            tbody.innerHTML = html || `<tr><td colspan="2" align="center" style="color:gray; padding:10px;">Chưa có bệnh nhân báo bận</td></tr>`;
-
+            tbody.innerHTML = html || `<tr><td colspan="3" align="center" style="color:gray; padding:10px;">Chưa có bệnh nhân báo bận</td></tr>`;
         }
 
         function editBusyPat(ten, singleSlot) {
@@ -2950,13 +2938,9 @@ window.showGlobalLoading = function (text) {
         // ============================================================
 
         function renderBusyStaff() {
-
             const select = document.getElementById('busy-staff-select');
-
             const thead = document.getElementById('busy-staff-thead');
-
             const tbody = document.getElementById('busy-staff-tbody');
-
             if (!select || !thead || !tbody) return;
 
             const prevVal = select.value;
