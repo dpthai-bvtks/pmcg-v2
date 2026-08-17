@@ -1808,3 +1808,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Đã đồng bộ giao diện Ultra-Compact cho tab Thống Kê Tổng Hợp & Báo Cáo: Tối ưu thanh điều khiển gọn gàng, giảm chiều cao các dòng dữ liệu xuống 22px, header xanh y tế #275d38 cố định, ghim cố định cột Tên nhân viên khi cuộn ngang và hỗ trợ xem trọn vẹn danh sách nhân viên.
 
 - Tối ưu toàn diện chiều cao Ultra-Compact: Chiều cao hàng giảm xuống 19px, thead 30px (16px + 14px), padding 0, font 11px, flexbox layout 100vh giúp hiển thị trọn vẹn 15-20+ hàng nhân sự trên màn hình 27 inch và 10-14 hàng trên laptop mà không bị tràn màn hình hay che khuất thông tin.
+
+- Tăng độ rộng cột Tên Nhân Viên lên 175px (tab Thống kê) và 165px (tab Chấm công) giúp hiển thị đầy đủ trọn vẹn các họ tên dài 4 từ mà không bị cắt ngắn thành dấu ba chấm (...).
