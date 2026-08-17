@@ -388,7 +388,7 @@
                 const bgClass = isOff ? 'bg-holiday' : '';
                 const todayClass = isToday ? 'col-today' : '';
                 
-                theadHtml += `<th class="${bgClass} ${todayClass}" ${isToday ? 'id="chamcong-today-th"' : ''} style="min-width: ${isToday ? '58px' : '48px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
+                theadHtml += `<th class="${bgClass} ${todayClass}" ${isToday ? 'id="chamcong-today-th"' : ''} style="min-width: ${isToday ? '46px' : '36px'}; width: ${isToday ? '46px' : '36px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
                 weekHtml += `<th class="${bgClass} ${isToday ? 'th-today-sub' : ''}">${getWeekdayName(year, month, d)}</th>`;
             }
             
@@ -402,7 +402,7 @@
                 const firstRow = thead.querySelector('tr:first-child');
                 const secondRowThs = thead.querySelectorAll('tr:nth-child(2) th');
                 if (firstRow && secondRowThs.length > 0) {
-                    const row1Height = firstRow.offsetHeight || 38;
+                    const row1Height = firstRow.offsetHeight || 24;
                     secondRowThs.forEach(th => {
                         th.style.setProperty('top', row1Height + 'px', 'important');
                     });
@@ -434,7 +434,7 @@
                     if (isOff && !displayVal) {
                         rowHtml += `
                             <td class="${bgClass} ${todayClass}" onclick="enableHolidayCell(this, '${emp}', ${d})">
-                                <div style="color: #a16207; font-style: italic; font-size: 13px; font-weight: 500; cursor: pointer; line-height: 32px; user-select: none;">Nghỉ</div>
+                                <div style="color: #a16207; font-style: italic; font-size: 11px; font-weight: 600; cursor: pointer; line-height: 22px; user-select: none;">Nghỉ</div>
                             </td>
                         `;
                     } else {
@@ -455,14 +455,14 @@
 
             attachChamCongEvents(daysInMonth);
 
-            // Tự động cuộn đến cột ngày hôm nay nằm sát cột Hệ số (Sticky Left = 245px) và đặt con trỏ chuột vào ô đầu tiên
+            // Tự động cuộn đến cột ngày hôm nay nằm sát cột Hệ số (Sticky Left = 196px) và đặt con trỏ chuột vào ô đầu tiên
             setTimeout(() => {
                 const container = document.getElementById('table-chamcong-container');
                 if (container) {
                     if (isCurrentMonthView && currentDay >= 1 && currentDay <= daysInMonth) {
                         const todayTh = document.getElementById('chamcong-today-th');
                         if (todayTh) {
-                            const stickyOffset = 245; // 180px Họ tên + 65px Hệ số
+                            const stickyOffset = 196; // 150px Họ tên + 46px Hệ số
                             const targetLeft = Math.max(0, todayTh.offsetLeft - stickyOffset);
                             container.scrollTo({ left: targetLeft, behavior: 'smooth' });
                         }
