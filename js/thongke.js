@@ -388,7 +388,7 @@
                 const bgClass = isOff ? 'bg-holiday' : '';
                 const todayClass = isToday ? 'col-today' : '';
                 
-                theadHtml += `<th class="${bgClass} ${todayClass}" ${isToday ? 'id="chamcong-today-th"' : ''} style="min-width: ${isToday ? '46px' : '36px'}; width: ${isToday ? '46px' : '36px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
+                theadHtml += `<th class="${bgClass} ${todayClass}" id="chamcong-day-${d}-th" ${isToday ? 'data-is-today="1"' : ''} style="min-width: ${isToday ? '46px' : '36px'}; width: ${isToday ? '46px' : '36px'};">NGÀY ${d}${isToday ? '<br><span class="today-tag">HÔM NAY</span>' : ''}</th>`;
                 weekHtml += `<th class="${bgClass} ${isToday ? 'th-today-sub' : ''}">${getWeekdayName(year, month, d)}</th>`;
             }
             
@@ -455,15 +455,16 @@
 
             attachChamCongEvents(daysInMonth);
 
-            // Tự động cuộn đến cột ngày hôm nay nằm sát cột Hệ số (Sticky Left = 196px) và đặt con trỏ chuột vào ô đầu tiên
+            // Tự động cuộn theo thứ tự: [Cột Hệ số] -> [Cột Ngày trước] -> [Cột Ngày hiện tại]
             setTimeout(() => {
                 const container = document.getElementById('table-chamcong-container');
                 if (container) {
                     if (isCurrentMonthView && currentDay >= 1 && currentDay <= daysInMonth) {
-                        const todayTh = document.getElementById('chamcong-today-th');
-                        if (todayTh) {
+                        const targetDay = (currentDay > 1) ? (currentDay - 1) : currentDay;
+                        const targetTh = document.getElementById(`chamcong-day-${targetDay}-th`);
+                        if (targetTh) {
                             const stickyOffset = 196; // 150px Họ tên + 46px Hệ số
-                            const targetLeft = Math.max(0, todayTh.offsetLeft - stickyOffset);
+                            const targetLeft = Math.max(0, targetTh.offsetLeft - stickyOffset);
                             container.scrollTo({ left: targetLeft, behavior: 'smooth' });
                         }
                         
