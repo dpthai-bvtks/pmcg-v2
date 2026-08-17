@@ -1796,3 +1796,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 
 - Đã thu nhỏ và tối ưu hóa mật độ hiển thị (Compact Table) cho Bảng Chấm Công: Thu gọn chiều cao tiêu đề, kích thước ô nhập liệu và padding các dòng để xem được nhiều dòng nhân viên cùng lúc trên màn hình.
 - Đã sửa triệt để lỗi che/đè nội dung tên nhân viên khi cuộn ngang và hover chuột: Cố định ngữ cảnh xếp lớp (z-index isolation) cho các cột sticky (Tên NV, Hệ số, Tổng công) luôn có màu nền đặc biệt lập và nằm trên các ô cuộn bên dưới.
+
+- Đã sửa màu nền và màu chữ tiêu đề các cột ghim (TÊN NHÂN VIÊN, HỆ SỐ, TỔNG CÔNG) đồng bộ nền xanh y tế #275d38 với chữ in hoa màu trắng đậm nét #ffffff rõ ràng, tương phản cao và không còn bị mờ/trùng màu nền.
