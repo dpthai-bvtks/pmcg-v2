@@ -1629,56 +1629,65 @@
 
 
 
-        /* ── TABLE DEFAULT ── */
-
+        /* ── TABLE DEFAULT (ULTRA-COMPACT TOÀN HỆ THỐNG) ── */
         table {
-
             width: 100%;
-
-            border-collapse: collapse;
-
-            margin-top: 10px;
-
-            box-shadow: 0 4px 15px rgba(22, 46, 32, 0.05);
-
-            border-radius: 8px;
-
-            font-size: 13px;
-
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 4px;
+            box-shadow: 0 1px 4px rgba(22, 46, 32, 0.05);
+            border-radius: 4px;
+            font-size: 11.5px;
         }
 
         table thead tr:first-child th:first-child {
-
-            border-top-left-radius: 8px;
-
+            border-top-left-radius: 4px;
         }
 
         table thead tr:first-child th:last-child {
-
-            border-top-right-radius: 8px;
-
+            border-top-right-radius: 4px;
         }
 
-
+        th {
+            padding: 2px 6px !important;
+            height: 22px !important;
+            min-height: 22px !important;
+            font-size: 11px !important;
+            line-height: 18px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            background-color: #275d38 !important;
+            color: #ffffff !important;
+            border-bottom: 1.5px solid #cbd5e1 !important;
+            box-sizing: border-box !important;
+        }
 
         td {
-
-            padding: 12px 10px;
-
+            padding: 1px 6px !important;
+            height: 20px !important;
+            min-height: 20px !important;
             text-align: left;
-
             border-bottom: 1px solid #f3f4f6;
-
+            font-size: 11.5px !important;
+            line-height: 18px !important;
             font-variant-numeric: tabular-nums;
-
+            box-sizing: border-box !important;
         }
 
-
-
-        td button {
-
-            margin: 4px 0;
-
+        td button,
+        td .btn,
+        td .btn-action,
+        td .btn-danger,
+        td .btn-sm,
+        td .btn-warning,
+        td .btn-primary,
+        td .btn-success {
+            margin: 0 1px !important;
+            padding: 0 5px !important;
+            height: 18px !important;
+            line-height: 18px !important;
+            font-size: 10.5px !important;
+            border-radius: 3px !important;
         }
 
 
@@ -2934,125 +2943,70 @@
 
 
         /* Thu gọn bảng ở tất cả tab → hiển thị nhiều dữ liệu hơn */
-
-        #schedule-table th {
-
-            padding: 8px 6px !important;
-
-            font-size: 12px !important;
-
+        #schedule-table th, #patients-table th, #machines-table th, #procedures-table th, #staff-table th, #rooms-table th,
+        #busy-staff-table th, #busy-pat-table th, #leave-pat-table th, #table-count th, #table-error-time th, #table-error-other th,
+        #hl-table th, #table-admin-employees th, #stats-unscheduled-table th, #stats-staff-table th {
+            padding: 2px 5px !important;
+            font-size: 11px !important;
+            height: 22px !important;
+            min-height: 22px !important;
+            line-height: 18px !important;
+            box-sizing: border-box !important;
         }
 
-
-
-        #schedule-table td {
-
-            padding: 5px 6px !important;
-
-            font-size: 12px !important;
-
+        #schedule-table td, #patients-table td, #machines-table td, #procedures-table td, #staff-table td, #rooms-table td,
+        #busy-staff-table td, #busy-pat-table td, #leave-pat-table td, #table-count td, #table-error-time td, #table-error-other td,
+        #hl-table td, #table-admin-employees td, #stats-unscheduled-table td, #stats-staff-table td {
+            padding: 1px 5px !important;
+            font-size: 11.5px !important;
+            height: 20px !important;
+            min-height: 20px !important;
+            line-height: 18px !important;
+            box-sizing: border-box !important;
         }
 
-
-
         /* ================================================================= */
-
-        /* 🚀 THUỐC ĐẶC TRỊ: GHIM CỨNG TIÊU ĐỀ BẢNG (BẢN FIX CHUẨN) */
-
+        /* 🚀 GHIM CỨNG TIÊU ĐỀ BẢNG ULTRA-COMPACT */
         /* ================================================================= */
-
-
 
         /* 1. Tạo "Hố cuộn" có giới hạn chiều cao để bật thanh cuộn nội bộ */
-
         #tab-schedule div[style*="overflow-y:auto"],
-
         #tab-schedule div[style*="overflow-y: auto"],
-
         .table-sticky-container,
-
         .table-container-scroll {
-
             height: calc(100vh - 350px) !important;
-
-            /* Chiều cao an toàn không bị tràn */
-
             max-height: 65vh !important;
-
             overflow-y: auto !important;
-
-            /* Ép thanh cuộn xuất hiện bên trong */
-
             position: relative !important;
-
         }
-
-
 
         /* 2. Ép bảng tách viền (Cực kỳ quan trọng để dính được tiêu đề) */
-
         table,
-
         #schedule-table,
-
         #patients-table {
-
             border-collapse: separate !important;
-
             border-spacing: 0 !important;
-
             width: 100% !important;
-
         }
 
-
-
-        /* 3. Phép thuật Ghim Tiêu Đề (Đã tăng chiều cao) */
-
+        /* 3. Ghim Tiêu Đề Siêu Gọn */
         table thead th,
-
         th {
-
             position: -webkit-sticky !important;
-
-            /* Cho Safari/Mac */
-
             position: sticky !important;
-
-            /* Cho Chrome/Windows */
-
             top: 0 !important;
-
             z-index: 850 !important;
-
-            /* Đảm bảo nằm đè lên nội dung cuộn bên dưới */
-
-
-
             background-color: #275d38 !important;
-
             color: white !important;
-
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
-
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
             background-clip: padding-box !important;
-
-            border-bottom: 2px solid #e67e22 !important;
-
-
-
-            /* 🔥 TĂNG CHIỀU CAO VÀ CĂN GIỮA CHỮ 🔥 */
-
-            padding: 18px 10px !important;
-
+            border-bottom: 1.5px solid #cbd5e1 !important;
+            padding: 2px 6px !important;
             vertical-align: middle !important;
-
-            font-size: 14px !important;
-
-            letter-spacing: 0.5px !important;
-
-            /* Kéo giãn khoảng cách chữ một chút cho sang trọng */
-
+            font-size: 11px !important;
+            height: 22px !important;
+            min-height: 22px !important;
+            line-height: 18px !important;
         }
 
 
