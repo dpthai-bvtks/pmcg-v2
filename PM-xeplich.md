@@ -1838,3 +1838,9 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Sửa lỗi "getAllData(...).map is not a function":
   - **Nguyên nhân**: Trong file `code.gs-v2.txt`, hàm `getAllData(sheetName)` (hàm đọc dữ liệu từ bảng Google Sheets trả về mảng 2 chiều) bị trùng tên và bị ghi đè bởi hàm `getAllData(monthYear)` (hàm đọc JSON từ Google Drive trả về Object) ở dòng 2210. Khi các hàm `getDanhSachMay()`, `getThuThuat()`, `getNhanSu()`, `getPhongThuThuat()`, `getAccounts()` gọi `getAllData(...).map(...)`, hàm trả về Object khiến phương thức `.map()` báo lỗi.
   - **Khắc phục**: Đổi tên hàm ở dòng 2210 thành `getAllDriveData(monthYear)`, giải phóng hoàn toàn hàm `getAllData(sheetName)` gốc, giúp toàn bộ các hàm đọc dữ liệu Google Sheets hoạt động chuẩn xác 100%.
+- Sửa lỗi xếp ca trước giờ y lệnh / giờ vào của bệnh nhân trong khâu cứu ca rớt:
+  - **Nguyên nhân**: Trong bước cứu ca rớt (Drop Recovery), khi quét các khoảng thời gian trống của Bác sĩ, hệ thống duyệt từ đầu ngày (`startOfDay`) mà chưa giới hạn thời điểm bắt đầu phải sau giờ y lệnh / giờ vào (`minStart = Math.max(pat.arrive, startOfDay)`) và chưa kiểm tra ràng buộc `patient.busy` (chứa khoảng chắn trước giờ y lệnh `[0, gioVao + 1]`). Dẫn đến việc bệnh nhân Nguyễn Thị Nên có giờ y lệnh là 14:51 lại bị xếp ca Thủy châm vào lúc 11:17 - 11:42 buổi sáng.
+  - **Khắc phục**: 
+    1. Giới hạn dải quét của khâu cứu ca rớt bắt đầu từ `minStart = Math.max(pat.arrive, startOfDay)`.
+    2. Sử dụng `tryScheduleOne(pat, tenTT, t)` tích hợp kiểm tra 100% các điều kiện ràng buộc (giờ vào, giờ bận, giờ ra viện, trùng ca).
+    3. Ca Thủy châm của BN Nguyễn Thị Nên được xếp chuẩn xác vào buổi chiều tại khung giờ rảnh `16:09 - 16:34` với BS Đạt.

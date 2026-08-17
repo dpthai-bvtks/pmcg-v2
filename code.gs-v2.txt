@@ -1177,78 +1177,49 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
   for (const rotItem of tempDropList) {
     let saved = false;
     const tenTT = rotItem.tt, tenBN = rotItem.bn, phong = rotItem.room || '';
+    const pat = patients.find(p => p.name === tenBN);
     const infoRot = thuThuatInfo[tenTT.toLowerCase()] || ["Thủ công", 15, 5, "PHCN", 1, 0, [], 5];
     const isYHCT = String(infoRot[3] || "").trim().toUpperCase() === "YHCT";
     const yhctEndLimit = weights.yhctEnd !== undefined ? Number(weights.yhctEnd) : 10;
     const tgCanThiet = Math.max(infoRot[1], infoRot[2]);
-    const tgNhanVien = infoRot[2];
     const allowedMaxEnd = endOfDay + (isYHCT ? yhctEndLimit : OVERTIME_ALLOWANCE);
 
-    // Bước 1: Thử trực tiếp xếp vào các khoảng thời gian rảnh/lố giờ của Bác sĩ hoặc KTV đủ kỹ năng
-    const eligibleStaff = (staffBySkill[tenTT.toLowerCase()] || []);
-    for (const staffName of eligibleStaff) {
-      if (saved) break;
-      const tl = mergeTimeline([...(staffTimeline[staffName] || [])]);
-      let prevEnd = startOfDay;
-      const testPoints = [];
-      for (const slot of tl) {
-        if (slot[0] > prevEnd) testPoints.push(prevEnd);
-        prevEnd = Math.max(prevEnd, slot[1]);
+    // Bước 1: Thử xếp trực tiếp vào khoảng rảnh/lố giờ nhưng BẮT BUỘC sau giờ y lệnh/giờ vào của bệnh nhân
+    if (pat) {
+      const minStart = Math.max(pat.arrive || startOfDay, startOfDay);
+      const gapStarts = new Set();
+      for (const tenNV of (staffBySkill[tenTT.toLowerCase()] || [])) {
+        const tl = mergeTimeline([...(staffTimeline[tenNV] || [])]);
+        let prevEnd = minStart;
+        for (const slot of tl) {
+          if (slot[0] > prevEnd && prevEnd >= minStart && prevEnd + tgCanThiet <= allowedMaxEnd) gapStarts.add(prevEnd);
+          prevEnd = Math.max(prevEnd, slot[1]);
+        }
+        if (prevEnd >= minStart && prevEnd + tgCanThiet <= allowedMaxEnd) gapStarts.add(prevEnd);
       }
-      testPoints.push(prevEnd);
-
-      for (const t of testPoints) {
-        if (t + tgCanThiet > allowedMaxEnd) continue;
-        const bnBusy = (resultsByPatient.get(tenBN) || []).some(r => is_overlap(t, t + tgCanThiet, t2m(r.GIODIENRA), t2m(r.GIOKETTHUC)));
-        if (bnBusy) continue;
-
-        // Check if staff is free during [t, t + tgNhanVien + 1]
-        const checkSlotStaff = (sStart, sEnd) => {
-          return (staffTimeline[staffName] || []).some(slot => {
-            if (sStart >= slot[1]) return false;
-            const isEndOfDay = slot[1] === 1440;
-            const isLunch = slot[1] - slot[0] >= 60 && !isEndOfDay;
-            if (isLunch || isEndOfDay) {
-              const yhctLimit = isEndOfDay ? yhctEndLimit : (weights.yhctLunch !== undefined ? Number(weights.yhctLunch) : 10);
-              const allowedOvertime = isYHCT ? yhctLimit : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
-              const allowedEnd = slot[0] + allowedOvertime;
-              if ((sEnd - 1) <= allowedEnd && sStart <= slot[0]) return false;
-            }
-            return is_overlap(sStart, sEnd, slot[0], slot[1]);
-          });
-        };
-
-        if (!checkSlotStaff(t, t + tgNhanVien + 1)) {
-          blockStaff(staffName, t, t + tgNhanVien, tgNhanVien + 1, staffTimeline, staffSetupReady, staffLoad, tenTT, staffLastProc);
-          const newRes = {
-            NGAY: ngayXep, HOTEN: tenBN, NAMSINH: rotItem.ns || "", PHONG: phong,
-            DICHVU: tenTT, GIODIENRA: m2t(t), GIOKETTHUC: m2t(t + tgCanThiet),
-            "NV CHÍNH": staffName, "NV PHỤ": "", MAY: infoRot[0] || "Thủ công", GIUONG: "",
-            t_sort: t, PRIO: false
-          };
-          results.push(newRes);
-          if (!resultsByPatient.has(tenBN)) resultsByPatient.set(tenBN, []);
-          resultsByPatient.get(tenBN).push(newRes);
-          if (!resultsByStaff.has(staffName)) resultsByStaff.set(staffName, []);
-          resultsByStaff.get(staffName).push(newRes);
+      for (const t of [...gapStarts].sort((a, b) => a - b)) {
+        if (t < (pat.free_at || 0) || pat.busy.some(b => is_overlap(t, t + tgCanThiet, b[0], b[1]))) continue;
+        if (tryScheduleOne(pat, tenTT, t)) {
+          const idx = pat.pending.indexOf(tenTT);
+          if (idx !== -1) { pat.pending.splice(idx, 1); updatePatientCache(pat, thuThuatInfo); }
           saved = true;
-          localProcCount[tenTT.toLowerCase()] = (localProcCount[tenTT.toLowerCase()] || 0) + 1;
           break;
         }
       }
     }
 
     // Bước 2: Hoán đổi vai trò Bác sĩ - KTV (nếu bước 1 chưa cứu được)
-    if (!saved) {
+    if (!saved && pat) {
+      const minStart = Math.max(pat.arrive || startOfDay, startOfDay);
       const dsBacSi = (staffBySkill[tenTT.toLowerCase()] || []).filter(s => staffRole[s] === 'Bác sĩ');
       for (const bacSi of dsBacSi) {
         if (saved) break;
         const caDePHCN = (resultsByStaff.get(bacSi) || []).filter(r => (thuThuatInfo[(r.DICHVU || "").toLowerCase()] || ["", "", "", "PHCN"])[3] === "PHCN");
         for (const caDe of caDePHCN) {
           const timeStart = t2m(caDe.GIODIENRA), timeEnd = t2m(caDe.GIOKETTHUC);
-          if ((timeEnd - timeStart) < tgCanThiet) continue;
-          const bnBusy = (resultsByPatient.get(tenBN) || []).some(r => is_overlap(timeStart, timeStart + tgCanThiet, t2m(r.GIODIENRA), t2m(r.GIOKETTHUC)));
-          if (bnBusy) continue;
+          if (timeStart < minStart || (timeEnd - timeStart) < tgCanThiet) continue;
+          if (pat.leave !== 9999 && timeStart + tgCanThiet > pat.leave) continue;
+          if (pat.busy.some(b => is_overlap(timeStart, timeStart + tgCanThiet, b[0], b[1]))) continue;
           let ktvThayThe = null;
           const dsKTV = (staffBySkill[(caDe.DICHVU || "").toLowerCase()] || []).filter(k => staffRole[k] === 'Kỹ thuật viên');
           for (const ktv of dsKTV) { if (!staffTimeline[ktv]?.some(slot => is_overlap(timeStart, timeEnd, slot[0], slot[1]))) { ktvThayThe = ktv; break; } }
