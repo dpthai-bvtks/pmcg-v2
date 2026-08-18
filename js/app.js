@@ -7233,34 +7233,44 @@ window.showGlobalLoading = function (text) {
         function showCustomAlert(title, message, icon = '💡', btnColor = '#3498db') {
 
             const iconEl = document.getElementById('gca-icon');
-            if (iconEl) iconEl.innerText = icon;
-
-            document.getElementById('gca-title').innerText = title;
-
-            document.getElementById('gca-message').innerHTML = message;
-
+            const titleEl = document.getElementById('gca-title');
+            const msgEl = document.getElementById('gca-message');
             const btn = document.querySelector("#global-custom-alert button");
-            if (btn) btn.style.backgroundColor = btnColor;
 
-            // Hien thi badge THANH CONG khi la thong bao thanh cong
-            (function() {
-                const alertBox2 = document.querySelector('#global-custom-alert > div');
-                let badge2 = document.getElementById('gca-success-badge');
-                const isSucc = (btnColor === '#27ae60' || btnColor === '#2ecc71' || btnColor === '#00b894') || title.toLowerCase().includes('th\u00e0nh c\u00f4ng');
-                if (isSucc) {
-                    if (!badge2) {
-                        badge2 = document.createElement('div');
-                        badge2.id = 'gca-success-badge';
-                        badge2.style.cssText = 'font-size:28px;font-weight:900;letter-spacing:2px;color:#27ae60;margin:2px 0 8px;';
-                        const titleEl2 = document.getElementById('gca-title');
-                        if (alertBox2 && titleEl2) alertBox2.insertBefore(badge2, titleEl2);
-                    }
-                    badge2.innerText = '\u2714 TH\u00C0NH C\u00D4NG';
-                    badge2.style.display = 'block';
-                } else {
-                    if (badge2) badge2.style.display = 'none';
+            // Xóa badge phụ cũ nếu có
+            const oldBadge = document.getElementById('gca-success-badge');
+            if (oldBadge) oldBadge.remove();
+
+            const isSucc = (btnColor === '#27ae60' || btnColor === '#2ecc71' || btnColor === '#00b894')
+                || (typeof title === 'string' && title.toLowerCase().includes('thành công'))
+                || (typeof message === 'string' && message.toLowerCase().includes('thành công') && !title.toLowerCase().includes('lỗi'));
+
+            if (isSucc) {
+                if (iconEl) iconEl.innerText = '✅';
+                if (titleEl) {
+                    titleEl.innerText = 'Thành công';
+                    titleEl.style.fontSize = '24px';
+                    titleEl.style.color = '#27ae60';
+                    titleEl.style.fontWeight = 'bold';
+                    titleEl.style.margin = '10px 0 20px 0';
                 }
-            })();
+                if (msgEl) msgEl.style.display = 'none';
+                if (btn) btn.style.backgroundColor = '#27ae60';
+            } else {
+                if (iconEl) iconEl.innerText = icon;
+                if (titleEl) {
+                    titleEl.innerText = title;
+                    titleEl.style.fontSize = '20px';
+                    titleEl.style.color = '#333';
+                    titleEl.style.fontWeight = 'bold';
+                    titleEl.style.margin = '0 0 10px 0';
+                }
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                    msgEl.innerHTML = message;
+                }
+                if (btn) btn.style.backgroundColor = btnColor;
+            }
 
             document.getElementById('global-custom-alert').style.display = 'flex';
 

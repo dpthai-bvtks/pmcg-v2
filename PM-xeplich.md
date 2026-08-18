@@ -1844,3 +1844,5 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
     1. Giới hạn dải quét của khâu cứu ca rớt bắt đầu từ `minStart = Math.max(pat.arrive, startOfDay)`.
     2. Sử dụng `tryScheduleOne(pat, tenTT, t)` tích hợp kiểm tra 100% các điều kiện ràng buộc (giờ vào, giờ bận, giờ ra viện, trùng ca).
     3. Ca Thủy châm của BN Nguyễn Thị Nên được xếp chuẩn xác vào buổi chiều tại khung giờ rảnh `16:09 - 16:34` với BS Đạt.
+- Tinh chỉnh Popup thông báo Thành công:
+  - Khi lưu dữ liệu / cài đặt thành công, hộp thoại thông báo `showCustomAlert` chỉ hiển thị biểu tượng `✅`, tiêu đề nổi bật **"Thành công"** màu xanh lá và nút "Đã hiểu", ẩn toàn bộ phần tiêu đề phụ và đoạn mô tả dài phía dưới để giao diện gọn gàng, tinh tế và đẹp mắt.
