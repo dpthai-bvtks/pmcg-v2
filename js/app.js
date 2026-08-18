@@ -7115,13 +7115,12 @@ window.showGlobalLoading = function (text) {
                 const thuThuat = (r[4] || '').trim();
                 const role = staffRoleMap[nvChinh.toLowerCase()] || '';
 
-                // Bác sĩ nếu vaiTro có chứa chữ bác sĩ, hoặc tên có chữ BS (fallback cho lịch cũ)
                 let isDoctor = false;
                 if (role) {
-                    isDoctor = role.includes('bác sĩ') || role.includes('bs');
+                    isDoctor = role.includes('b\u00e1c s\u0129') || role.includes('bs');
                 } else {
                     const lowerName = nvChinh.toLowerCase();
-                    isDoctor = lowerName.startsWith('bs') || lowerName.includes('bác sĩ');
+                    isDoctor = lowerName.startsWith('bs') || lowerName.includes('b\u00e1c s\u0129');
                 }
 
                 if (isDoctor) staffLoadBS[nvChinh] = (staffLoadBS[nvChinh] || 0) + 1;
@@ -7242,6 +7241,26 @@ window.showGlobalLoading = function (text) {
 
             const btn = document.querySelector("#global-custom-alert button");
             if (btn) btn.style.backgroundColor = btnColor;
+
+            // Hien thi badge THANH CONG khi la thong bao thanh cong
+            (function() {
+                const alertBox2 = document.querySelector('#global-custom-alert > div');
+                let badge2 = document.getElementById('gca-success-badge');
+                const isSucc = (btnColor === '#27ae60' || btnColor === '#2ecc71' || btnColor === '#00b894') || title.toLowerCase().includes('th\u00e0nh c\u00f4ng');
+                if (isSucc) {
+                    if (!badge2) {
+                        badge2 = document.createElement('div');
+                        badge2.id = 'gca-success-badge';
+                        badge2.style.cssText = 'font-size:28px;font-weight:900;letter-spacing:2px;color:#27ae60;margin:2px 0 8px;';
+                        const titleEl2 = document.getElementById('gca-title');
+                        if (alertBox2 && titleEl2) alertBox2.insertBefore(badge2, titleEl2);
+                    }
+                    badge2.innerText = '\u2714 TH\u00C0NH C\u00D4NG';
+                    badge2.style.display = 'block';
+                } else {
+                    if (badge2) badge2.style.display = 'none';
+                }
+            })();
 
             document.getElementById('global-custom-alert').style.display = 'flex';
 
@@ -7615,12 +7634,7 @@ window.showGlobalLoading = function (text) {
                     return;
                 }
 
-                const timeTbody = document.getElementById('error-time-body');
-                const otherTbody = document.getElementById('error-other-body');
-                const countBody = document.getElementById('count-body');
-                if (countBody) countBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Đang xử lý...</td></tr>';
-                timeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang xử lý...</td></tr>';
-                otherTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang xử lý...</td></tr>';
+                if (window.showGlobalLoading) window.showGlobalLoading('Đang phân tích file HIS...');
 
                 const reader = new FileReader();
                 reader.onload = function (ev) {
@@ -7641,7 +7655,9 @@ window.showGlobalLoading = function (text) {
                         }
                         const dataRows = XLSX.utils.sheet_to_json(worksheet, { header: "A", range: headerRowIndex, defval: "" });
                         processErrorChecking(dataRows);
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
                     } catch (err) {
+                        if (window.hideGlobalLoading) window.hideGlobalLoading();
                         console.error(err);
                         alert("Lỗi khi đọc file. Vui lòng kiểm tra lại cấu trúc form.");
                         timeTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chưa tải dữ liệu</td></tr>';
