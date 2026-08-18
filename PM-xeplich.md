@@ -1846,3 +1846,8 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
     3. Ca Thủy châm của BN Nguyễn Thị Nên được xếp chuẩn xác vào buổi chiều tại khung giờ rảnh `16:09 - 16:34` với BS Đạt.
 - Tinh chỉnh Popup thông báo Thành công:
   - Khi lưu dữ liệu / cài đặt thành công, hộp thoại thông báo `showCustomAlert` chỉ hiển thị biểu tượng `✅`, tiêu đề nổi bật **"Thành công"** màu xanh lá và nút "Đã hiểu", ẩn toàn bộ phần tiêu đề phụ và đoạn mô tả dài phía dưới để giao diện gọn gàng, tinh tế và đẹp mắt.
+- Tự động đối soát và làm sạch ca rớt khi can thiệp / chỉnh sửa lịch trực tiếp trên Google Sheets:
+  - **Vấn đề**: Khi người dùng can thiệp trực tiếp trên Google Sheet để xếp bù thủ thuật cho bệnh nhân (ví dụ: thêm ca Thủy châm lúc 16:09 cho BN Lê Thị Ban), file in không còn ca rớt nhưng bảng giao diện vẫn hiển thị dòng ❌ Rớt và Tab Bệnh nhân vẫn báo "Thiếu TC" do cache `lastUnscheduledData` và logic tính trạng thái chỉ đếm số lượng `dropCount`.
+  - **Khắc phục**:
+    1. Bổ sung hàm `reconcileUnscheduledData()` tự động đối soát giữa các ca thực tế đã xếp (`currentScheduleData`) và danh sách ca rớt. Nếu thủ thuật của bệnh nhân đã được xếp đủ số lượng yêu cầu, bản ghi ca rớt tương ứng sẽ được tự động dọn sạch khỏi bộ nhớ và giao diện.
+    2. Nâng cấp logic tính trạng thái bệnh nhân trong `renderPatientsTable_Original()`: So khớp thông minh giữa các thủ thuật yêu cầu và các ca đã xếp thực tế (`matchProc`). Bệnh nhân khi đã có đủ các thủ thuật (ĐC, TC, DX, PA) sẽ hiển thị ngay huy hiệu **"Đã đủ"** màu xanh lá.

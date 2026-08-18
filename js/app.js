@@ -748,6 +748,71 @@ window.showGlobalLoading = function (text) {
 
         // ─── Index lookup gom chung ──────────────────────────────────
 
+        
+        function matchProc(a, b) {
+            if (!a || !b) return false;
+            const strA = String(a).trim().toLowerCase();
+            const strB = String(b).trim().toLowerCase();
+            if (strA === strB) return true;
+            const procs = (window.dataCache && window.dataCache.proc) ? window.dataCache.proc : [];
+            const procA = procs.find(p => (p.ten && p.ten.toLowerCase() === strA) || (p.vietTat && p.vietTat.toLowerCase() === strA));
+            const procB = procs.find(p => (p.ten && p.ten.toLowerCase() === strB) || (p.vietTat && p.vietTat.toLowerCase() === strB));
+            if (procA && procB && procA.ten && procB.ten && procA.ten.toLowerCase() === procB.ten.toLowerCase()) return true;
+            if (procA && (procA.ten.toLowerCase() === strB || (procA.vietTat && procA.vietTat.toLowerCase() === strB))) return true;
+            if (procB && (procB.ten.toLowerCase() === strA || (procB.vietTat && procB.vietTat.toLowerCase() === strA))) return true;
+            return false;
+        }
+
+        function reconcileUnscheduledData(inputList) {
+            const schedData = window.currentScheduleData || [];
+            let unschedData = inputList !== undefined ? inputList : (window.lastUnscheduledData || []);
+            if (!unschedData.length) {
+                window.lastUnscheduledData = [];
+                try { localStorage.setItem('meds_unscheduled', '[]'); } catch(e){}
+                return [];
+            }
+
+            const activePatList = (window.dataCache && window.dataCache.pat) ? window.dataCache.pat : [];
+            const remainingDropped = [];
+            const schedCountMap = {};
+
+            schedData.forEach(row => {
+                const key = String(row.tenBN || '').toUpperCase().trim() + "_" + String(row.namSinh || '').trim();
+                if (!schedCountMap[key]) schedCountMap[key] = [];
+                schedCountMap[key].push(String(row.thuThuat || '').trim());
+            });
+
+            const seenDropKeys = new Set();
+            unschedData.forEach(d => {
+                const patName = String(d.bn || d.tenBN || '').toUpperCase().trim();
+                const patNS = String(d.ns || d.namSinh || '').trim();
+                const key = patName + "_" + patNS;
+                const dropProc = String(d.tt || d.thuThuat || '').trim();
+                const dropSig = key + "|" + dropProc.toLowerCase();
+                if (seenDropKeys.has(dropSig)) return;
+                seenDropKeys.add(dropSig);
+
+                const patObj = activePatList.find(p => String(p.ten || '').toUpperCase().trim() === patName && String(p.namSinh || '').trim() === patNS);
+                const reqProcs = patObj && patObj.thuThuat ? patObj.thuThuat.split(',').map(x => x.trim()).filter(Boolean) : [];
+                const schedProcsForPat = schedCountMap[key] || [];
+
+                const reqCountForThisProc = reqProcs.filter(p => matchProc(p, dropProc)).length || 1;
+                const schedCountForThisProc = schedProcsForPat.filter(p => matchProc(p, dropProc)).length;
+
+                // Nếu số ca đã có trong lịch >= số ca yêu cầu, ca rớt này đã được giải quyết
+                if (schedCountForThisProc >= reqCountForThisProc) {
+                    return;
+                }
+                remainingDropped.push(d);
+            });
+
+            window.lastUnscheduledData = remainingDropped;
+            try {
+                localStorage.setItem('meds_unscheduled', JSON.stringify(remainingDropped));
+            } catch(e){}
+            return remainingDropped;
+        }
+
         function getEntityIdx(cacheKey, inputId) {
 
             let val = document.getElementById(inputId)?.value;
@@ -2338,37 +2403,33 @@ window.showGlobalLoading = function (text) {
                     const idx = item.index !== undefined ? item.index : i;
 
                     const patName = String(item.ten || '').toUpperCase().trim();
-
                     const patNS = String(item.namSinh || '').trim();
-
-                    const reqCount = item.thuThuat ? item.thuThuat.split(',').filter(x => x.trim()).length : 0;
-
+                    const reqProcs = item.thuThuat ? item.thuThuat.split(',').map(x => x.trim()).filter(Boolean) : [];
+                    const reqCount = reqProcs.length;
                     const schedItems = schedData.filter(r => String(r.tenBN || '').toUpperCase().trim() === patName && String(r.namSinh || '').trim() === patNS);
 
-                    const droppedItems = unschedData.filter(d => String(d.bn || d.tenBN || '').toUpperCase().trim() === patName && String(d.ns || d.namSinh || '').trim() === patNS);
-
-                    const schCount = schedItems.length, dropCount = droppedItems.length;
+                    // Tìm các thủ thuật thực sự còn thiếu giữa yêu cầu và các ca đã xếp
+                    const missingProcs = [];
+                    const matchedSchedIndices = new Set();
+                    reqProcs.forEach(req => {
+                        const idx = schedItems.findIndex((s, sIdx) => !matchedSchedIndices.has(sIdx) && matchProc(s.thuThuat, req));
+                        if (idx !== -1) {
+                            matchedSchedIndices.add(idx);
+                        } else {
+                            missingProcs.push(req);
+                        }
+                    });
 
                     let nhanTrangThai = '';
-
                     if (reqCount > 0) {
-
-                        if (!schCount && !dropCount) nhanTrangThai = `<span style="background:#f39c12;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">Chưa xếp</span>`;
-
-                        else if (!schCount && dropCount) nhanTrangThai = `<span style="background:#e74c3c;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">Rớt toàn bộ</span>`;
-
-                        else if (schCount && dropCount) {
-
-                            const uniqueMissing = [...new Set(droppedItems.map(d => String(d.tt || d.thuThuat || '').trim()).filter(Boolean))].map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ');
-
-                            const displayText = getShortSkills(uniqueMissing);
-
+                        if (schedItems.length === 0) {
+                            nhanTrangThai = `<span style="background:#f39c12;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">Chưa xếp</span>`;
+                        } else if (missingProcs.length === 0) {
+                            nhanTrangThai = `<span style="background:#2ecc71;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">Đã đủ</span>`;
+                        } else {
+                            const displayText = getShortSkills(missingProcs.join(', '));
                             nhanTrangThai = `<span style="background:#3498db;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">Thiếu: ${displayText}</span>`;
-
-                        } else if (schCount && !dropCount) nhanTrangThai = `<span style="background:#2ecc71;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">Đã đủ</span>`;
-
-                        else if (schCount < reqCount) nhanTrangThai = `<span style="background:#3498db;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">Thiếu ${reqCount - schCount} ca</span>`;
-
+                        }
                     }
 
                     return `<tr class="editable-row" data-pat-index="${idx}" onclick="editPatient(parseInt(this.dataset.patIndex))" style="${item.gioRa ? 'background:#f8d7da;opacity:0.8;' : ''}" title="Bấm sửa (Phím Delete để xóa)">
@@ -3197,25 +3258,20 @@ window.showGlobalLoading = function (text) {
                 ]));
 
                 if (rows.length === 0) {
-
                     localStorage.removeItem('meds_unscheduled');
                     window.lastUnscheduledData = [];
                     setUnscheduledData([]);
-
                 } else if (droppedFromSheet.length) {
-
                     let localDropped = [];
-
                     try {
-
                         const activeDate = document.getElementById('schedule-date')?.value || localStorage.getItem('meds_schedule_date') || '';
-
                         if (localStorage.getItem('meds_schedule_date') === activeDate) localDropped = JSON.parse(localStorage.getItem('meds_unscheduled') || '[]');
-
                     } catch (e) { }
-
-                    setUnscheduledData([...droppedFromSheet, ...localDropped]);
-
+                    const cleanedDropped = reconcileUnscheduledData([...droppedFromSheet, ...localDropped]);
+                    setUnscheduledData(cleanedDropped);
+                } else {
+                    const cleanedDropped = reconcileUnscheduledData([]);
+                    setUnscheduledData(cleanedDropped);
                 }
 
                 filterSchedule();
@@ -3261,39 +3317,23 @@ window.showGlobalLoading = function (text) {
             // 🛡️ LỚP KHIÊN 2: Nếu dữ liệu chưa kịp tải về, tự động ép nó thành mảng rỗng [] để không bị sập hàm .filter()
 
             const safeData = window.currentScheduleData || [];
-
-            const droppedData = (window.lastUnscheduledData || []).map(item => {
-
+            const cleanedUnscheduled = reconcileUnscheduledData(window.lastUnscheduledData || []);
+            const droppedData = cleanedUnscheduled.map(item => {
                 const dropped = normalizeDroppedItem(item);
-
                 return {
-
                     ...dropped,
-
                     __dropped: true,
-
                     tenBN: dropped.bn || '',
-
                     namSinh: dropped.ns || '',
-
                     phong: dropped.room || dropped.phong || '',
-
                     thuThuat: dropped.tt || '',
-
                     gioDienRa: '❌ Rớt',
-
                     gioKetThuc: '--',
-
                     nvChinh: dropped.staff || '',
-
                     nvPhu: '',
-
                     may: dropped.reason || '',
-
                     giuong: ''
-
                 };
-
             });
 
             const displayData = [...safeData.map(row => ({ ...row, __dropped: false })), ...droppedData];
