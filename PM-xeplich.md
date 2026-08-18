@@ -1851,3 +1851,8 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   - **Khắc phục**:
     1. Bổ sung hàm `reconcileUnscheduledData()` tự động đối soát giữa các ca thực tế đã xếp (`currentScheduleData`) và danh sách ca rớt. Nếu thủ thuật của bệnh nhân đã được xếp đủ số lượng yêu cầu, bản ghi ca rớt tương ứng sẽ được tự động dọn sạch khỏi bộ nhớ và giao diện.
     2. Nâng cấp logic tính trạng thái bệnh nhân trong `renderPatientsTable_Original()`: So khớp thông minh giữa các thủ thuật yêu cầu và các ca đã xếp thực tế (`matchProc`). Bệnh nhân khi đã có đủ các thủ thuật (ĐC, TC, DX, PA) sẽ hiển thị ngay huy hiệu **"Đã đủ"** màu xanh lá.
+- Triển khai thuật toán co giãn linh động thời gian thủ thuật Điện châm (25 - 30 phút) khi Xếp bổ sung / Cứu ca rớt:
+  - **Mục tiêu**: Khi xếp bổ sung ca Điện châm (thời gian cắm kim của nhân sự cố định là 5 phút), tổng thời gian lưu kim của thủ thuật sẽ tự động co giãn linh hoạt từ 25 đến 30 phút (tương ứng thời gian lưu kim 20 - 25 phút).
+  - **Cơ chế**: Thuật toán tự động duyệt qua các mốc thời gian ứng viên `[25, 30, 26, 27, 28, 29]` phút:
+    1. Kiểm tra thời điểm rút kim tại phút thứ 25. Nếu nhân sự đang bận ca khác tại thời điểm này, thuật toán tự động nhảy sang mốc 30 phút (hoặc 26..29 phút).
+    2. Tại mốc thời gian mà nhân sự hoàn toàn rảnh tay để rút kim (đồng thời bệnh nhân, giường, máy đều sẵn sàng), hệ thống tự động chốt lịch chính xác tại mốc đó mà không để ca bị rớt.

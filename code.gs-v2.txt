@@ -843,88 +843,16 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
   function tryScheduleOne(patient, tenThuThuat, tNow) {
     const info = thuThuatInfo[tenThuThuat.toLowerCase()] || ["Thủ công", 15, 5, "PHCN", 1, 0, [], 5];
     const tenGoc = info[8] || tenThuThuat, targetRoom = patient.room, loaiMay = info[0];
-    const tgMay = Math.max(info[1], info[2]), tgNhanVien = info[2], canPhu = info[5];
-    const rawKhoangCach = scenario === 1 ? info[2] : (info[7] || info[2]);
-    const khoangCach = Math.max(rawKhoangCach, info[2] + 1);
-    const gioKetThuc = tNow + tgMay;
-    const hasTeardown = tgMay > tgNhanVien;
-    const tearStart = hasTeardown ? (tNow + tgMay) : null;
-    const tearEnd   = hasTeardown ? (tNow + tgMay + 1) : null;
+    const baseTgMay = Math.max(info[1], info[2]), tgNhanVien = info[2], canPhu = info[5];
+    const isSupplemental = existingSched && existingSched.length > 0;
+    
+    // Linh động thời gian tổng Điện châm từ 25 - 30 phút (lưu kim 20 - 25 phút) khi Xếp bổ sung hoặc Cứu ca rớt
+    const isDienCham = tenThuThuat.toLowerCase().includes('điện châm') || tenThuThuat.toLowerCase() === 'đc' || (info[8] && String(info[8]).toLowerCase().includes('điện châm'));
+    const candidateDurs = (isDienCham && (isSupplemental || isBackfill)) ? [25, 30, 26, 27, 28, 29] : [baseTgMay];
 
     const isYHCT = String(info[3] || "").trim().toUpperCase() === "YHCT";
     const yhctEndLimit = weights.yhctEnd !== undefined ? weights.yhctEnd : 10;
     const allowedOvertimeAtEnd = isYHCT ? yhctEndLimit : OVERTIME_ALLOWANCE;
-
-    if (gioKetThuc > (endOfDay + allowedOvertimeAtEnd)) return false;
-    if (patient.leave !== 9999 && gioKetThuc > patient.leave) return false;
-    if (patient.busy.some(b => is_overlap(tNow, gioKetThuc, b[0], b[1]))) return false;
-
-    // Tìm ứng viên chính và phụ
-    const candidatesMain = [], candidatesSub = [];
-    const isSupplemental = existingSched && existingSched.length > 0;
-    (staffBySkill[tenThuThuat.toLowerCase()] || []).forEach(tenNV => {
-      if (tNow < (staffSetupReady[tenNV] || 0)) return;
-      
-      const checkSlot = (slotStart, slotEnd) => {
-        return staffTimeline[tenNV].some(slot => {
-          if (slotStart >= slot[1]) return false;
-
-          const isEndOfDay = slot[1] === 1440;
-          const isLunch = slot[1] - slot[0] >= 60 && !isEndOfDay;
-          
-          if (isLunch || isEndOfDay) {
-            const yhctLimit = isEndOfDay ? yhctEndLimit : (weights.yhctLunch !== undefined ? weights.yhctLunch : 10);
-            const allowedOvertime = isYHCT ? yhctLimit : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
-            const allowedEnd = slot[0] + allowedOvertime;
-            
-            if ((slotEnd - 1) <= allowedEnd && slotStart <= slot[0]) return false;
-          }
-          
-          return is_overlap(slotStart, slotEnd, slot[0], slot[1]);
-        });
-      };
-
-      if (checkSlot(tNow, tNow + tgNhanVien + 1)) return;
-      if (hasTeardown && checkSlot(tearStart, tearEnd)) return;
-      
-      // KTV được phân công phòng cố định sẽ không đi hỗ trợ phòng khác (nhưng KTV tự do thì vẫn được)
-      // Ngoại lệ: Nếu đang chạy Xếp bổ sung (isSupplemental = true), cho phép đi hỗ trợ chéo để vét ca rớt
-      if (!isSupplemental && !isBackfill && staffRole[tenNV] === 'Kỹ thuật viên' && staffMyRooms[tenNV].length > 0 && !staffMyRooms[tenNV].includes(targetRoom)) return;
-
-      if (staffRole[tenNV]?.toLowerCase() !== 'điều dưỡng') candidatesMain.push(tenNV);
-      else candidatesSub.push(tenNV);
-    });
-    if (candidatesMain.length === 0) return false;
-
-    // Ưu tiên nhân viên phù hợp nhất
-    candidatesMain.sort((a, b) => {
-      const rmA = staffMyRooms[a].includes(targetRoom) ? 0 : 1, rmB = staffMyRooms[b].includes(targetRoom) ? 0 : 1;
-      if (rmA !== rmB) return rmA - rmB;
-      const crA = staffCurrentRoom[a] === targetRoom ? 0 : 1, crB = staffCurrentRoom[b] === targetRoom ? 0 : 1;
-      if (crA !== crB) return crA - crB;
-      const lpA = staffLastProc[a] === tenThuThuat ? 0 : 1, lpB = staffLastProc[b] === tenThuThuat ? 0 : 1;
-      if (lpA !== lpB) return lpA - lpB;
-      const roleA = (info[3] === "PHCN" && staffRole[a] === 'Kỹ thuật viên') || (info[3] === "YHCT" && staffRole[a] === 'Bác sĩ') ? 0 : 1;
-      const roleB = (info[3] === "PHCN" && staffRole[b] === 'Kỹ thuật viên') || (info[3] === "YHCT" && staffRole[b] === 'Bác sĩ') ? 0 : 1;
-      if (roleA !== roleB) return roleA - roleB;
-      return staffLoad[a].used_mins - staffLoad[b].used_mins;
-    });
-
-    // Chọn máy
-    const possibleMachines = loaiMay === "Thủ công" ? [loaiMay] : (machineTypes[loaiMay] || []);
-    const availableMachines = scenario === 3 ? possibleMachines.filter(m => !reservedMachines.has(m)) : possibleMachines;
-    const finalMachines = availableMachines.length === 0 ? possibleMachines : availableMachines;
-    const selectedMachine = finalMachines.find(m => !machineTimeline[m].some(slot => is_overlap(tNow, gioKetThuc, slot[0], slot[1])));
-    if (!selectedMachine) return false;
-
-    // Chọn giường
-    let selectedBed = null;
-    if (bedTracker[targetRoom]) {
-      for (const [bedId, bedTimeline] of Object.entries(bedTracker[targetRoom])) {
-        if (!bedTimeline.some(slot => is_overlap(tNow, gioKetThuc, slot[0], slot[1]))) { selectedBed = bedId; break; }
-      }
-    }
-    if (!selectedBed && bedTracker[targetRoom] && Object.keys(bedTracker[targetRoom]).length > 0) return false;
 
     // PRE-CALCULATE rooms with waiting patients to optimize the inner loop
     const roomsWithWaiting = new Set();
@@ -937,74 +865,149 @@ function _turbo_core_logic(db, ngayXep, seedVal, existingSched = [], scenario = 
       }
     }
 
-    // Thử từng ứng viên chính
-    for (const nvChinh of candidatesMain) {
-      const isInMyRoom  = staffMyRooms[nvChinh].includes(targetRoom);
-      const isFloating  = staffMyRooms[nvChinh].length === 0;
-      if (!(isInMyRoom || isFloating)) {
-        if (!isSupplemental) {
-          // Chỉ cho phép nhân sự từ phòng khác sang giúp nếu ngày đông HOẶC phòng hiện tại không có ai có kỹ năng này
-          const hasSkilledStaffInRoom = (staffBySkill[tenThuThuat.toLowerCase()] || []).some(s =>
-            staffMyRooms[s].includes(targetRoom)
-          );
-          if (!isCrowdedDay && hasSkilledStaffInRoom) continue;
+    for (const tgMay of candidateDurs) {
+      const rawKhoangCach = scenario === 1 ? info[2] : (info[7] || info[2]);
+      const khoangCach = Math.max(rawKhoangCach, info[2] + 1);
+      const gioKetThuc = tNow + tgMay;
+      const hasTeardown = tgMay > tgNhanVien;
+      const tearStart = hasTeardown ? (tNow + tgMay) : null;
+      const tearEnd   = hasTeardown ? (tNow + tgMay + 1) : null;
 
-          // Nếu được phép sang giúp (ngày đông), áp dụng logic cũ: chỉ sang khi phòng mình rảnh
-          const isMyRoomBusy = staffMyRooms[nvChinh].some(r => roomsWithWaiting.has(r));
-          if (isMyRoomBusy) continue;
+      if (gioKetThuc > (endOfDay + allowedOvertimeAtEnd)) continue;
+      if (patient.leave !== 9999 && gioKetThuc > patient.leave) continue;
+      if (patient.busy.some(b => is_overlap(tNow, gioKetThuc, b[0], b[1]))) continue;
+
+      // Tìm ứng viên chính và phụ
+      const candidatesMain = [], candidatesSub = [];
+      (staffBySkill[tenThuThuat.toLowerCase()] || []).forEach(tenNV => {
+        if (tNow < (staffSetupReady[tenNV] || 0)) return;
+        
+        const checkSlot = (slotStart, slotEnd) => {
+          return staffTimeline[tenNV].some(slot => {
+            if (slotStart >= slot[1]) return false;
+
+            const isEndOfDay = slot[1] === 1440;
+            const isLunch = slot[1] - slot[0] >= 60 && !isEndOfDay;
+            
+            if (isLunch || isEndOfDay) {
+              const yhctLimit = isEndOfDay ? yhctEndLimit : (weights.yhctLunch !== undefined ? weights.yhctLunch : 10);
+              const allowedOvertime = isYHCT ? yhctLimit : (isEndOfDay ? OVERTIME_ALLOWANCE : 0);
+              const allowedEnd = slot[0] + allowedOvertime;
+              
+              if ((slotEnd - 1) <= allowedEnd && slotStart <= slot[0]) return false;
+            }
+            
+            return is_overlap(slotStart, slotEnd, slot[0], slot[1]);
+          });
+        };
+
+        if (checkSlot(tNow, tNow + tgNhanVien + 1)) return;
+        if (hasTeardown && checkSlot(tearStart, tearEnd)) return;
+        
+        // KTV được phân công phòng cố định sẽ không đi hỗ trợ phòng khác (nhưng KTV tự do thì vẫn được)
+        // Ngoại lệ: Nếu đang chạy Xếp bổ sung hoặc Backfill/Cứu rớt, cho phép đi hỗ trợ chéo
+        if (!isSupplemental && !isBackfill && staffRole[tenNV] === 'Kỹ thuật viên' && staffMyRooms[tenNV].length > 0 && !staffMyRooms[tenNV].includes(targetRoom)) return;
+
+        if (staffRole[tenNV]?.toLowerCase() !== 'điều dưỡng') candidatesMain.push(tenNV);
+        else candidatesSub.push(tenNV);
+      });
+      if (candidatesMain.length === 0) continue;
+
+      // Ưu tiên nhân viên phù hợp nhất
+      candidatesMain.sort((a, b) => {
+        const rmA = staffMyRooms[a].includes(targetRoom) ? 0 : 1, rmB = staffMyRooms[b].includes(targetRoom) ? 0 : 1;
+        if (rmA !== rmB) return rmA - rmB;
+        const crA = staffCurrentRoom[a] === targetRoom ? 0 : 1, crB = staffCurrentRoom[b] === targetRoom ? 0 : 1;
+        if (crA !== crB) return crA - crB;
+        const lpA = staffLastProc[a] === tenThuThuat ? 0 : 1, lpB = staffLastProc[b] === tenThuThuat ? 0 : 1;
+        if (lpA !== lpB) return lpA - lpB;
+        const roleA = (info[3] === "PHCN" && staffRole[a] === 'Kỹ thuật viên') || (info[3] === "YHCT" && staffRole[a] === 'Bác sĩ') ? 0 : 1;
+        const roleB = (info[3] === "PHCN" && staffRole[b] === 'Kỹ thuật viên') || (info[3] === "YHCT" && staffRole[b] === 'Bác sĩ') ? 0 : 1;
+        if (roleA !== roleB) return roleA - roleB;
+        return staffLoad[a].used_mins - staffLoad[b].used_mins;
+      });
+
+      // Chọn máy
+      const possibleMachines = loaiMay === "Thủ công" ? [loaiMay] : (machineTypes[loaiMay] || []);
+      const availableMachines = scenario === 3 ? possibleMachines.filter(m => !reservedMachines.has(m)) : possibleMachines;
+      const finalMachines = availableMachines.length === 0 ? possibleMachines : availableMachines;
+      const selectedMachine = finalMachines.find(m => !machineTimeline[m].some(slot => is_overlap(tNow, gioKetThuc, slot[0], slot[1])));
+      if (!selectedMachine) continue;
+
+      // Chọn giường
+      let selectedBed = null;
+      if (bedTracker[targetRoom]) {
+        for (const [bedId, bedTimeline] of Object.entries(bedTracker[targetRoom])) {
+          if (!bedTimeline.some(slot => is_overlap(tNow, gioKetThuc, slot[0], slot[1]))) { selectedBed = bedId; break; }
         }
       }
+      if (!selectedBed && bedTracker[targetRoom] && Object.keys(bedTracker[targetRoom]).length > 0) continue;
 
-      let nvPhu = "";
-      if (canPhu === 1) {
-        const validSubs = candidatesSub.filter(x => x !== nvChinh);
-        if (validSubs.length === 0) continue;
+      // Thử từng ứng viên chính
+      for (const nvChinh of candidatesMain) {
+        const isInMyRoom  = staffMyRooms[nvChinh].includes(targetRoom);
+        const isFloating  = staffMyRooms[nvChinh].length === 0;
+        if (!(isInMyRoom || isFloating)) {
+          if (!isSupplemental) {
+            // Chỉ cho phép nhân sự từ phòng khác sang giúp nếu ngày đông HOẶC phòng hiện tại không có ai có kỹ năng này
+            const hasSkilledStaffInRoom = (staffBySkill[tenThuThuat.toLowerCase()] || []).some(s =>
+              staffMyRooms[s].includes(targetRoom)
+            );
+            if (!isCrowdedDay && hasSkilledStaffInRoom) continue;
 
-        // Kiểm tra xem phòng hiện tại có nhân sự phụ (điều dưỡng) nào không
-        const hasSubInRoom = validSubs.some(s => staffMyRooms[s].includes(targetRoom));
-        
-        // Nếu ngày không đông và trong phòng có nhân sự phụ của chính phòng đó, ép buộc dùng người trong phòng
-        const filteredSubs = (!isSupplemental && !isCrowdedDay && hasSubInRoom)
-          ? validSubs.filter(x => staffMyRooms[x].includes(targetRoom) || staffMyRooms[x].length === 0)
-          : validSubs;
+            const isMyRoomBusy = staffMyRooms[nvChinh].some(r => roomsWithWaiting.has(r));
+            if (isMyRoomBusy) continue;
+          }
+        }
 
-        if (filteredSubs.length === 0) continue;
+        let nvPhu = "";
+        if (canPhu === 1) {
+          const validSubs = candidatesSub.filter(x => x !== nvChinh);
+          if (validSubs.length === 0) continue;
 
-        filteredSubs.sort((a, b) => {
-          const aR = staffMyRooms[a].includes(targetRoom) ? 0 : 1, bR = staffMyRooms[b].includes(targetRoom) ? 0 : 1;
-          return aR !== bR ? aR - bR : staffLoad[a].used_mins - staffLoad[b].used_mins;
+          const hasSubInRoom = validSubs.some(s => staffMyRooms[s].includes(targetRoom));
+          const filteredSubs = (!isSupplemental && !isCrowdedDay && hasSubInRoom)
+            ? validSubs.filter(x => staffMyRooms[x].includes(targetRoom) || staffMyRooms[x].length === 0)
+            : validSubs;
+
+          if (filteredSubs.length === 0) continue;
+
+          filteredSubs.sort((a, b) => {
+            const aR = staffMyRooms[a].includes(targetRoom) ? 0 : 1, bR = staffMyRooms[b].includes(targetRoom) ? 0 : 1;
+            return aR !== bR ? aR - bR : staffLoad[a].used_mins - staffLoad[b].used_mins;
+          });
+          nvPhu = filteredSubs[0];
+        }
+
+        // Block nhân viên chính
+        blockStaff(nvChinh, tNow, tNow + tgNhanVien, khoangCach, staffTimeline, staffSetupReady, staffLoad, tenThuThuat, staffLastProc);
+        staffCurrentRoom[nvChinh] = targetRoom;
+        if (hasTeardown) { staffTimeline[nvChinh].push([tearStart, tearEnd]); staffTimeline[nvChinh] = mergeTimeline(staffTimeline[nvChinh]); staffLoad[nvChinh].used_mins += (tearEnd - tearStart); }
+
+        // Block nhân viên phụ
+        if (nvPhu) {
+          blockStaff(nvPhu, tNow, tNow + tgNhanVien, khoangCach, staffTimeline, staffSetupReady, staffLoad, tenThuThuat, staffLastProc);
+          if (hasTeardown) { staffTimeline[nvPhu].push([tearStart, tearEnd]); staffTimeline[nvPhu] = mergeTimeline(staffTimeline[nvPhu]); staffLoad[nvPhu].used_mins += (tearEnd - tearStart); }
+        }
+
+        // Block máy
+        if (selectedMachine !== "Thủ công") { machineTimeline[selectedMachine].push([tNow, gioKetThuc]); machineTimeline[selectedMachine] = mergeTimeline(machineTimeline[selectedMachine]); }
+
+        // Block giường
+        if (selectedBed) { bedTracker[targetRoom][selectedBed].push([tNow, gioKetThuc]); bedTracker[targetRoom][selectedBed] = mergeTimeline(bedTracker[targetRoom][selectedBed]); }
+
+        results.push({
+          NGAY: ngayXep, HOTEN: patient.name, NAMSINH: patient.ns, PHONG: targetRoom,
+          DICHVU: tenGoc, GIODIENRA: m2t(tNow), GIOKETTHUC: m2t(gioKetThuc),
+          "NV CHÍNH": nvChinh, "NV PHỤ": nvPhu, MAY: selectedMachine, GIUONG: selectedBed || "",
+          t_sort: tNow, PRIO: patient.leave !== 9999
         });
-        nvPhu = filteredSubs[0];
+        localProcCount[tenThuThuat.toLowerCase()] = (localProcCount[tenThuThuat.toLowerCase()] || 0) + 1;
+        patient.busy.push([tNow, gioKetThuc + 1]);
+        patient.free_at = Math.max(patient.free_at, gioKetThuc + 1);
+        patient.scheduled_count = (patient.scheduled_count || 0) + 1;
+        return true;
       }
-
-      // Block nhân viên chính
-      blockStaff(nvChinh, tNow, tNow + tgNhanVien, khoangCach, staffTimeline, staffSetupReady, staffLoad, tenThuThuat, staffLastProc);
-      staffCurrentRoom[nvChinh] = targetRoom;
-      if (hasTeardown) { staffTimeline[nvChinh].push([tearStart, tearEnd]); staffTimeline[nvChinh] = mergeTimeline(staffTimeline[nvChinh]); staffLoad[nvChinh].used_mins += (tearEnd - tearStart); }
-
-      // Block nhân viên phụ
-      if (nvPhu) {
-        blockStaff(nvPhu, tNow, tNow + tgNhanVien, khoangCach, staffTimeline, staffSetupReady, staffLoad, tenThuThuat, staffLastProc);
-        if (hasTeardown) { staffTimeline[nvPhu].push([tearStart, tearEnd]); staffTimeline[nvPhu] = mergeTimeline(staffTimeline[nvPhu]); staffLoad[nvPhu].used_mins += (tearEnd - tearStart); }
-      }
-
-      // Block máy
-      if (selectedMachine !== "Thủ công") { machineTimeline[selectedMachine].push([tNow, gioKetThuc]); machineTimeline[selectedMachine] = mergeTimeline(machineTimeline[selectedMachine]); }
-
-      // Block giường
-      if (selectedBed) { bedTracker[targetRoom][selectedBed].push([tNow, gioKetThuc]); bedTracker[targetRoom][selectedBed] = mergeTimeline(bedTracker[targetRoom][selectedBed]); }
-
-      results.push({
-        NGAY: ngayXep, HOTEN: patient.name, NAMSINH: patient.ns, PHONG: targetRoom,
-        DICHVU: tenGoc, GIODIENRA: m2t(tNow), GIOKETTHUC: m2t(gioKetThuc),
-        "NV CHÍNH": nvChinh, "NV PHỤ": nvPhu, MAY: selectedMachine, GIUONG: selectedBed || "",
-        t_sort: tNow, PRIO: patient.leave !== 9999
-      });
-      localProcCount[tenThuThuat.toLowerCase()] = (localProcCount[tenThuThuat.toLowerCase()] || 0) + 1;
-      patient.busy.push([tNow, gioKetThuc + 1]);
-      patient.free_at = Math.max(patient.free_at, gioKetThuc + 1);
-      patient.scheduled_count = (patient.scheduled_count || 0) + 1;
-      return true;
     }
     return false;
   }
