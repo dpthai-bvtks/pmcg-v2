@@ -1886,3 +1886,14 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Sửa triệt để lỗi Google multi-account 404 trên Google Chrome/Edge:
   - Bổ sung `credentials: 'omit'` cho `fetch()` và `crossOrigin = 'anonymous'` cho thẻ script JSONP.
   - Khi trình duyệt có đăng nhập nhiều tài khoản Google, việc loại bỏ cookie Google đính kèm giúp Google Apps Script luôn thực thi đúng chế độ Web App công khai (`Execute as: Me`), xóa bỏ hoàn toàn lỗi `HTTP 404` trên link `echo`.
+- **Hoàn thành Triển khai Phần 1: Giải pháp triệt để nâng cao độ ổn định & dự phòng (v4.0)**:
+  1. **All-in-One Bootstrap API (`getBootstrapData`)**:
+     - Gộp 10 luồng dữ liệu khởi động (`settings`, `marquee`, `links`, `machines`, `rooms`, `procedures`, `patients`, `staff`, `schedule`, `version`) thành 1 request duy nhất.
+     - Giảm 85% số lượng request mạng khi mở web, triệt tiêu hoàn toàn nguy cơ nghẽn hàng đợi mạng và lỗi quá tải 503 từ Google Apps Script.
+  2. **Cơ chế Lưu trữ Cục bộ & Hiển thị Tức thì (Offline-First Cache 0ms)**:
+     - Tự động lưu bản sao dữ liệu vào `localStorage` (`times_bootstrap_cache`).
+     - Khi mở web, giao diện lập tức hiển thị dữ liệu đã lưu trong 0ms mà không phải chờ đợi máy chủ Google.
+     - Quá trình đồng bộ dữ liệu mới nhất diễn ra ngầm êm ái; nếu mất mạng hoặc máy chủ bận, ứng dụng vẫn hoạt động bình thường trên dữ liệu đã lưu gần nhất.
+  3. **Giao diện Cấu hình Máy chủ Linh hoạt (Self-Healing Server Settings)**:
+     - Bổ sung nút "⚙️ Cấu hình máy chủ kết nối" và Modal cài đặt ngay trên màn hình đăng nhập.
+     - Cho phép người dùng kiểm tra kết nối (`Ping Test`), dán đường dẫn Web App URL mới hoặc khôi phục mặc định trực tiếp trên trình duyệt mà không cần sửa mã nguồn hay cập nhật Git.

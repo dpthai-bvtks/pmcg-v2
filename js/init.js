@@ -41,7 +41,90 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    if (typeof initServerConfigModal === 'function') {
+        initServerConfigModal();
+    }
 });
+
+window.initServerConfigModal = function() {
+    const btnOpen = document.getElementById('btn-open-server-config');
+    const modal = document.getElementById('modal-server-config');
+    const btnClose = document.getElementById('btn-close-server-config');
+    const inpUrl = document.getElementById('input-custom-api-url');
+    const btnSave = document.getElementById('btn-save-server-url');
+    const btnReset = document.getElementById('btn-reset-server-url');
+    const btnTest = document.getElementById('btn-test-server-url');
+    const testResult = document.getElementById('server-test-result');
+
+    if (!modal || !btnOpen) return;
+
+    btnOpen.onclick = function() {
+        if (inpUrl) inpUrl.value = (window.getApiUrl ? window.getApiUrl() : localStorage.getItem('times_custom_api_url') || 'https://script.google.com/macros/s/AKfycby_u0aZVhVVtCoIKXoSqguWh7eViLR9i7xP2pZgn_nHyHoq44z_kDdOIU2Ug-Y6_sowNw/exec');
+        if (testResult) testResult.style.display = 'none';
+        modal.style.display = 'flex';
+    };
+
+    if (btnClose) btnClose.onclick = () => { modal.style.display = 'none'; };
+
+    if (btnSave) btnSave.onclick = function() {
+        const val = inpUrl ? inpUrl.value.trim() : '';
+        if (!val.startsWith('https://script.google.com/macros/s/')) {
+            alert('Đường dẫn không hợp lệ! Vui lòng nhập link Web App Google Apps Script có dạng: https://script.google.com/macros/s/.../exec');
+            return;
+        }
+        if (window.setCustomApiUrl) window.setCustomApiUrl(val);
+        else localStorage.setItem('times_custom_api_url', val);
+        alert('✅ Đã lưu cấu hình máy chủ mới! Ứng dụng sẽ tự động tải lại.');
+        window.location.reload();
+    };
+
+    if (btnReset) btnReset.onclick = function() {
+        if (confirm('Khôi phục về địa chỉ máy chủ mặc định?')) {
+            if (window.setCustomApiUrl) window.setCustomApiUrl('');
+            else localStorage.removeItem('times_custom_api_url');
+            alert('✅ Đã khôi phục về máy chủ mặc định!');
+            window.location.reload();
+        }
+    };
+
+    if (btnTest) btnTest.onclick = async function() {
+        const val = inpUrl ? inpUrl.value.trim() : '';
+        if (!val) return;
+        if (testResult) {
+            testResult.style.display = 'block';
+            testResult.style.background = '#fef9e7';
+            testResult.style.color = '#d35400';
+            testResult.innerText = '⏳ Đang kiểm tra kết nối tới máy chủ...';
+        }
+        try {
+            const res = await fetch(val + '?action=getDataVersion&args=%5B%5D', {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'omit',
+                redirect: 'follow'
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.status === 'success') {
+                    if (testResult) {
+                        testResult.style.background = '#eafaf1';
+                        testResult.style.color = '#27ae60';
+                        testResult.innerText = '✅ Kết nối thành công! Máy chủ phản hồi HTTP 200 OK.';
+                    }
+                    return;
+                }
+            }
+            throw new Error('Máy chủ trả về trạng thái ' + res.status);
+        } catch (e) {
+            if (testResult) {
+                testResult.style.background = '#fdedec';
+                testResult.style.color = '#c0392b';
+                testResult.innerText = '❌ Không thể kết nối: ' + e.message + '. Vui lòng kiểm tra quyền Anyone (Bất kỳ ai).';
+            }
+        }
+    };
+};
 
 window.dataCacheTime = window.dataCacheTime || {};
 

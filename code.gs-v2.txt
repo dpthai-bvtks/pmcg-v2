@@ -16,7 +16,8 @@ const PUBLIC_ACTIONS = [
   'layThongBaoDongChuChay',
   'layDanhSachLienKet',
   'getSystemSettings',
-  'getDataVersion'
+  'getDataVersion',
+  'getBootstrapData'
 ];
 
 const USER_ACTIONS = [
@@ -229,6 +230,29 @@ function getDataVersion() {
     var cache = CacheService.getScriptCache();
     return { version: cache.get('DATA_VERSION') || '0', ts: cache.get('DATA_TIMESTAMP') || '0' };
   } catch(e) { return { version: '0', ts: '0' }; }
+}
+
+// ============================================================
+// 🚀 ALL-IN-ONE BOOTSTRAP API (TẢI TOÀN BỘ DỮ LIỆU KHỞI ĐỘNG 1 LẦN)
+// ============================================================
+function getBootstrapData() {
+  try {
+    return {
+      settings: typeof getSystemSettings === 'function' ? getSystemSettings() : null,
+      marquee: typeof layThongBaoDongChuChay === 'function' ? layThongBaoDongChuChay() : "",
+      links: typeof layDanhSachLienKet === 'function' ? layDanhSachLienKet() : [],
+      machines: typeof getDanhSachMay === 'function' ? getDanhSachMay() : [],
+      rooms: typeof getPhongThuThuat === 'function' ? getPhongThuThuat() : [],
+      procedures: typeof getThuThuat === 'function' ? getThuThuat() : [],
+      patients: typeof getBenhNhan === 'function' ? getBenhNhan() : [],
+      staff: typeof getNhanSu === 'function' ? getNhanSu() : [],
+      schedule: typeof getSchedule === 'function' ? getSchedule() : [],
+      version: typeof getDataVersion === 'function' ? getDataVersion() : { version: "0", ts: "0" }
+    };
+  } catch (e) {
+    Logger.log("Error in getBootstrapData: " + e.message);
+    throw new Error("Lỗi nạp dữ liệu khởi động: " + e.message);
+  }
 }
 
 // CRUD Máy Móc

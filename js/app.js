@@ -98,7 +98,6 @@ window.showGlobalLoading = function (text) {
 
         console.log('MAIN SCRIPT STARTING...');
 
-
         function formatSlotDisplay(slot) {
             if (!slot || typeof slot !== 'string' || !slot.includes('-')) return slot;
             const parts = slot.split('-');
@@ -121,12 +120,20 @@ window.showGlobalLoading = function (text) {
         }
 
         // ============================================================
-
-        // GITHUB PAGES API CONFIGURATION
-
+        // GITHUB PAGES API CONFIGURATION (SELF-HEALING)
         // ============================================================
-
-        const API_URL = 'https://script.google.com/macros/s/AKfycby_u0aZVhVVtCoIKXoSqguWh7eViLR9i7xP2pZgn_nHyHoq44z_kDdOIU2Ug-Y6_sowNw/exec';
+        const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby_u0aZVhVVtCoIKXoSqguWh7eViLR9i7xP2pZgn_nHyHoq44z_kDdOIU2Ug-Y6_sowNw/exec';
+        function getApiUrl() {
+            return (localStorage.getItem('times_custom_api_url') || DEFAULT_API_URL).trim();
+        }
+        window.getApiUrl = getApiUrl;
+        window.setCustomApiUrl = function(newUrl) {
+            if (!newUrl || newUrl.trim() === '' || newUrl.trim() === DEFAULT_API_URL) {
+                localStorage.removeItem('times_custom_api_url');
+            } else {
+                localStorage.setItem('times_custom_api_url', newUrl.trim());
+            }
+        };
         
         // ============================================================
         // DUAL-ENGINE HIGH-PERFORMANCE API DISPATCHER (FETCH + JSONP + DEDUPLICATION)
@@ -168,7 +175,7 @@ window.showGlobalLoading = function (text) {
             try {
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), 35000);
-                const fetchUrl = API_URL + '?' + params.toString();
+                const fetchUrl = getApiUrl() + '?' + params.toString();
 
                 const response = await fetch(fetchUrl, {
                     method: 'GET',
@@ -216,7 +223,7 @@ window.showGlobalLoading = function (text) {
                 args: JSON.stringify(args),
                 callback: callbackName
             });
-            script.src = API_URL + '?' + params.toString();
+            script.src = getApiUrl() + '?' + params.toString();
             script.async = true;
             script.crossOrigin = 'anonymous';
 
@@ -1399,18 +1406,8 @@ window.showGlobalLoading = function (text) {
 
 
 
-            // Phần 3: Khởi động
-
-            if (typeof loadAllData === 'function') loadAllData();
-
-            if (typeof setupTableSorting === 'function') setupTableSorting();
-
-            if (typeof loadDashboard === 'function') loadDashboard();
-
-
-
+                        // Phần 3: Khởi tạo ngày mặc định và nạp Bootstrap
             const today = new Date();
-
             if (document.getElementById('schedule-date')) {
                 const y = today.getFullYear();
                 const m = String(today.getMonth() + 1).padStart(2, '0');
@@ -1419,67 +1416,170 @@ window.showGlobalLoading = function (text) {
             }
 
             if (document.getElementById('pat-date')) {
-
                 const dd = String(today.getDate()).padStart(2, '0');
-
                 const mm = String(today.getMonth() + 1).padStart(2, '0');
-
                 document.getElementById('pat-date').value = `${dd}/${mm}/${today.getFullYear()}`;
-
             }
 
+            if (typeof setupTableSorting === 'function') setupTableSorting();
+            if (typeof loadDashboard === 'function') loadDashboard();
 
-
-            // Phần 4: Marquee
-
-            google.script.run.withSuccessHandler(function (noiDung) {
-
-                const el = document.getElementById('thong-bao-chay');
-
-                if (el) el.innerText = noiDung;
-
-                const inp = document.getElementById('admin-marquee-input');
-
-                if (inp) inp.value = noiDung;
-
-            }).layThongBaoDongChuChay();
-
-
-
-            // Phần 5: Liên kết nhanh
-
-            google.script.run.withSuccessHandler(function (danhSach) {
-
-                const uls = document.querySelectorAll('#khu-vuc-lien-ket');
-
-                if (!uls.length) return;
-
-                const htmlContent = danhSach.length
-
-                    ? danhSach.map(item => `<li><a href="${item.url}" target="_blank"><span class="f-icon">${item.icon}</span> ${item.ten}</a></li>`).join('')
-
-                    : '<li><a href="#"><span class="f-icon">⚠️</span> Chưa có liên kết nào</a></li>';
-
-                uls.forEach(ul => { ul.innerHTML = htmlContent; });
-
-            }).layDanhSachLienKet();
-
+            // Khởi động nạp dữ liệu Bootstrap (All-in-One + Offline Cache)
+            if (typeof loadBootstrapData === 'function') {
+                loadBootstrapData();
+            } else if (typeof loadAllData === 'function') {
+                loadAllData();
+            }
         });
 
-
-
+        // ============================================================
+        // 🚀 ALL-IN-ONE BOOTSTRAP DATA & OFFLINE-FIRST CACHE
         // ============================================================
 
-        // 📦 LOAD ALL DATA
+        function applySystemSettings(res) {
+            if (!res) return;
+            if (res.chotSoTime && document.getElementById("admin-chotso-time")) document.getElementById("admin-chotso-time").value = res.chotSoTime;
+            if (res.yhctLunch !== undefined && document.getElementById("admin-yhct-lunch")) document.getElementById("admin-yhct-lunch").value = res.yhctLunch;
+            if (res.yhctEnd !== undefined && document.getElementById("admin-yhct-end")) document.getElementById("admin-yhct-end").value = res.yhctEnd;
+            if (res.dropWeight !== undefined && document.getElementById("admin-weight-drop")) document.getElementById("admin-weight-drop").value = res.dropWeight;
+            if (res.overtimeWeight !== undefined && document.getElementById("admin-weight-overtime")) document.getElementById("admin-weight-overtime").value = res.overtimeWeight;
+            if (res.imbalanceWeight !== undefined && document.getElementById("admin-weight-imbalance")) document.getElementById("admin-weight-imbalance").value = res.imbalanceWeight;
+        }
 
-        // ============================================================
+        function restoreOfflineCache() {
+            try {
+                const cachedStr = localStorage.getItem('times_bootstrap_cache');
+                if (cachedStr) {
+                    const b = JSON.parse(cachedStr);
+                    if (b && typeof dataCache !== 'undefined') {
+                        if (b.machines && Array.isArray(b.machines)) {
+                            b.machines.forEach((m, i) => { if (m) m.sheetIndex = i; });
+                            dataCache.machine = b.machines.filter(m => m && (m.tenLoai || m[1]));
+                            if (typeof renderMachineTable === 'function') renderMachineTable();
+                        }
+                        if (b.rooms && Array.isArray(b.rooms)) {
+                            b.rooms.forEach((r, i) => { if (r) r.sheetIndex = i; });
+                            dataCache.room = b.rooms.filter(r => r && (r.tenPhong || r[1]));
+                            if (typeof renderRoomTable === 'function') renderRoomTable();
+                        }
+                        if (b.procedures && Array.isArray(b.procedures)) {
+                            b.procedures.forEach((p, i) => { if (p) p.sheetIndex = i; });
+                            dataCache.proc = b.procedures;
+                            if (typeof renderProcTable === 'function') renderProcTable();
+                        }
+                        if (b.patients && Array.isArray(b.patients)) {
+                            b.patients.forEach((pt, i) => { if (pt) pt.sheetIndex = i; });
+                            dataCache.pat = b.patients.filter(pt => pt && pt.ten);
+                            if (typeof renderPatientTable === 'function') renderPatientTable();
+                        }
+                        if (b.staff && Array.isArray(b.staff)) {
+                            b.staff.forEach((st, i) => { if (st) st.sheetIndex = i; });
+                            dataCache.staff = b.staff.filter(st => st && st.ten);
+                            if (typeof renderStaffTable === 'function') renderStaffTable();
+                        }
+                        if (b.schedule) {
+                            dataCache.schedule = b.schedule;
+                            if (typeof renderScheduleTable === 'function') renderScheduleTable();
+                        }
+                        if (b.settings) {
+                            applySystemSettings(b.settings);
+                        }
+                        if (b.marquee) {
+                            const el = document.getElementById('thong-bao-chay');
+                            if (el) el.innerText = b.marquee;
+                        }
+                        const now = Date.now();
+                        window.dataCacheTime = { pat: now, staff: now, machine: now, room: now, proc: now, sched: now };
+                        console.log('⚡ [Offline Cache] Đã hiển thị dữ liệu tức thì từ bộ nhớ máy tính (0ms)!');
+                    }
+                }
+            } catch (e) {
+                console.warn('[Offline Cache] Lỗi đọc dữ liệu cục bộ:', e);
+            }
+        }
+
+        function loadBootstrapData(forceRefresh = false) {
+            if (!forceRefresh) {
+                restoreOfflineCache();
+            }
+
+            google.script.run
+                .withSuccessHandler(function (b) {
+                    if (!b) return;
+                    try {
+                        localStorage.setItem('times_bootstrap_cache', JSON.stringify(b));
+                    } catch (e) { }
+
+                    const now = Date.now();
+                    window.dataCacheTime = { pat: now, staff: now, machine: now, room: now, proc: now, sched: now };
+
+                    if (typeof dataCache !== 'undefined') {
+                        if (b.machines && Array.isArray(b.machines)) {
+                            b.machines.forEach((m, i) => { if (m) m.sheetIndex = i; });
+                            dataCache.machine = b.machines.filter(m => m && (m.tenLoai || m[1]));
+                            if (typeof renderMachineTable === 'function') renderMachineTable();
+                        }
+                        if (b.rooms && Array.isArray(b.rooms)) {
+                            b.rooms.forEach((r, i) => { if (r) r.sheetIndex = i; });
+                            dataCache.room = b.rooms.filter(r => r && (r.tenPhong || r[1]));
+                            if (typeof renderRoomTable === 'function') renderRoomTable();
+                        }
+                        if (b.procedures && Array.isArray(b.procedures)) {
+                            b.procedures.forEach((p, i) => { if (p) p.sheetIndex = i; });
+                            dataCache.proc = b.procedures;
+                            if (typeof renderProcTable === 'function') renderProcTable();
+                        }
+                        if (b.patients && Array.isArray(b.patients)) {
+                            b.patients.forEach((pt, i) => { if (pt) pt.sheetIndex = i; });
+                            dataCache.pat = b.patients.filter(pt => pt && pt.ten);
+                            if (typeof renderPatientTable === 'function') renderPatientTable();
+                        }
+                        if (b.staff && Array.isArray(b.staff)) {
+                            b.staff.forEach((st, i) => { if (st) st.sheetIndex = i; });
+                            dataCache.staff = b.staff.filter(st => st && st.ten);
+                            if (typeof renderStaffTable === 'function') renderStaffTable();
+                        }
+                        if (b.schedule) {
+                            dataCache.schedule = b.schedule;
+                            if (typeof renderScheduleTable === 'function') renderScheduleTable();
+                        }
+                    }
+
+                    if (b.settings) {
+                        applySystemSettings(b.settings);
+                    }
+
+                    if (b.marquee) {
+                        const el = document.getElementById('thong-bao-chay');
+                        if (el) el.innerText = b.marquee;
+                        const inp = document.getElementById('admin-marquee-input');
+                        if (inp) inp.value = b.marquee;
+                    }
+
+                    if (b.links && Array.isArray(b.links)) {
+                        const uls = document.querySelectorAll('#khu-vuc-lien-ket');
+                        if (uls.length) {
+                            const htmlContent = b.links.length
+                                ? b.links.map(item => `<li><a href="${item.url}" target="_blank"><span class="f-icon">${item.icon}</span> ${item.ten}</a></li>`).join('')
+                                : '<li><a href="#"><span class="f-icon">⚠️</span> Chưa có liên kết nào</a></li>';
+                            uls.forEach(ul => { ul.innerHTML = htmlContent; });
+                        }
+                    }
+
+                    if (typeof updateStats === 'function') updateStats();
+                    if (typeof renderScheduleCalendar === 'function') renderScheduleCalendar();
+
+                    console.log('🚀 [Bootstrap API] Đã đồng bộ toàn bộ dữ liệu mới nhất từ máy chủ trong 1 request!');
+                })
+                .withFailureHandler(function (err) {
+                    console.warn('[Bootstrap API] Máy chủ bận, đang sử dụng dữ liệu đã lưu trong máy:', err);
+                    [loadMachines, loadRooms, loadScheduleList, loadProcedures, loadPatients, loadStaff].forEach(fn => fn());
+                })
+                .getBootstrapData();
+        }
 
         function loadAllData() {
-
-            [loadMachines, loadRooms, loadScheduleList, loadProcedures, loadPatients, loadStaff].forEach(fn => fn());
-
-            
-
+            loadBootstrapData();
         }
 
         // =================================================================

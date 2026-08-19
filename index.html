@@ -72,9 +72,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <!-- Stylesheet hệ thống -->
-    <link rel="stylesheet" href="css/style.css?v=3.6">
+    <link rel="stylesheet" href="css/style.css?v=4.0">
     <!-- Khởi tạo Theme & Cấu hình -->
-    <script src="js/init.js?v=3.9"></script>
+    <script src="js/init.js?v=4.0"></script>
     <!-- Chart.js for Thống Kê & ExcelJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -107,8 +107,35 @@
 
                 <button class="btn-login" id="btn-do-login" onclick="doLogin()">Đăng Nhập ➔</button>
 
+                <div style="margin-top:16px; text-align:center;">
+                    <button type="button" id="btn-open-server-config" style="background:none; border:none; color:#7f8c8d; font-size:12px; cursor:pointer; text-decoration:underline;">⚙️ Cấu hình máy chủ kết nối</button>
+                </div>
+
             </div>
 
+        </div>
+
+        <!-- Modal Cấu hình máy chủ kết nối (Self-Healing) -->
+        <div id="modal-server-config" class="modal" style="display:none; position:fixed; z-index:999999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); justify-content:center; align-items:center;">
+            <div class="modal-content" style="background:#fff; border-radius:12px; padding:24px; max-width:520px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.3); font-family:inherit;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0; color:#2c3e50; font-size:17px; font-weight:bold;">⚙️ Cài đặt Máy chủ (Google Apps Script)</h3>
+                    <button type="button" id="btn-close-server-config" style="background:none; border:none; font-size:22px; cursor:pointer; color:#7f8c8d; line-height:1;">&times;</button>
+                </div>
+                <p style="font-size:13px; color:#555; margin-bottom:14px; line-height:1.5;">Nếu tạo bản triển khai mới trên Google Apps Script, bạn chỉ cần dán đường dẫn Web App URL vào đây để chuyển đổi ngay lập tức:</p>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px; color:#34495e;">Đường dẫn Web App URL:</label>
+                    <input type="text" id="input-custom-api-url" class="form-control" style="width:100%; box-sizing:border-box; padding:8px 10px; font-size:12px; font-family:monospace; border:1px solid #ccc; border-radius:6px;" placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+                <div id="server-test-result" style="font-size:12px; margin-bottom:15px; padding:10px; border-radius:6px; display:none; line-height:1.4;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <button type="button" id="btn-test-server-url" class="btn btn-secondary" style="padding:8px 12px; font-size:12px; border-radius:6px; cursor:pointer; border:1px solid #bdc3c7; background:#ecf0f1; color:#2c3e50;">🔍 Kiểm tra kết nối</button>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="btn-reset-server-url" class="btn btn-warning" style="padding:8px 12px; font-size:12px; border-radius:6px; cursor:pointer; border:1px solid #f39c12; background:#f39c12; color:#fff;">Mặc định</button>
+                        <button type="button" id="btn-save-server-url" class="btn btn-primary" style="padding:8px 16px; font-size:12px; border-radius:6px; cursor:pointer; font-weight:bold; background:#2980b9; color:#fff; border:none;">💾 Lưu & Áp dụng</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <aside class="sidebar">
@@ -2953,9 +2980,9 @@
     <div id="sidebar-tooltip"></div>
 
     <!-- JavaScript Modules -->
-    <script src="js/app.js?v=3.9"></script>
-    <script src="js/sync.js?v=3.9"></script>
-    <script src="js/thongke.js?v=3.9"></script>
+    <script src="js/app.js?v=4.0"></script>
+    <script src="js/sync.js?v=4.0"></script>
+    <script src="js/thongke.js?v=4.0"></script>
 </body>
 
 </html>
