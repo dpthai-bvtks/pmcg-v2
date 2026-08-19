@@ -98,12 +98,18 @@ window.initServerConfigModal = function() {
             testResult.innerText = '⏳ Đang kiểm tra kết nối tới máy chủ...';
         }
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
             const res = await fetch(val + '?action=getDataVersion&args=%5B%5D', {
                 method: 'GET',
                 mode: 'cors',
                 credentials: 'omit',
-                redirect: 'follow'
+                redirect: 'follow',
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
+            
             if (res.ok) {
                 const data = await res.json();
                 if (data && data.status === 'success') {

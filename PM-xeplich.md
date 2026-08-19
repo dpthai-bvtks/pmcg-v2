@@ -1897,3 +1897,9 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   3. **Giao diện Cấu hình Máy chủ Linh hoạt (Self-Healing Server Settings)**:
      - Bổ sung nút "⚙️ Cấu hình máy chủ kết nối" và Modal cài đặt ngay trên màn hình đăng nhập.
      - Cho phép người dùng kiểm tra kết nối (`Ping Test`), dán đường dẫn Web App URL mới hoặc khôi phục mặc định trực tiếp trên trình duyệt mà không cần sửa mã nguồn hay cập nhật Git.
+- **Hoàn thiện tối ưu UI/UX và logic tải dữ liệu v4.1 (Giải quyết lỗi một số tab trống và kẹt loading):**
+  - Khắc phục lỗi `fetch` GET timeout (treo 35s) trên Google Chrome với nhiều tài khoản do trả về HTML 404 (CORS lỗi). Loại bỏ `fetch` GET, ép chuyển hướng hoàn toàn sang JSONP đáng tin cậy.
+  - Sửa lỗi ngầm `loadDashboard` tự động gọi 4 API dư thừa đè lên dữ liệu đã tải của `Bootstrap API`. Giờ đây Dashboard hoàn toàn sử dụng `dataCache`.
+  - Khắc phục lỗi sai tên hàm render trong `loadBootstrapData` (`renderPatientTable` thành `renderPatientsTable`, v.v.) khiến dữ liệu đã tải vào Cache nhưng bảng lại hiển thị trống rỗng.
+  - Tối ưu `loadScheduleList()` để lấy dữ liệu lịch trình lập tức từ `dataCache.schedule` thay vì yêu cầu máy chủ Google lần nữa.
+  - Bổ sung `AbortController` 10s cho nút Kiểm tra kết nối để tránh treo UI vĩnh viễn khi mạng không phản hồi.

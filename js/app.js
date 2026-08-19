@@ -171,47 +171,10 @@ window.showGlobalLoading = function (text) {
             });
 
             // --- TIER 1: FAST NATIVE FETCH (GET) ---
-            let fetchSuccess = false;
-            try {
-                const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), 35000);
-                const fetchUrl = getApiUrl() + '?' + params.toString();
-
-                const response = await fetch(fetchUrl, {
-                    method: 'GET',
-                    mode: 'cors',
-                    credentials: 'omit',
-                    redirect: 'follow',
-                    signal: controller.signal
-                });
-                clearTimeout(timer);
-
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result && result.status === 'success') {
-                        fetchSuccess = true;
-                        finish();
-                        if (onSuccess) {
-                            try { onSuccess(result.data); } catch(e) { console.error(`Error in onSuccess handler for ${functionName}:`, e); }
-                        }
-                        return;
-                    } else if (result && result.status === 'error') {
-                        fetchSuccess = true;
-                        finish();
-                        const errMsg = result.error || 'Lỗi từ máy chủ.';
-                        if (onError) onError(errMsg);
-                        else alert('Lỗi: ' + errMsg);
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.warn(`[Fetch GET] ${functionName} fell back to JSONP:`, err.message || err);
-            }
-
+            // Removed fetch fallback for GET because it hangs for 35s on Google HTML pages
+            
             // --- TIER 2: JSONP FALLBACK ---
-            if (!fetchSuccess) {
-                executeJsonpFallback(task, finish);
-            }
+            executeJsonpFallback(task, finish);
         }
 
         function executeJsonpFallback(task, onFinish) {
@@ -1422,7 +1385,6 @@ window.showGlobalLoading = function (text) {
             }
 
             if (typeof setupTableSorting === 'function') setupTableSorting();
-            if (typeof loadDashboard === 'function') loadDashboard();
 
             // Khởi động nạp dữ liệu Bootstrap (All-in-One + Offline Cache)
             if (typeof loadBootstrapData === 'function') {
@@ -1455,22 +1417,22 @@ window.showGlobalLoading = function (text) {
                         if (b.machines && Array.isArray(b.machines)) {
                             b.machines.forEach((m, i) => { if (m) m.sheetIndex = i; });
                             dataCache.machine = b.machines.filter(m => m && (m.tenLoai || m[1]));
-                            if (typeof renderMachineTable === 'function') renderMachineTable();
+                            if (typeof renderMachinesTable === 'function') renderMachinesTable();
                         }
                         if (b.rooms && Array.isArray(b.rooms)) {
                             b.rooms.forEach((r, i) => { if (r) r.sheetIndex = i; });
                             dataCache.room = b.rooms.filter(r => r && (r.tenPhong || r[1]));
-                            if (typeof renderRoomTable === 'function') renderRoomTable();
+                            if (typeof renderRoomsTable === 'function') renderRoomsTable();
                         }
                         if (b.procedures && Array.isArray(b.procedures)) {
                             b.procedures.forEach((p, i) => { if (p) p.sheetIndex = i; });
                             dataCache.proc = b.procedures;
-                            if (typeof renderProcTable === 'function') renderProcTable();
+                            if (typeof renderProceduresTable === 'function') renderProceduresTable();
                         }
                         if (b.patients && Array.isArray(b.patients)) {
                             b.patients.forEach((pt, i) => { if (pt) pt.sheetIndex = i; });
                             dataCache.pat = b.patients.filter(pt => pt && pt.ten);
-                            if (typeof renderPatientTable === 'function') renderPatientTable();
+                            if (typeof renderPatientsTable === 'function') renderPatientsTable();
                         }
                         if (b.staff && Array.isArray(b.staff)) {
                             b.staff.forEach((st, i) => { if (st) st.sheetIndex = i; });
@@ -1479,7 +1441,7 @@ window.showGlobalLoading = function (text) {
                         }
                         if (b.schedule) {
                             dataCache.schedule = b.schedule;
-                            if (typeof renderScheduleTable === 'function') renderScheduleTable();
+                            if (typeof renderSchedPage === 'function') renderSchedPage();
                         }
                         if (b.settings) {
                             applySystemSettings(b.settings);
@@ -1490,6 +1452,7 @@ window.showGlobalLoading = function (text) {
                         }
                         const now = Date.now();
                         window.dataCacheTime = { pat: now, staff: now, machine: now, room: now, proc: now, sched: now };
+                        if (typeof loadDashboard === 'function') loadDashboard();
                         console.log('⚡ [Offline Cache] Đã hiển thị dữ liệu tức thì từ bộ nhớ máy tính (0ms)!');
                     }
                 }
@@ -1517,22 +1480,22 @@ window.showGlobalLoading = function (text) {
                         if (b.machines && Array.isArray(b.machines)) {
                             b.machines.forEach((m, i) => { if (m) m.sheetIndex = i; });
                             dataCache.machine = b.machines.filter(m => m && (m.tenLoai || m[1]));
-                            if (typeof renderMachineTable === 'function') renderMachineTable();
+                            if (typeof renderMachinesTable === 'function') renderMachinesTable();
                         }
                         if (b.rooms && Array.isArray(b.rooms)) {
                             b.rooms.forEach((r, i) => { if (r) r.sheetIndex = i; });
                             dataCache.room = b.rooms.filter(r => r && (r.tenPhong || r[1]));
-                            if (typeof renderRoomTable === 'function') renderRoomTable();
+                            if (typeof renderRoomsTable === 'function') renderRoomsTable();
                         }
                         if (b.procedures && Array.isArray(b.procedures)) {
                             b.procedures.forEach((p, i) => { if (p) p.sheetIndex = i; });
                             dataCache.proc = b.procedures;
-                            if (typeof renderProcTable === 'function') renderProcTable();
+                            if (typeof renderProceduresTable === 'function') renderProceduresTable();
                         }
                         if (b.patients && Array.isArray(b.patients)) {
                             b.patients.forEach((pt, i) => { if (pt) pt.sheetIndex = i; });
                             dataCache.pat = b.patients.filter(pt => pt && pt.ten);
-                            if (typeof renderPatientTable === 'function') renderPatientTable();
+                            if (typeof renderPatientsTable === 'function') renderPatientsTable();
                         }
                         if (b.staff && Array.isArray(b.staff)) {
                             b.staff.forEach((st, i) => { if (st) st.sheetIndex = i; });
@@ -1541,7 +1504,7 @@ window.showGlobalLoading = function (text) {
                         }
                         if (b.schedule) {
                             dataCache.schedule = b.schedule;
-                            if (typeof renderScheduleTable === 'function') renderScheduleTable();
+                            if (typeof renderSchedPage === 'function') renderSchedPage();
                         }
                     }
 
@@ -1568,6 +1531,7 @@ window.showGlobalLoading = function (text) {
 
                     if (typeof updateStats === 'function') updateStats();
                     if (typeof renderScheduleCalendar === 'function') renderScheduleCalendar();
+                    if (typeof loadDashboard === 'function') loadDashboard();
 
                     console.log('🚀 [Bootstrap API] Đã đồng bộ toàn bộ dữ liệu mới nhất từ máy chủ trong 1 request!');
                 })
@@ -3451,44 +3415,43 @@ window.showGlobalLoading = function (text) {
 
             if (window.viewingImportedScheduleFile) return;
 
-            google.script.run.withSuccessHandler(data => {
+            const data = (typeof dataCache !== 'undefined' && dataCache.schedule) ? dataCache.schedule : [];
+            const rows = data.map(normalizeScheduleRow);
 
-                const rows = (data || []).map(normalizeScheduleRow);
+            window.currentScheduleData = markDischargedInSchedule(rows.filter(row => !isDroppedScheduleRow(row)));
 
-                window.currentScheduleData = markDischargedInSchedule(rows.filter(row => !isDroppedScheduleRow(row)));
+            const droppedFromSheet = rows.filter(isDroppedScheduleRow).map(row => normalizeDroppedItem([
 
-                const droppedFromSheet = rows.filter(isDroppedScheduleRow).map(row => normalizeDroppedItem([
+                row.ngay, row.tenBN, row.namSinh, row.phong, row.thuThuat, row.gioDienRa,
 
-                    row.ngay, row.tenBN, row.namSinh, row.phong, row.thuThuat, row.gioDienRa,
+                row.gioKetThuc, row.nvChinh, row.nvPhu
 
-                    row.gioKetThuc, row.nvChinh, row.nvPhu
+            ]));
 
-                ]));
+            if (rows.length === 0) {
+                localStorage.removeItem('meds_unscheduled');
+                window.lastUnscheduledData = [];
+                setUnscheduledData([]);
+            } else if (droppedFromSheet.length) {
+                let localDropped = [];
+                try {
+                    const activeDate = document.getElementById('schedule-date')?.value || localStorage.getItem('meds_schedule_date') || '';
+                    if (localStorage.getItem('meds_schedule_date') === activeDate) localDropped = JSON.parse(localStorage.getItem('meds_unscheduled') || '[]');
+                } catch (e) { }
+                const cleanedDropped = reconcileUnscheduledData([...droppedFromSheet, ...localDropped]);
+                setUnscheduledData(cleanedDropped);
+            } else {
+                const cleanedDropped = reconcileUnscheduledData([]);
+                setUnscheduledData(cleanedDropped);
+            }
 
-                if (rows.length === 0) {
-                    localStorage.removeItem('meds_unscheduled');
-                    window.lastUnscheduledData = [];
-                    setUnscheduledData([]);
-                } else if (droppedFromSheet.length) {
-                    let localDropped = [];
-                    try {
-                        const activeDate = document.getElementById('schedule-date')?.value || localStorage.getItem('meds_schedule_date') || '';
-                        if (localStorage.getItem('meds_schedule_date') === activeDate) localDropped = JSON.parse(localStorage.getItem('meds_unscheduled') || '[]');
-                    } catch (e) { }
-                    const cleanedDropped = reconcileUnscheduledData([...droppedFromSheet, ...localDropped]);
-                    setUnscheduledData(cleanedDropped);
-                } else {
-                    const cleanedDropped = reconcileUnscheduledData([]);
-                    setUnscheduledData(cleanedDropped);
-                }
+            filterSchedule();
 
-                filterSchedule();
+            if (typeof renderStats === 'function') renderStats(window.lastUnscheduledData);
 
-                if (typeof renderStats === 'function') renderStats(window.lastUnscheduledData);
+            if (typeof renderPatientsTable === 'function') renderPatientsTable();
 
-                if (typeof renderPatientsTable === 'function') renderPatientsTable();
-
-            }).getSchedule();
+        }
 
         }
 
@@ -6544,16 +6507,7 @@ window.showGlobalLoading = function (text) {
         }
 
         function loadSystemSettings() {
-            google.script.run.withSuccessHandler(function (res) {
-                if (res) {
-                    if (res.chotSoTime) document.getElementById("admin-chotso-time").value = res.chotSoTime;
-                    if (res.yhctLunch !== undefined) document.getElementById("admin-yhct-lunch").value = res.yhctLunch;
-                    if (res.yhctEnd !== undefined) document.getElementById("admin-yhct-end").value = res.yhctEnd;
-                    if (res.dropWeight !== undefined) document.getElementById("admin-weight-drop").value = res.dropWeight;
-                    if (res.overtimeWeight !== undefined) document.getElementById("admin-weight-overtime").value = res.overtimeWeight;
-                    if (res.imbalanceWeight !== undefined) document.getElementById("admin-weight-imbalance").value = res.imbalanceWeight;
-                }
-            }).getSystemSettings();
+            // Already loaded by getBootstrapData via applySystemSettings
         }
 
         // ============================================================
@@ -6923,37 +6877,35 @@ window.showGlobalLoading = function (text) {
             const datePicker = document.getElementById('dashboard-date-filter');
 
             if (!datePicker.value) {
-                google.script.run.withSuccessHandler(function (rawSched) {
-                    let activeDateStr = null;
-                    if (rawSched && rawSched.length > 0) {
-                        const firstRow = rawSched[0];
-                        activeDateStr = firstRow.ngay || firstRow[0];
-                    }
+                const rawSched = dataCache.schedule || [];
+                let activeDateStr = null;
+                if (rawSched && rawSched.length > 0) {
+                    const firstRow = rawSched[0];
+                    activeDateStr = firstRow.ngay || firstRow[0];
+                }
 
-                    let activeYMD = null;
-                    if (activeDateStr) {
-                        if (activeDateStr.includes('/')) {
-                            const parts = activeDateStr.split('/');
-                            activeYMD = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                        } else {
-                            activeYMD = activeDateStr;
-                        }
-                    }
-
-                    const d = new Date();
-                    const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-                    if (activeYMD && activeYMD !== safeTodayStr) {
-                        alert(`⚠️ HỆ THỐNG PHÁT HIỆN:\nDữ liệu của ngày ${activeDateStr} chưa được chốt sổ!\nMặc định sẽ hiển thị dữ liệu của ngày này để bạn tiếp tục xử lý.`);
-                        datePicker.value = activeYMD;
+                let activeYMD = null;
+                if (activeDateStr) {
+                    if (activeDateStr.includes('/')) {
+                        const parts = activeDateStr.split('/');
+                        activeYMD = `${parts[2]}-${parts[1]}-${parts[0]}`;
                     } else {
-                        datePicker.value = safeTodayStr;
+                        activeYMD = activeDateStr;
                     }
+                }
 
-                    window._systemActiveYMD = activeYMD;
-                    loadDashboard(); // Resume
-                }).getLichTrinh();
-                return;
+                const d = new Date();
+                const safeTodayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+                if (activeYMD && activeYMD !== safeTodayStr) {
+                    alert(`⚠️ HỆ THỐNG PHÁT HIỆN:\nDữ liệu của ngày ${activeDateStr} chưa được chốt sổ!\nMặc định sẽ hiển thị dữ liệu của ngày này để bạn tiếp tục xử lý.`);
+                    datePicker.value = activeYMD;
+                } else {
+                    datePicker.value = safeTodayStr;
+                }
+
+                window._systemActiveYMD = activeYMD;
+                // Wait for value change to trigger loadDashboard again, or proceed below
             }
 
             const selectedDate = datePicker.value;
@@ -6975,88 +6927,67 @@ window.showGlobalLoading = function (text) {
                 window.viewingImportedScheduleFile = false;
                 if (typeof restoreHistoryTabs === 'function') restoreHistoryTabs();
 
-                google.script.run.withSuccessHandler(patData => {
-                    const rawData = patData || [];
-                    rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
-                    const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
-                    cleaned.forEach((item, idx) => { item.index = idx; });
-                    const el = document.getElementById('statBN');
-                    if (el) el.textContent = cleaned.length;
+                const patData = dataCache.pat || [];
+                const elBN = document.getElementById('statBN');
+                if (elBN) elBN.textContent = patData.length;
 
-                    dataCache.pat = cleaned;
+                let totalProcs = 0;
+                patData.forEach(p => {
+                    if (p.thuThuat) {
+                        const count = String(p.thuThuat).split(',').map(x => x.trim()).filter(x => x).length;
+                        totalProcs += count;
+                    }
+                });
 
-                    // Calculate total procedures
-                    let totalProcs = 0;
-                    cleaned.forEach(p => {
-                        if (p.thuThuat) {
-                            const count = String(p.thuThuat).split(',').map(x => x.trim()).filter(x => x).length;
-                            totalProcs += count;
-                        }
-                    });
-                    const totalProcsEl = document.getElementById('statTotalProcs');
-                    if (totalProcsEl) totalProcsEl.textContent = totalProcs;
-                }).getBenhNhan();
-
-                google.script.run.withSuccessHandler(staffData => {
-                    const rawData = staffData || [];
-                    rawData.forEach((item, i) => { if (item) item.sheetIndex = i; });
-                    const cleaned = rawData.filter(item => item && item.ten && item.ten.trim() !== '');
-                    cleaned.forEach((item, idx) => { item.index = idx; });
-                    const working = cleaned.filter(s => {
-                        const st = s.trangThai || '';
-                        const r = s.vaiTro || '';
-                        return st === 'Đi làm' && r !== 'Điều dưỡng';
-                    }).length;
-                    const el = document.getElementById('statStaff');
-                    if (el) el.textContent = working;
-                    dataCache.staff = cleaned;
-                }).getNhanSu();
+                const staffData = dataCache.staff || [];
+                const working = staffData.filter(s => {
+                    const st = s.trangThai || '';
+                    const r = s.vaiTro || '';
+                    return st === 'Đi làm' && r !== 'Điều dưỡng';
+                }).length;
+                const elStaff = document.getElementById('statStaff');
+                if (elStaff) elStaff.textContent = working;
 
                 const statScheduledEl = document.getElementById('statScheduled');
                 const statDroppedEl = document.getElementById('statDropped');
-                if (statScheduledEl) statScheduledEl.textContent = "...";
-                if (statDroppedEl) statDroppedEl.textContent = "...";
-
-                google.script.run.withSuccessHandler(function (rawSched) {
-                    const toYMD = (dateStr) => {
-                        if (!dateStr) return '';
-                        if (dateStr.includes('/')) {
-                            const parts = dateStr.split('/');
-                            return `${parts[2]}-${parts[1]}-${parts[0]}`;
-                        }
-                        return dateStr;
-                    };
-                    const validData = rawSched.filter(item => {
-                        const itemDate = item.ngay || item[0];
-                        return toYMD(itemDate) === selectedDate;
-                    });
-
-                    const dayData = validData.filter(item => { const g = item.gioDienRa || item[5] || ''; return g && g !== '--' && !g.includes('Rớt'); }).map(item => [item.ngay || item[0], item.tenBN || item[1], item.namSinh || item[2], item.phong || item[3], item.thuThuat || item[4], item.gioDienRa || item[5], item.gioKetThuc || item[6], item.nvChinh || item[7], item.nvPhu || item[8], item.may || item[9], item.giuong || item[10]]);
-                    const rotDataSheets = validData.filter(item => { const g = item.gioDienRa || item[5] || ''; return g === '--' || g.includes('Rớt'); }).map(item => [item.ngay || item[0], item.tenBN || item[1], item.namSinh || item[2], item.phong || item[3], item.thuThuat || item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
-
-                    let rotDataLocal = [];
-                    if (rawSched.length === 0) {
-                        localStorage.removeItem('meds_unscheduled');
-                    } else {
-                        try {
-                            if (localStorage.getItem('meds_schedule_date') === selectedDate) {
-                                rotDataLocal = (JSON.parse(localStorage.getItem('meds_unscheduled') || '[]')).map(u => [selectedDate, u.bn || u.tenBN || '', u.ns || u.namSinh || '', u.room || u.phong || '', u.tt || u.thuThuat || '', '❌ Rớt', '--', '--', '--', '--', '--', u.reason || 'Quá tải/Hết giờ']);
-                            }
-                        } catch (e) { }
+                
+                const rawSched = dataCache.schedule || [];
+                const toYMD = (dateStr) => {
+                    if (!dateStr) return '';
+                    if (dateStr.includes('/')) {
+                        const parts = dateStr.split('/');
+                        return `${parts[2]}-${parts[1]}-${parts[0]}`;
                     }
-                    const rotData = rotDataSheets.length > 0 ? rotDataSheets : rotDataLocal;
+                    return dateStr;
+                };
+                const validData = rawSched.filter(item => {
+                    const itemDate = item.ngay || item[0];
+                    return toYMD(itemDate) === selectedDate;
+                });
 
-                    if (statScheduledEl) statScheduledEl.textContent = dayData.length;
-                    if (statDroppedEl) statDroppedEl.textContent = rotData.length;
-                    const totalProcsEl = document.getElementById('statTotalProcs');
-                    if (totalProcsEl) totalProcsEl.textContent = dayData.length + rotData.length;
+                const dayData = validData.filter(item => { const g = item.gioDienRa || item[5] || ''; return g && g !== '--' && !g.includes('Rớt'); }).map(item => [item.ngay || item[0], item.tenBN || item[1], item.namSinh || item[2], item.phong || item[3], item.thuThuat || item[4], item.gioDienRa || item[5], item.gioKetThuc || item[6], item.nvChinh || item[7], item.nvPhu || item[8], item.may || item[9], item.giuong || item[10]]);
+                const rotDataSheets = validData.filter(item => { const g = item.gioDienRa || item[5] || ''; return g === '--' || g.includes('Rớt'); }).map(item => [item.ngay || item[0], item.tenBN || item[1], item.namSinh || item[2], item.phong || item[3], item.thuThuat || item[4], '❌ Rớt', '--', '--', '--', '--', '--', 'Thiếu nhân sự/Máy']);
 
-                    if (typeof renderDashboardPreview === 'function') renderDashboardPreview([...dayData, ...rotData]);
-                    if (typeof renderCharts === 'function') renderCharts(dayData);
-                    if (typeof renderDashboardMonthlyCharts === 'function') renderDashboardMonthlyCharts(selectedDate);
-                    if (typeof renderDashboardMonthlyCharts === 'function') renderDashboardMonthlyCharts(selectedDate);
-                }).withFailureHandler(err => { console.error("Lỗi tải lịch:", err); }).getLichTrinh();
+                let rotDataLocal = [];
+                if (rawSched.length === 0) {
+                    localStorage.removeItem('meds_unscheduled');
+                } else {
+                    try {
+                        if (localStorage.getItem('meds_schedule_date') === selectedDate) {
+                            rotDataLocal = (JSON.parse(localStorage.getItem('meds_unscheduled') || '[]')).map(u => [selectedDate, u.bn || u.tenBN || '', u.ns || u.namSinh || '', u.room || u.phong || '', u.tt || u.thuThuat || '', '❌ Rớt', '--', '--', '--', '--', '--', u.reason || 'Quá tải/Hết giờ']);
+                        }
+                    } catch (e) { }
+                }
+                const rotData = rotDataSheets.length > 0 ? rotDataSheets : rotDataLocal;
 
+                if (statScheduledEl) statScheduledEl.textContent = dayData.length;
+                if (statDroppedEl) statDroppedEl.textContent = rotData.length;
+                const totalProcsEl = document.getElementById('statTotalProcs');
+                if (totalProcsEl) totalProcsEl.textContent = dayData.length + rotData.length;
+
+                if (typeof renderDashboardPreview === 'function') renderDashboardPreview([...dayData, ...rotData]);
+                if (typeof renderCharts === 'function') renderCharts(dayData);
+                if (typeof renderDashboardMonthlyCharts === 'function') renderDashboardMonthlyCharts(selectedDate);
             } else {
                 // --- CHẾ ĐỘ LỊCH SỬ ---
                 const statScheduledEl = document.getElementById('statScheduled');
