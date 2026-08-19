@@ -1856,3 +1856,7 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   - **Cơ chế**: Thuật toán tự động duyệt qua các mốc thời gian ứng viên `[25, 30, 26, 27, 28, 29]` phút:
     1. Kiểm tra thời điểm rút kim tại phút thứ 25. Nếu nhân sự đang bận ca khác tại thời điểm này, thuật toán tự động nhảy sang mốc 30 phút (hoặc 26..29 phút).
     2. Tại mốc thời gian mà nhân sự hoàn toàn rảnh tay để rút kim (đồng thời bệnh nhân, giường, máy đều sẵn sàng), hệ thống tự động chốt lịch chính xác tại mốc đó mà không để ca bị rớt.
+- Thêm hàng TỔNG CỘNG cho bảng Thống Kê (Tab Thống kê):
+  - Bổ sung hàng tính tổng tự động ở cuối bảng chính và bảng xem trước file Excel trong Tab Thống kê.
+  - Tự động cộng dồn toàn bộ các cột: Tổng số công, Thủ thuật Loại 1, Thủ thuật Loại 2, Thủ thuật Loại 3, Khác và Tổng thủ thuật.
+  - Hàng Tổng cộng được làm nổi bật với nền màu xám nhạt thanh lịch (`#f1f5f9`), viền phân cách rõ nét và chữ in đậm (`font-weight: 800`).

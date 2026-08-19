@@ -743,6 +743,13 @@
             const sourceChamCong = isQ ? thongKeQuarterData.chamcong : null;
             const sourceThuThuat = isQ ? thongKeQuarterData.thuthuat : thongKeData;
 
+            let sumTongCong = 0;
+            let sumLoai1 = 0;
+            let sumLoai2 = 0;
+            let sumLoai3 = 0;
+            let sumKhac = 0;
+            let sumTotalThuThuat = 0;
+
             adminChamCongEmployees.forEach(emp => {
                 const tr = document.createElement('tr');
                 const t = (sourceThuThuat && sourceThuThuat[emp]) ? sourceThuThuat[emp] : { loai1: 0, loai2: 0, loai3: 0, khac: 0 };
@@ -763,6 +770,13 @@
 
                 const totalThuThuat = (t.loai1 || 0) + (t.loai2 || 0) + (t.loai3 || 0) + (t.khac || 0);
 
+                sumTongCong += tongCong;
+                sumLoai1 += (t.loai1 || 0);
+                sumLoai2 += (t.loai2 || 0);
+                sumLoai3 += (t.loai3 || 0);
+                sumKhac += (t.khac || 0);
+                sumTotalThuThuat += totalThuThuat;
+
                 tr.innerHTML = `
                     <td><strong>${emp}</strong></td>
                     <td style="color: #2563eb; font-weight: 700;">${tongCong}</td>
@@ -774,6 +788,21 @@
                 `;
                 tbody.appendChild(tr);
             });
+
+            // HÀNG TỔNG CỘNG CÁC CỘT
+            sumTongCong = Math.round(sumTongCong * 100) / 100;
+            const trTotal = document.createElement('tr');
+            trTotal.style.cssText = 'background: #f1f5f9; font-weight: 800; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1;';
+            trTotal.innerHTML = `
+                <td style="color: #0f172a; font-weight: 800; text-transform: uppercase;">TỔNG CỘNG</td>
+                <td style="color: #1d4ed8; font-weight: 800;">${sumTongCong}</td>
+                <td style="color: #0f172a; font-weight: 800;">${sumLoai1}</td>
+                <td style="color: #0f172a; font-weight: 800;">${sumLoai2}</td>
+                <td style="color: #0f172a; font-weight: 800;">${sumLoai3}</td>
+                <td style="color: #475569; font-weight: 800;">${sumKhac}</td>
+                <td style="font-weight: 900; color: #15803d; font-size: 14px;">${sumTotalThuThuat}</td>
+            `;
+            tbody.appendChild(trTotal);
         }
 
         // Init Excel Uploader for Thống Kê
@@ -903,11 +932,19 @@
             const tbody = document.getElementById('preview-thuthuat-body');
             tbody.innerHTML = '';
             
+            let sumLoai1 = 0, sumLoai2 = 0, sumLoai3 = 0, sumKhac = 0, sumTotal = 0;
+
             adminChamCongEmployees.forEach(emp => {
                 const t = tempThuThuatData[emp];
                 if (!t) return;
                 const totalThuThuat = t.loai1 + t.loai2 + t.loai3 + t.khac;
                 if (totalThuThuat === 0) return;
+
+                sumLoai1 += t.loai1;
+                sumLoai2 += t.loai2;
+                sumLoai3 += t.loai3;
+                sumKhac += t.khac;
+                sumTotal += totalThuThuat;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -920,6 +957,19 @@
                 `;
                 tbody.appendChild(tr);
             });
+
+            // HÀNG TỔNG CỘNG CHO BẢNG XEM TRƯỚC
+            const trTotal = document.createElement('tr');
+            trTotal.style.cssText = 'background: #f1f5f9; font-weight: 800; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1;';
+            trTotal.innerHTML = `
+                <td style="color: #0f172a; font-weight: 800; text-transform: uppercase;">TỔNG CỘNG</td>
+                <td style="color: #0f172a; font-weight: 800;">${sumLoai1}</td>
+                <td style="color: #0f172a; font-weight: 800;">${sumLoai2}</td>
+                <td style="color: #0f172a; font-weight: 800;">${sumLoai3}</td>
+                <td style="color: #475569; font-weight: 800;">${sumKhac}</td>
+                <td style="font-weight: 900; color: #15803d; font-size: 14px;">${sumTotal}</td>
+            `;
+            tbody.appendChild(trTotal);
 
             document.getElementById('main-thongke-container').style.display = 'none';
             document.getElementById('preview-section').style.display = 'block';
