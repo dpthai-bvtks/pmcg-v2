@@ -3,7 +3,7 @@
    ========================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadSystemSettings();
+    // loadSystemSettings() is automatically handled by loadBootstrapData with offline-first cache
 
     // Override .value setter to sync with flatpickr khi gán giá trị bằng JS
     const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');

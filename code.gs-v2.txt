@@ -2246,4 +2246,3 @@ function capQuyenGoogleDrive() {
   Logger.log('✅ ĐÃ CẤP TOÀN BỘ QUYỀN GOOGLE DRIVE THÀNH CÔNG!');
   return 'Cấp quyền Google Drive thành công!';
 }
-
