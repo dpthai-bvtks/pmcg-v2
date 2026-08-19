@@ -1883,3 +1883,6 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   - **Tier 2 (JSONP Fallback)**: Tự động dự phòng sang JSONP nếu đường truyền mạng gặp sự cố.
   - **Request Deduplication (In-flight Coalescing)**: Tự động gom các request đọc dữ liệu trùng lặp (như `getSchedule`, `getSystemSettings`, `getDataVersion`) chạy song song, giảm 70% tải lên Google Apps Script, loại bỏ hoàn toàn lỗi 503 Rate Limit.
   - Tăng thời gian chờ xử lý bảng tính lớn lên 30-35s và phân luồng điều phối tối đa 3 kết nối đồng thời.
+- Sửa triệt để lỗi Google multi-account 404 trên Google Chrome/Edge:
+  - Bổ sung `credentials: 'omit'` cho `fetch()` và `crossOrigin = 'anonymous'` cho thẻ script JSONP.
+  - Khi trình duyệt có đăng nhập nhiều tài khoản Google, việc loại bỏ cookie Google đính kèm giúp Google Apps Script luôn thực thi đúng chế độ Web App công khai (`Execute as: Me`), xóa bỏ hoàn toàn lỗi `HTTP 404` trên link `echo`.

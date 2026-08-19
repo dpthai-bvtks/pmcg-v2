@@ -173,6 +173,7 @@ window.showGlobalLoading = function (text) {
                 const response = await fetch(fetchUrl, {
                     method: 'GET',
                     mode: 'cors',
+                    credentials: 'omit',
                     redirect: 'follow',
                     signal: controller.signal
                 });
@@ -217,6 +218,7 @@ window.showGlobalLoading = function (text) {
             });
             script.src = API_URL + '?' + params.toString();
             script.async = true;
+            script.crossOrigin = 'anonymous';
 
             let isFinished = false;
 
