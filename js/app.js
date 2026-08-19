@@ -115,8 +115,13 @@ window.showGlobalLoading = function (text) {
         // ============================================================
 
         const API_URL = 'https://script.google.com/macros/s/AKfycbx_E9fQlyNYptXab1t_UCiLw3ETA1yTttVB599mp-N339xIzgKMYHQoVilRTs0ZKJGA4A/exec';
+        
+        // ============================================================
+        // ZERO-CORS HIGH-PERFORMANCE API DISPATCHER (JSONP ENGINE)
+        // ============================================================
+        const MAX_CONCURRENT_API_REQUESTS = 4;
+        let activeApiRequests = 0;
         let apiQueue = [];
-        let isApiProcessing = false;
         let mutationCount = 0;
 
         function checkMutationLoading() {
@@ -127,118 +132,115 @@ window.showGlobalLoading = function (text) {
             }
         }
 
+        function executeJsonpRequest(task) {
+            const { functionName, args, onSuccess, onError, isMutation, retries = 0 } = task;
+            activeApiRequests++;
 
-        function doFetchRequest(functionName, args, onSuccess, onError, isMutation, onComplete) {
-            const body = new URLSearchParams({ action: functionName, args: JSON.stringify(args) });
+            const callbackName = 'jsonp_times_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+            const script = document.createElement('script');
+            const params = new URLSearchParams({
+                action: functionName,
+                args: JSON.stringify(args),
+                callback: callbackName
+            });
+            script.src = API_URL + '?' + params.toString();
+            script.async = true;
 
-            const handleResult = (result) => {
-                if (result && result.status === 'success') {
-                    if (onSuccess) onSuccess(result.data);
+            let isFinished = false;
+
+            const cleanup = () => {
+                if (isFinished) return;
+                isFinished = true;
+                delete window[callbackName];
+                if (script.parentNode) script.parentNode.removeChild(script);
+                activeApiRequests--;
+                if (isMutation) {
+                    mutationCount = Math.max(0, mutationCount - 1);
+                    checkMutationLoading();
+                }
+                // Dispatch next request in queue
+                scheduleNextApiRequest();
+            };
+
+            let timeoutTimer = setTimeout(() => {
+                if (isFinished) return;
+                console.warn(`[API Timeout] ${functionName} timed out (attempt ${retries + 1})`);
+                if (retries < 2) {
+                    cleanup();
+                    // Auto-retry with backoff
+                    setTimeout(() => {
+                        apiQueue.unshift({ ...task, retries: retries + 1 });
+                        scheduleNextApiRequest();
+                    }, 500 * (retries + 1));
                 } else {
-                    const errMsg = (result && result.error) ? result.error : 'Lỗi không xác định';
+                    cleanup();
+                    const errMsg = `Quá thời gian kết nối máy chủ khi gọi ${functionName}.`;
+                    if (onError) onError(errMsg);
+                    else console.error(errMsg);
+                }
+            }, 25000);
+
+            window[callbackName] = function (result) {
+                clearTimeout(timeoutTimer);
+                if (isFinished) return;
+                
+                if (result && result.status === 'success') {
+                    cleanup();
+                    if (onSuccess) {
+                        try { onSuccess(result.data); } catch(e) { console.error(`Error in onSuccess handler for ${functionName}:`, e); }
+                    }
+                } else {
+                    cleanup();
+                    const errMsg = (result && result.error) ? result.error : 'Lỗi không xác định từ máy chủ.';
                     if (onError) onError(errMsg);
                     else alert('Lỗi: ' + errMsg);
                 }
             };
 
-            const handleError = (error) => {
-                console.warn('Fetch Error:', error);
-                if (onError) onError(error.toString());
-                else {
-                    if (!window.isNetworkErrorAlertShown) {
-                        window.isNetworkErrorAlertShown = true;
-                        alert('Lỗi kết nối API: ' + error.toString() + '\n\n👉 Hướng dẫn khắc phục:\n1. Bấm vào biểu tượng Ổ khóa 🔒 (bên trái thanh địa chỉ).\n2. Tắt mục "Ngăn chặn theo dõi (Tracking Prevention)" hoặc chọn "Cân bằng (Balanced)".\n3. Tải lại trang (F5).');
-                        setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 8000);
+            script.onerror = function () {
+                clearTimeout(timeoutTimer);
+                if (isFinished) return;
+                console.warn(`[API Script Error] ${functionName} failed to load (attempt ${retries + 1})`);
+                if (retries < 2) {
+                    cleanup();
+                    setTimeout(() => {
+                        apiQueue.unshift({ ...task, retries: retries + 1 });
+                        scheduleNextApiRequest();
+                    }, 600 * (retries + 1));
+                } else {
+                    cleanup();
+                    const errMsg = `Không thể kết nối đến máy chủ (${functionName}). Vui lòng kiểm tra kết nối mạng.`;
+                    if (onError) onError(errMsg);
+                    else {
+                        if (!window.isNetworkErrorAlertShown) {
+                            window.isNetworkErrorAlertShown = true;
+                            alert(errMsg);
+                            setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
+                        }
                     }
                 }
             };
 
-            const runFinally = () => {
-                if (isMutation) {
-                    mutationCount--;
-                    checkMutationLoading();
-                }
-                if (onComplete) onComplete();
-            };
-
-            // Ưu tiên gọi qua fetch POST
-            fetch(API_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                body: body
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('HTTP ' + response.status);
-                const ct = response.headers.get('content-type') || '';
-                if (!ct.includes('application/json') && !ct.includes('text/plain')) {
-                    throw new Error('BlockedByTrackingPrevention');
-                }
-                return response.json();
-            })
-            .then(result => {
-                handleResult(result);
-                runFinally();
-            })
-            .catch(postError => {
-                // Fallback qua JSONP
-                const callbackName = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-                const script = document.createElement('script');
-                const jsonpParams = new URLSearchParams({ action: functionName, args: JSON.stringify(args), callback: callbackName });
-                script.src = API_URL + '?' + jsonpParams.toString();
-
-                let timer = setTimeout(() => {
-                    if (window[callbackName]) {
-                        delete window[callbackName];
-                        if (script.parentNode) document.body.removeChild(script);
-                        handleError("Lỗi kết nối mạng hoặc trình duyệt chặn kết nối API (Tracking Prevention Strict).");
-                        runFinally();
-                    }
-                }, 15000);
-
-                window[callbackName] = function(result) {
-                    clearTimeout(timer);
-                    delete window[callbackName];
-                    if (script.parentNode) document.body.removeChild(script);
-                    handleResult(result);
-                    runFinally();
-                };
-
-                script.onerror = function() {
-                    clearTimeout(timer);
-                    delete window[callbackName];
-                    if (script.parentNode) document.body.removeChild(script);
-                    handleError("Lỗi mạng hoặc JSONP bị chặn do trình duyệt bật Tracking Prevention Strict.");
-                    runFinally();
-                };
-
-                document.body.appendChild(script);
-            });
+            document.head.appendChild(script);
         }
 
-        function processApiQueue() {
-            if (isApiProcessing || apiQueue.length === 0) return;
-            isApiProcessing = true;
-            const { functionName, args, onSuccess, onError, isMutation } = apiQueue.shift();
-
-            doFetchRequest(functionName, args, onSuccess, onError, isMutation, () => {
-                isApiProcessing = false;
-                setTimeout(processApiQueue, 300); // 300ms delay between queued requests
-            });
+        function scheduleNextApiRequest() {
+            if (activeApiRequests >= MAX_CONCURRENT_API_REQUESTS || apiQueue.length === 0) return;
+            const nextTask = apiQueue.shift();
+            executeJsonpRequest(nextTask);
         }
 
         function callApi(functionName, args, onSuccess, onError) {
-            const isMutation = functionName.startsWith('add') || functionName.startsWith('edit') || functionName.startsWith('delete') || functionName.startsWith('bulkUpdate') || functionName.startsWith('chotSo');
+            const isMutation = functionName.startsWith('add') || functionName.startsWith('edit') || functionName.startsWith('delete') || functionName.startsWith('bulkUpdate') || functionName.startsWith('save') || functionName.startsWith('chotSo') || functionName.startsWith('runScheduling') || functionName.startsWith('chuyenNgayMoi');
             if (isMutation) {
                 mutationCount++;
                 checkMutationLoading();
-                apiQueue.push({ functionName, args, onSuccess, onError, isMutation });
-                processApiQueue();
-            } else {
-                // NON-MUTATIONS run immediately without queue
-                doFetchRequest(functionName, args, onSuccess, onError, false, null);
             }
-        }
 
+            const task = { functionName, args: args || [], onSuccess, onError, isMutation, retries: 0 };
+            apiQueue.push(task);
+            scheduleNextApiRequest();
+        }
 
         function escapeHtml(string) {
             if (string === null || string === undefined) return '';
