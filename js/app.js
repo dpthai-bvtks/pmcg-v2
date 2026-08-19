@@ -147,7 +147,7 @@ window.showGlobalLoading = function (text) {
                 else {
                     if (!window.isNetworkErrorAlertShown) {
                         window.isNetworkErrorAlertShown = true;
-                        alert('Lỗi kết nối API: ' + error.toString());
+                        alert('Lỗi kết nối API: ' + error.toString() + '\n\n👉 Hướng dẫn: Nếu bạn dùng Microsoft Edge, vui lòng bấm biểu tượng Ổ khóa bên trái thanh địa chỉ và tắt "Ngăn chặn theo dõi (Tracking Prevention)" cho trang này.');
                         setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
                     }
                 }
@@ -161,6 +161,42 @@ window.showGlobalLoading = function (text) {
                 if (onComplete) onComplete();
             };
 
+            const tryJsonpFallback = () => {
+                console.warn('GET/POST failed, attempting JSONP fallback...');
+                const callbackName = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                const script = document.createElement('script');
+                const jsonpParams = new URLSearchParams({ action: functionName, args: JSON.stringify(args), callback: callbackName });
+                script.src = API_URL + '?' + jsonpParams.toString();
+
+                let timer = setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        if (script.parentNode) document.body.removeChild(script);
+                        handleError("Lỗi kết nối mạng hoặc trình duyệt chặn kết nối API (Tracking Prevention Strict).");
+                        runFinally();
+                    }
+                }, 15000);
+
+                window[callbackName] = function(result) {
+                    clearTimeout(timer);
+                    delete window[callbackName];
+                    if (script.parentNode) document.body.removeChild(script);
+                    handleResult(result);
+                    runFinally();
+                };
+
+                script.onerror = function() {
+                    clearTimeout(timer);
+                    delete window[callbackName];
+                    if (script.parentNode) document.body.removeChild(script);
+                    handleError("Lỗi mạng hoặc JSONP bị chặn (Tracking Prevention Strict).");
+                    runFinally();
+                };
+
+                document.body.appendChild(script);
+            };
+
+            // Bước 1: Thử POST fetch
             fetch(API_URL, {
                 method: 'POST',
                 redirect: 'follow',
@@ -178,29 +214,25 @@ window.showGlobalLoading = function (text) {
                 handleResult(result);
                 runFinally();
             })
-            .catch(error => {
-                console.warn('POST failed, attempting JSONP fallback...', error);
-                
-                const callbackName = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-                const script = document.createElement('script');
-                body.append('callback', callbackName);
-                script.src = API_URL + '?' + body.toString();
-                
-                window[callbackName] = function(result) {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
+            .catch(postError => {
+                console.warn('POST failed, attempting GET fetch fallback...', postError);
+                // Bước 2: Thử GET fetch (trước khi dùng JSONP)
+                fetch(API_URL + '?' + body.toString(), {
+                    method: 'GET',
+                    redirect: 'follow'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(result => {
                     handleResult(result);
                     runFinally();
-                };
-                
-                script.onerror = function() {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    handleError("Lỗi mạng hoặc JSONP bị chặn (Tracking Prevention Strict).");
-                    runFinally();
-                };
-                
-                document.body.appendChild(script);
+                })
+                .catch(getError => {
+                    // Bước 3: Thử JSONP
+                    tryJsonpFallback();
+                });
             });
         }
 

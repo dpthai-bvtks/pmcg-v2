@@ -1864,3 +1864,6 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   - Bổ sung hàng TỔNG CỘNG ở cuối bảng chấm công tự động tính tổng toàn bộ công của các nhân sự trong tháng.
   - Tích hợp hàm `recalculateChamCongGrandTotal()`: Tự động tính toán lại và cập nhật tức thì Tổng công toàn khoa ngay khi người dùng nhập công hàng ngày (`.cc-input-text`) hoặc thay đổi hệ số (`.heso-input`).
   - Hàng Tổng cộng có định dạng nổi bật, chữ in đậm, số tổng màu xanh dương đậm (`#1d4ed8`) và đồng bộ tính năng cuộn/cố định cột.
+- Nâng cấp cơ chế kết nối API 3 lớp (3-tier fallback) chống lỗi Tracking Prevention / Lỗi mạng:
+  - Khi trình duyệt chặn chuyển hướng POST hoặc mạng chập chờn, hệ thống tự động chuyển sang `GET fetch` và `JSONP` có timeout chống treo.
+  - Thêm thông báo hướng dẫn người dùng khi trình duyệt Edge bật tính năng "Ngăn chặn theo dõi: Nghiêm ngặt (Tracking Prevention Strict)".
