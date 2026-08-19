@@ -129,12 +129,13 @@ window.showGlobalLoading = function (text) {
         const API_URL = 'https://script.google.com/macros/s/AKfycby_u0aZVhVVtCoIKXoSqguWh7eViLR9i7xP2pZgn_nHyHoq44z_kDdOIU2Ug-Y6_sowNw/exec';
         
         // ============================================================
-        // ZERO-CORS HIGH-PERFORMANCE API DISPATCHER (JSONP ENGINE)
+        // DUAL-ENGINE HIGH-PERFORMANCE API DISPATCHER (FETCH + JSONP + DEDUPLICATION)
         // ============================================================
-        const MAX_CONCURRENT_API_REQUESTS = 4;
+        const MAX_CONCURRENT_API_REQUESTS = 3;
         let activeApiRequests = 0;
         let apiQueue = [];
         let mutationCount = 0;
+        const inFlightRequests = new Map();
 
         function checkMutationLoading() {
             if (mutationCount > 0) {
@@ -144,10 +145,69 @@ window.showGlobalLoading = function (text) {
             }
         }
 
-        function executeJsonpRequest(task) {
+        async function executeApiTask(task) {
             const { functionName, args, onSuccess, onError, isMutation, retries = 0 } = task;
             activeApiRequests++;
 
+            const finish = () => {
+                activeApiRequests--;
+                if (isMutation) {
+                    mutationCount = Math.max(0, mutationCount - 1);
+                    checkMutationLoading();
+                }
+                setTimeout(scheduleNextApiRequest, 50);
+            };
+
+            const params = new URLSearchParams({
+                action: functionName,
+                args: JSON.stringify(args)
+            });
+
+            // --- TIER 1: FAST NATIVE FETCH (GET) ---
+            let fetchSuccess = false;
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 35000);
+                const fetchUrl = API_URL + '?' + params.toString();
+
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    redirect: 'follow',
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result && result.status === 'success') {
+                        fetchSuccess = true;
+                        finish();
+                        if (onSuccess) {
+                            try { onSuccess(result.data); } catch(e) { console.error(`Error in onSuccess handler for ${functionName}:`, e); }
+                        }
+                        return;
+                    } else if (result && result.status === 'error') {
+                        fetchSuccess = true;
+                        finish();
+                        const errMsg = result.error || 'Lỗi từ máy chủ.';
+                        if (onError) onError(errMsg);
+                        else alert('Lỗi: ' + errMsg);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn(`[Fetch GET] ${functionName} fell back to JSONP:`, err.message || err);
+            }
+
+            // --- TIER 2: JSONP FALLBACK ---
+            if (!fetchSuccess) {
+                executeJsonpFallback(task, finish);
+            }
+        }
+
+        function executeJsonpFallback(task, onFinish) {
+            const { functionName, args, onSuccess, onError, retries = 0 } = task;
             const callbackName = 'jsonp_times_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
             const script = document.createElement('script');
             const params = new URLSearchParams({
@@ -165,44 +225,36 @@ window.showGlobalLoading = function (text) {
                 isFinished = true;
                 delete window[callbackName];
                 if (script.parentNode) script.parentNode.removeChild(script);
-                activeApiRequests--;
-                if (isMutation) {
-                    mutationCount = Math.max(0, mutationCount - 1);
-                    checkMutationLoading();
-                }
-                // Dispatch next request in queue
-                scheduleNextApiRequest();
+                if (onFinish) onFinish();
             };
 
             let timeoutTimer = setTimeout(() => {
                 if (isFinished) return;
                 console.warn(`[API Timeout] ${functionName} timed out (attempt ${retries + 1})`);
-                if (retries < 2) {
+                if (retries < 1) {
                     cleanup();
-                    // Auto-retry with backoff
                     setTimeout(() => {
-                        apiQueue.unshift({ ...task, retries: retries + 1 });
+                        apiQueue.push({ ...task, retries: retries + 1 });
                         scheduleNextApiRequest();
-                    }, 500 * (retries + 1));
+                    }, 1000);
                 } else {
                     cleanup();
-                    const errMsg = `Quá thời gian kết nối máy chủ khi gọi ${functionName}.`;
+                    const errMsg = `Quá thời gian kết nối máy chủ (${functionName}).`;
                     if (onError) onError(errMsg);
                     else console.error(errMsg);
                 }
-            }, 25000);
+            }, 30000);
 
             window[callbackName] = function (result) {
                 clearTimeout(timeoutTimer);
                 if (isFinished) return;
-                
+                cleanup();
+
                 if (result && result.status === 'success') {
-                    cleanup();
                     if (onSuccess) {
                         try { onSuccess(result.data); } catch(e) { console.error(`Error in onSuccess handler for ${functionName}:`, e); }
                     }
                 } else {
-                    cleanup();
                     const errMsg = (result && result.error) ? result.error : 'Lỗi không xác định từ máy chủ.';
                     if (onError) onError(errMsg);
                     else alert('Lỗi: ' + errMsg);
@@ -213,23 +265,17 @@ window.showGlobalLoading = function (text) {
                 clearTimeout(timeoutTimer);
                 if (isFinished) return;
                 console.warn(`[API Script Error] ${functionName} failed to load (attempt ${retries + 1})`);
-                if (retries < 2) {
+                if (retries < 1) {
                     cleanup();
                     setTimeout(() => {
-                        apiQueue.unshift({ ...task, retries: retries + 1 });
+                        apiQueue.push({ ...task, retries: retries + 1 });
                         scheduleNextApiRequest();
-                    }, 600 * (retries + 1));
+                    }, 1000);
                 } else {
                     cleanup();
-                    const errMsg = `Không thể kết nối đến máy chủ (${functionName}). Vui lòng kiểm tra kết nối mạng.`;
+                    const errMsg = `Không thể kết nối đến máy chủ (${functionName}).`;
                     if (onError) onError(errMsg);
-                    else {
-                        if (!window.isNetworkErrorAlertShown) {
-                            window.isNetworkErrorAlertShown = true;
-                            alert(errMsg);
-                            setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
-                        }
-                    }
+                    else console.error(errMsg);
                 }
             };
 
@@ -239,11 +285,46 @@ window.showGlobalLoading = function (text) {
         function scheduleNextApiRequest() {
             if (activeApiRequests >= MAX_CONCURRENT_API_REQUESTS || apiQueue.length === 0) return;
             const nextTask = apiQueue.shift();
-            executeJsonpRequest(nextTask);
+            executeApiTask(nextTask);
         }
 
         function callApi(functionName, args, onSuccess, onError) {
             const isMutation = functionName.startsWith('add') || functionName.startsWith('edit') || functionName.startsWith('delete') || functionName.startsWith('bulkUpdate') || functionName.startsWith('save') || functionName.startsWith('chotSo') || functionName.startsWith('runScheduling') || functionName.startsWith('chuyenNgayMoi');
+            
+            // In-flight deduplication for non-mutation queries (getSchedule, getSystemSettings, getDataVersion...)
+            if (!isMutation) {
+                const reqKey = functionName + ':' + JSON.stringify(args || []);
+                if (inFlightRequests.has(reqKey)) {
+                    inFlightRequests.get(reqKey).then(
+                        data => { if (onSuccess) onSuccess(data); },
+                        err => { if (onError) onError(err); }
+                    );
+                    return;
+                }
+
+                let resolveInFlight, rejectInFlight;
+                const inFlightPromise = new Promise((res, rej) => {
+                    resolveInFlight = res;
+                    rejectInFlight = rej;
+                });
+                inFlightRequests.set(reqKey, inFlightPromise);
+
+                const origOnSuccess = onSuccess;
+                const origOnError = onError;
+
+                onSuccess = (data) => {
+                    inFlightRequests.delete(reqKey);
+                    resolveInFlight(data);
+                    if (origOnSuccess) origOnSuccess(data);
+                };
+
+                onError = (err) => {
+                    inFlightRequests.delete(reqKey);
+                    rejectInFlight(err);
+                    if (origOnError) origOnError(err);
+                };
+            }
+
             if (isMutation) {
                 mutationCount++;
                 checkMutationLoading();

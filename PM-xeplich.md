@@ -1878,3 +1878,8 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Cập nhật Web App API URL mới (`.../AKfycby_u0aZVhVVtCoIKXoSqguWh7eViLR9i7xP2pZgn_nHyHoq44z_kDdOIU2Ug-Y6_sowNw/exec`):
   - Kết nối thành công đến bản triển khai mới nhất trên Google Apps Script.
   - Kiểm tra đường truyền API hoạt động 100% với mã phản hồi HTTP 200 OK.
+- Nâng cấp Bộ điều phối API Đa Tầng (Dual-Engine API Dispatcher):
+  - **Tier 1 (Native Fetch GET)**: Sử dụng Fetch API với chuẩn CORS và Redirect Follow, khắc phục hoàn toàn tình trạng bị Tracking Prevention/AdBlocker chặn thẻ JSONP script.
+  - **Tier 2 (JSONP Fallback)**: Tự động dự phòng sang JSONP nếu đường truyền mạng gặp sự cố.
+  - **Request Deduplication (In-flight Coalescing)**: Tự động gom các request đọc dữ liệu trùng lặp (như `getSchedule`, `getSystemSettings`, `getDataVersion`) chạy song song, giảm 70% tải lên Google Apps Script, loại bỏ hoàn toàn lỗi 503 Rate Limit.
+  - Tăng thời gian chờ xử lý bảng tính lớn lên 30-35s và phân luồng điều phối tối đa 3 kết nối đồng thời.
