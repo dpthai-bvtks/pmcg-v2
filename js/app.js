@@ -126,7 +126,7 @@ window.showGlobalLoading = function (text) {
 
         // ============================================================
 
-        const API_URL = 'https://script.google.com/macros/s/AKfycbx_E9fQlyNYptXab1t_UCiLw3ETA1yTttVB599mp-N339xIzgKMYHQoVilRTs0ZKJGA4A/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycby_u0aZVhVVtCoIKXoSqguWh7eViLR9i7xP2pZgn_nHyHoq44z_kDdOIU2Ug-Y6_sowNw/exec';
         
         // ============================================================
         // ZERO-CORS HIGH-PERFORMANCE API DISPATCHER (JSONP ENGINE)

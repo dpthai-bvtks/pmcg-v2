@@ -1875,3 +1875,6 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Khắc phục triệt để popup cảnh báo "LỖI CÚ PHÁP TẠI DÒNG 0: Script error":
   - **Nguyên nhân**: Trình duyệt áp dụng cơ chế bảo mật (CORS Script Masking) tự động che giấu thông tin của các tập lệnh cross-origin/CDN/tiện ích mở rộng bằng thông báo mặc định `Script error.` và `lineNo = 0`. Hàm `window.onerror` cũ hiển thị `alert()` gây hiểu nhầm cho người dùng là lỗi cú pháp code.
   - **Khắc phục**: Loại bỏ lệnh `alert()` trong `window.onerror`, tự động lọc bỏ các thông báo cross-origin không ảnh hưởng và ghi log chi tiết vào Console một cách chuẩn mực.
+- Cập nhật Web App API URL mới (`.../AKfycby_u0aZVhVVtCoIKXoSqguWh7eViLR9i7xP2pZgn_nHyHoq44z_kDdOIU2Ug-Y6_sowNw/exec`):
+  - Kết nối thành công đến bản triển khai mới nhất trên Google Apps Script.
+  - Kiểm tra đường truyền API hoạt động 100% với mã phản hồi HTTP 200 OK.
