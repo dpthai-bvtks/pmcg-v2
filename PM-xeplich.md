@@ -1903,3 +1903,4 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   - Khắc phục lỗi sai tên hàm render trong `loadBootstrapData` (`renderPatientTable` thành `renderPatientsTable`, v.v.) khiến dữ liệu đã tải vào Cache nhưng bảng lại hiển thị trống rỗng.
   - Tối ưu `loadScheduleList()` để lấy dữ liệu lịch trình lập tức từ `dataCache.schedule` thay vì yêu cầu máy chủ Google lần nữa.
   - Bổ sung `AbortController` 10s cho nút Kiểm tra kết nối để tránh treo UI vĩnh viễn khi mạng không phản hồi.
+  - Sửa lỗi cú pháp dấu ngoặc thừa `}` tại cuối hàm `loadScheduleList()` trong `app.js` khiến script bị ngắt giữa chừng.

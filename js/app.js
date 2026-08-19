@@ -3453,8 +3453,6 @@ window.showGlobalLoading = function (text) {
 
         }
 
-        }
-
         // --- QUẢN LÝ PHÂN TRANG RIÊNG BIỆT ---
 
         const PAGE_SIZE = 500; // Số ca hiển thị mỗi trang (Để số cực lớn để tắt phân trang)
