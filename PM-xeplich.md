@@ -1860,3 +1860,7 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   - Bổ sung hàng tính tổng tự động ở cuối bảng chính và bảng xem trước file Excel trong Tab Thống kê.
   - Tự động cộng dồn toàn bộ các cột: Tổng số công, Thủ thuật Loại 1, Thủ thuật Loại 2, Thủ thuật Loại 3, Khác và Tổng thủ thuật.
   - Hàng Tổng cộng được làm nổi bật với nền màu xám nhạt thanh lịch (`#f1f5f9`), viền phân cách rõ nét và chữ in đậm (`font-weight: 800`).
+- Thêm hàng TỔNG CỘNG cho cột TỔNG CÔNG trong Tab Chấm Công:
+  - Bổ sung hàng TỔNG CỘNG ở cuối bảng chấm công tự động tính tổng toàn bộ công của các nhân sự trong tháng.
+  - Tích hợp hàm `recalculateChamCongGrandTotal()`: Tự động tính toán lại và cập nhật tức thì Tổng công toàn khoa ngay khi người dùng nhập công hàng ngày (`.cc-input-text`) hoặc thay đổi hệ số (`.heso-input`).
+  - Hàng Tổng cộng có định dạng nổi bật, chữ in đậm, số tổng màu xanh dương đậm (`#1d4ed8`) và đồng bộ tính năng cuộn/cố định cột.

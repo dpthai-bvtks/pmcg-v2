@@ -410,6 +410,8 @@
             });
 
             tbody.innerHTML = '';
+            let grandTotalChamCong = 0;
+
             adminChamCongEmployees.forEach(emp => {
                 if (!chamCongData[emp]) chamCongData[emp] = {};
                 const tr = document.createElement('tr');
@@ -447,11 +449,28 @@
                     }
                 }
                 const tongCongHeso = Math.round((tongCong * heSo) * 100) / 100;
+                grandTotalChamCong += tongCongHeso;
                 rowHtml += `<td class="tong-cong-cell" data-emp-total="${emp}">${tongCongHeso}</td>`;
                 
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
+
+            // HÀNG TỔNG CỘNG BẢNG CHẤM CÔNG
+            grandTotalChamCong = Math.round(grandTotalChamCong * 100) / 100;
+            let dayTotalCells = '';
+            for (let d = 1; d <= daysInMonth; d++) {
+                dayTotalCells += `<td></td>`;
+            }
+            const trGrandTotal = document.createElement('tr');
+            trGrandTotal.className = 'chamcong-total-row';
+            trGrandTotal.innerHTML = `
+                <td style="font-weight: 800; text-align: left; padding: 0 8px !important; text-transform: uppercase;">TỔNG CỘNG</td>
+                <td>-</td>
+                ${dayTotalCells}
+                <td class="tong-cong-cell grand-total-cell" id="chamcong-grand-total" style="font-weight: 900; color: #1d4ed8 !important; font-size: 12px;">${grandTotalChamCong}</td>
+            `;
+            tbody.appendChild(trGrandTotal);
 
             attachChamCongEvents(daysInMonth);
 
@@ -556,6 +575,19 @@
             
             const totalCell = document.querySelector(`.tong-cong-cell[data-emp-total="${emp}"]`);
             if (totalCell) totalCell.innerText = totalHeso;
+
+            recalculateChamCongGrandTotal();
+        }
+
+        function recalculateChamCongGrandTotal() {
+            let grandTotal = 0;
+            document.querySelectorAll('.tong-cong-cell[data-emp-total]').forEach(cell => {
+                const val = parseFloat(cell.innerText) || 0;
+                grandTotal += val;
+            });
+            grandTotal = Math.round(grandTotal * 100) / 100;
+            const grandTotalEl = document.getElementById('chamcong-grand-total');
+            if (grandTotalEl) grandTotalEl.innerText = grandTotal;
         }
 
         function triggerAutoSaveChamCong() {
