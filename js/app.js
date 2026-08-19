@@ -82,7 +82,19 @@ window.showGlobalLoading = function (text) {
             }, 600);
         }
 
-        window.onerror = function (msg, url, lineNo, columnNo, error) { console.error('JS ERROR:', msg, 'at line', lineNo); alert('LỖI CÚ PHÁP TẠI DÒNG ' + lineNo + ': ' + msg); };
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            // Bỏ qua lỗi cross-origin (Script error. dòng 0) từ CDN/extension/JSONP
+            if (msg === 'Script error.' || lineNo === 0 || !lineNo) {
+                console.warn('[Notice] Bỏ qua thông báo cross-origin script:', msg);
+                return true;
+            }
+            console.error('JS ERROR:', msg, 'at', url, 'line', lineNo, error);
+            return false;
+        };
+
+        window.addEventListener('unhandledrejection', function (event) {
+            console.warn('[Unhandled Rejection]:', event.reason);
+        });
 
         console.log('MAIN SCRIPT STARTING...');
 

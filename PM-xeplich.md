@@ -1872,3 +1872,6 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   - **Khắc phục triệt để lỗi CORS & Tracking Prevention**: Chuyển hoàn toàn giao thức giao tiếp từ `fetch` (vốn bị trình duyệt chặn chuyển hướng 302 do thiếu header CORS của Google) sang giao thức `JSONP` chuẩn.
   - **Bộ điều phối hàng đợi thông minh (API Dispatcher)**: Giới hạn tối đa 4 yêu cầu đồng thời (`MAX_CONCURRENT_API_REQUESTS = 4`), tự động thử lại (auto-retry) tối đa 2 lần nếu mạng chập chờn.
   - **Không còn cảnh báo đỏ trên Console**: Toàn bộ các API tải danh mục, lịch trình, đăng nhập, đồng bộ dữ liệu đều truyền tải mượt mà, sạch bóng lỗi CORS trên mọi trình duyệt.
+- Khắc phục triệt để popup cảnh báo "LỖI CÚ PHÁP TẠI DÒNG 0: Script error":
+  - **Nguyên nhân**: Trình duyệt áp dụng cơ chế bảo mật (CORS Script Masking) tự động che giấu thông tin của các tập lệnh cross-origin/CDN/tiện ích mở rộng bằng thông báo mặc định `Script error.` và `lineNo = 0`. Hàm `window.onerror` cũ hiển thị `alert()` gây hiểu nhầm cho người dùng là lỗi cú pháp code.
+  - **Khắc phục**: Loại bỏ lệnh `alert()` trong `window.onerror`, tự động lọc bỏ các thông báo cross-origin không ảnh hưởng và ghi log chi tiết vào Console một cách chuẩn mực.
