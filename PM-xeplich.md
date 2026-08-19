@@ -1867,3 +1867,4 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
 - Nâng cấp cơ chế kết nối API 3 lớp (3-tier fallback) chống lỗi Tracking Prevention / Lỗi mạng:
   - Khi trình duyệt chặn chuyển hướng POST hoặc mạng chập chờn, hệ thống tự động chuyển sang `GET fetch` và `JSONP` có timeout chống treo.
   - Thêm thông báo hướng dẫn người dùng khi trình duyệt Edge bật tính năng "Ngăn chặn theo dõi: Nghiêm ngặt (Tracking Prevention Strict)".
+- Tối ưu hóa hàm gọi API `doFetchRequest`: Bỏ lớp GET fetch trung gian gây xung đột CORS, chuyển thẳng sang JSONP fallback an toàn và thông báo hướng dẫn người dùng khi trình duyệt Edge bật Tracking Prevention Strict.

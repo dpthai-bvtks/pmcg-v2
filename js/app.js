@@ -147,8 +147,8 @@ window.showGlobalLoading = function (text) {
                 else {
                     if (!window.isNetworkErrorAlertShown) {
                         window.isNetworkErrorAlertShown = true;
-                        alert('Lỗi kết nối API: ' + error.toString() + '\n\n👉 Hướng dẫn: Nếu bạn dùng Microsoft Edge, vui lòng bấm biểu tượng Ổ khóa bên trái thanh địa chỉ và tắt "Ngăn chặn theo dõi (Tracking Prevention)" cho trang này.');
-                        setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 5000);
+                        alert('Lỗi kết nối API: ' + error.toString() + '\n\n👉 Hướng dẫn khắc phục:\n1. Bấm vào biểu tượng Ổ khóa 🔒 (bên trái thanh địa chỉ).\n2. Tắt mục "Ngăn chặn theo dõi (Tracking Prevention)" hoặc chọn "Cân bằng (Balanced)".\n3. Tải lại trang (F5).');
+                        setTimeout(() => { window.isNetworkErrorAlertShown = false; }, 8000);
                     }
                 }
             };
@@ -161,8 +161,26 @@ window.showGlobalLoading = function (text) {
                 if (onComplete) onComplete();
             };
 
-            const tryJsonpFallback = () => {
-                console.warn('GET/POST failed, attempting JSONP fallback...');
+            // Ưu tiên gọi qua fetch POST
+            fetch(API_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                body: body
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const ct = response.headers.get('content-type') || '';
+                if (!ct.includes('application/json') && !ct.includes('text/plain')) {
+                    throw new Error('BlockedByTrackingPrevention');
+                }
+                return response.json();
+            })
+            .then(result => {
+                handleResult(result);
+                runFinally();
+            })
+            .catch(postError => {
+                // Fallback qua JSONP
                 const callbackName = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
                 const script = document.createElement('script');
                 const jsonpParams = new URLSearchParams({ action: functionName, args: JSON.stringify(args), callback: callbackName });
@@ -189,50 +207,11 @@ window.showGlobalLoading = function (text) {
                     clearTimeout(timer);
                     delete window[callbackName];
                     if (script.parentNode) document.body.removeChild(script);
-                    handleError("Lỗi mạng hoặc JSONP bị chặn (Tracking Prevention Strict).");
+                    handleError("Lỗi mạng hoặc JSONP bị chặn do trình duyệt bật Tracking Prevention Strict.");
                     runFinally();
                 };
 
                 document.body.appendChild(script);
-            };
-
-            // Bước 1: Thử POST fetch
-            fetch(API_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                body: body
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('HTTP ' + response.status);
-                const ct = response.headers.get('content-type') || '';
-                if (!ct.includes('application/json') && !ct.includes('text/plain')) {
-                    throw new Error('BlockedByTrackingPrevention');
-                }
-                return response.json();
-            })
-            .then(result => {
-                handleResult(result);
-                runFinally();
-            })
-            .catch(postError => {
-                console.warn('POST failed, attempting GET fetch fallback...', postError);
-                // Bước 2: Thử GET fetch (trước khi dùng JSONP)
-                fetch(API_URL + '?' + body.toString(), {
-                    method: 'GET',
-                    redirect: 'follow'
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    return response.json();
-                })
-                .then(result => {
-                    handleResult(result);
-                    runFinally();
-                })
-                .catch(getError => {
-                    // Bước 3: Thử JSONP
-                    tryJsonpFallback();
-                });
             });
         }
 
