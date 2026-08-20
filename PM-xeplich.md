@@ -1945,6 +1945,20 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
       - Nếu `editIndex.staff > -1`: Lấy `dataCache.staff[editIndex.staff].kyNang` và khôi phục lại các `.skill-checkbox` đang checked.
     - Giải pháp đảm bảo: dù auto-sync xảy ra bao nhiêu lần, form đang sửa BN/nhân sự luôn hiển thị đúng dữ liệu đã chọn trước khi ấn Lưu.
     - Cập nhật cache-busting version `v=4.5` cho toàn bộ tài nguyên web.
+- **Khắc phục lỗi bảng lịch trình không hiện ngay sau khi xếp (phải F5) & lỗi tìm giờ rảnh hôm nay báo chưa có lịch (v4.6):**
+  - **Nguyên nhân**:
+    1. *Lỗi bảng lịch trình không hiện ngay sau khi xếp*: Sau khi hàm `runScheduling` chạy thành công, kết quả trả về chỉ được gán vào `window.currentScheduleData` mà không cập nhật `dataCache.schedule`. Khi các hàm điều hướng, auto-sync hoặc `loadDashboard()` chạy ngay sau đó, chúng đọc `dataCache.schedule` (lúc này đang rỗng/cũ) và vô tình xóa sạch `window.currentScheduleData`, khiến bảng lịch trống trơn cho đến khi người dùng ấn F5 để tải lại toàn bộ trang.
+    2. *Lỗi tìm giờ rảnh hôm nay báo "Chưa có lịch"*: Hàm `taiLichTheoNgay()` khi người dùng chọn ngày hôm nay đã gọi `getHistoryFullData(date)`. Vì ngày hôm nay đang diễn ra và chưa chốt sổ (dữ liệu nằm ở sheet `LichTrinh` chứ chưa được đẩy vào sheet `SoThuThuat`), `getHistoryFullData` trả về rỗng, khiến hệ thống báo `"⚠️ Ngày hôm nay chưa có lịch."`.
+  - **Giải pháp khắc phục**:
+    1. Trong `executeScheduling()`: Tự động đồng bộ `dataCache.schedule = out.schedule`, cập nhật `dataCacheTime['schedule'] = Date.now()`, bảo vệ `window.currentScheduleData` trong `loadScheduleList()`.
+    2. Trong `taiLichTheoNgay()`: Tối ưu cơ chế kiểm tra lịch đa tầng:
+       - Tầng 1: Đọc ngay từ `window.currentScheduleData` (lịch đang hiển thị trên giao diện).
+       - Tầng 2: Đọc từ `dataCache.schedule`.
+       - Tầng 3: Tải từ máy chủ qua `getHistoryFullData(date)`.
+    3. Trong backend `getHistoryFullData(dateStr)`: Bổ sung cơ chế fallback tự động đọc từ sheet `LichTrinh` nếu sheet `SoThuThuat` chưa có dữ liệu của ngày đó.
+    4. Tự động điền ngày hôm nay và tự động nạp lịch khi chuyển sang tab **Tiện ích Tìm rảnh**.
+    5. Cập nhật cache-busting version `v=4.6` cho toàn bộ tài nguyên web.
+
 
 
 

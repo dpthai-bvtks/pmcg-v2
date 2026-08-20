@@ -1562,26 +1562,51 @@ function getHistoryFullData(dateStr) {
 
   const sheet = getSheetByName('SoThuThuat');
   const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { schedule: [], patients: [], staffBusy: [], patBusy: [] };
+  let rows = [];
 
-  const range = sheet.getRange(2, 1, lastRow - 1, 13);
-  const values = range.getValues();
-  const displayValues = range.getDisplayValues();
+  if (lastRow >= 2) {
+    const range = sheet.getRange(2, 1, lastRow - 1, 13);
+    const values = range.getValues();
+    const displayValues = range.getDisplayValues();
 
-  const rows = values.map((r, i) => {
-    r.displayValues = displayValues[i];
-    return r;
-  }).filter(r => {
-    let dStr = '';
-    if (r[1] instanceof Date) {
-      dStr = Utilities.formatDate(r[1], timezone, "yyyy-MM-dd");
-    } else {
-      const str = String(r[1]).trim();
-      const match = str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-      dStr = match ? `${match[3]}-${match[2]}-${match[1]}` : str;
+    rows = values.map((r, i) => {
+      r.displayValues = displayValues[i];
+      return r;
+    }).filter(r => {
+      let dStr = '';
+      if (r[1] instanceof Date) {
+        dStr = Utilities.formatDate(r[1], timezone, "yyyy-MM-dd");
+      } else {
+        const str = String(r[1]).trim();
+        const match = str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        dStr = match ? `${match[3]}-${match[2]}-${match[1]}` : str;
+      }
+      return dStr === String(dateStr);
+    });
+  }
+
+  // Fallback: nếu SoThuThuat chưa có dữ liệu ngày này (ví dụ ngày hiện tại chưa chốt sổ), đọc từ sheet LichTrinh
+  if (rows.length === 0) {
+    const sheetLT = getSheetByName('LichTrinh');
+    const lastRowLT = sheetLT.getLastRow();
+    if (lastRowLT > 1) {
+      const ltValues = sheetLT.getRange(2, 1, lastRowLT - 1, 11).getDisplayValues();
+      const ltRows = ltValues.filter(r => {
+        const str = String(r[0]).trim();
+        const match = str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        const dStr = match ? `${match[3]}-${match[2]}-${match[1]}` : str;
+        return !dateStr || dStr === String(dateStr) || str === String(dateStr);
+      });
+      if (ltRows.length > 0) {
+        const scheduleLT = ltRows.map(r => ({
+          ngay: r[0], tenBN: r[1], namSinh: r[2], phong: r[3], thuThuat: r[4],
+          gioDienRa: r[5], gioKetThuc: r[6], nvChinh: r[7], nvPhu: r[8], may: r[9], giuong: r[10]
+        }));
+        return { schedule: scheduleLT, patients: [], staffBusy: [], patBusy: [] };
+      }
     }
-    return dStr === String(dateStr);
-  });
+    return { schedule: [], patients: [], staffBusy: [], patBusy: [] };
+  }
 
   // 1. Lịch trình chi tiết
   const schedule = rows.map(r => ({

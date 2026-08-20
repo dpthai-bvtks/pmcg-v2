@@ -1381,6 +1381,16 @@ window.showGlobalLoading = function (text) {
                             renderProcedureCheckboxes();
                         }
 
+                        if (targetTab === 'tab-utils') {
+                            const utilsDateEl = document.getElementById('utils-search-date');
+                            if (utilsDateEl && !utilsDateEl.value) {
+                                const todayObj = new Date();
+                                const todayYMD = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
+                                utilsDateEl.value = window._systemActiveYMD || todayYMD;
+                            }
+                            if (typeof taiLichTheoNgay === 'function') taiLichTheoNgay();
+                        }
+
 
 
                     } catch (error) { console.error("Lỗi chuyển tab:", error); }
@@ -3500,17 +3510,20 @@ window.showGlobalLoading = function (text) {
 
             if (window.viewingImportedScheduleFile) return;
 
-            const data = (typeof dataCache !== 'undefined' && dataCache.schedule) ? dataCache.schedule : [];
-            const rows = data.map(normalizeScheduleRow);
+            let data = (typeof dataCache !== 'undefined' && dataCache.schedule && dataCache.schedule.length > 0) ? dataCache.schedule : [];
+            if (data.length === 0 && window.currentScheduleData && window.currentScheduleData.length > 0) {
+                data = window.currentScheduleData;
+                if (typeof dataCache !== 'undefined') dataCache.schedule = data;
+            }
 
-            window.currentScheduleData = markDischargedInSchedule(rows.filter(row => !isDroppedScheduleRow(row)));
+            const rows = data.map(normalizeScheduleRow);
+            if (rows.length > 0) {
+                window.currentScheduleData = markDischargedInSchedule(rows.filter(row => !isDroppedScheduleRow(row)));
+            }
 
             const droppedFromSheet = rows.filter(isDroppedScheduleRow).map(row => normalizeDroppedItem([
-
                 row.ngay, row.tenBN, row.namSinh, row.phong, row.thuThuat, row.gioDienRa,
-
                 row.gioKetThuc, row.nvChinh, row.nvPhu
-
             ]));
 
             if (rows.length === 0) {
@@ -3950,7 +3963,14 @@ window.showGlobalLoading = function (text) {
                     if (window.hideGlobalLoading) window.hideGlobalLoading();
                     const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
                     btn.innerText = 'CHẠY XẾP LỊCH TỔNG'; btn.disabled = false; btn.style.background = '#008b02';
-                    window.currentScheduleData = markDischargedInSchedule(out.schedule);
+                    const schedList = out.schedule || [];
+                    window.currentScheduleData = markDischargedInSchedule(schedList);
+                    if (typeof dataCache !== 'undefined') {
+                        dataCache.schedule = schedList;
+                    }
+                    if (window.dataCacheTime) {
+                        window.dataCacheTime['schedule'] = Date.now();
+                    }
                     setUnscheduledData(out.unscheduled || [], dateVal);
                     window._systemActiveYMD = dateVal;
 
@@ -3958,7 +3978,7 @@ window.showGlobalLoading = function (text) {
                     if (dashboardDate) dashboardDate.value = dateVal;
 
                     localStorage.setItem('meds_schedule_date', dateVal);
-                    localStorage.setItem('meds_success', JSON.stringify(out.schedule));
+                    localStorage.setItem('meds_success', JSON.stringify(schedList));
 
                     res.innerHTML = '<div class="alert alert-success" style="margin-top:10px">Xếp thành công: <b>' + out.scheduleCount + '</b> ca. Rớt: <b>' + out.unscheduledCount + '</b> ca. <span style="margin-left:15px; color:#555; font-size:13px;">(⏱ <b>' + timeTaken + ' giây</b>)</span></div>';
                     filterSchedule();
@@ -4778,7 +4798,11 @@ window.showGlobalLoading = function (text) {
         function taiLichTheoNgay() {
             var dateEl = document.getElementById('utils-search-date');
             var date = dateEl ? dateEl.value : '';
-            if (!date) return alert('Vui lòng chọn ngày!');
+            if (!date) {
+                const today = new Date();
+                date = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                if (dateEl) dateEl.value = date;
+            }
             var statusEl = document.getElementById('utils-lich-status');
             var btn = document.getElementById('btn-tai-lich-utils');
 
@@ -4787,7 +4811,7 @@ window.showGlobalLoading = function (text) {
                 window.utilsScheduleDate = date;
                 var dd = date.split('-').reverse().join('/');
                 if (statusEl) {
-                    if (sched.length > 0) {
+                    if (sched && sched.length > 0) {
                         statusEl.innerText = '✅ Ngày ' + dd + ': ' + sched.length + ' ca. Có thể Tìm rảnh!';
                         statusEl.style.color = '#27ae60';
                     } else {
@@ -4798,12 +4822,56 @@ window.showGlobalLoading = function (text) {
                 if (btn) { btn.disabled = false; btn.innerText = '📊 Xem Lịch'; }
             };
 
-            if (window._systemActiveYMD && date === window._systemActiveYMD) {
-                if (statusEl) { statusEl.innerText = '⏳ Đang nạp lịch hiện tại...'; statusEl.style.color = '#3498db'; }
-                setTimeout(() => handleSuccess(window.currentScheduleData || []), 100);
-                return;
+            const toYMD = function(dStr) {
+                if (!dStr) return '';
+                const s = String(dStr).trim();
+                if (s.includes('/')) {
+                    const parts = s.split('/');
+                    if (parts.length === 3) return parts[2] + '-' + parts[1].padStart(2, '0') + '-' + parts[0].padStart(2, '0');
+                }
+                return s;
+            };
+
+            // 1. Kiểm tra trong window.currentScheduleData (lịch đang hiển thị)
+            const currentSched = window.currentScheduleData || [];
+            const validCurrent = currentSched.filter(function(r) {
+                if (!r || r.__dropped) return false;
+                const g = r.gioDienRa || r[5] || '';
+                return g && g !== '--' && !g.includes('Rớt');
+            });
+
+            if (validCurrent.length > 0) {
+                const matchedInCurrent = validCurrent.filter(function(r) {
+                    const rowDate = toYMD(r.ngay || r[0]);
+                    return !rowDate || rowDate === date || (window._systemActiveYMD && window._systemActiveYMD === date);
+                });
+                if (matchedInCurrent.length > 0) {
+                    if (statusEl) { statusEl.innerText = '⏳ Đang nạp lịch...'; statusEl.style.color = '#3498db'; }
+                    setTimeout(function() { handleSuccess(matchedInCurrent); }, 50);
+                    return;
+                }
             }
 
+            // 2. Kiểm tra trong dataCache.schedule
+            const cacheSched = (typeof dataCache !== 'undefined' && dataCache.schedule) ? dataCache.schedule : [];
+            const validCache = cacheSched.filter(function(r) {
+                if (!r) return false;
+                const g = r.gioDienRa || r[5] || '';
+                return g && g !== '--' && !g.includes('Rớt');
+            });
+            if (validCache.length > 0) {
+                const matchedInCache = validCache.filter(function(r) {
+                    const rowDate = toYMD(r.ngay || r[0]);
+                    return !rowDate || rowDate === date;
+                });
+                if (matchedInCache.length > 0) {
+                    if (statusEl) { statusEl.innerText = '⏳ Đang nạp lịch...'; statusEl.style.color = '#3498db'; }
+                    setTimeout(function() { handleSuccess(matchedInCache); }, 50);
+                    return;
+                }
+            }
+
+            // 3. Tải từ Server qua getHistoryFullData
             if (statusEl) { statusEl.innerText = '⏳ Đang tải...'; statusEl.style.color = '#f39c12'; }
             if (btn) { btn.disabled = true; btn.innerText = '⏳ Đang tải...'; }
             google.script.run
