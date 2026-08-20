@@ -1910,4 +1910,13 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
     4. Nâng cấp `renderProcedureCheckboxes()`: Chuẩn hóa dữ liệu đầu vào (hỗ trợ cả object và array), chuẩn hóa hệ (YHCT/PHCN không phân biệt hoa thường), áp dụng `escapeHtml` và xuất hàm ra `window.renderProcedureCheckboxes` & `window.toggleAllSkills`.
     5. Sửa typo `loadProcs()` thành `loadProcedures()` trong `js/sync.js`.
     6. Cập nhật cache-busting version `v=4.2` cho toàn bộ tài nguyên web.
+- **Khắc phục triệt để lỗi thao tác trên bảng chấm công bị che mờ "Đang xử lý dữ liệu..." (v4.3):**
+  - **Nguyên nhân**:
+    - Trong bộ điều phối `callApi()` (`js/app.js`), tất cả các hàm có tiền tố `save*` đều bị gom chung vào `isMutation = true`. Khi đó, hàm `checkMutationLoading()` tự động bật popup overlay toàn màn hình `showGlobalLoading("Đang xử lý dữ liệu...")` có hiệu ứng làm mờ `backdrop-filter: blur(2px)` và nền tối `rgba(0,0,0,0.5)`.
+    - Khi người dùng chỉnh sửa từng ô trên Bảng Chấm Công (`saveChamCong`), sau khi nhập hoặc di chuyển phím mũi tên/Enter thì cơ chế tự động lưu ngầm được kích hoạt, khiến màn hình liên tục bị giật/mờ và mất con trỏ chuột (focus), gây khó chịu và cản trở việc nhập liệu nhanh.
+  - **Giải pháp khắc phục**:
+    - Khởi tạo danh sách ngoại lệ `SILENT_MUTATIONS = ['saveChamCong', 'saveThongKeThuThuat', 'saveEmployees', 'saveErrorConfig', 'saveAITrainingData', ...]` trong `js/app.js`. Các tác vụ lưu ngầm / tự động lưu bảng sẽ **không kích hoạt overlay làm mờ màn hình**, đảm bảo toàn bộ quá trình nhập liệu diễn ra liên tục, mượt mà 100%.
+    - Nâng cấp `triggerAutoSaveChamCong()` trong `js/thongke.js`: Chuyển sang hiển thị trạng thái lưu nhỏ gọn dạng inline (`#chamcong-save-status`: `Đang lưu...` -> `Đã lưu`) ngay góc thanh công cụ của Bảng Chấm Công, không làm mờ thead, không chặn thao tác bàn phím.
+    - Cập nhật cache-busting version `v=4.3` cho toàn bộ tài nguyên web.
+
 

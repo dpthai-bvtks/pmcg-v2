@@ -143,6 +143,22 @@ window.showGlobalLoading = function (text) {
         let apiQueue = [];
         let mutationCount = 0;
         const inFlightRequests = new Map();
+        const SILENT_MUTATIONS = [
+            'saveChamCong',
+            'saveThongKeThuThuat',
+            'saveEmployees',
+            'saveErrorConfig',
+            'saveAITrainingData',
+            'saveAccount',
+            'saveSystemSettings',
+            'saveProcedurePrices',
+            'addMayMoc',
+            'editMayMoc',
+            'addThuThuat',
+            'editThuThuat',
+            'addPhong',
+            'editPhong'
+        ];
 
         function checkMutationLoading() {
             if (mutationCount > 0) {
@@ -153,12 +169,12 @@ window.showGlobalLoading = function (text) {
         }
 
         async function executeApiTask(task) {
-            const { functionName, args, onSuccess, onError, isMutation, retries = 0 } = task;
+            const { functionName, args, onSuccess, onError, isMutation, isSilent, retries = 0 } = task;
             activeApiRequests++;
 
             const finish = () => {
                 activeApiRequests--;
-                if (isMutation) {
+                if (isMutation && !isSilent) {
                     mutationCount = Math.max(0, mutationCount - 1);
                     checkMutationLoading();
                 }
@@ -262,6 +278,7 @@ window.showGlobalLoading = function (text) {
 
         function callApi(functionName, args, onSuccess, onError) {
             const isMutation = functionName.startsWith('add') || functionName.startsWith('edit') || functionName.startsWith('delete') || functionName.startsWith('bulkUpdate') || functionName.startsWith('save') || functionName.startsWith('chotSo') || functionName.startsWith('runScheduling') || functionName.startsWith('chuyenNgayMoi');
+            const isSilent = SILENT_MUTATIONS.includes(functionName);
             
             // In-flight deduplication for non-mutation queries (getSchedule, getSystemSettings, getDataVersion...)
             if (!isMutation) {
@@ -297,12 +314,12 @@ window.showGlobalLoading = function (text) {
                 };
             }
 
-            if (isMutation) {
+            if (isMutation && !isSilent) {
                 mutationCount++;
                 checkMutationLoading();
             }
 
-            const task = { functionName, args: args || [], onSuccess, onError, isMutation, retries: 0 };
+            const task = { functionName, args: args || [], onSuccess, onError, isMutation, isSilent, retries: 0 };
             apiQueue.push(task);
             scheduleNextApiRequest();
         }

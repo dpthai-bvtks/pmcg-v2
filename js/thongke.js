@@ -592,13 +592,33 @@
 
         function triggerAutoSaveChamCong() {
             if (chamCongSaveTimeout) clearTimeout(chamCongSaveTimeout);
+
+            const saveIndicator = document.getElementById('chamcong-save-status');
+            if (saveIndicator) {
+                saveIndicator.innerHTML = '<span style="color:#d97706; font-weight:600; display:inline-flex; align-items:center; gap:3px;"><i class="bx bx-loader-alt bx-spin"></i> Đang lưu...</span>';
+            }
+
             chamCongSaveTimeout = setTimeout(() => {
                 const my = getChamCongMonthYear();
-                document.getElementById('chamcong-thead').style.opacity = '0.7';
-                google.script.run.withSuccessHandler(() => {
-                    document.getElementById('chamcong-thead').style.opacity = '1';
-                }).saveChamCong(my, chamCongData);
-            }, 1000);
+                google.script.run
+                    .withSuccessHandler(() => {
+                        if (saveIndicator) {
+                            saveIndicator.innerHTML = '<span style="color:#16a34a; font-weight:600; display:inline-flex; align-items:center; gap:3px;"><i class="bx bx-check"></i> Đã lưu</span>';
+                            setTimeout(() => {
+                                if (saveIndicator && saveIndicator.innerHTML.includes('Đã lưu')) {
+                                    saveIndicator.innerHTML = '';
+                                }
+                            }, 2500);
+                        }
+                    })
+                    .withFailureHandler((err) => {
+                        if (saveIndicator) {
+                            saveIndicator.innerHTML = '<span style="color:#dc2626; font-weight:600; display:inline-flex; align-items:center; gap:3px;"><i class="bx bx-error"></i> Lỗi lưu</span>';
+                        }
+                        console.error("Lỗi tự động lưu chấm công:", err);
+                    })
+                    .saveChamCong(my, chamCongData);
+            }, 800);
         }
 
         // Tự động set tháng hiện tại & render sẵn bảng khi load
@@ -613,7 +633,6 @@
             try { renderChamCongTable(); } catch(e) { console.error(e); }
             try { renderThongKeTable(); } catch(e) { console.error(e); }
         });
-
         // ==========================================
         // TAB THỐNG KÊ TỔNG HỢP (TỪ PM CŨ)
         // ==========================================
