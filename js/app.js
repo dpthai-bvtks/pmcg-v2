@@ -1359,6 +1359,10 @@ window.showGlobalLoading = function (text) {
                             loadThongKeData();
                         }
 
+                        if ((targetTab === 'tab-staff' || targetTab === 'tab-patients') && typeof renderProcedureCheckboxes === 'function') {
+                            renderProcedureCheckboxes();
+                        }
+
 
 
                     } catch (error) { console.error("Lỗi chuyển tab:", error); }
@@ -1428,6 +1432,7 @@ window.showGlobalLoading = function (text) {
                             b.procedures.forEach((p, i) => { if (p) p.sheetIndex = i; });
                             dataCache.proc = b.procedures;
                             if (typeof renderProceduresTable === 'function') renderProceduresTable();
+                            if (typeof renderProcedureCheckboxes === 'function') renderProcedureCheckboxes();
                         }
                         if (b.patients && Array.isArray(b.patients)) {
                             b.patients.forEach((pt, i) => { if (pt) pt.sheetIndex = i; });
@@ -1491,6 +1496,7 @@ window.showGlobalLoading = function (text) {
                             b.procedures.forEach((p, i) => { if (p) p.sheetIndex = i; });
                             dataCache.proc = b.procedures;
                             if (typeof renderProceduresTable === 'function') renderProceduresTable();
+                            if (typeof renderProcedureCheckboxes === 'function') renderProcedureCheckboxes();
                         }
                         if (b.patients && Array.isArray(b.patients)) {
                             b.patients.forEach((pt, i) => { if (pt) pt.sheetIndex = i; });
@@ -1932,32 +1938,45 @@ window.showGlobalLoading = function (text) {
                 container.querySelectorAll('.skill-checkbox').forEach(cb => cb.checked = checkbox.checked);
             }
         }
+        window.toggleAllSkills = toggleAllSkills;
 
         function renderProcedureCheckboxes() {
+            if (!dataCache || !dataCache.proc || !Array.isArray(dataCache.proc) || dataCache.proc.length === 0) return;
+
             let sYhct = `<h4 class="yhct">💊 YHCT <input type="checkbox" onchange="toggleAllSkills(this, 'YHCT')" style="margin-left:8px; cursor:pointer; transform:scale(1.2);" title="Chọn tất cả YHCT"></h4>`, 
                 sPhcn = `<h4 class="phcn">⚙️ PHCN <input type="checkbox" onchange="toggleAllSkills(this, 'PHCN')" style="margin-left:8px; cursor:pointer; transform:scale(1.2);" title="Chọn tất cả PHCN"></h4>`;
 
             let pYhct = '<h4 class="yhct">💊 YHCT</h4>', pPhcn = '<h4 class="phcn">⚙️ PHCN</h4>';
 
             dataCache.proc.forEach(p => {
+                if (!p) return;
+                const ten = String(p.ten || p[1] || '').trim();
+                if (!ten) return;
+                const he = String(p.he || p[3] || '').trim().toUpperCase();
 
-                const sCb = `<label class="checkbox-item"><input type="checkbox" class="skill-checkbox" value="${p.ten}"> ${p.ten}</label>`;
+                const sCb = `<label class="checkbox-item"><input type="checkbox" class="skill-checkbox" value="${escapeHtml(ten)}"> ${escapeHtml(ten)}</label>`;
+                const pCb = `<label class="checkbox-item"><input type="checkbox" class="pat-proc-cb" value="${escapeHtml(ten)}"> ${escapeHtml(ten)}</label>`;
 
-                const pCb = `<label class="checkbox-item"><input type="checkbox" class="pat-proc-cb" value="${p.ten}"> ${p.ten}</label>`;
-
-                if (p.he === 'YHCT') { sYhct += sCb; pYhct += pCb; } else { sPhcn += sCb; pPhcn += pCb; }
-
+                if (he === 'YHCT') { 
+                    sYhct += sCb; 
+                    pYhct += pCb; 
+                } else { 
+                    sPhcn += sCb; 
+                    pPhcn += pCb; 
+                }
             });
 
             [['staff-skills-yhct', sYhct], ['staff-skills-phcn', sPhcn], ['pat-skills-yhct', pYhct], ['pat-skills-phcn', pPhcn]]
-
-                .forEach(([id, html]) => { const el = document.getElementById(id); if (el) el.innerHTML = html; });
-
+                .forEach(([id, html]) => { 
+                    const el = document.getElementById(id); 
+                    if (el) el.innerHTML = html; 
+                });
         }
-
+        window.renderProcedureCheckboxes = renderProcedureCheckboxes;
 
         function renderProceduresTable() {
             renderProceduresTable_Original();
+            if (typeof renderProcedureCheckboxes === 'function') renderProcedureCheckboxes();
             setTimeout(() => { }, 50);
         }
 
@@ -2089,6 +2108,12 @@ window.showGlobalLoading = function (text) {
 
 
         function renderStaffTable() {
+            if (typeof renderProcedureCheckboxes === 'function') {
+                const staffSkillsYhct = document.getElementById('staff-skills-yhct');
+                if (staffSkillsYhct && staffSkillsYhct.querySelectorAll('.skill-checkbox').length === 0) {
+                    renderProcedureCheckboxes();
+                }
+            }
             renderStaffTable_Original();
             
             // Populate the "Tìm bác sĩ rảnh" filter dropdown
@@ -2239,21 +2264,28 @@ window.showGlobalLoading = function (text) {
         }
 
         function editStaff(index) {
+            if (typeof renderProcedureCheckboxes === 'function') {
+                const staffSkillsYhct = document.getElementById('staff-skills-yhct');
+                if (!staffSkillsYhct || staffSkillsYhct.querySelectorAll('.skill-checkbox').length === 0) {
+                    renderProcedureCheckboxes();
+                }
+            }
 
             editIndex.staff = index;
 
             const item = dataCache.staff[index];
+            if (!item) return;
 
-            document.getElementById('staff-name').value = item.ten;
+            document.getElementById('staff-name').value = item.ten || '';
 
-            document.getElementById('staff-role').value = item.vaiTro;
+            document.getElementById('staff-role').value = item.vaiTro || 'Bác sĩ';
 
-            document.getElementById('staff-status').value = item.trangThai;
+            document.getElementById('staff-status').value = item.trangThai || 'Đi làm';
 
             document.getElementById('staff-quyen').value = item.quyen || 'Cả hai';
             document.getElementById('staff-ten-his').value = item.tenHis || '';
 
-            document.getElementById('staff-busy').value = item.gioBan;
+            document.getElementById('staff-busy').value = item.gioBan || '';
 
             document.getElementById('staff-replace').value = item.nguoiThayThe || 'Không';
 
@@ -2267,7 +2299,7 @@ window.showGlobalLoading = function (text) {
 
             }
 
-            const skillsArr = item.kyNang.split(',').map(s => s.trim().toLowerCase());
+            const skillsArr = item.kyNang ? item.kyNang.split(',').map(s => s.trim().toLowerCase()) : [];
 
             document.querySelectorAll('.skill-checkbox').forEach(cb => { cb.checked = skillsArr.includes(cb.value.toLowerCase()); });
 
@@ -2536,6 +2568,12 @@ window.showGlobalLoading = function (text) {
 
 
         function renderPatientsTable() {
+            if (typeof renderProcedureCheckboxes === 'function') {
+                const patSkillsYhct = document.getElementById('pat-skills-yhct');
+                if (patSkillsYhct && patSkillsYhct.querySelectorAll('.pat-proc-cb').length === 0) {
+                    renderProcedureCheckboxes();
+                }
+            }
             renderPatientsTable_Original();
             // filterPatientTable được gọi 1 lần duy nhất ở cuối renderPatientsTable_Original
         }
@@ -2753,22 +2791,29 @@ window.showGlobalLoading = function (text) {
         function editPatient(index) {
             if (checkUnclosedDay()) return;
 
+            if (typeof renderProcedureCheckboxes === 'function') {
+                const patSkillsYhct = document.getElementById('pat-skills-yhct');
+                if (!patSkillsYhct || patSkillsYhct.querySelectorAll('.pat-proc-cb').length === 0) {
+                    renderProcedureCheckboxes();
+                }
+            }
 
             editIndex.pat = index;
 
             const item = dataCache.pat[index];
+            if (!item) return;
 
-            document.getElementById('pat-name').value = item.ten;
+            document.getElementById('pat-name').value = item.ten || '';
 
-            document.getElementById('pat-year').value = item.namSinh;
+            document.getElementById('pat-year').value = item.namSinh || '';
 
-            document.getElementById('pat-date').value = item.ngayVao;
+            document.getElementById('pat-date').value = item.ngayVao || '';
 
-            document.getElementById('pat-time').value = item.gioVao;
+            document.getElementById('pat-time').value = item.gioVao || '';
 
-            document.getElementById('pat-room').value = item.phong;
+            document.getElementById('pat-room').value = item.phong || '';
 
-            document.getElementById('pat-leave').value = item.gioRa;
+            document.getElementById('pat-leave').value = item.gioRa || '';
 
             const busyVal = item.gioBan || '';
 

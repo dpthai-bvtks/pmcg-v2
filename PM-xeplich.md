@@ -1897,10 +1897,17 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
   3. **Giao diện Cấu hình Máy chủ Linh hoạt (Self-Healing Server Settings)**:
      - Bổ sung nút "⚙️ Cấu hình máy chủ kết nối" và Modal cài đặt ngay trên màn hình đăng nhập.
      - Cho phép người dùng kiểm tra kết nối (`Ping Test`), dán đường dẫn Web App URL mới hoặc khôi phục mặc định trực tiếp trên trình duyệt mà không cần sửa mã nguồn hay cập nhật Git.
-- **Hoàn thiện tối ưu UI/UX và logic tải dữ liệu v4.1 (Giải quyết lỗi một số tab trống và kẹt loading):**
-  - Khắc phục lỗi `fetch` GET timeout (treo 35s) trên Google Chrome với nhiều tài khoản do trả về HTML 404 (CORS lỗi). Loại bỏ `fetch` GET, ép chuyển hướng hoàn toàn sang JSONP đáng tin cậy.
-  - Sửa lỗi ngầm `loadDashboard` tự động gọi 4 API dư thừa đè lên dữ liệu đã tải của `Bootstrap API`. Giờ đây Dashboard hoàn toàn sử dụng `dataCache`.
-  - Khắc phục lỗi sai tên hàm render trong `loadBootstrapData` (`renderPatientTable` thành `renderPatientsTable`, v.v.) khiến dữ liệu đã tải vào Cache nhưng bảng lại hiển thị trống rỗng.
-  - Tối ưu `loadScheduleList()` để lấy dữ liệu lịch trình lập tức từ `dataCache.schedule` thay vì yêu cầu máy chủ Google lần nữa.
-  - Bổ sung `AbortController` 10s cho nút Kiểm tra kết nối để tránh treo UI vĩnh viễn khi mạng không phản hồi.
-  - Sửa lỗi cú pháp dấu ngoặc thừa `}` tại cuối hàm `loadScheduleList()` trong `app.js` khiến script bị ngắt giữa chừng.
+- **Khắc phục triệt để lỗi không hiện danh sách thủ thuật để chọn trong Tab Nhân Sự và Tab Bệnh Nhân (v4.2):**
+  - **Nguyên nhân**:
+    1. Trong `restoreOfflineCache()` và `loadBootstrapData()` (`js/app.js`), sau khi nạp `b.procedures` vào `dataCache.proc`, hệ thống chỉ gọi `renderProceduresTable()` để vẽ bảng danh mục mà quên gọi `renderProcedureCheckboxes()`, dẫn đến khu vực danh sách chọn thủ thuật/kỹ năng của tab Nhân sự (`#staff-skills-yhct`, `#staff-skills-phcn`) và tab Bệnh nhân (`#pat-skills-yhct`, `#pat-skills-phcn`) bị rỗng.
+    2. Hàm `renderProceduresTable()` trước đây chỉ render bảng quản lý thủ thuật mà không tự động đồng bộ sang các checkbox lựa chọn.
+    3. Khi bấm Sửa nhân sự (`editStaff`) hoặc Sửa bệnh nhân (`editPatient`), do checkbox chưa được tạo nên không thể tích chọn các kỹ năng/thủ thuật có sẵn, và khi bấm Lưu thì giá trị kỹ năng/thủ thuật bị mất (rỗng).
+    4. Trong `js/sync.js`, hàm `syncRefreshData` gọi nhầm `loadProcs()` thay vì `loadProcedures()`.
+  - **Giải pháp khắc phục**:
+    1. Gọi `renderProcedureCheckboxes()` ngay sau khi nạp thủ thuật trong `restoreOfflineCache()` và `loadBootstrapData()`.
+    2. Tích hợp tự động gọi `renderProcedureCheckboxes()` bên trong `renderProceduresTable()` và `loadProcedures()`.
+    3. Bổ sung cơ chế tự động kiểm tra và vẽ checkbox khi chuyển sang tab Nhân sự hoặc Bệnh nhân, và trong `renderStaffTable()`, `renderPatientsTable()`, `editStaff()`, `editPatient()`.
+    4. Nâng cấp `renderProcedureCheckboxes()`: Chuẩn hóa dữ liệu đầu vào (hỗ trợ cả object và array), chuẩn hóa hệ (YHCT/PHCN không phân biệt hoa thường), áp dụng `escapeHtml` và xuất hàm ra `window.renderProcedureCheckboxes` & `window.toggleAllSkills`.
+    5. Sửa typo `loadProcs()` thành `loadProcedures()` trong `js/sync.js`.
+    6. Cập nhật cache-busting version `v=4.2` cho toàn bộ tài nguyên web.
+
