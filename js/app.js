@@ -1989,6 +1989,28 @@ window.showGlobalLoading = function (text) {
                     const el = document.getElementById(id); 
                     if (el) el.innerHTML = html; 
                 });
+
+            // ✅ Khôi phục checked state cho bệnh nhân đang sửa (tránh mất thủ thuật khi auto-sync rebuild checkbox)
+            if (editIndex && editIndex.pat > -1 && dataCache.pat) {
+                const editingPat = dataCache.pat[editIndex.pat];
+                if (editingPat && editingPat.thuThuat) {
+                    const ttArr = editingPat.thuThuat.split(',').map(t => t.trim().toLowerCase());
+                    document.querySelectorAll('.pat-proc-cb').forEach(cb => {
+                        cb.checked = ttArr.includes(cb.value.toLowerCase());
+                    });
+                }
+            }
+
+            // ✅ Khôi phục checked state cho nhân sự đang sửa (tránh mất kỹ năng khi auto-sync rebuild checkbox)
+            if (editIndex && editIndex.staff > -1 && dataCache.staff) {
+                const editingStaff = dataCache.staff[editIndex.staff];
+                if (editingStaff && editingStaff.kyNang) {
+                    const skillsArr = editingStaff.kyNang.split(',').map(s => s.trim().toLowerCase());
+                    document.querySelectorAll('.skill-checkbox').forEach(cb => {
+                        cb.checked = skillsArr.includes(cb.value.toLowerCase());
+                    });
+                }
+            }
         }
         window.renderProcedureCheckboxes = renderProcedureCheckboxes;
 

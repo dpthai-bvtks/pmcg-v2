@@ -1933,6 +1933,19 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
     3. Chuẩn hóa hiển thị lỗi an toàn: `(err && err.message) ? err.message : (typeof err === 'string' ? err : 'Lỗi không xác định')`, xóa bỏ hoàn toàn lỗi hiển thị `undefined`.
     4. Cập nhật hàm `bulkUpdatePatients()` trong `code.gs-v2.txt` xử lý an toàn cho cả định dạng mảng đối tượng lẫn mảng 2 chiều.
     5. Cập nhật cache-busting version `v=4.4` cho toàn bộ tài nguyên web.
+- **Khắc phục lỗi xóa hết thủ thuật bệnh nhân khi đang sửa (v4.5):**
+  - **Nguyên nhân**:
+    - Hệ thống realtime sync (polling 15 giây trong `js/sync.js`) khi phát hiện dữ liệu thay đổi sẽ gọi `syncRefreshData()` → `loadProcedures()` → `renderProceduresTable()` → `renderProcedureCheckboxes()`.
+    - Hàm `renderProcedureCheckboxes()` luôn xóa sạch toàn bộ HTML của `#pat-skills-yhct` và `#pat-skills-phcn` rồi dựng lại (`el.innerHTML = html`), làm mất trạng thái `checked` của tất cả checkbox đang được chọn cho bệnh nhân đang sửa.
+    - Kết quả: Nếu auto-sync xảy ra trong lúc người dùng đang mở form sửa BN (trước khi ấn Lưu), các thủ thuật đã tick sẽ bị unchecked hoàn toàn, lưu lại → bệnh nhân không còn thủ thuật nào.
+    - Lỗi tương tự cũng xảy ra với nhân sự (kỹ năng bị mất khi sửa nhân sự).
+  - **Giải pháp khắc phục**:
+    - Sau khi `renderProcedureCheckboxes()` dựng lại xong toàn bộ checkbox, kiểm tra `editIndex.pat` và `editIndex.staff`:
+      - Nếu `editIndex.pat > -1`: Lấy `dataCache.pat[editIndex.pat].thuThuat` và khôi phục lại các `.pat-proc-cb` đang checked.
+      - Nếu `editIndex.staff > -1`: Lấy `dataCache.staff[editIndex.staff].kyNang` và khôi phục lại các `.skill-checkbox` đang checked.
+    - Giải pháp đảm bảo: dù auto-sync xảy ra bao nhiêu lần, form đang sửa BN/nhân sự luôn hiển thị đúng dữ liệu đã chọn trước khi ấn Lưu.
+    - Cập nhật cache-busting version `v=4.5` cho toàn bộ tài nguyên web.
+
 
 
 
