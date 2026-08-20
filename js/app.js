@@ -157,7 +157,8 @@ window.showGlobalLoading = function (text) {
             'addThuThuat',
             'editThuThuat',
             'addPhong',
-            'editPhong'
+            'editPhong',
+            'bulkUpdatePatients'
         ];
 
         function checkMutationLoading() {
@@ -5800,50 +5801,108 @@ window.showGlobalLoading = function (text) {
 
         }
 
+        function executeBulkUpdatePatientsInChunks(patients, replaceAll, onProgress, onComplete, onError) {
+            if (!patients || patients.length === 0) {
+                if (onComplete) onComplete("Danh sách bệnh nhân trống.");
+                return;
+            }
+
+            // Chuẩn hóa dữ liệu sạch (loại bỏ các trường dư thừa không cần thiết để tối ưu dung lượng gói tin)
+            const cleanList = patients.map(p => ({
+                ten: String(p.ten || p[1] || '').trim(),
+                namSinh: String(p.namSinh || p[2] || '').trim(),
+                ngayVao: String(p.ngayVao || p[3] || '').trim(),
+                gioVao: String(p.gioVao || p[4] || '').trim(),
+                gioBan: String(p.gioBan || p[5] || '').trim(),
+                gioRa: String(p.gioRa || p[6] || '').trim(),
+                phong: String(p.phong || p[7] || '').trim(),
+                thuThuat: String(p.thuThuat || p[8] || '').trim()
+            })).filter(p => p.ten !== '');
+
+            if (cleanList.length === 0) {
+                if (onComplete) onComplete("Không có bệnh nhân hợp lệ để lưu.");
+                return;
+            }
+
+            const CHUNK_SIZE = 30; // 30 bệnh nhân mỗi đợt ~ 1.8KB an toàn tuyệt đối với JSONP
+            const totalChunks = Math.ceil(cleanList.length / CHUNK_SIZE);
+            let currentChunkIndex = 0;
+
+            function sendNextChunk() {
+                const start = currentChunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, cleanList.length);
+                const chunk = cleanList.slice(start, end);
+                const isFirstChunk = (currentChunkIndex === 0);
+                const isReplace = isFirstChunk ? replaceAll : false;
+
+                if (onProgress) {
+                    onProgress(currentChunkIndex + 1, totalChunks, end, cleanList.length);
+                }
+
+                google.script.run
+                    .withSuccessHandler((res) => {
+                        currentChunkIndex++;
+                        if (currentChunkIndex < totalChunks) {
+                            setTimeout(sendNextChunk, 80);
+                        } else {
+                            if (onComplete) onComplete(res);
+                        }
+                    })
+                    .withFailureHandler((err) => {
+                        const errMsg = (err && err.message) ? err.message : (typeof err === 'string' ? err : 'Lỗi kết nối máy chủ');
+                        if (onError) onError(errMsg);
+                    })
+                    .bulkUpdatePatients(chunk, isReplace);
+            }
+
+            sendNextChunk();
+        }
+
         function importPatients() {
-
             const input = document.createElement('input');
-
             input.type = 'file'; input.accept = '.xlsx, .xls';
-
             input.onchange = e => {
-
                 const reader = new FileReader();
-
                 reader.onload = function (ev) {
+                    try {
+                        const workbook = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
+                        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
 
-                    const workbook = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
-
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
-
-                    if (rows.length <= 1) return alert("File Excel trống hoặc không đúng định dạng!"); const
-
-                        patientList = rows.slice(1).filter(r => r[1]).map(r => ({
-
+                        if (rows.length <= 1) return alert("File Excel trống hoặc không đúng định dạng!");
+                        const patientList = rows.slice(1).filter(r => r[1]).map(r => ({
                             ten: r[1], namSinh: r[2] || '', ngayVao: r[3] || '', gioVao: r[4] || '',
-
                             gioBan: r[5] || '', gioRa: r[6] || '', phong: r[7] || '', thuThuat: r[8] || ''
-
                         }));
 
-                    const replaceAll = confirm("Bác sĩ có muốn THAY THẾ TOÀN BỘ danh sách hiện tại không?\n\n- OK: Xóa sạch, nạp mới.\n- Cancel: Bổ sung thêm.");
+                        const replaceAll = confirm("Bác sĩ có muốn THAY THẾ TOÀN BỘ danh sách hiện tại không?\n\n- OK: Xóa sạch, nạp mới.\n- Cancel: Bổ sung thêm.");
+                        const btn = document.getElementById('btn-import-pat');
+                        if (btn) { btn.innerText = "⏳ Đang xử lý..."; btn.disabled = true; }
 
-                    const btn = document.getElementById('btn-import-pat');
-
-                    btn.innerText = "⏳ Đang xử lý..."; btn.disabled = true;
-
-                    google.script.run.withSuccessHandler(res => { alert(res); btn.innerText = "⬇️ Nhập từ Excel"; btn.disabled = false; loadPatients(); }).bulkUpdatePatients(patientList,
-
-                        replaceAll);
-
+                        executeBulkUpdatePatientsInChunks(
+                            patientList,
+                            replaceAll,
+                            (chunkNum, totalChunks, processed, total) => {
+                                if (btn) btn.innerText = `⏳ Đang lưu (${processed}/${total} BN)...`;
+                            },
+                            (res) => {
+                                if (btn) { btn.innerText = "⬇️ Nhập từ Excel"; btn.disabled = false; }
+                                alert(typeof res === 'string' ? res : "Đã nạp danh sách bệnh nhân thành công!");
+                                if (window.dataCacheTime) delete window.dataCacheTime['pat'];
+                                loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
+                            },
+                            (err) => {
+                                const errText = (err && err.message) ? err.message : (typeof err === 'string' ? err : 'Lỗi không xác định');
+                                alert("Lỗi lưu dữ liệu: " + errText);
+                                if (btn) { btn.innerText = "⬇️ Nhập từ Excel"; btn.disabled = false; }
+                            }
+                        );
+                    } catch (err) {
+                        alert("Lỗi đọc file Excel: " + ((err && err.message) ? err.message : err));
+                    }
                 };
-
                 reader.readAsArrayBuffer(e.target.files[0]);
-
             };
-
             input.click();
-
         }
 
 
@@ -6089,24 +6148,31 @@ window.showGlobalLoading = function (text) {
 
                         showCustomConfirm('🏥 Xác nhận nhập từ HIS', previewHTML, function () {
                             const btn = document.getElementById('btn-import-his');
-                            btn.innerText = '⏳ Đang xử lý...'; btn.disabled = true;
-                            google.script.run
-                                .withSuccessHandler(res => {
-                                    btn.innerText = '🏥 Nhập từ HIS (Y lệnh)'; btn.disabled = false;
-                                    showToast(`Nhập HIS: cập nhật ${updatedCount} BN, thêm mới ${newCount} BN`, 'success', 5000);
-                                    if (window.dataCacheTime) delete window.dataCacheTime['pat'];
+                            if (btn) { btn.innerText = '⏳ Đang lưu...'; btn.disabled = true; }
 
+                            executeBulkUpdatePatientsInChunks(
+                                mergedList,
+                                true,
+                                (chunkNum, totalChunks, processed, total) => {
+                                    if (btn) btn.innerText = `⏳ Đang lưu (${processed}/${total} BN)...`;
+                                },
+                                (res) => {
+                                    if (btn) { btn.innerText = '🏥 Nhập từ HIS (Y lệnh)'; btn.disabled = false; }
+                                    showToast(`Nhập HIS thành công: Cập nhật ${updatedCount} BN, thêm mới ${newCount} BN`, 'success', 5000);
+                                    if (window.dataCacheTime) delete window.dataCacheTime['pat'];
                                     loadEntity('getBenhNhan', 'pat', renderPatientsTable, [], true);
-                                })
-                                .withFailureHandler(err => {
-                                    showToast('Lỗi lưu dữ liệu: ' + err.message, 'error', 6000);
-                                    btn.innerText = '🏥 Nhập từ HIS (Y lệnh)'; btn.disabled = false;
-                                })
-                                .bulkUpdatePatients(mergedList, true);
+                                },
+                                (err) => {
+                                    const errText = (err && err.message) ? err.message : (typeof err === 'string' ? err : 'Lỗi không xác định');
+                                    showToast('Lỗi lưu dữ liệu: ' + errText, 'error', 6000);
+                                    if (btn) { btn.innerText = '🏥 Nhập từ HIS (Y lệnh)'; btn.disabled = false; }
+                                }
+                            );
                         });
 
                     } catch (err) {
-                        showCustomAlert('Lỗi đọc file', '❌ ' + err.message, '❌', '#e74c3c');
+                        const errText = (err && err.message) ? err.message : (typeof err === 'string' ? err : 'Lỗi không xác định');
+                        showCustomAlert('Lỗi đọc file', '❌ ' + errText, '❌', '#e74c3c');
                     }
                 };
                 reader.readAsArrayBuffer(e.target.files[0]);

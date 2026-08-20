@@ -1918,5 +1918,21 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
     - Khởi tạo danh sách ngoại lệ `SILENT_MUTATIONS = ['saveChamCong', 'saveThongKeThuThuat', 'saveEmployees', 'saveErrorConfig', 'saveAITrainingData', ...]` trong `js/app.js`. Các tác vụ lưu ngầm / tự động lưu bảng sẽ **không kích hoạt overlay làm mờ màn hình**, đảm bảo toàn bộ quá trình nhập liệu diễn ra liên tục, mượt mà 100%.
     - Nâng cấp `triggerAutoSaveChamCong()` trong `js/thongke.js`: Chuyển sang hiển thị trạng thái lưu nhỏ gọn dạng inline (`#chamcong-save-status`: `Đang lưu...` -> `Đã lưu`) ngay góc thanh công cụ của Bảng Chấm Công, không làm mờ thead, không chặn thao tác bàn phím.
     - Cập nhật cache-busting version `v=4.3` cho toàn bộ tài nguyên web.
+- **Khắc phục triệt để lỗi "Lỗi lưu dữ liệu: undefined" khi nhập file HIS ở Tab Bệnh Nhân (v4.4):**
+  - **Nguyên nhân**:
+    1. Khi nhập file HIS hoặc file Excel có số lượng bệnh nhân lớn (vài chục đến hàng trăm bệnh nhân), toàn bộ mảng dữ liệu bệnh nhân `mergedList` (chứa đầy đủ các trường và thuộc tính đối tượng) được gửi cùng lúc qua API `bulkUpdatePatients`.
+    2. Do frontend giao tiếp qua JSONP GET script tag, chuỗi query parameters vượt quá giới hạn độ dài URL (4KB - 8KB) của trình duyệt và Google Web App, khiến request bị lỗi ngắt kết nối (HTTP 414 / Script error).
+    3. Trình xử lý lỗi `withFailureHandler(err => showToast('Lỗi lưu dữ liệu: ' + err.message))` giả định `err` luôn là Error object. Khi `err` là kiểu chuỗi string (từ `executeJsonpFallback`), `err.message` trở thành `undefined`, dẫn đến câu thông báo `"Lỗi lưu dữ liệu: undefined"`.
+  - **Giải pháp khắc phục**:
+    1. Xây dựng hàm phân đoạn gói tin thông minh `executeBulkUpdatePatientsInChunks(patients, replaceAll, onProgress, onComplete, onError)`:
+       - Tự động làm sạch dữ liệu (loại bỏ các thuộc tính nội bộ dư thừa, chỉ giữ các trường cốt lõi).
+       - Chia danh sách bệnh nhân thành từng đợt nhỏ (30 BN/đợt ~ 1.8KB an toàn tuyệt đối với JSONP GET).
+       - Đợt 1 xóa bảng cũ và chèn mới nếu `replaceAll = true`, các đợt tiếp theo tự động nối tiếp bổ sung.
+       - Hiển thị tiến trình trực tiếp trên nút bấm: `⏳ Đang lưu (30/120 BN)...`.
+    2. Cập nhật `importFromHIS()` và `importPatients()` sử dụng hàm phân đoạn mới.
+    3. Chuẩn hóa hiển thị lỗi an toàn: `(err && err.message) ? err.message : (typeof err === 'string' ? err : 'Lỗi không xác định')`, xóa bỏ hoàn toàn lỗi hiển thị `undefined`.
+    4. Cập nhật hàm `bulkUpdatePatients()` trong `code.gs-v2.txt` xử lý an toàn cho cả định dạng mảng đối tượng lẫn mảng 2 chiều.
+    5. Cập nhật cache-busting version `v=4.4` cho toàn bộ tài nguyên web.
+
 
 
