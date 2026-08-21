@@ -4443,3 +4443,17 @@ transition: box-shadow 0.3s;
             font-weight: 900 !important;
             font-size: 12px !important;
         }
+
+/* --- NỔI BẬT DÒNG CA RỚT TRONG BẢNG LỊCH TRÌNH --- */
+tr.row-dropped {
+    background-color: #fff0f0 !important;
+    color: #c0392b !important;
+}
+tr.row-dropped td {
+    background-color: #fff0f0 !important;
+    color: #c0392b !important;
+    border-bottom: 1px dashed #f5c6cb !important;
+}
+tr.row-dropped:hover td {
+    background-color: #ffe4e4 !important;
+}

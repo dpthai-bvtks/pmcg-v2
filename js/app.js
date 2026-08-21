@@ -878,27 +878,39 @@ window.showGlobalLoading = function (text) {
                 schedCountMap[key].push(String(row.thuThuat || '').trim());
             });
 
-            const seenDropKeys = new Set();
+            const dropCountMap = {};
             unschedData.forEach(d => {
                 const patName = String(d.bn || d.tenBN || '').toUpperCase().trim();
                 const patNS = String(d.ns || d.namSinh || '').trim();
                 const key = patName + "_" + patNS;
                 const dropProc = String(d.tt || d.thuThuat || '').trim();
                 const dropSig = key + "|" + dropProc.toLowerCase();
-                if (seenDropKeys.has(dropSig)) return;
-                seenDropKeys.add(dropSig);
+                dropCountMap[dropSig] = (dropCountMap[dropSig] || 0) + 1;
+            });
+
+            const seenDropKeys = new Map();
+            unschedData.forEach(d => {
+                const patName = String(d.bn || d.tenBN || '').toUpperCase().trim();
+                const patNS = String(d.ns || d.namSinh || '').trim();
+                const key = patName + "_" + patNS;
+                const dropProc = String(d.tt || d.thuThuat || '').trim();
+                const dropSig = key + "|" + dropProc.toLowerCase();
+
+                const countSeen = seenDropKeys.get(dropSig) || 0;
 
                 const patObj = activePatList.find(p => String(p.ten || '').toUpperCase().trim() === patName && String(p.namSinh || '').trim() === patNS);
                 const reqProcs = patObj && patObj.thuThuat ? patObj.thuThuat.split(',').map(x => x.trim()).filter(Boolean) : [];
                 const schedProcsForPat = schedCountMap[key] || [];
 
-                const reqCountForThisProc = reqProcs.filter(p => matchProc(p, dropProc)).length || 1;
+                const reqCountForThisProc = reqProcs.filter(p => matchProc(p, dropProc)).length;
                 const schedCountForThisProc = schedProcsForPat.filter(p => matchProc(p, dropProc)).length;
+                const totalDroppedForThisProc = dropCountMap[dropSig] || 1;
 
-                // Nếu số ca đã có trong lịch >= số ca yêu cầu, ca rớt này đã được giải quyết
-                if (schedCountForThisProc >= reqCountForThisProc) {
+                if (inputList === undefined && reqCountForThisProc > 0 && schedCountForThisProc >= (reqCountForThisProc + totalDroppedForThisProc - countSeen)) {
                     return;
                 }
+
+                seenDropKeys.set(dropSig, countSeen + 1);
                 remainingDropped.push(d);
             });
 
@@ -3539,8 +3551,19 @@ window.showGlobalLoading = function (text) {
                 const cleanedDropped = reconcileUnscheduledData([...droppedFromSheet, ...localDropped]);
                 setUnscheduledData(cleanedDropped);
             } else {
-                const cleanedDropped = reconcileUnscheduledData([]);
-                setUnscheduledData(cleanedDropped);
+                let localDropped = [];
+                try {
+                    const activeDate = document.getElementById('schedule-date')?.value || localStorage.getItem('meds_schedule_date') || '';
+                    if (localStorage.getItem('meds_schedule_date') === activeDate) localDropped = JSON.parse(localStorage.getItem('meds_unscheduled') || '[]');
+                } catch (e) { }
+                const currentUnscheduled = (window.lastUnscheduledData && window.lastUnscheduledData.length) ? window.lastUnscheduledData : localDropped;
+                if (currentUnscheduled.length) {
+                    const cleanedDropped = reconcileUnscheduledData(currentUnscheduled);
+                    setUnscheduledData(cleanedDropped);
+                } else {
+                    const cleanedDropped = reconcileUnscheduledData([]);
+                    setUnscheduledData(cleanedDropped);
+                }
             }
 
             filterSchedule();
@@ -4040,8 +4063,9 @@ window.showGlobalLoading = function (text) {
 
                     const popup = document.getElementById('custom-success-popup');
                     if (popup) popup.style.display = 'flex';
-                    else alert("Đã xếp thêm thành công " + addedCount + " ca!\nKhông xếp được lần này: " + failCount + " ca.\nTổng số ca rớt hiện tại: " + totalFail + " ca.");
-                    loadScheduleList();
+                    filterSchedule();
+                    if (typeof renderStats === 'function') renderStats(window.lastUnscheduledData);
+                    if (typeof renderPatientsTable === 'function') renderPatientsTable();
                 })
                 .withFailureHandler(err => {
                     if (window.hideGlobalLoading) window.hideGlobalLoading();

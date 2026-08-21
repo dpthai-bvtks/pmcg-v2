@@ -1958,6 +1958,19 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
     3. Trong backend `getHistoryFullData(dateStr)`: Bổ sung cơ chế fallback tự động đọc từ sheet `LichTrinh` nếu sheet `SoThuThuat` chưa có dữ liệu của ngày đó.
     4. Tự động điền ngày hôm nay và tự động nạp lịch khi chuyển sang tab **Tiện ích Tìm rảnh**.
     5. Cập nhật cache-busting version `v=4.6` cho toàn bộ tài nguyên web.
+- **Khắc phục lỗi ca rớt không hiện ở bảng lịch trình (v4.7):**
+  - **Yêu cầu của người dùng:** Khi bấm xếp lịch (hoặc xếp bổ sung) và có kết quả báo có ca rớt nhưng không hiện ở bảng lịch trình.
+  - **Nguyên nhân chính:**
+    1. Hàm `reconcileUnscheduledData()` tự động xóa nhầm các ca rớt hợp lệ do so sánh sai số ca yêu cầu vs số ca đã xếp của bệnh nhân (`schedCountForThisProc >= reqCountForThisProc`).
+    2. Hàm `loadScheduleList()` làm rỗng `window.lastUnscheduledData` khi `droppedFromSheet` rỗng (dữ liệu sheet chưa kịp đồng bộ).
+    3. Hàm `runExtraScheduling` (Xếp bổ sung) gọi `loadScheduleList()` ở cuối làm ghi đè dữ liệu ca rớt vừa nhận được từ xếp bổ sung bằng mảng rỗng từ cache cũ.
+    4. Cột ca rớt chưa có CSS nổi bật (`tr.row-dropped`) dẫn đến việc phân biệt các dòng ca rớt với ca thành công gặp khó khăn.
+  - **Giải pháp khắc phục:**
+    1. Trong `js/app.js` (`reconcileUnscheduledData`): Cập nhật logic tính toán ca rớt theo tần suất (`dropCountMap`), bảo toàn các ca rớt được truyền vào từ kết quả xếp lịch thay vì lọc nhầm.
+    2. Trong `js/app.js` (`loadScheduleList`): Giữ lại `currentUnscheduled` / `lastUnscheduledData` của ngày đang chọn khi `droppedFromSheet` rỗng, ngăn chặn việc đặt lại mảng rỗng.
+    3. Trong `js/app.js` (`runExtraScheduling`): Thay thế lời gọi `loadScheduleList()` bằng `filterSchedule()` và `renderStats()`.
+    4. Trong `css/style.css`: Bổ sung CSS cho `tr.row-dropped` với nền hồng nhạt `#fff0f0`, chữ đỏ sẫm `#c0392b` và viền gạch nét đứt `#f5c6cb`.
+    5. Cập nhật cache-busting version `v=4.7` cho toàn bộ tài nguyên web.
 
 
 
