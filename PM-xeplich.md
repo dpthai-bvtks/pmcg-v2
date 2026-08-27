@@ -1966,11 +1966,25 @@ tạo cho mình 1 lớp bảo mật bằng mật khẩu với các tab Máy móc
     3. Hàm `runExtraScheduling` (Xếp bổ sung) gọi `loadScheduleList()` ở cuối làm ghi đè dữ liệu ca rớt vừa nhận được từ xếp bổ sung bằng mảng rỗng từ cache cũ.
     4. Cột ca rớt chưa có CSS nổi bật (`tr.row-dropped`) dẫn đến việc phân biệt các dòng ca rớt với ca thành công gặp khó khăn.
   - **Giải pháp khắc phục:**
-    1. Trong `js/app.js` (`reconcileUnscheduledData`): Cập nhật logic tính toán ca rớt theo tần suất (`dropCountMap`), bảo toàn các ca rớt được truyền vào từ kết quả xếp lịch thay vì lọc nhầm.
-    2. Trong `js/app.js` (`loadScheduleList`): Giữ lại `currentUnscheduled` / `lastUnscheduledData` của ngày đang chọn khi `droppedFromSheet` rỗng, ngăn chặn việc đặt lại mảng rỗng.
-    3. Trong `js/app.js` (`runExtraScheduling`): Thay thế lời gọi `loadScheduleList()` bằng `filterSchedule()` và `renderStats()`.
-    4. Trong `css/style.css`: Bổ sung CSS cho `tr.row-dropped` với nền hồng nhạt `#fff0f0`, chữ đỏ sẫm `#c0392b` và viền gạch nét đứt `#f5c6cb`.
-    5. Cập nhật cache-busting version `v=4.7` cho toàn bộ tài nguyên web.
+- **Khắc phục lỗi ô điền số lượng máy móc trong tab Phòng bị hiển thị "Undefined" (v2.6 / v4.8):**
+  - **Yêu cầu của người dùng:** Trong tab Phòng, phần điền số lượng máy móc (⚙️ Số Máy) thỉnh thoảng bị chuyển sang hiển thị `Undefined : [ ]`.
+  - **Nguyên nhân chính:**
+    1. Trong hàm `renderDynamicMachineInputs()`: Dùng `String(m.tenLoai).trim()` để trích xuất loại máy từ `dataCache.machine`. Khi dữ liệu máy là mảng dạng `[id, tenLoai, maMay, trangThai]` (từ cache/raw Sheets) hoặc khi một dòng thiếu trường `tenLoai`, `m.tenLoai` là `undefined`. `String(undefined)` biến thành chuỗi `"undefined"`. Lệnh lọc `.filter(t => t !== '')` không loại bỏ được `"undefined"`, dẫn đến mảng loại máy sinh ra `['undefined']` và CSS `text-transform: capitalize` hiển thị thành `Undefined :`.
+    2. Trong `restoreOfflineCache()`, `loadBootstrapData()` và `loadFromSheets()`: Chưa chuẩn hóa (normalize) đồng bộ các phần tử máy móc thành Object thống nhất có đầy đủ thuộc tính `{ id, tenLoai, maMay, trangThai }` và chưa loại bỏ các chuỗi rác `"undefined"`/`"null"`.
+    3. Trong `saveRoom()`, `editRoom()` và `timMayRanh()`: Chưa hỗ trợ fallback cả dạng Object và dạng Mảng (`m.tenLoai || m[1]`, `m.maMay || m[2]`), có nguy cơ gây lỗi không khớp máy hoặc lỗi `Cannot read properties of undefined (reading 'trim')`.
+    4. Khi chuyển sang tab Phòng (`tab-rooms`): Chưa tự động kích hoạt `renderDynamicMachineInputs()` để nạp lại danh sách máy mới nhất.
+  - **Giải pháp khắc phục:**
+    1. Trong `renderDynamicMachineInputs()`:
+       - Hỗ trợ lấy tên loại máy an toàn: `m.tenLoai || m[1] || ''`.
+       - Lọc bỏ triệt để các giá trị rỗng, `'undefined'`, `'null'`.
+       - Hiển thị thông báo `(Chưa có danh sách máy)` nếu không có máy hợp lệ.
+       - Tự động ghi nhớ và khôi phục giá trị số lượng người dùng đang nhập dở (không bị mất khi có tác vụ đồng bộ ngầm).
+    2. Chuẩn hóa dữ liệu `dataCache.machine` ở tất cả các luồng nạp dữ liệu (`restoreOfflineCache`, `loadBootstrapData`, `loadFromSheets`) thành Object chuẩn và loại bỏ dữ liệu hỏng.
+    3. Cập nhật `saveRoom()`, `editRoom()`, `editRoomMachine()` và `timMayRanh()` để truy xuất an toàn cả 2 định dạng Object và Mảng.
+    4. Bổ sung lệnh gọi `renderDynamicMachineInputs()` và `renderRoomsTable()` khi click chuyển sang tab `tab-rooms` cũng như trong `renderRoomsTable_Original()`.
+    5. Cập nhật `getDanhSachMay()` trong backend `code.gs-v2.txt` để loại bỏ các hàng trống / không hợp lệ.
+    6. Đồng bộ tăng phiên bản lên `🏷️ Phiên bản: 2.6`, cập nhật timestamp Footer và cache-busting `?v=4.8` cho toàn bộ tài nguyên web.
+
 
 
 

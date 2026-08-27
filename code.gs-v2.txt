@@ -256,7 +256,12 @@ function getBootstrapData() {
 }
 
 // CRUD Máy Móc
-function getDanhSachMay() { return getAllData('DanhSachMay').map(r => ({ id: r[0], tenLoai: r[1], maMay: r[2], trangThai: r[3] })); }
+function getDanhSachMay() {
+  return getAllData('DanhSachMay')
+    .filter(r => r && (r[1] || r[2]))
+    .map(r => ({ id: r[0], tenLoai: String(r[1] || '').trim(), maMay: String(r[2] || '').trim(), trangThai: r[3] || 'Sẵn sàng' }))
+    .filter(r => r.tenLoai && r.tenLoai.toLowerCase() !== 'undefined' && r.tenLoai.toLowerCase() !== 'null');
+}
 function addMayMoc(tenLoai, maMay, soLuong, trangThai) {
   const sheet = getSheetByName('DanhSachMay');
   const lastRow = sheet.getLastRow();

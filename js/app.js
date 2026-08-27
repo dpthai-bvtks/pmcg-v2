@@ -1393,6 +1393,11 @@ window.showGlobalLoading = function (text) {
                             renderProcedureCheckboxes();
                         }
 
+                        if (targetTab === 'tab-rooms') {
+                            if (typeof renderDynamicMachineInputs === 'function') renderDynamicMachineInputs();
+                            if (typeof renderRoomsTable === 'function') renderRoomsTable();
+                        }
+
                         if (targetTab === 'tab-utils') {
                             const utilsDateEl = document.getElementById('utils-search-date');
                             if (utilsDateEl && !utilsDateEl.value) {
@@ -1459,8 +1464,16 @@ window.showGlobalLoading = function (text) {
                     const b = JSON.parse(cachedStr);
                     if (b && typeof dataCache !== 'undefined') {
                         if (b.machines && Array.isArray(b.machines)) {
-                            b.machines.forEach((m, i) => { if (m) m.sheetIndex = i; });
-                            dataCache.machine = b.machines.filter(m => m && (m.tenLoai || m[1]));
+                            dataCache.machine = b.machines
+                                .filter(m => m && (m.tenLoai || m[1]))
+                                .map((m, i) => ({
+                                    id: m.id || m[0] || (i + 1),
+                                    tenLoai: String(m.tenLoai || m[1] || '').trim(),
+                                    maMay: String(m.maMay || m[2] || '').trim(),
+                                    trangThai: m.trangThai || m[3] || 'Sẵn sàng',
+                                    sheetIndex: m.sheetIndex !== undefined ? m.sheetIndex : i
+                                }))
+                                .filter(m => m.tenLoai && m.tenLoai.toLowerCase() !== 'undefined' && m.tenLoai.toLowerCase() !== 'null' && m.maMay && m.maMay.toLowerCase() !== 'undefined');
                             if (typeof renderMachinesTable === 'function') renderMachinesTable();
                         }
                         if (b.rooms && Array.isArray(b.rooms)) {
@@ -1523,8 +1536,16 @@ window.showGlobalLoading = function (text) {
 
                     if (typeof dataCache !== 'undefined') {
                         if (b.machines && Array.isArray(b.machines)) {
-                            b.machines.forEach((m, i) => { if (m) m.sheetIndex = i; });
-                            dataCache.machine = b.machines.filter(m => m && (m.tenLoai || m[1]));
+                            dataCache.machine = b.machines
+                                .filter(m => m && (m.tenLoai || m[1]))
+                                .map((m, i) => ({
+                                    id: m.id || m[0] || (i + 1),
+                                    tenLoai: String(m.tenLoai || m[1] || '').trim(),
+                                    maMay: String(m.maMay || m[2] || '').trim(),
+                                    trangThai: m.trangThai || m[3] || 'Sẵn sàng',
+                                    sheetIndex: m.sheetIndex !== undefined ? m.sheetIndex : i
+                                }))
+                                .filter(m => m.tenLoai && m.tenLoai.toLowerCase() !== 'undefined' && m.tenLoai.toLowerCase() !== 'null' && m.maMay && m.maMay.toLowerCase() !== 'undefined');
                             if (typeof renderMachinesTable === 'function') renderMachinesTable();
                         }
                         if (b.rooms && Array.isArray(b.rooms)) {
@@ -1635,7 +1656,16 @@ window.showGlobalLoading = function (text) {
                         if (cacheKey === 'pat' || cacheKey === 'staff') {
                             cleaned = rawData.filter(item => item && item.ten && String(item.ten).trim() !== '');
                         } else if (cacheKey === 'machine') {
-                            cleaned = rawData.filter(item => item && (item.tenLoai || item[1]) && String(item.tenLoai || item[1]).trim() !== '');
+                            cleaned = rawData
+                                .filter(item => item && (item.tenLoai || item[1]))
+                                .map((m, i) => ({
+                                    id: m.id || m[0] || (i + 1),
+                                    tenLoai: String(m.tenLoai || m[1] || '').trim(),
+                                    maMay: String(m.maMay || m[2] || '').trim(),
+                                    trangThai: m.trangThai || m[3] || 'Sẵn sàng',
+                                    sheetIndex: m.sheetIndex !== undefined ? m.sheetIndex : i
+                                }))
+                                .filter(m => m.tenLoai && m.tenLoai.toLowerCase() !== 'undefined' && m.tenLoai.toLowerCase() !== 'null' && m.maMay && m.maMay.toLowerCase() !== 'undefined');
                         } else if (cacheKey === 'room') {
                             cleaned = rawData.filter(item => item && (item.tenPhong || item[1]) && String(item.tenPhong || item[1]).trim() !== '');
                         } else if (cacheKey === 'proc') {
@@ -1760,7 +1790,12 @@ window.showGlobalLoading = function (text) {
 
                 staff: () => { document.getElementById('btn-save-staff').innerText = "Thêm"; document.getElementById('btn-cancel-staff').style.display = "none"; document.getElementById('staff-quyen').value = 'Cả hai'; document.getElementById('staff-role').value = 'Bác sĩ'; document.getElementById('staff-status').value = 'Đi làm'; },
 
-                room: () => { document.getElementById('btn-save-room').innerText = "Thêm"; document.getElementById('btn-cancel-room').style.display = "none"; },
+                room: () => {
+                    document.getElementById('btn-save-room').innerText = "Thêm";
+                    document.getElementById('btn-cancel-room').style.display = "none";
+                    document.querySelectorAll('.room-machine-input').forEach(inp => inp.value = '');
+                    document.querySelectorAll('.room-doc-cb, .room-stf-cb').forEach(cb => cb.checked = false);
+                },
 
                 pat: () => {
 
@@ -1886,23 +1921,15 @@ window.showGlobalLoading = function (text) {
         }
 
         function editRoomMachine(index) {
-
             editIndex.machine = index;
-
             const item = dataCache.machine[index];
-
-            document.getElementById('machine-type').value = String(item.tenLoai).trim();
-
-            document.getElementById('machine-code').value = String(item.maMay).trim();
-
-            document.getElementById('machine-status').value = item.trangThai;
-
+            if (!item) return;
+            document.getElementById('machine-type').value = String(item.tenLoai || item[1] || '').trim();
+            document.getElementById('machine-code').value = String(item.maMay || item[2] || '').trim();
+            document.getElementById('machine-status').value = item.trangThai || item[3] || 'Sẵn sàng';
             document.getElementById('group-qty').style.display = 'none';
-
             document.getElementById('btn-save-machine').innerText = "Lưu Sửa";
-
             document.getElementById('btn-cancel-machine').style.display = "inline-block";
-
         }
 
         function deleteMachine(i) {
@@ -1945,23 +1972,47 @@ window.showGlobalLoading = function (text) {
         }
 
         function renderDynamicMachineInputs() {
-
             const container = document.getElementById('dynamic-machine-inputs');
+            if (!container) return;
 
-            if (!container || !dataCache.machine) return;
+            // Giữ lại số lượng đã điền nếu có (tránh mất khi auto-sync chạy ngầm)
+            const currentVals = {};
+            container.querySelectorAll('.room-machine-input').forEach(inp => {
+                const dt = (inp.getAttribute('data-type') || '').trim().toLowerCase();
+                if (dt && inp.value) currentVals[dt] = inp.value;
+            });
 
-            const types = [...new Set(dataCache.machine.map(m => String(m.tenLoai).trim()).filter(t => t !== ''))];
+            if (!dataCache || !dataCache.machine || !Array.isArray(dataCache.machine) || dataCache.machine.length === 0) {
+                container.innerHTML = '<span style="color:#888; font-style:italic; font-size:11px; grid-column:span 2;">(Chưa có danh sách máy)</span>';
+                return;
+            }
+
+            const rawTypes = dataCache.machine
+                .map(m => {
+                    if (!m) return '';
+                    const val = m.tenLoai || m[1] || '';
+                    return String(val).trim();
+                })
+                .filter(t => t && t !== '' && t.toLowerCase() !== 'undefined' && t.toLowerCase() !== 'null');
+
+            const types = [...new Set(rawTypes)];
+
+            if (types.length === 0) {
+                container.innerHTML = '<span style="color:#888; font-style:italic; font-size:11px; grid-column:span 2;">(Chưa có danh sách máy)</span>';
+                return;
+            }
 
             container.innerHTML = types.map(type => `
-
-        <div style="display:flex; justify-content:space-between; align-items:center" title="${type}">
-
-            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80px; text-transform:capitalize;">${type}</span>:
-
-            <input type="number" class="room-machine-input" data-type="${type.toLowerCase()}" min="0" style="width:40px; padding:2px">
-
+        <div style="display:flex; justify-content:space-between; align-items:center" title="${escapeHtml(type)}">
+            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80px; text-transform:capitalize;">${escapeHtml(type)}</span>:
+            <input type="number" class="room-machine-input" data-type="${escapeHtml(type.toLowerCase())}" min="0" style="width:40px; padding:2px">
         </div>`).join('');
 
+            // Phục hồi lại các giá trị đã nhập
+            Object.keys(currentVals).forEach(dt => {
+                const inp = container.querySelector(`.room-machine-input[data-type="${dt}"]`);
+                if (inp) inp.value = currentVals[dt];
+            });
         }
 
 
@@ -2422,163 +2473,131 @@ window.showGlobalLoading = function (text) {
         }
 
         function renderRoomsTable_Original() {
-
             const tbody = document.getElementById('rooms-list');
-
             if (!tbody) return;
 
             const roomSelect = document.getElementById('pat-room');
-
             if (roomSelect) {
                 const currentVal = roomSelect.value;
-                const options = dataCache.room.map(r => { const ten = String(r.tenPhong || r[1] || '').trim(); return `<option value="${escapeHtml(ten)}">${escapeHtml(ten)}</option>`; }).join('');
+                const options = (dataCache.room || []).map(r => { const ten = String(r.tenPhong || r[1] || '').trim(); return `<option value="${escapeHtml(ten)}">${escapeHtml(ten)}</option>`; }).join('');
                 roomSelect.innerHTML = `<option value="">-- Chọn phòng --</option>` + options;
                 if (currentVal) roomSelect.value = currentVal;
             }
 
-            if (!dataCache.room.length) { tbody.innerHTML = renderEmptyRow(6, 'Chưa có dữ liệu phòng'); return; }
+            if (typeof renderDynamicMachineInputs === 'function') renderDynamicMachineInputs();
+
+            if (!dataCache.room || !dataCache.room.length) { tbody.innerHTML = renderEmptyRow(6, 'Chưa có dữ liệu phòng'); return; }
 
             tbody.innerHTML = dataCache.room.map((item, i) => {
-
                 const idx = dataCache.room.indexOf(item);
-
                 return `<tr class="editable-row" onclick="editRoom(${idx})" title="Bấm sửa (Phím Delete để xóa)">
-
             <td>${i + 1}</td><td><strong>${escapeHtml(item.tenPhong || item[1] || '')}</strong></td>
-
             <td>${escapeHtml(item.bacSi || item[2] || '')}</td>
-
-            <td style="font-size:11px">${item.ktv || item[3] || ''}</td>
-
+            <td style="font-size:11px">${escapeHtml(item.ktv || item[3] || '')}</td>
             <td style="font-size:11px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(item.danhSachMay || item[4] || '')}</td>
-
             <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteRoom(${idx})">Xóa</button></td>
-
         </tr>`;
-
             }).join('');
-
         }
 
         function saveRoom() {
-            
-
-            const ten = document.getElementById('room-name').value;
-
+            const ten = (document.getElementById('room-name').value || '').trim();
             const slGiuong = parseInt(document.getElementById('room-beds').value) || 0;
-
             if (!ten) return alert("Nhập tên phòng");
 
             const bs = Array.from(document.querySelectorAll('.room-doc-cb:checked')).map(cb => cb.value).join(', ');
-
             const ktv = Array.from(document.querySelectorAll('.room-stf-cb:checked')).map(cb => cb.value).join(', ');
-
             const roomIdx = editIndex.room > -1 ? editIndex.room : dataCache.room.length;
 
             let usedBeds = 0;
-
-            for (let i = 0; i < roomIdx; i++) usedBeds += parseInt(dataCache.room[i].soGiuong) || 0;
+            for (let i = 0; i < roomIdx; i++) {
+                const r = dataCache.room[i];
+                if (r) usedBeds += parseInt(r.soGiuong || r[5]) || 0;
+            }
 
             const dsGiuong = Array.from({ length: slGiuong }, (_, i) => "G" + (usedBeds + i + 1)).join(', ');
-
             let finalMachineList = [];
 
             document.querySelectorAll('.room-machine-input').forEach(inp => {
-
                 let reqQty = parseInt(inp.value) || 0;
-
                 if (!reqQty) return;
 
-                const typeName = inp.getAttribute('data-type').toLowerCase().trim();
+                const typeName = (inp.getAttribute('data-type') || '').toLowerCase().trim();
+                if (!typeName || typeName === 'undefined' || typeName === 'null') return;
 
-                const machinesOfType = (dataCache.machine || []).filter(m => String(m.tenLoai).toLowerCase().trim() === typeName).map(m => String(m.maMay).trim());
+                const machinesOfType = (dataCache.machine || []).filter(m => {
+                    if (!m) return false;
+                    const mType = String(m.tenLoai || m[1] || '').toLowerCase().trim();
+                    return mType === typeName;
+                }).map(m => String(m.maMay || m[2] || '').trim()).filter(code => code && code.toLowerCase() !== 'undefined');
 
                 let usedCount = 0;
-
                 for (let i = 0; i < roomIdx; i++) {
-
-                    (dataCache.room[i].danhSachMay || '').split(',').map(x => x.trim()).forEach(code => {
-
-                        const found = (dataCache.machine || []).find(m => String(m.maMay).trim() === code);
-
-                        if (found && String(found.tenLoai).toLowerCase().trim() === typeName) usedCount++;
-
+                    const r = dataCache.room[i];
+                    if (!r) continue;
+                    (r.danhSachMay || r[4] || '').split(',').map(x => x.trim()).filter(Boolean).forEach(code => {
+                        const found = (dataCache.machine || []).find(m => String(m.maMay || m[2] || '').trim() === code);
+                        if (found) {
+                            const foundType = String(found.tenLoai || found[1] || '').toLowerCase().trim();
+                            if (foundType === typeName) usedCount++;
+                        }
                     });
-
                 }
 
                 const assigned = machinesOfType.slice(usedCount, usedCount + reqQty);
-
                 if (assigned.length < reqQty) alert(`⚠️ Kho thiếu máy [${typeName.toUpperCase()}]! Còn ${machinesOfType.length - usedCount} máy rảnh.`);
-
                 finalMachineList = finalMachineList.concat(assigned);
-
             });
 
             const dsMay = finalMachineList.join(', ');
 
             if (editIndex.room > -1) {
-
-                const oldName = dataCache.room[editIndex.room].tenPhong;
-
+                const oldName = dataCache.room[editIndex.room].tenPhong || dataCache.room[editIndex.room][1];
                 dataCache.room[editIndex.room] = { tenPhong: ten, bacSi: bs, ktv, danhSachMay: dsMay, soGiuong: slGiuong, danhSachGiuong: dsGiuong };
-
                 if (oldName !== ten && dataCache.pat) {
-
-                    dataCache.pat.forEach(p => { if (String(p.phong).trim() === String(oldName).trim()) p.phong = ten; });
-
+                    dataCache.pat.forEach(p => { if (String(p.phong || p[8] || '').trim() === String(oldName).trim()) p.phong = ten; });
                     if (typeof renderPatientsTable === 'function') renderPatientsTable();
-
                 }
-
                 google.script.run.editPhong(editIndex.room, ten, bs, ktv, dsMay, slGiuong, dsGiuong);
-
             } else {
-
                 dataCache.room.push({ tenPhong: ten, bacSi: bs, ktv, danhSachMay: dsMay, soGiuong: slGiuong, danhSachGiuong: dsGiuong });
-
                 google.script.run.addPhong(ten, bs, ktv, dsMay, slGiuong, dsGiuong);
-
             }
 
             cancelEdit('room'); renderRoomsTable();
-
         }
 
         function editRoom(index) {
-
             editIndex.room = index;
-
             const item = dataCache.room[index];
+            if (!item) return;
 
-            document.getElementById('room-name').value = item.tenPhong;
-
-            document.getElementById('room-beds').value = item.soGiuong || 0;
-
+            document.getElementById('room-name').value = item.tenPhong || item[1] || '';
+            document.getElementById('room-beds').value = item.soGiuong || item[5] || 0;
             document.querySelectorAll('.room-doc-cb, .room-stf-cb').forEach(cb => cb.checked = false);
 
-            if (item.bacSi) item.bacSi.split(',').forEach(b => { const cb = document.querySelector(`.room-doc-cb[value="${b.trim()}"]`); if (cb) cb.checked = true; });
+            const bs = item.bacSi || item[2] || '';
+            if (bs) bs.split(',').forEach(b => { const cb = document.querySelector(`.room-doc-cb[value="${b.trim()}"]`); if (cb) cb.checked = true; });
 
-            if (item.ktv) item.ktv.split(',').forEach(k => { const cb = document.querySelector(`.room-stf-cb[value="${k.trim()}"]`); if (cb) cb.checked = true; });
+            const ktv = item.ktv || item[3] || '';
+            if (ktv) ktv.split(',').forEach(k => { const cb = document.querySelector(`.room-stf-cb[value="${k.trim()}"]`); if (cb) cb.checked = true; });
 
             document.querySelectorAll('.room-machine-input').forEach(inp => inp.value = '');
 
-            if (item.danhSachMay && dataCache.machine) {
-
-                item.danhSachMay.split(',').map(x => x.trim()).filter(x => x).forEach(code => {
-
-                    const m = dataCache.machine.find(x => String(x.maMay).trim() === code);
-
-                    if (m) { const inp = document.querySelector(`.room-machine-input[data-type="${String(m.tenLoai).toLowerCase().trim()}"]`); if (inp) inp.value = (parseInt(inp.value) || 0) + 1; }
-
+            const dsMay = item.danhSachMay || item[4] || '';
+            if (dsMay && dataCache.machine) {
+                dsMay.split(',').map(x => x.trim()).filter(Boolean).forEach(code => {
+                    const m = dataCache.machine.find(x => String(x.maMay || x[2] || '').trim() === code);
+                    if (m) {
+                        const mType = String(m.tenLoai || m[1] || '').toLowerCase().trim();
+                        const inp = document.querySelector(`.room-machine-input[data-type="${mType}"]`);
+                        if (inp) inp.value = (parseInt(inp.value) || 0) + 1;
+                    }
                 });
-
             }
 
             document.getElementById('btn-save-room').innerText = "Lưu Sửa";
-
             document.getElementById('btn-cancel-room').style.display = "inline-block";
-
         }
 
         function deleteRoom(i) {
@@ -5131,9 +5150,12 @@ window.showGlobalLoading = function (text) {
 
             tbody.innerHTML = '';
 
-            const may_thuoc_loai = dataCache.machine.filter(m => m.tenLoai.trim() === loai.trim() &&
-
-                m.trangThai === 'Sẵn sàng').map(m => m.maMay);
+            const may_thuoc_loai = (dataCache.machine || []).filter(m => {
+                if (!m) return false;
+                const mType = String(m.tenLoai || m[1] || '').trim().toLowerCase();
+                const status = m.trangThai || m[3] || 'Sẵn sàng';
+                return mType === loai.trim().toLowerCase() && status === 'Sẵn sàng';
+            }).map(m => String(m.maMay || m[2] || '').trim()).filter(Boolean);
 
             if (!may_thuoc_loai.length) {
                 tbody.innerHTML = `<tr> <td colspan="2" align="center" style="color:#c0392b; font-weight:bold;">Máy đang hỏng/bảo

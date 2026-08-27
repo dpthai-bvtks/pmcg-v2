@@ -18,3 +18,11 @@ Sau mỗi phiên làm việc hoặc khi giải quyết xong một vấn đề l�
 
 ## 4. 🧹 Dọn dẹp thư mục (Cleanup)
 - Sau khi hoàn thành yêu cầu, **bắt buộc** phải xóa bỏ mọi file script tạm thời, file test hoặc file rác được AI tạo ra trong quá trình debug. Giữ cho thư mục làm việc của dự án luôn sạch sẽ và nguyên trạng.
+
+## 5. 🏷️ Đồng bộ số phiên bản & Thời gian cập nhật (Version & Timestamp Synchronization)
+- Mỗi khi có bản nâng cấp hoặc sửa lỗi mới, **bắt buộc**:
+  + Đồng bộ tăng số phiên bản ở phần **Footer** (`🏷️ Phiên bản: X.XX` trong `index.html`).
+  + Cập nhật chính xác ngày giờ hiện tại tại dòng **Cập nhật lần cuối** ở **Footer** (`⏱ Cập nhật lần cuối: HH:mm DD/MM/YYYY` trong `index.html`).
+  + Đồng bộ phiên bản cho **toàn bộ các thẻ tài nguyên** (`css/style.css?v=X.XX`, `js/app.js?v=X.XX`, `favicon...`, v.v.) để chống lưu cache trình duyệt cũ.
+
+
